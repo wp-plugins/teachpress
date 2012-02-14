@@ -129,7 +129,6 @@ function tp_enrollments_shortcode($atts) {
                            <td><label for="course_of_studies">' . __('Course of studies','teachpress') . '</label></td>
                            <td>
                            <select name="course_of_studies" id="course_of_studies">';
-            global $teachpress_settings;
             $rowstud = "SELECT value FROM " . $teachpress_settings . " WHERE category = 'course_of_studies'";
             $rowstud = $wpdb->get_results($rowstud);
             foreach ($rowstud as $rowstud) {
@@ -767,9 +766,6 @@ function tp_date_shortcode($attr) {
 */ 
 function tp_single_shortcode ($atts) {
    global $teachpress_pub;
-   global $teachpress_tags;
-   global $teachpress_relation;
-   global $teachpress_settings;
    global $wpdb;
    // Shortcode options
    extract(shortcode_atts(array(
@@ -856,19 +852,20 @@ function tp_generate_pub_table($tparray, $tpz, $headline, $row_year, $colspan) {
 /** 
  * Publication list with tag cloud
  * @param $atts (ARRAY) with: 
- *   user (INT) => 0 for all publications of all users, default: 0
- *   type (STRING) => a publication type
- *   order (STRING) => name, year, bibtex or type, default: date DESC
- *   headline (INT) => show headlines with years(1) with publication types(2) or not(0), default: 1
- *   maxsize (INT) => maximal font size for the tag cloud, default: 35
- *   minsize (INT) => minimal font size for the tag cloud, default: 11
- *   limit (INT) => Number of tags, default: 30
- *   image (STRING) => none, left, right or bottom, default: none 
- *   image_size (INT) => max. Image size, default: 0
- *   anchor (INT) => 0 (false) or 1 (true), default: 1
- *   author_name (STRING) => simple, last, initials or old, default: old
- *   editor_name (STRING) => simple, last, initials or old, default: old
- *   style (STRING) => simple or std, default: std
+ *   user (INT)             => 0 for all publications of all users, default: 0
+ *   type (STRING)          => a publication type
+ *   exclude (STRING)       => a string with one or more IDs of publication you don't want to display
+ *   order (STRING)         => name, year, bibtex or type, default: date DESC
+ *   headline (INT)         => show headlines with years(1) with publication types(2) or not(0), default: 1
+ *   maxsize (INT)          => maximal font size for the tag cloud, default: 35
+ *   minsize (INT)          => minimal font size for the tag cloud, default: 11
+ *   limit (INT)            => Number of tags, default: 30
+ *   image (STRING)         => none, left, right or bottom, default: none 
+ *   image_size (INT)       => max. Image size, default: 0
+ *   anchor (INT)           => 0 (false) or 1 (true), default: 1
+ *   author_name (STRING)   => simple, last, initials or old, default: old
+ *   editor_name (STRING)   => simple, last, initials or old, default: old
+ *   style (STRING)         => simple or std, default: std
  * $_GET: $yr (Year, INT), $type (Type, STRING), $autor (Author, INT)
  * @return STRING
 */
@@ -876,7 +873,6 @@ function tp_cloud_shortcode($atts) {
    global $teachpress_pub;
    global $teachpress_tags;
    global $teachpress_relation;
-   global $teachpress_settings;
    global $teachpress_user;
    global $pagenow;
    global $wpdb;
@@ -886,6 +882,7 @@ function tp_cloud_shortcode($atts) {
       'id' => 0,
       'user' => 0,
       'type' => 'all',
+      'exclude' => '', 
       'order' => 'date DESC',
       'headline' => '1', 
       'maxsize' => 35,
@@ -901,7 +898,6 @@ function tp_cloud_shortcode($atts) {
    $user = $id; // switch to the new parameter
    settype($user, 'integer');
    $sort_type = tp_sec_var($type);
-   
    // tgid - shows the current tag
    if ( isset ($_GET['tgid']) ) {
         $tgid = tp_sec_var( $_GET['tgid'], 'integer' );
@@ -971,6 +967,19 @@ function tp_cloud_shortcode($atts) {
    }
    $order = substr($order, 0, -2);
    // END define order_by clause
+   // excludes
+   $exclude = tp_sec_var($exclude);
+   $ex = '';
+   if ( $exclude != '' ) {
+        $array = explode(',', $exclude);
+        foreach ( $array as $element ) {
+            $element = trim ( $element );
+            settype($element, 'integer');
+            if ( $element != 0 ) {
+                $ex = $ex == '' ? "p.pub_id != '$element'" : $ex . " AND p.pub_id != '$element'";
+            }
+        }
+   }
    // if permalinks are off
    if (is_page()) {
       $page = "page_id";
@@ -1007,31 +1016,69 @@ function tp_cloud_shortcode($atts) {
 
    // List of tags DESC
    if ($user == '0') {
-           if ( $sort_type == "all" ) {
-                   $sql = "SELECT anzahlTags FROM ( SELECT COUNT(*) AS anzahlTags FROM " . $teachpress_relation . " GROUP BY " . $teachpress_relation . ".`tag_id` ORDER BY anzahlTags DESC ) as temp1 GROUP BY anzahlTags ORDER BY anzahlTags DESC";
-           }
-           else {
-                   $sql = "SELECT anzahlTags FROM ( SELECT COUNT(*) AS anzahlTags FROM " . $teachpress_relation . " b  LEFT JOIN " . $teachpress_tags . " t ON b.tag_id = t.tag_id INNER JOIN " . $teachpress_pub . " p ON p.pub_id = b.pub_id " . $where . " GROUP BY b.tag_id ORDER BY anzahlTags DESC ) as temp1 GROUP BY anzahlTags ORDER BY anzahlTags DESC";
-           }
+        if ( $sort_type == "all" ) {
+            $sql = "SELECT anzahlTags FROM ( 
+                        SELECT COUNT(*) AS anzahlTags 
+                        FROM " . $teachpress_relation . " 
+                        GROUP BY " . $teachpress_relation . ".`tag_id` 
+                        ORDER BY anzahlTags DESC ) as temp1 
+                    GROUP BY anzahlTags 
+                    ORDER BY anzahlTags DESC";
+        }
+        else {
+            $sql = "SELECT anzahlTags FROM ( 
+                        SELECT COUNT(*) AS anzahlTags 
+                        FROM " . $teachpress_relation . " b  
+                        LEFT JOIN " . $teachpress_tags . " t ON b.tag_id = t.tag_id 
+                        INNER JOIN " . $teachpress_pub . " p ON p.pub_id = b.pub_id " . $where . " 
+                        GROUP BY b.tag_id ORDER BY anzahlTags DESC ) as temp1 
+                    GROUP BY anzahlTags 
+                    ORDER BY anzahlTags DESC";
+        }
    }
    else {
-           $sql = "SELECT anzahlTags FROM ( SELECT COUNT(*) AS anzahlTags FROM " . $teachpress_relation . " b  LEFT JOIN " . $teachpress_tags . " t ON b.tag_id = t.tag_id INNER JOIN " . $teachpress_pub . " p ON p.pub_id = b.pub_id INNER JOIN " . $teachpress_user . " u ON u.pub_id = p.pub_id  WHERE u.user = '$user' " . $where . " GROUP BY b.tag_id ORDER BY anzahlTags DESC ) as temp1 GROUP BY anzahlTags ORDER BY anzahlTags DESC";
+        $sql = "SELECT anzahlTags FROM ( 
+                    SELECT COUNT(*) AS anzahlTags FROM " . $teachpress_relation . " b  
+                    LEFT JOIN " . $teachpress_tags . " t ON b.tag_id = t.tag_id 
+                    INNER JOIN " . $teachpress_pub . " p ON p.pub_id = b.pub_id 
+                    INNER JOIN " . $teachpress_user . " u ON u.pub_id = p.pub_id  
+                    WHERE u.user = '$user' " . $where . " GROUP BY b.tag_id 
+                    ORDER BY anzahlTags DESC ) as temp1 
+                GROUP BY anzahlTags 
+                ORDER BY anzahlTags DESC";
    }
-   // occurrence of the tags and Min occurrence und Max occurrence
-   $sql = "SELECT MAX(anzahlTags) AS max, min(anzahlTags) AS min, COUNT(anzahlTags) as gesamt FROM (".$sql.") AS temp";
+   // Read Min occurrence and Max occurrence
+   $sql = "SELECT MAX(anzahlTags) AS max, min(anzahlTags) AS min FROM (".$sql.") AS temp";
    $tagcloud_temp = $wpdb->get_row($sql, ARRAY_A);
    $max = $tagcloud_temp['max'];
    $min = $tagcloud_temp['min'];
 
-   $insgesamt = $tagcloud_temp['gesamt'];
-
    // Create a list with the tags and their occurcence
    // 0 for all publications
    if ($user == '0') {
-      $sql = "SELECT tagPeak, name, tag_id FROM ( SELECT COUNT(b.tag_id) as tagPeak, t.name AS name,  t.tag_id as tag_id FROM " . $teachpress_relation . " b LEFT JOIN " . $teachpress_tags . " t ON b.tag_id = t.tag_id INNER JOIN " . $teachpress_pub . " p ON p.pub_id = b.pub_id " . $where . " GROUP BY b.tag_id ORDER BY tagPeak DESC LIMIT " . $limit . " ) AS temp WHERE tagPeak>=".$min." ORDER BY name";
+      $sql = "SELECT tagPeak, name, tag_id FROM ( 
+                SELECT COUNT(b.tag_id) as tagPeak, t.name AS name,  t.tag_id as tag_id 
+                FROM " . $teachpress_relation . " b 
+                LEFT JOIN " . $teachpress_tags . " t ON b.tag_id = t.tag_id 
+                INNER JOIN " . $teachpress_pub . " p ON p.pub_id = b.pub_id " . $where . " 
+                GROUP BY b.tag_id 
+                ORDER BY tagPeak DESC 
+                LIMIT " . $limit . " ) AS temp 
+              WHERE tagPeak>=".$min." 
+              ORDER BY name";
    }
    else {
-      $sql = "SELECT tagPeak, name, tag_id FROM ( SELECT COUNT(b.tag_id) as tagPeak, t.name AS name, t.tag_id as tag_id FROM " . $teachpress_relation . " b LEFT JOIN " . $teachpress_tags . " t ON b.tag_id = t.tag_id INNER JOIN " . $teachpress_pub . " p ON p.pub_id = b.pub_id INNER JOIN " . $teachpress_user . " u ON u.pub_id = p.pub_id  WHERE u.user = '$user' " . $where . " GROUP BY b.tag_id ORDER BY tagPeak DESC LIMIT " . $limit . " ) AS temp WHERE tagPeak>=".$min." ORDER BY name";
+      $sql = "SELECT tagPeak, name, tag_id FROM ( 
+                SELECT COUNT(b.tag_id) as tagPeak, t.name AS name, t.tag_id as tag_id 
+                FROM " . $teachpress_relation . " b 
+                LEFT JOIN " . $teachpress_tags . " t ON b.tag_id = t.tag_id 
+                INNER JOIN " . $teachpress_pub . " p ON p.pub_id = b.pub_id 
+                INNER JOIN " . $teachpress_user . " u ON u.pub_id = p.pub_id  
+                WHERE u.user = '$user' " . $where . " 
+                GROUP BY b.tag_id ORDER BY tagPeak DESC 
+                LIMIT " . $limit . " ) AS temp 
+              WHERE tagPeak>=".$min." 
+              ORDER BY name";
    }
    $temp = $wpdb->get_results($sql, ARRAY_A);
    $asg = '';
@@ -1100,12 +1147,14 @@ function tp_cloud_shortcode($atts) {
 
    // Filter year
    if ($user == 0) {
-      $row_year = $wpdb->get_results("SELECT DISTINCT DATE_FORMAT(p.date, '%Y') AS jahr FROM " . $teachpress_pub . " p ORDER BY jahr DESC");
+      $where = $ex != '' ? "WHERE " . $ex . "" : ''; 
+      $row_year = $wpdb->get_results("SELECT DISTINCT DATE_FORMAT(p.date, '%Y') AS jahr FROM " . $teachpress_pub . " p $where ORDER BY jahr DESC");
    }
    else {
+      $where = $ex != '' ? "AND " . $ex . "" : '';  
       $row_year = $wpdb->get_results("SELECT DISTINCT DATE_FORMAT(p.date, '%Y') AS jahr FROM " . $teachpress_pub . "  p
                                      INNER JOIN " . $teachpress_user . " u ON u.pub_id=p.pub_id
-                                     WHERE u.user = '$user'
+                                     WHERE u.user = '$user' $where
                                      ORDER BY jahr DESC");
    }
    $options = '';
@@ -1129,12 +1178,14 @@ function tp_cloud_shortcode($atts) {
    // Filter type
    if ($sort_type == 'all') {
       if ($user == 0) {
-         $row = $wpdb->get_results("SELECT DISTINCT p.type FROM " . $teachpress_pub . " p ORDER BY p.type ASC");
+         $where = $ex != '' ? "WHERE " . $ex . "" : ''; 
+         $row = $wpdb->get_results("SELECT DISTINCT p.type FROM " . $teachpress_pub . " p $where ORDER BY p.type ASC");
       }
       else {
+         $where = $ex != '' ? "AND " . $ex . "" : ''; 
          $row = $wpdb->get_results("SELECT DISTINCT p.type from " . $teachpress_pub . "  p
                                         INNER JOIN " . $teachpress_user . " u ON u.pub_id=p.pub_id
-                                        WHERE u.user = '$user'
+                                        WHERE u.user = '$user' $where
                                         ORDER BY p.type ASC");
       }
       $current = '';	
@@ -1207,103 +1258,79 @@ function tp_cloud_shortcode($atts) {
    /************************/
    /* List of publications */
    /************************/
-
+   
+   $select = "SELECT DISTINCT p.pub_id, p.name, p.type, p.bibtex, p.author, p.editor, p.date, DATE_FORMAT(p.date, '%Y') AS jahr, p.isbn , p.url, p.booktitle, p.journal, p.volume, p.number, p.pages, p.publisher, p.address, p.edition, p.chapter, p.institution, p.organization, p.school, p.series, p.crossref, p.abstract, p.howpublished, p.key, p.techtype, p.note, p.is_isbn, p.image_url, p.rel_page 
+              FROM " . $teachpress_relation . " b ";
+   $join = "INNER JOIN " . $teachpress_tags . " t ON t.tag_id = b.tag_id
+            INNER JOIN " . $teachpress_pub . " p ON p.pub_id = b.pub_id ";
+   $where = "";
+   
    // define where clause
-   if ( $sort_type == 'all' ) {
-      $where = "";
+   if ( $yr != 0 && $yr != '' ) {
+       $where = "(p.date BETWEEN '$yr-01-01' AND '$yr-12-31')";
    }
-   else {
-      if ( $user == 0 && ( $tgid == "" || $tgid == 0 ) ) {
-         $where = " WHERE p.type = '" . $sort_type . "' ";
-      }
-      else {
-         $where = "AND p.type = '" . $sort_type . "'";
-      }
+   if ( $type != '0' && $sort_type == '' ) {
+       $and = $where == '' ? '' : ' AND '; 
+       $where = $where . $and . 'p.type = ' . $str . '' . $type . '' . $str . '';
+   }
+   if ( $sort_type != 'all' ) {
+       $and = $where == '' ? '' : ' AND '; 
+       $where = $where . $and . "p.type = '$sort_type'";
+   }
+   if ( $ex != '' ) {
+       $where = $where != '' ? $where . ' AND ' . $ex : $ex;
    }
    // END define where clause
-
-   // heed the filter
-   // after year
-   if ($yr == '' || $yr == 0) {
-      $select_year = '';
-   }
-   else {
-      $select_year = "(p.date BETWEEN '" . $yr . "-01-01' AND '" . $yr . "-12-31')";
-   }
-   // after type
-   if ($type == '0') {
-      $select_type = '';
-   }
-   else {
-      $select_type = 'p.type = ' . $str . '' . $type . '' . $str . '';
-   }
-   if ($select_year != '') {
-      if ($select_type != '') {
-         $zusatz1 = "WHERE " . $select_year . " AND " . $select_type . " ";
-         $zusatz2 = "AND " . $select_year . " AND " . $select_type . "";
-      }
-      else {
-         $zusatz1 = "WHERE " . $select_year . " ";
-         $zusatz2 = "AND " . $select_year . "";
-      }
-   }
-   else {
-      if ($select_type != '') {
-         $zusatz1 = "WHERE " . $select_type . " ";
-         $zusatz2 = "AND " . $select_type . "";
-      }
-      else {
-         $zusatz1 = "";
-         $zusatz2 = "";
-      }
-   }
    // change the id
    if ($author != 0) {
       $user = $author;
    }
-   $select = "SELECT DISTINCT p.pub_id, p.name, p.type, p.bibtex, p.author, p.editor, p.date, DATE_FORMAT(p.date, '%Y') AS jahr, p.isbn , p.url, p.booktitle, p.journal, p.volume, p.number, p.pages, p.publisher, p.address, p.edition, p.chapter, p.institution, p.organization, p.school, p.series, p.crossref, p.abstract, p.howpublished, p.key, p.techtype, p.note, p.is_isbn, p.image_url, p.rel_page 
-              FROM " . $teachpress_relation . " b ";
-   $join1 = "INNER JOIN " . $teachpress_tags . " t ON t.tag_id = b.tag_id
-             INNER JOIN " . $teachpress_pub . " p ON p.pub_id = b.pub_id ";		
    // If a tag is not selected
    if ($tgid == "" || $tgid == 0) {
       // all publications
       if ($user == 0) {
-         $row =  "" . $select . "" . $join1 . "" . $zusatz1 . "" . $where . "ORDER BY " . $order . "";
+         $where = $where != '' ? " WHERE " . $where : "";
+         $row =  "" . $select . "" . $join . "" . $where . " ORDER BY " . $order . "";
       }
       // publications of one author
       else {
-      $row = "" . $select . "" . $join1 . "
+         $where = $where != '' ? " AND " . $where : ""; 
+         $row = "" . $select . "" . $join . "
               INNER JOIN " . $teachpress_user . " u ON u.pub_id= b.pub_id
-              WHERE u.user = '$user' " . $zusatz2 . " " . $where . "
+              WHERE u.user = '$user' $where
               ORDER BY " . $order . "";
       }	
    }
    // If a tag is selected
    else {
       if ($user == 0) {
-      // all publications
-      $row = "" . $select . "" . $join1 . "
-              WHERE t.tag_id = '$tgid' " . $zusatz2 . " " . $where . "
+         // all publications
+         $where = $where != '' ? " AND " . $where : ""; 
+         $row = "" . $select . "" . $join . "
+              WHERE t.tag_id = '$tgid' $where
               ORDER BY " . $order . "";
       }
       // publications of one auhtors
       else {
-      $row = "" . $select . "" . $join1 . "
+         $where = $where != '' ? " AND " . $where : "";  
+         $row = "" . $select . "" . $join . "
               INNER JOIN " . $teachpress_user . " u ON u.pub_id = p.pub_id
-              WHERE u.user = '$user' AND t.tag_id = '$tgid' " . $zusatz2 . " " . $where . "
+              WHERE u.user = '$user' AND t.tag_id = '$tgid' $where
               ORDER BY " . $order . "";
       }	
    }
    $row = $wpdb->get_results($row, ARRAY_A);
-   $sql = "SELECT name, tag_id, pub_id FROM (SELECT t.name AS name, t.tag_id AS tag_id, b.pub_id AS pub_id FROM " . $teachpress_tags . " t LEFT JOIN " . $teachpress_relation . " b ON t.tag_id = b.tag_id ) as temp";
+   $sql = "SELECT name, tag_id, pub_id FROM (
+            SELECT t.name AS name, t.tag_id AS tag_id, b.pub_id AS pub_id 
+            FROM " . $teachpress_tags . " t 
+            LEFT JOIN " . $teachpress_relation . " b ON t.tag_id = b.tag_id 
+           ) as temp";
    $all_tags = $wpdb->get_results($sql, ARRAY_A);
    $tpz = 0;
-   $jahr = 0;
    $colspan = '';
    if ($settings['image']== 'left' || $settings['image']== 'right') {
       $settings['pad_size'] = $image_size + 5;
-      $rowspan = ' colspan="2"';
+      $colspan = ' colspan="2"';
    }
    // Create array of publications
    foreach ($row as $row) {
@@ -1331,17 +1358,18 @@ function tp_cloud_shortcode($atts) {
 /** 
  * Publication list without tag cloud
  * @param ARRAY $atts
- *   user (INT) => 0 for all publications of all users, default: 0
- *   tag (INT) => tag-ID, default: 0
- *   type (STRING) => a publication type
- *   year (INT) => default: 0
- *   order (STRING) => name, year, bibtex or type, default: date DESC
- *   headline (INT) => show headlines with years(1) with publication types(2) or not(0), default: 1
- *   image (STRING) => none, left, right or bottom, default: none 
- *   image_size (INT) => max. Image size, default: 0
- *   author_name (STRING) => last, initials or old, default: old
- *   editor_name (STRING) => last, initials or old, default: old
- *   style (STRING) => simple or std, default: std
+ *   user (INT)             => 0 for all publications of all users, default: 0
+ *   tag (INT)              => tag-ID, default: 0
+ *   type (STRING)          => publication types (separated by comma)
+ *   exclude (STRING)       => a string with one or more IDs of publication you don't want to display
+ *   year (INT)             => default: 0 (=show all years)
+ *   order (STRING)         => name, year, bibtex or type, default: date DESC
+ *   headline (INT)         => show headlines with years(1) with publication types(2) or not(0), default: 1
+ *   image (STRING)         => none, left, right or bottom, default: none 
+ *   image_size (INT)       => max. Image size, default: 0
+ *   author_name (STRING)   => last, initials or old, default: old
+ *   editor_name (STRING)   => last, initials or old, default: old
+ *   style (STRING)         => simple or std, default: std
  * @return STRING
 */
 function tp_list_shortcode($atts){
@@ -1355,6 +1383,7 @@ function tp_list_shortcode($atts){
       'user' => 0,
       'tag' => 0,
       'type' => 'all',
+      'exclude' => '', 
       'year' => 0,
       'order' => 'date DESC',
       'headline' => 1,
@@ -1374,7 +1403,8 @@ function tp_list_shortcode($atts){
    settype($yr, 'integer');
    settype($headline, 'integer');
    settype($image_size, 'integer');
-   $sort_type = tp_sec_var($type); 
+   $sort_type = tp_sec_var($type);
+   $exclude = tp_sec_var($exclude);
    $order_all = tp_sec_var($order);
    $settings['author_name'] = tp_sec_var($author_name);
    $settings['editor_name'] = tp_sec_var($editor_name);
@@ -1386,43 +1416,57 @@ function tp_list_shortcode($atts){
    $order = '';
    $array = explode(",",$order_all);
    foreach($array as $element) {
-      $element = trim($element);
-      // rename year to real sql_name
-      if ( strpos($element, 'year') !== false ) {
-         $element = 'jahr';
-      }
-      // normal case
-      if ( $element != '' && $element != 'jahr' ) {
-         $order = $order . 'p.' . $element . ', ';
-      }
-      // case if headline is off and the user want to order by year
-      if ( $element == 'jahr' && $headline == 0 ) {
-         $order = $order . $element . ', ';
-      }
+        $element = trim($element);
+        // rename year to real sql_name
+        if ( strpos($element, 'year') !== false ) {
+            $element = 'jahr';
+        }
+        // normal case
+        if ( $element != '' && $element != 'jahr' ) {
+            $order = $order . 'p.' . $element . ', ';
+        }
+        // case if headline is off and the user want to order by year
+        if ( $element == 'jahr' && $headline == 0 ) {
+            $order = $order . $element . ', ';
+        }
    }
    if ( $headline == 1 && strpos($order, 'jahr') === false && $order != 'p.date DESC, ' ) {
-      $order = 'jahr DESC, ' . $order;
+        $order = 'jahr DESC, ' . $order;
    }
    if ( $headline == 2 ) {
-      $order = "p.type ASC, p.date DESC  ";
+        $order = "p.type ASC, p.date DESC  ";
    }
    $order = substr($order, 0, -2);
    // END define order_by clause
    
    // define where clause
    $where = "";
-   if ( $sort_type != 'all' ) {  
-      $sort_type = explode(',', $sort_type);
-      foreach ( $sort_type as $element ) {
-           $element = trim($element);
-           $where = $where == "" ? "p.type = '" . $element . "'" : $where . " OR p.type = '" . $element . "'";
-      }
-      if ( $userid == 0 || $tag_id != 0 ) {
-         $where = "WHERE " . $where . "";
-      }
-      else {
-         $where = "AND " . $where. "";
-      }
+   if ( $exclude != '' ) {
+        $array = explode(',', $exclude);
+        foreach ( $array as $element ) {
+            $element = trim ( $element );
+            settype($element, 'integer');
+            if ( $element != 0 ) {
+                $where = $where == '' ? "p.pub_id != '$element'" : $where . " AND p.pub_id != '$element'";
+            }
+        }
+   }
+   if ( $sort_type != 'all' ) {
+        $tp = "";
+        $sort_type = explode(',', $sort_type);
+        foreach ( $sort_type as $element ) {
+            $element = trim($element);
+            $tp = $tp == "" ? "p.type = '" . $element . "'" : $tp . " OR p.type = '" . $element . "'";
+        }
+        $where = $where == "" ? $tp : $where . " AND ( $tp )";
+   }
+   if ( $where != "" ) {
+        if ( $userid == 0 || $tag_id != 0 ) {
+            $where = "WHERE " . $where . "";
+        }
+        else {
+            $where = "AND " . $where. "";
+        }
    }
    // END define where clause
 
@@ -1465,7 +1509,7 @@ function tp_list_shortcode($atts){
    $colspan = '';
    if ($settings['image']== 'left' || $settings['image']== 'right') {
       $settings['pad_size'] = $image_size + 5;
-      $rowspan = ' colspan="2"';
+      $colspan = ' colspan="2"';
    }
    $row = $wpdb->get_results($row, ARRAY_A);
    foreach ($row as $row) {
