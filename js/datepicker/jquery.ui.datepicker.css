@@ -12,7 +12,7 @@
 .ui-datepicker td { border: 1px solid #DFDFDF; padding: 1px; }
 .ui-datepicker td.ui-datepicker-week-col { background-color: #DFDFDF; text-align: center; }
 .ui-datepicker td span, .ui-datepicker td a { display: block; padding: .2em; text-align: right; text-decoration: none; font-weight: bold; }
-.ui-datepicker td a:hover{ background-color: #333; color: #fff; }
+.ui-datepicker td a:hover, .ui-datepicker a.ui-state-active{ background-color: #333; color: #fff; }
 a.ui-state-highlight{background-color:#FBC2C4; }
 .ui-datepicker .ui-datepicker-buttonpane { background-image: none; margin: .7em 0 0 0; padding:0 .2em; border-left: 0; border-right: 0; border-bottom: 0; }
 .ui-datepicker .ui-datepicker-buttonpane button { float: right; margin: .5em .2em .4em; cursor: pointer; padding: .2em .6em .3em .6em; width:auto; overflow:visible; }
