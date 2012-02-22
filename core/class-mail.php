@@ -10,29 +10,43 @@ class tp_mail {
       * @param STRING $to
       * @param STRING $subject
       * @param STRING $message
+      * @param ARRAY $options
       * @param STRING $attachments
+      * @return BOOLEAN
       */
-     function sendMail($from, $to, $recipients_option, $subject, $message, $attachments = '') {
+     function sendMail($from, $to, $subject, $message, $options, $attachments = '') {
           global $current_user;
           get_currentuserinfo();
+          $message = htmlspecialchars($message);
           
+          if ( $from == '' || $message == '' ) {
+               return false;
+          }
+          
+          // Prepare header attribute: From
           if ( $from == 'currentuser' ) {
-               $headers = 'From: ' . $current_user->display_name . ' ' . utf8_decode(chr(60)) . $current_user->user_email . utf8_decode(chr(62)) . "\r\n";
+               $headers = 'From: ' . $current_user->display_name . ' <' . $current_user->user_email . '>' . "\r\n";
           }
           else {
                $headers = 'From: ' . get_bloginfo('name') . ' <' . get_bloginfo('admin_email') . '>' . "\r\n";
           }
           
-          if ( $recipients_option == 'BCC' ) {
+          // Preprare header attribute: Bcc, Cc
+          if ( $options['recipients'] == 'Bcc' ) {
                $headers = $headers . tp_mail::prepareBCC($to);
-               // Replace Recipients with the E-Mail Author
-               $to = '';
+               $to = $current_user->user_email;
+          }
+          else {
+               $headers = $headers . 'Cc: ' . $current_user->user_email . "\r\n";
           }
           
-          $message = htmlspecialchars($message);
-          if ($from != '') {
-               wp_mail($to, $subject, $message, $headers, $attachments);
+          // Send user a backup e-mail if he want
+          if ( $options['backup_mail'] == 'backup' ) {
+               wp_mail($current_user->user_email, $subject, $message, '', $attachments);
           }
+          
+          $ret = wp_mail($to, $subject, $message, $headers, $attachments);
+          return $ret;
      }
      
      /**

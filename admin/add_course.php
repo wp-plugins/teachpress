@@ -14,13 +14,13 @@ function tp_add_course_page_help () {
                         <p><strong>' . __('Strict sign up','teachpress') . '</strong></p>
                         <p>' . __('This is an option only for parent courses. If you activate it, subscribing is only possible for one of the child courses and not in all. This option has no influence on waiting lists.','teachpress') . '</p>
                         <p><strong>' . __('Terms and course types','teachpress') . '</strong></p>
-                        <p>' . __('You can add new course types and terms','teachpress') . ' <a href="options-general.php?page=teachpress/settings.php&amp;tab=courses">' . __('here','teachpress') . '</a>.</p>
+                        <p><a href="options-general.php?page=teachpress/settings.php&amp;tab=courses">' . __('Add new course types and terms','teachpress') . '</a></p>
                         <p><strong>' . __('Visibility','teachpress') . '</strong></p>
                         <p>' . __('You can choice between the following visibiltiy options','teachpress') . ':</p>
                         <ul style="list-style:disc; padding-left:40px;">
                                <li><strong>' . __('normal','teachpress') . ':</strong> ' . __('The course is visible at the enrollment pages, if enrollments are justified. If it is a parent course, the course is visible at the frontend semester overview.','teachpress') . '</li>
                                <li><strong>' . __('extend','teachpress') . ' (' . __('only for parent courses','teachpress') . '):</strong> ' . __('The same as normal, but in the frontend semester overview all sub-courses will also be displayed.','teachpress') . '</li>
-                               <li><strong>' . __('invisible','teachpress') . ':</strong> ' . __('The course is invisible.','teachpress') . '</li></ul>',
+                               <li><strong>' . __('invisible','teachpress') . ':</strong> ' . __('The course is invisible.','teachpress') . '</li></ul>'
     ) );
 } 
 
@@ -118,6 +118,7 @@ function tp_add_course_page() {
      <input name="sem" type="hidden" value="<?php echo $sem; ?>" />
      <input name="search" type="hidden" value="<?php echo $search; ?>" />
      <input name="ref" type="hidden" value="<?php echo $ref; ?>" />
+     <input name="upload_mode" id="upload_mode" type="hidden" value="" />
      <div style="min-width:780px; width:100%; max-width:1100px;">
      <div style="width:30%; float:right; padding-right:2%; padding-left:1%;">   
      <table class="widefat" style="margin-bottom:15px;">
@@ -343,8 +344,7 @@ function tp_add_course_page() {
      </div>
       <script type="text/javascript" charset="utf-8">
       jQuery(document).ready(function($) {
-              $('#start').datepicker({showWeek: true, changeMonth: true, changeYear: true, showOtherMonths: true, firstDay: 1, renderer: $.extend({}, $.datepicker.weekOfYearRenderer), onShow: $.datepicker.showStatus, dateFormat: 'yy-mm-dd', yearRange: '2008:c+5'
-              }); 
+              $('#start').datepicker({showWeek: true, changeMonth: true, changeYear: true, showOtherMonths: true, firstDay: 1, renderer: $.extend({}, $.datepicker.weekOfYearRenderer), onShow: $.datepicker.showStatus, dateFormat: 'yy-mm-dd', yearRange: '2008:c+5'}); 
 
               $('#end').datepicker({showWeek: true, changeMonth: true, changeYear: true, showOtherMonths: true, firstDay: 1, renderer: $.extend({}, $.datepicker.weekOfYearRenderer), onShow: $.datepicker.showStatus, dateFormat: 'yy-mm-dd', yearRange: '2008:c+5'}); 
               });

@@ -67,7 +67,7 @@ function tp_show_mail_page() {
                     <th scope="row" style="width: 65px;">
                          <select name="recipients_option" id="mail_recipients_option">
                               <option value="To"><?php _e('To','teachpress'); ?></option>
-                              <option value="BCC"><?php _e('BCC','teachpress'); ?></option>
+                              <option value="Bcc"><?php _e('Bcc','teachpress'); ?></option>
                          </select>
                     </th>
                     <td>
@@ -93,7 +93,12 @@ function tp_show_mail_page() {
           </table>
           <br />
           <textarea name="text" style="width: 685px;" rows="15"></textarea>
-          
+          <table>
+               <tr>
+                    <td><input type="checkbox" name="backup_mail" id="backup_mail" title="<?php _e('Send me the e-mail as separate copy','teachpress'); ?>" value="backup" checked="checked" /></td>
+                    <td><label for="backup_mail"><?php _e('Send me the e-mail as separate copy','teachpress'); ?></label></td>
+               </tr>
+          </table>
           <br />
           <input type="submit" class="button-primary" name="send_mail" value="<?php _e('Send','teachpress'); ?>"/>
           </form>

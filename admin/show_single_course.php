@@ -10,11 +10,7 @@ function tp_show_single_course_page() {
    global $wpdb;
    global $teachpress_courses; 
    global $teachpress_stud; 
-   global $teachpress_settings; 
    global $teachpress_signup;
-   // WordPress
-   global $user_ID;
-   get_currentuserinfo();
    // form
    $checkbox = isset( $_GET['checkbox'] ) ?  $_GET['checkbox'] : '';
    $save = isset( $_GET['save'] ) ?  $_GET['save'] : '';
@@ -22,7 +18,6 @@ function tp_show_single_course_page() {
    $search = tp_sec_var($_GET['search']);
    $sem = tp_sec_var($_GET['sem']);
    // teachPress settings
-   $field1 = get_tp_option('regnum');
    $field2 = get_tp_option('studies');
    ?>
    <div class="wrap">
@@ -35,14 +30,14 @@ function tp_show_single_course_page() {
    <?php
    // Event handler
    if ( isset($_GET['aufnehmen']) ) {
-          tp_add_from_waitinglist($checkbox);
-          $message = __('Participant added','teachpress');
-          get_tp_message($message);	
+        tp_add_from_waitinglist($checkbox);
+        $message = __('Participant added','teachpress');
+        get_tp_message($message);	
    }	 
    if ( isset($_GET['loeschen']) ) {
-          tp_delete_registration($checkbox, $user_ID);
-          $message = __('Enrollments deleted','teachpress');
-          get_tp_message($message);	
+        tp_delete_registration($checkbox);
+        $message = __('Removing successful','teachpress');
+        get_tp_message($message);	
    }
 
    // course data
@@ -67,20 +62,20 @@ function tp_show_single_course_page() {
    $parent = $wpdb->get_row($row, ARRAY_A);
 
    if ($save != __('Save')) { ?>
-           <p>
-           <a href="admin.php?page=teachpress/teachpress.php&amp;sem=<?php echo $sem; ?>&amp;search=<?php echo $search; ?>" class="button-secondary" title="<?php _e('Back to the overview','teachpress'); ?>">&larr; <?php _e('Back','teachpress'); ?></a>&nbsp;<a href="admin.php?page=teachpress/teachpress.php&amp;course_ID=<?php echo $course_ID; ?>&amp;sem=<?php echo $sem; ?>&amp;search=<?php echo $search; ?>&amp;action=list" class="button-secondary" title="<?php _e('Create attendance list','teachpress'); ?>"><?php _e('Create attendance list','teachpress'); ?></a>
-             <select name="export" id="export" onchange="teachpress_jumpMenu('parent',this,0)" class="teachpress_select">
-                   <option><?php _e('Export as','teachpress'); ?> ... </option>
-                   <option value="<?php echo WP_PLUGIN_URL; ?>/teachpress/export.php?course_ID=<?php echo $course_ID; ?>&amp;type=csv"><?php _e('csv-file','teachpress'); ?></option>
-                   <option value="<?php echo WP_PLUGIN_URL; ?>/teachpress/export.php?course_ID=<?php echo $course_ID; ?>&amp;type=xls"><?php _e('xls-file','teachpress'); ?></option>
-             </select>
-             <select name="mail" id="mail" onchange="teachpress_jumpMenu('parent',this,0)" class="teachpress_select">
-                   <option><?php _e('E-Mail to','teachpress'); ?> ... </option>
-                   <option value="admin.php?page=teachpress/teachpress.php&amp;course_ID=<?php echo $course_ID; ?>&amp;sem=<?php echo $sem; ?>&amp;search=<?php echo $search; ?>&amp;action=mail&amp;type=reg"><?php _e('registered participants','teachpress'); ?></option>
-                   <option value="admin.php?page=teachpress/teachpress.php&amp;course_ID=<?php echo $course_ID; ?>&amp;sem=<?php echo $sem; ?>&amp;search=<?php echo $search; ?>&amp;action=mail&amp;type=wtl"><?php _e('participants in waiting list','teachpress'); ?></option>
-                   <option value="admin.php?page=teachpress/teachpress.php&amp;course_ID=<?php echo $course_ID; ?>&amp;sem=<?php echo $sem; ?>&amp;search=<?php echo $search; ?>&amp;action=mail&amp;type=all"><?php _e('all participants','teachpress'); ?></option>
-             </select>
-           </p>
+        <p>
+        <a href="admin.php?page=teachpress/teachpress.php&amp;sem=<?php echo $sem; ?>&amp;search=<?php echo $search; ?>" class="button-secondary" title="<?php _e('Back to the overview','teachpress'); ?>">&larr; <?php _e('Back','teachpress'); ?></a>&nbsp;<a href="admin.php?page=teachpress/teachpress.php&amp;course_ID=<?php echo $course_ID; ?>&amp;sem=<?php echo $sem; ?>&amp;search=<?php echo $search; ?>&amp;action=list" class="button-secondary" title="<?php _e('Create attendance list','teachpress'); ?>"><?php _e('Create attendance list','teachpress'); ?></a>
+            <select name="export" id="export" onchange="teachpress_jumpMenu('parent',this,0)" class="teachpress_select">
+                <option><?php _e('Export as','teachpress'); ?> ... </option>
+                <option value="<?php echo WP_PLUGIN_URL; ?>/teachpress/export.php?course_ID=<?php echo $course_ID; ?>&amp;type=csv"><?php _e('csv-file','teachpress'); ?></option>
+                <option value="<?php echo WP_PLUGIN_URL; ?>/teachpress/export.php?course_ID=<?php echo $course_ID; ?>&amp;type=xls"><?php _e('xls-file','teachpress'); ?></option>
+            </select>
+            <select name="mail" id="mail" onchange="teachpress_jumpMenu('parent',this,0)" class="teachpress_select">
+                <option><?php _e('E-Mail to','teachpress'); ?> ... </option>
+                <option value="admin.php?page=teachpress/teachpress.php&amp;course_ID=<?php echo $course_ID; ?>&amp;sem=<?php echo $sem; ?>&amp;search=<?php echo $search; ?>&amp;action=mail&amp;type=reg"><?php _e('registered participants','teachpress'); ?></option>
+                <option value="admin.php?page=teachpress/teachpress.php&amp;course_ID=<?php echo $course_ID; ?>&amp;sem=<?php echo $sem; ?>&amp;search=<?php echo $search; ?>&amp;action=mail&amp;type=wtl"><?php _e('participants in waiting list','teachpress'); ?></option>
+                <option value="admin.php?page=teachpress/teachpress.php&amp;course_ID=<?php echo $course_ID; ?>&amp;sem=<?php echo $sem; ?>&amp;search=<?php echo $search; ?>&amp;action=mail&amp;type=all"><?php _e('all participants','teachpress'); ?></option>
+            </select>
+        </p>
      <?php } 
    // define course name
    if ($daten["parent"] != 0) {

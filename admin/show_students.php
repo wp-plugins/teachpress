@@ -75,7 +75,7 @@ function teachpress_students_page() {
            // Delete students part 1
            if ( $bulk == "delete" ) {
                    echo '<div class="teachpress_message">
-                   <p class="hilfe_headline">' . __('Are you sure to delete the selected students?','teachpress') . '</p>
+                   <p class="hilfe_headline">' . __('Are you sure to delete the selected elements?','teachpress') . '</p>
                    <p><input name="delete_ok" type="submit" class="button-secondary" value="' . __('Delete','teachpress') . '"/>
                    <a href="admin.php?page=teachpress/students.php&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $curr_page . '"> ' . __('Cancel','teachpress') . '</a></p>
                    </div>';
@@ -83,7 +83,7 @@ function teachpress_students_page() {
            // Delete students part 2
            if ( isset($_GET['delete_ok']) ) {
                    tp_delete_student($checkbox, $user_ID);
-                   $message = __('Students deleted','teachpress');
+                   $message = __('Removing successful','teachpress');
                    get_tp_message($message);
            }
            ?>

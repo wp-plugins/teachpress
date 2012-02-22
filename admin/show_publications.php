@@ -92,7 +92,7 @@ function teachpress_publications_page() {
      // delete publications - part 2
      if ( isset($_GET['delete_ok']) ) {
           tp_delete_publications($checkbox);
-          $message = __('Publications deleted','teachpress');
+          $message = __('Removing successful','teachpress');
           get_tp_message($message);
      }
 

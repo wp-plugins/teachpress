@@ -31,7 +31,7 @@ function teachpress_editstudent_page() {
    <?php
    // Event handler
    if ( isset( $_GET['delete'] )) {
-           tp_delete_registration($_GET['checkbox'], $user_ID);
+           tp_delete_registration($_GET['checkbox']);
            $message = __('Enrollment deleted','teachpress');
            get_tp_message($message);
    }
@@ -226,32 +226,37 @@ function teachpress_editstudent_page() {
            </thead>    
            <tbody>
            <?php
+               $wait = false;
               // Nach Daten zur Person: Ausgabe aller Einschreibungen
-              $sql = "SELECT s.wp_id, s.firstname, s.lastname, c.name, c.type, c.date, c.parent, si.con_id, si.date AS signup
+              $sql = "SELECT s.wp_id, s.firstname, s.lastname, c.name, c.type, c.date, c.parent, si.con_id, si.date AS signup, si.waitinglist
                        FROM " . $teachpress_signup . " si
                        INNER JOIN " . $teachpress_courses . " c ON c.course_id = si.course_id
                        INNER JOIN " . $teachpress_stud . " s ON s.wp_id = si.wp_id
                        WHERE si.wp_id = '$student'";		
               $test = $wpdb->query($sql);
               if ($test != 0) {	
-                 $row2 = $wpdb->get_results($sql);
-                 foreach($row2 as $row2) {
-                    if ($row2->parent != 0) {
-                       $parent_name = $wpdb->get_var("SELECT name FROM " . $teachpress_courses . " WHERE course_id = '$row2->parent'");
-                       $parent_name = $parent_name . " ";
+                 $row = $wpdb->get_results($sql);
+                 foreach($row as $row2) {
+                    if ($row2->waitinglist == 1) {
+                         $wait = true;
                     }
                     else {
-                       $parent_name = "";
+                         if ($row2->parent != 0) {
+                            $parent_name = $wpdb->get_var("SELECT `name` FROM " . $teachpress_courses . " WHERE `course_id` = '$row2->parent'");
+                            $parent_name = $parent_name . " ";
+                         }
+                         else {
+                            $parent_name = "";
+                         }
+                         echo '<tr>';
+                         echo '<th class="check-column"><input name="checkbox[]" type="checkbox" value="' . $row2->con_id . '"/></th>';
+                         echo '<td>' . $row2->con_id . '</td>';
+                         echo '<td>' . $row2->signup . '</td>';
+                         echo '<td>' . stripslashes($parent_name) . stripslashes($row2->name) . '</td>';
+                         echo '<td>' . stripslashes($row2->type) . '</td>';
+                         echo '<td>' . stripslashes($row2->date) . '</td>';
+                         echo '</tr>';
                     }
-                    // Ausgabe der Infos zur gewählten LVS mit integriertem Aenderungsformular
-                    echo '<tr>';
-                    echo '<th class="check-column"><input name="checkbox[]" type="checkbox" value="' . $row2->con_id . '"/></th>';
-                    echo '<td>' . $row2->con_id . '</td>';
-                    echo '<td>' . $row2->signup . '</td>';
-                    echo '<td>' . stripslashes($parent_name) . stripslashes($row2->name) . '</td>';
-                    echo '<td>' . stripslashes($row2->type) . '</td>';
-                    echo '<td>' . stripslashes($row2->date) . '</td>';
-                    echo '</tr>';
                  } 
               }
               else {
@@ -259,6 +264,46 @@ function teachpress_editstudent_page() {
               }?>
            </tbody>
    </table>
+   <?php
+   if ($wait == true) {
+        echo '<h3>' . __('Waitinglist','teachpress') . '</h3>';
+        ?>
+        <table border="1" cellspacing="0" cellpadding="5" class="widefat">
+                <thead>
+                   <tr>
+                     <th>&nbsp;</th>
+                     <th><?php _e('Enrollment-Nr.','teachpress'); ?></th>
+                     <th><?php _e('Registered at','teachpress'); ?></th>
+                     <th><?php _e('Course','teachpress'); ?></th>
+                     <th><?php _e('Type'); ?></th>
+                     <th><?php _e('Date','teachpress'); ?></th>
+                   </tr>
+                </thead>    
+                <tbody>
+                <?php     
+                foreach($row as $row2) {
+                    if ($row2->waitinglist == 1) {
+                         if ($row2->parent != 0) {
+                            $parent_name = $wpdb->get_var("SELECT `name` FROM " . $teachpress_courses . " WHERE `course_id` = '$row2->parent'");
+                            $parent_name = $parent_name . " ";
+                         }
+                         else {
+                            $parent_name = "";
+                         }
+                         echo '<tr>';
+                         echo '<th class="check-column"><input name="checkbox[]" type="checkbox" value="' . $row2->con_id . '"/></th>';
+                         echo '<td>' . $row2->con_id . '</td>';
+                         echo '<td>' . $row2->signup . '</td>';
+                         echo '<td>' . stripslashes($parent_name) . stripslashes($row2->name) . '</td>';
+                         echo '<td>' . stripslashes($row2->type) . '</td>';
+                         echo '<td>' . stripslashes($row2->date) . '</td>';
+                         echo '</tr>';
+                    }
+                }
+                 ?>
+                </tbody>
+        </table>
+   <?php } ?>
    <table border="0" cellspacing="7" cellpadding="0" id="einzel_optionen">
      <tr>
            <td><?php _e('delete enrollment','teachpress'); ?></td>

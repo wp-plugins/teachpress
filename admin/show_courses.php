@@ -37,12 +37,13 @@ function teachpress_show_courses_page() {
      if( isset( $_POST['send_mail'] ) ) {
           $from = isset ( $_POST['from'] ) ? tp_sec_var($_POST['from']) : '';
           $to = isset ( $_POST['recipients'] ) ? tp_sec_var($_POST['recipients']) : '';
-          $recipients_option = isset ( $_POST['recipients_option'] ) ? tp_sec_var($_POST['recipients_option']) : '';
           $subject = isset ( $_POST['subject'] ) ? tp_sec_var($_POST['subject']) : '';
           $text = isset ( $_POST['text'] ) ? tp_sec_var($_POST['text']) : '';
+          $options['backup_mail'] = isset ( $_POST['backup_mail'] ) ? tp_sec_var($_POST['backup_mail']) : '';
+          $options['recipients'] = isset ( $_POST['recipients_option'] ) ? tp_sec_var($_POST['recipients_option']) : '';
           $attachments = isset ( $_POST['attachments'] ) ? $_POST['attachments'] : '';
-          tp_mail::sendMail($from, $to, $recipients_option, $subject, $text, $attachments);
-          $message = __('E-Mail sent','teachpress');
+          $ret = tp_mail::sendMail($from, $to, $subject, $text, $options, $attachments);
+          $message = $ret == true ? __('E-Mail sent','teachpress') : __('Error: E-Mail could not sent','teachpress');
           get_tp_message($message);
      }
 
@@ -100,7 +101,7 @@ function teachpress_show_courses_page() {
            // delete a course, part 2
            if ( isset($_GET['delete_ok']) ) {
                    tp_delete_course($checkbox);
-                   $message = __('Course(s) deleted','teachpress');
+                   $message = __('Removing successful','teachpress');
                    get_tp_message($message);
            }
            // copy a course, part 1

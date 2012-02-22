@@ -1,4 +1,19 @@
-<?php  
+<?php 
+/**
+ * Add help tab for add new courses page
+ */
+function tp_add_publication_page_help () {
+    $screen = get_current_screen();  
+    $screen->add_help_tab( array(
+        'id'        => 'tp_add_publication_help',
+        'title'     => __('Create a new publication','teachpress'),
+        'content'   => '<p><strong>' . __('Required fields','teachpress') . '</strong></p>
+                        <p>' . __('The required fields for a new publication: title, author, bibtex key, tags','teachpress') . '</p>
+                        <p><strong>' . __('URL/Files','teachpress') . '</strong></p>
+                        <p>' . __('You can add one URL or file per line. Insert the name of the URL/file behind the address and separate it by a comma and a space. Example:') . '<br />http://mywebsite.com/docs/readme.pdf, Basic Instructions</p>'
+    ) );
+} 
+
 /* New publication / edit publication
  * from show_publications.php (GET):
  * @param $pub_ID (INT) - publication ID
@@ -78,7 +93,7 @@ function teachpress_addpublications_page() {
    // if publication was saved
    if ( isset($_POST['speichern']) ) {
       tp_change_publication($pub_ID, $data, $bookmark, $delbox, $tags);
-      $message = __('Publication changed','teachpress');
+      $message = __('Changes successful','teachpress');
       get_tp_message($message);
    }
 
@@ -103,7 +118,7 @@ function teachpress_addpublications_page() {
      <table class="widefat" style="margin-bottom:15px;">
            <thead>
            <tr>
-               <th><strong><?php _e('Publication','teachpress'); ?></strong></th>
+               <th><strong><?php _e('Publications','teachpress'); ?></strong></th>
            </tr>
            <tr>
              <td>
@@ -127,22 +142,22 @@ function teachpress_addpublications_page() {
              $abfrage = "SELECT DISTINCT user FROM " . $teachpress_user . "";
              $row = $wpdb->get_results($abfrage);
              foreach($row as $row) {
-                   $user_info = get_userdata($row->user);
-                   if ($user != $row->user && $user_info != false) { 
-                         if ($pub_ID != '') {
-                              $sql = "SELECT pub_id FROM " . $teachpress_user . " WHERE `pub_id`='$pub_ID' AND `user` = '$user_info->ID'";
-                              $test = $wpdb->query($sql);
-                              if ($test != '0') {
-                                   echo '<p><input type="checkbox" name="bookmark[]" id="bookmark_' . $user_info->ID . '" disabled="disabled"/> <label for="bookmark_' . $user_info->ID . '">' . $user_info->display_name . '</label></p>';
-                              }
-                              else {
-                                   echo '<p><input type="checkbox" name="bookmark[]" id="bookmark_' . $user_info->ID . '" value="' . $user_info->ID . '" title="' . __('Bookmark for','teachpress') . ' ' . $user_info->display_name . '"/> <label for="bookmark_' . $user_info->ID . '" title="' . __('Bookmark for','teachpress') . ' ' . $user_info->display_name . '">' . $user_info->display_name . '</label></p>';
-                              }
-                         }
-                         else {
-                              echo '<p><input type="checkbox" name="bookmark[]" id="bookmark_' . $user_info->ID . '" value="' . $user_info->ID . '" title="' . __('Bookmark for','teachpress') . ' ' . $user_info->display_name . '"/> <label for="bookmark_' . $user_info->ID . '" title="' . __('Bookmark for','teachpress') . ' ' . $user_info->display_name . '">' . $user_info->display_name . '</label></p>';
-                             }
-                     } 
+                $user_info = get_userdata($row->user);
+                if ($user != $row->user && $user_info != false) { 
+                    if ($pub_ID != '') {
+                        $sql = "SELECT pub_id FROM " . $teachpress_user . " WHERE `pub_id`='$pub_ID' AND `user` = '$user_info->ID'";
+                        $test = $wpdb->query($sql);
+                        if ($test != '0') {
+                            echo '<p><input type="checkbox" name="bookmark[]" id="bookmark_' . $user_info->ID . '" disabled="disabled"/> <label for="bookmark_' . $user_info->ID . '">' . $user_info->display_name . '</label></p>';
+                        }
+                        else {
+                            echo '<p><input type="checkbox" name="bookmark[]" id="bookmark_' . $user_info->ID . '" value="' . $user_info->ID . '" title="' . __('Bookmark for','teachpress') . ' ' . $user_info->display_name . '"/> <label for="bookmark_' . $user_info->ID . '" title="' . __('Bookmark for','teachpress') . ' ' . $user_info->display_name . '">' . $user_info->display_name . '</label></p>';
+                        }
+                    }
+                    else {
+                        echo '<p><input type="checkbox" name="bookmark[]" id="bookmark_' . $user_info->ID . '" value="' . $user_info->ID . '" title="' . __('Bookmark for','teachpress') . ' ' . $user_info->display_name . '"/> <label for="bookmark_' . $user_info->ID . '" title="' . __('Bookmark for','teachpress') . ' ' . $user_info->display_name . '">' . $user_info->display_name . '</label></p>';
+                        }
+                    } 
               }
               ?>
              </div>
@@ -150,119 +165,119 @@ function teachpress_addpublications_page() {
            </tr>
            <?php if ($pub_ID == '') {?>
            <tr style="text-align:center;">
-                   <td>   
-                   <div style="width:50%; float:left; height:25px;">
-                   <input type="reset" name="Reset" value="<?php _e('Reset','teachpress'); ?>" id="teachpress_reset" class="button-secondary">
-                   </div>
-                   <div style="width:50%; float:right; height:25px;">
-                   <input name="erstellen" type="submit" class="button-primary" id="publikation_erstellen" onclick="teachpress_validateForm('tags','','R','title','','R','author','','R','bibtex','','R');return document.teachpress_returnValue" value="<?php _e('Create','teachpress'); ?>">
-                   </div>
-                   </td>
+            <td>   
+                <div style="width:50%; float:left; height:25px;">
+                <input type="reset" name="Reset" value="<?php _e('Reset','teachpress'); ?>" id="teachpress_reset" class="button-secondary">
+                </div>
+                <div style="width:50%; float:right; height:25px;">
+                <input name="erstellen" type="submit" class="button-primary" id="publikation_erstellen" onclick="teachpress_validateForm('tags','','R','title','','R','author','','R','bibtex','','R');return document.teachpress_returnValue" value="<?php _e('Create','teachpress'); ?>">
+                </div>
+            </td>
            </tr>    
            <?php } else { ?>
            <tr style="text-align:center;">
-                   <td>
-                   <input type="submit" name="speichern" id="publikation_erstellen" value="<?php _e('Save'); ?>" class="button-primary" title="<?php _e('Save'); ?>">
-                   </td>
+            <td>
+            <input type="submit" name="speichern" id="publikation_erstellen" value="<?php _e('Save'); ?>" class="button-primary" title="<?php _e('Save'); ?>">
+            </td>
            </tr>
    <?php } ?>  
            </thead>
      </table>
       <table class="widefat" style="margin-bottom:15px;">
-           <thead>
-           <tr>
-               <th><?php _e('Tags'); ?></th>
-           </tr>
-           <tr>
-             <td>
-             <?php if ($pub_ID != '') {
-             $sql = "SELECT t.name, b.con_id 
-                           FROM " . $teachpress_relation . " b
-                           INNER JOIN " . $teachpress_tags . " t ON t.tag_id=b.tag_id
-                           INNER JOIN " . $teachpress_pub . " p ON p.pub_id=b.pub_id
-                           WHERE p.pub_id = '$pub_ID'
-                           ORDER BY t.name";	
-             $test = $wpdb->query($sql);
-             if ($test != '0') {
-                   $sql = $wpdb->get_results($sql);
-                   echo '<p><strong>' . __('Current','teachpress') . '</strong></p>';
-                   foreach ($sql as $row3){
-                           $s = "'";
-                           echo'<input name="delbox[]" type="checkbox" value="' . $row3->con_id . '" title="Tag &laquo;' . $row3->name . '&raquo; ' . __('Delete','teachpress') . '" id="checkbox_' . $row3->con_id . '" onclick="teachpress_change_label_color(' . $s . $row3->con_id . $s . ')"/> <span style="font-size:12px;" ><label for="checkbox_' . $row3->con_id . '" title="Tag &laquo;' . $row3->name . '&raquo; ' . __('Delete','teachpress') . '" id="tag_label_' . $row3->con_id . '">' . $row3->name . '</label></span> | ';
-                   } 
-             }	
-             }?>  
-             <p><label for="tags"><strong><?php _e('New (separate by comma)','teachpress'); ?></strong></label></p>
-             <input name="tags" type="text" id="tags" title="<?php _e('New (separate by comma)','teachpress'); ?>" style="width:95%">
-             <div class="teachpress_cloud" style="padding-top:15px;">
-              <?php
-              // Anzahl darzustellender Tags
-              $limit = 30;
-              // Schriftgroessen
-              $maxsize = 25;
-              $minsize = 11;
-              // Ermittle Anzahl der Tags absteigend sortiert
-              $sql = "SELECT anzahlTags FROM ( SELECT COUNT(*) AS anzahlTags FROM " . $teachpress_relation . " GROUP BY " . $teachpress_relation . ".`tag_id` ORDER BY anzahlTags DESC ) as temp1 GROUP BY anzahlTags ORDER BY anzahlTags DESC";
-              // Ermittle einzelnes Vorkommen der Tags, sowie Min und Max
-              $sql = "SELECT MAX(anzahlTags) AS max, min(anzahlTags) AS min, COUNT(anzahlTags) as gesamt FROM (".$sql.") AS temp";
-              $tagcloud_temp = $wpdb->get_row($sql, ARRAY_A);
-              $max = $tagcloud_temp['max'];
-              $min = $tagcloud_temp['min'];
-              $insgesamt = $tagcloud_temp['gesamt'];
-              // Tags und Anzahl zusammenstellen
-              $sql = "SELECT tagPeak, name, tag_id FROM ( SELECT COUNT(b.tag_id) as tagPeak, t.name AS name,  t.tag_id as tag_id FROM " . $teachpress_relation . " b LEFT JOIN " . $teachpress_tags . " t ON b.tag_id = t.tag_id GROUP BY b.tag_id ORDER BY tagPeak DESC LIMIT " . $limit . " ) AS temp WHERE tagPeak>=".$min." ORDER BY name";
-              $test = $wpdb->query($sql);
-              if ($test != '0') {
-                   $temp = $wpdb->get_results($sql, ARRAY_A);
-                   // Endausgabe der Cloud zusammenstellen
-                   foreach ($temp as $tagcloud) {
-                      // Schriftgr��e berechnen
-                      // Minimum ausgleichen
-                      if ($min == 1) {
-                              $min = 0;
-                      }
-                      // Formel: max. Schriftgroesse*(aktuelle anzahl - kleinste Anzahl)/ (groe�te Anzahl - kleinste Anzahl)
-                      $size = floor(($maxsize*($tagcloud['tagPeak']-$min)/($max-$min)));
-                      // Ausgleich der Schriftgr��e
-                      if ($size < $minsize) {
-                              $size = $minsize ;
-                      }
-                      ?>
-                      <span style="font-size:<?php echo $size; ?>px;"><a href="javascript:teachpress_inserttag('<?php echo $tagcloud['name']; ?>')" title="&laquo;<?php echo $tagcloud['name']; ?>&raquo; <?php _e('add as tag','teachpress'); ?>"><?php echo $tagcloud['name']; ?> </a></span> 
-                      <?php 
-                   }
-              }  
-              ?>
-             </div>       
-             </td>
-           </tr>
-           </thead>
+        <thead>
+        <tr>
+            <th><?php _e('Tags'); ?></th>
+        </tr>
+        <tr>
+            <td>
+            <?php if ($pub_ID != '') {
+            $sql = "SELECT t.name, b.con_id 
+                        FROM " . $teachpress_relation . " b
+                        INNER JOIN " . $teachpress_tags . " t ON t.tag_id=b.tag_id
+                        INNER JOIN " . $teachpress_pub . " p ON p.pub_id=b.pub_id
+                        WHERE p.pub_id = '$pub_ID'
+                        ORDER BY t.name";	
+            $test = $wpdb->query($sql);
+            if ($test != '0') {
+                $sql = $wpdb->get_results($sql);
+                echo '<p><strong>' . __('Current','teachpress') . '</strong></p>';
+                foreach ($sql as $row3){
+                        $s = "'";
+                        echo'<input name="delbox[]" type="checkbox" value="' . $row3->con_id . '" title="Tag &laquo;' . $row3->name . '&raquo; ' . __('Delete','teachpress') . '" id="checkbox_' . $row3->con_id . '" onclick="teachpress_change_label_color(' . $s . $row3->con_id . $s . ')"/> <span style="font-size:12px;" ><label for="checkbox_' . $row3->con_id . '" title="Tag &laquo;' . $row3->name . '&raquo; ' . __('Delete','teachpress') . '" id="tag_label_' . $row3->con_id . '">' . $row3->name . '</label></span> | ';
+                } 
+            }	
+            }?>  
+            <p><label for="tags"><strong><?php _e('New (separate by comma)','teachpress'); ?></strong></label></p>
+            <input name="tags" type="text" id="tags" title="<?php _e('New (separate by comma)','teachpress'); ?>" style="width:95%">
+            <div class="teachpress_cloud" style="padding-top:15px;">
+            <?php
+            // Anzahl darzustellender Tags
+            $limit = 30;
+            // Schriftgroessen
+            $maxsize = 25;
+            $minsize = 11;
+            // Ermittle Anzahl der Tags absteigend sortiert
+            $sql = "SELECT anzahlTags FROM ( SELECT COUNT(*) AS anzahlTags FROM " . $teachpress_relation . " GROUP BY " . $teachpress_relation . ".`tag_id` ORDER BY anzahlTags DESC ) as temp1 GROUP BY anzahlTags ORDER BY anzahlTags DESC";
+            // Ermittle einzelnes Vorkommen der Tags, sowie Min und Max
+            $sql = "SELECT MAX(anzahlTags) AS max, min(anzahlTags) AS min, COUNT(anzahlTags) as gesamt FROM (".$sql.") AS temp";
+            $tagcloud_temp = $wpdb->get_row($sql, ARRAY_A);
+            $max = $tagcloud_temp['max'];
+            $min = $tagcloud_temp['min'];
+            $insgesamt = $tagcloud_temp['gesamt'];
+            // Tags und Anzahl zusammenstellen
+            $sql = "SELECT tagPeak, name, tag_id FROM ( SELECT COUNT(b.tag_id) as tagPeak, t.name AS name,  t.tag_id as tag_id FROM " . $teachpress_relation . " b LEFT JOIN " . $teachpress_tags . " t ON b.tag_id = t.tag_id GROUP BY b.tag_id ORDER BY tagPeak DESC LIMIT " . $limit . " ) AS temp WHERE tagPeak>=".$min." ORDER BY name";
+            $test = $wpdb->query($sql);
+            if ($test != '0') {
+                $temp = $wpdb->get_results($sql, ARRAY_A);
+                // Endausgabe der Cloud zusammenstellen
+                foreach ($temp as $tagcloud) {
+                    // Schriftgr��e berechnen
+                    // Minimum ausgleichen
+                    if ($min == 1) {
+                            $min = 0;
+                    }
+                    // Formel: max. Schriftgroesse*(aktuelle anzahl - kleinste Anzahl)/ (groe�te Anzahl - kleinste Anzahl)
+                    $size = floor(($maxsize*($tagcloud['tagPeak']-$min)/($max-$min)));
+                    // Ausgleich der Schriftgr��e
+                    if ($size < $minsize) {
+                            $size = $minsize ;
+                    }
+                    ?>
+                    <span style="font-size:<?php echo $size; ?>px;"><a href="javascript:teachpress_inserttag('<?php echo $tagcloud['name']; ?>')" title="&laquo;<?php echo $tagcloud['name']; ?>&raquo; <?php _e('add as tag','teachpress'); ?>"><?php echo $tagcloud['name']; ?> </a></span> 
+                    <?php 
+                }
+            }  
+            ?>
+            </div>       
+            </td>
+        </tr>
+        </thead>
      </table>
      <table class="widefat">
-           <thead>
-           <tr>
-                   <th><?php _e('Image &amp; Related page','teachpress'); ?></th>
-           </tr>
-           <tr>
-                   <td>
-                   <?php if ($daten["image_url"] != '') {
-                           echo '<p><img name="tp_pub_image" src="' . $daten["image_url"] . '" alt="' . $daten["name"] . '" title="' . $daten["name"] . '" style="max-width:100%;"/></p>';
-                   } ?>
-                   <p><label for="image_url" title="<?php _e('With the image field you can add an image to a publication. You can display images in all publication lists','teachpress'); ?>"><strong><?php _e('Image URL','teachpress'); ?></strong></label></p>
-                   <input name="image_url" id="image_url" class="upload" type="text" title="<?php _e('With the image field you can add an image to a publication. You can display images in all publication lists','teachpress'); ?>" style="width:90%;" value="<?php echo $daten["image_url"]; ?>"/>
-                    <a class="upload_button_image" title="<?php _e('Add Image','teachpress'); ?>" style="cursor:pointer; border:none;"><img src="images/media-button-image.gif" alt="<?php _e('Add Image','teachpress'); ?>" /></a>
-                   <p><label for="rel_page" title="<?php _e('With the related page you can link a publication with a normal post/page. It is only used for the teachPress books widget.','teachpress'); ?>"><strong><?php _e('Related page','teachpress'); ?></strong></label></p>
-                   <div style="overflow:hidden;">
-                   <select name="rel_page" id="rel_page" title="<?php _e('With the related page you can link a publication with a normal post/page. It is only used for the teachPress books widget.','teachpress'); ?>" style="width:90%;">
-                   <?php
-                   $post_type = get_tp_option('rel_page_publications');
-                   get_tp_wp_pages("menu_order","ASC",$daten["rel_page"],$post_type,0,0); 
-                   ?>
-                   </select>
-                   </div>
-                   </td>
-           </tr>
-           </thead>
+        <thead>
+        <tr>
+            <th><?php _e('Image &amp; Related page','teachpress'); ?></th>
+        </tr>
+        <tr>
+            <td>
+            <?php if ($daten["image_url"] != '') {
+                echo '<p><img name="tp_pub_image" src="' . $daten["image_url"] . '" alt="' . $daten["name"] . '" title="' . $daten["name"] . '" style="max-width:100%;"/></p>';
+            } ?>
+            <p><label for="image_url" title="<?php _e('With the image field you can add an image to a publication. You can display images in all publication lists','teachpress'); ?>"><strong><?php _e('Image URL','teachpress'); ?></strong></label></p>
+            <input name="image_url" id="image_url" class="upload" type="text" title="<?php _e('With the image field you can add an image to a publication. You can display images in all publication lists','teachpress'); ?>" style="width:90%;" value="<?php echo $daten["image_url"]; ?>"/>
+            <a class="upload_button_image" title="<?php _e('Add Image','teachpress'); ?>" style="cursor:pointer; border:none;"><img src="images/media-button-image.gif" alt="<?php _e('Add Image','teachpress'); ?>" /></a>
+            <p><label for="rel_page" title="<?php _e('With the related page you can link a publication with a normal post/page. It is only used for the teachPress books widget.','teachpress'); ?>"><strong><?php _e('Related page','teachpress'); ?></strong></label></p>
+            <div style="overflow:hidden;">
+            <select name="rel_page" id="rel_page" title="<?php _e('With the related page you can link a publication with a normal post/page. It is only used for the teachPress books widget.','teachpress'); ?>" style="width:90%;">
+            <?php
+            $post_type = get_tp_option('rel_page_publications');
+            get_tp_wp_pages("menu_order","ASC",$daten["rel_page"],$post_type,0,0); 
+            ?>
+            </select>
+            </div>
+            </td>
+        </tr>
+        </thead>
      </table>
      </div>
            <div style="width:67%; float:left;">
@@ -271,7 +286,7 @@ function teachpress_addpublications_page() {
            <div id="titlediv">
            <div id="titlewrap">
            <label class="hide-if-no-js" style="display:none;" id="title-prompt-text" for="title"><?php _e('Name','teachpress'); ?></label>
-           <input type="text" name="post_title" size="30" title="<?php _e('Publication name','teachpress'); ?>" tabindex="1" value="<?php echo stripslashes($daten["name"]); ?>" id="title" autocomplete="off" />
+           <input type="text" name="post_title" size="30" title="<?php _e('Name','teachpress'); ?>" tabindex="1" value="<?php echo stripslashes($daten["name"]); ?>" id="title" autocomplete="off" />
            </div>
            </div>
            </div>
@@ -483,9 +498,13 @@ function teachpress_addpublications_page() {
                      <label><input name="is_isbn" type="radio" value="0" id="is_isbn_1" <?php if ($daten["is_isbn"] == '0') { echo 'checked="checked"'; }?> tabindex="26"/><?php _e('ISSN','teachpress'); ?></label>
                    </span>
              </div>
-             <p><label for="url" title="<?php _e('URL'); ?>"><strong><?php _e('URL'); ?></strong></label></p>
-     <input name="url" type="text" id="url" class="upload" title="<?php _e('URL'); ?>" style="width:95%" value="<?php echo $daten["url"]; ?>" tabindex="27">
-     <a class="upload_button" style="cursor:pointer; border:none;" title="<?php _e('Insert a file from the WordPress Media Library','teachpress'); ?>"><img src="images/media-button-other.gif"/></a>
+             <div id="div_url">
+                
+                <p style="margin-bottom:0;"><label for="url" title="<?php _e('URL/Files', 'teachpress'); ?>"><strong><?php _e('URL/Files', 'teachpress'); ?></strong></label></p>
+                <input name="upload_mode" id="upload_mode" type="hidden" value="" />
+                <a class="upload_button" style="cursor:pointer; border:none; float:right; padding-right: 34px;" title="<?php _e('Insert a file from the WordPress Media Library','teachpress'); ?>"><?php _e('Add/Upload','teachpress'); ?> <img src="images/media-button-other.gif"/></a>
+                <textarea name="url" type="text" id="url" class="upload" title="<?php _e('URL/Files', 'teachpress'); ?>" style="width:95%" rows="4" tabindex="27"><?php echo $daten["url"]; ?></textarea>
+             </div>
              </td>
            </tr>
            </thead>
@@ -498,9 +517,9 @@ function teachpress_addpublications_page() {
            <tr>
              <td>
              <p><label for="comment" title="<?php _e('A not vissible private comment','teachpress'); ?>"><strong><?php _e('private comment','teachpress'); ?></strong></label></p>
-             <textarea name="comment" wrap="virtual" id="comment" title="<?php _e('A not vissible private comment','teachpress'); ?>" style="width:95%" rows="3" tabindex="28"><?php echo stripslashes($daten["comment"]); ?></textarea>
+             <textarea name="comment" wrap="virtual" id="comment" title="<?php _e('A not vissible private comment','teachpress'); ?>" style="width:95%" rows="4" tabindex="28"><?php echo stripslashes($daten["comment"]); ?></textarea>
              <p><label for="comment" title="<?php _e('Additional information','teachpress'); ?>"><strong><?php _e('note','teachpress'); ?></strong></label></p>
-             <textarea name="note" wrap="virtual" id="note" title="<?php _e('Additional information','teachpress'); ?>" style="width:95%" rows="3" tabindex="29"><?php echo stripslashes($daten["note"]); ?></textarea>
+             <textarea name="note" wrap="virtual" id="note" title="<?php _e('Additional information','teachpress'); ?>" style="width:95%" rows="4" tabindex="29"><?php echo stripslashes($daten["note"]); ?></textarea>
              </td>
            </tr>
            </thead>    

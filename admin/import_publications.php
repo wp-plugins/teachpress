@@ -7,7 +7,10 @@ function teachpress_import_page() {
      // variable 
      if ( isset($_POST['tp_submit']) && isset ($_POST['bibtex_area']) ) {
         $bibtex = $_POST['bibtex_area']; // The input is checked by the function tp_bibtex::import_bibtex
-        $settings['keyword_separator'] = tp_sec_var($_POST['keyword_option']);
+        $settings = array(
+            'keyword_separator' => tp_sec_var($_POST['keyword_option']),
+            'author_format' => tp_sec_var($_POST['author_format'])
+        );
 	tp_bibtex::import_bibtex($bibtex, $settings);
 	echo '<p><a href="admin.php?page=teachpress/import.php" class="button-secondary">&larr; ' . __('Back','teachpress') . '</a></p>';
      }
@@ -42,10 +45,23 @@ function teachpress_import_page() {
         <p><a onclick="teachpress_showhide('import_options')" style="cursor: pointer;"><strong>+ <?php _e('Options','teachpress'); ?></strong></a></p>
         <div id="import_options" style="display:none;">
         <table class="form-table">
-             <tr>
-                  <th style="width:150px;"><label for="keyword_option"><?php _e('Keyword Separator','teachpress'); ?></label></th>
-                  <td><input type="input" name="keyword_option" id="keyword_option" title="<?php _e('Keyword Separator','teachpress'); ?>" value="," size="3"/></td>
-             </tr>
+            <tr>
+                <th style="width:150px;"><label for="author_format_0"><?php _e('Author/Editor Format','teachpress'); ?></label></th>
+                <td>
+                      <label>
+                        <input type="radio" name="author_format" value="1" id="author_format_0" checked="checked" />
+                        Firstname1 Lastname1 and Firstname2 Lastname2 and ...</label>
+                      <br />
+                      <label>
+                        <input type="radio" name="author_format" value="2" id="author_format_1" />
+                        Lastname1, Firstname1 and Lastname2, Firstname2 and ...</label>
+                      <br />
+                  </td>
+          </tr>
+            <tr>
+                <th style="width:150px;"><label for="keyword_option"><?php _e('Keyword Separator','teachpress'); ?></label></th>
+                <td><input type="input" name="keyword_option" id="keyword_option" title="<?php _e('Keyword Separator','teachpress'); ?>" value="," size="3"/></td>
+            </tr>
         </table>
         </div>     
 	<p><input name="tp_submit" type="submit" class="button-primary" value="<?php _e('Import'); ?>"/></p>

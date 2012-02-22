@@ -64,9 +64,12 @@ td.tp_pub_info_simple {border-bottom:1px solid silver; vertical-align:top; paddi
 .tp_pub_tags_simple a {color:#AAAAAA; text-decoration:underline;}
 .tp_pub_tags_simple a:hover {color:#AAAAAA; text-decoration:none;}
 .tp_pub_typ_simple {}
-
-.tp_bibtex_menu {margin-top:1px; margin-bottom:1px;}
-.tp_bibtex_close {cursor:pointer;}
+/* meta line */
+.tp_bibtex, .tp_abstract{}
+.tp_bibtex_entry, .tp_abstract_entry{padding:8px 0 8px 0;}
+.tp_bibtex_menu, .tp_abstract_menu {margin-top:1px; margin-bottom:1px;}
+.tp_bibtex_close, .tp_abstract_close {cursor:pointer;}
+.tp_pub_resource img {margin: 0; width: 17px; height: 17px; padding: 0 1px 0 1px;}
 .tp_pub_image_bottom {text-align:center;}
 .teachpress_message {border:1px solid #f90; border-left-width:0.9em; font-weight:bold; margin:1em; padding:.5em 1em;}
 .teachpress_message_error {border:1px solid #FF0000; border-left-width:0.9em; font-weight:bold; margin:1em; padding:.5em 1em;}

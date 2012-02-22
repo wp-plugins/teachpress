@@ -6,27 +6,25 @@
 function teachpress_tags_page(){ 
 ?> 
 <div class="wrap" style="max-width:600px;">
-<form id="form1" name="form1" method="get" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
+<form id="form1" name="form1" method="post" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
 <input name="page" type="hidden" value="teachpress/tags.php" />
 <?php
 global $wpdb;
-global $teachpress_pub; 
-global $teachpress_user;
 global $teachpress_relation;
 global $teachpress_tags;
 // form data
-$action = isset( $_GET['action'] ) ? $action = tp_sec_var($_GET['action']) : '';
-$search = isset( $_GET['search'] ) ? $search = tp_sec_var($_GET['search']) : '';
-$checkbox = isset( $_GET['checkbox'] ) ? $checkbox = $_GET['checkbox'] : '';
+$action = isset( $_POST['action'] ) ? $action = tp_sec_var($_POST['action']) : '';
+$search = isset( $_POST['search'] ) ? $search = tp_sec_var($_POST['search']) : '';
+$checkbox = isset( $_POST['checkbox'] ) ? $checkbox = $_POST['checkbox'] : '';
 
 // actions
 if ( $action == "delete" ) {
    tp_delete_tags($checkbox);
-   get_tp_message( __('Selected tags are deleted','teachpress') );
+   get_tp_message( __('Removing successful','teachpress') );
 }
-if ( isset( $_GET['tp_edit_tag_submit'] )) {
-   $name = tp_sec_var($_GET['tp_edit_tag_name']);
-   $tag_id = tp_sec_var($_GET['tp_edit_tag_ID'], 'integer');
+if ( isset( $_POST['tp_edit_tag_submit'] )) {
+   $name = tp_sec_var($_POST['tp_edit_tag_name']);
+   $tag_id = tp_sec_var($_POST['tp_edit_tag_ID'], 'integer');
    tp_edit_tag($tag_id, $name);
    get_tp_message( __('Tag saved','teachpress') );
 }
@@ -42,7 +40,7 @@ if ( isset( $_GET['tp_edit_tag_submit'] )) {
         <option value="">- <?php _e('Bulk actions','teachpress'); ?> -</option>
         <option value="delete"><?php _e('Delete','teachpress'); ?></option>
     </select>
-    <input name="ok" value="Ok" type="submit" class="button-secondary"/></td>    
+    <input name="OK" value="OK" type="submit" class="button-secondary"/></td>    
 </div>
 <div style="width:600px;">
 <table border="0" cellspacing="0" cellpadding="0" class="widefat">
@@ -55,7 +53,6 @@ if ( isset( $_GET['tp_edit_tag_submit'] )) {
       </tr>
     </thead> 
     <?php
-	global $pagenow;
 	// if the user use the search
 	if ($search != "") {
            $abfrage = "SELECT * FROM " . $teachpress_tags . " WHERE `name` like '%$search%' OR `tag_id` = '$search'";	
