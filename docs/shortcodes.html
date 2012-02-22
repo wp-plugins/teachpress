@@ -8,7 +8,7 @@
 
 <body style="margin: 0 auto; text-align: center; width: 1000px;">
 <p><img src="../images/logo_big.png" alt="" /></p>
-<p style="font-size:20px;"> teachPress 3.0.1</p>
+<p style="font-size:20px; font-weight:bold;"> teachPress 3.1.0</p>
 <p><a href="index.html">Main Page</a> | <strong>Shortcode Reference</strong></p>
 <div style="text-align: left;">
 <p>teachPress brings you some powerful shortcodes, which you can use in posts and pages. If you don&#8217;t know, how you can use shortcodes in WordPress, so please <a title="WordPress Codex: Shortcodes" href="http://codex.wordpress.org/Shortcode">read this article before</a>.</p>
@@ -39,7 +39,9 @@
 <p><strong>user</strong></p>
 <p style="padding-left:30px;">(integer) WordPress User-ID &#8211; The ID of the author its publications you want to show. Default is <strong>0</strong>. (Show all publications of all authors)</p>
 <p><strong>type</strong> (optional)</p>
-<p style="padding-left:30px;">(string) The publication type for publications you want to show. Default is<strong> all</strong>. (Show all publications)</p>
+<p style="padding-left:30px;">(string) The publication types for publications you want to show. Default is<strong> all</strong>. (Show all publications)</p>
+<p><strong>exclude</strong> (optional)</p>
+<p style="padding-left:30px;">(integer) One or more IDs of publications (separate by comma) you don't want to show.</p>
 <p><strong>order</strong> (optional)</p>
 <p style="padding-left:30px;">(string) The order clause for publications. Default is<strong> date DESC</strong>. Possible values: bibtex, name, type, year.</p>
 <div style="padding-left:30px;background-color:#f0f0f0;border:1px solid silver;padding-top:5px;padding-bottom:5px;margin-top:5px;margin-bottom:5px;">
@@ -91,10 +93,12 @@
 <p style="padding-left:30px;">(integer) WordPress User-ID &#8211; The ID of the author its publications you want to show. Default is <strong>0</strong>. (Show all publications of all authors)</p>
 <p><strong>tag</strong> (optional)</p>
 <p style="padding-left:30px;">(integer) If you want to display only publications with a determined tag, so set with this parameter the tag-ID of this tag. Default is <strong>0</strong>. (Show all publications)</p>
+<p><strong>type</strong> (optional)</p>
+<p style="padding-left:30px;">(string) The publication types for publications you want to show. Default is<strong> all</strong>. (Show all publications)</p>
+<p><strong>exclude</strong> (optional)</p>
+<p style="padding-left:30px;">(integer) One or more IDs of publications (separate by comma) you don't want to show.</p>
 <p><strong>year</strong> (optional)</p>
 <p style="padding-left:30px;">(integer) If you want to display only publications of a determined year. Default is <strong>0</strong>. (Show all publications)</p>
-<p><strong>type</strong> (optional)</p>
-<p style="padding-left:30px;">(string) The publication type for publications you want to show. Default is<strong> all</strong>. (Show all publications)</p>
 <p><strong>order</strong> (optional)</p>
 <p style="padding-left:30px;">(string) The order clause for publications. Default is<strong> date DESC</strong>. Possible values: bibtex, name, type, year.</p>
 <div style="padding-left:30px;background-color:#f0f0f0;border:1px solid silver;padding-top:5px;padding-bottom:5px;margin-top:5px;margin-bottom:5px;">
