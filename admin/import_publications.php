@@ -100,6 +100,7 @@ function teachpress_import_page() {
                        <select name="tp_format" id="tp_format">
                             <option value="bibtex">BibTeX</option>
                             <option value="rtf">RTF</option>
+                            <option value="rss">RSS (2.0)</option>
                        </select>
                   </td>
              </tr>

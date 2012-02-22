@@ -35,5 +35,15 @@ if ( is_user_logged_in() && current_user_can('use_teachpress') ) {
                header("Content-Disposition: attachment; filename=" . $filename . ".rtf");
                tp_export::get_publication($user_ID,'rtf');
           }
+          if ($format == 'rss') {
+              if ( $user_ID == 0 ) {
+                header("Location: " . WP_PLUGIN_URL . "/teachpress/feed.php");
+                exit;
+              }
+              else {
+                header("Location: " . WP_PLUGIN_URL . "/teachpress/feed.php?id=$user_ID");
+                exit;
+              }
+          }
      }
 } ?>   
