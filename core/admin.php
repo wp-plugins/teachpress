@@ -368,199 +368,45 @@ function tp_copy_course($checkbox, $copysem) {
 /*****************/
 
 /** 
- * Get course data
- * @param INT $id - Parent-ID (Course_ID)
- * @param STRING $col - Column name
- * @param STRING $mode - single (default), all (planned)
- * @return STRING
-*/  
-function get_tp_course_data ($id, $col, $mode = 'single') {
-     global $wpdb;
-     global $teachpress_courses;
-     $id = tp_sec_var($id, 'integer');
-     if ( $mode == 'single' ) {
-           $value = "SELECT `" . $col . "` FROM `" . $teachpress_courses . "` WHERE `course_id` = '$id'";
-           $value = $wpdb->get_var($value);
-           return $value;
-     }
-}
-
-/** 
- * Add registration (= subscribe student in a course)
- * @param INT $checkbox - Course_ID
- * @param INT $wp_id - User_ID
-*/
-function tp_add_registration($checkbox, $wp_id){
-   global $wpdb;
-   global $teachpress_courses;
-   global $teachpress_stud;
-   global $teachpress_signup;
-   settype($checkbox, 'integer');
-   // if there is no course selected
-   if ( $checkbox == 0 ) {
-      return '';
-   }
-   // load data
-   $row1 = "SELECT `fplaces`, `name`, `start`, `end`, `waitinglist`, `parent` FROM " . $teachpress_courses . " WHERE `course_id` = '$checkbox'";
-   $row1 = $wpdb->get_row($row1);
-   // handle parent and child name
-   if ($row1->parent != '0') {
-      $parent = get_tp_course_data ($row1->parent, 'name');
-      if ($row1->name != $parent) {
-         $row1->name = $parent . ' ' . $row1->name; 
-      }
-   }
-   //Check if there are free places available
-   if ($row1->fplaces > 0 ) {
-      // Check if the user is already registered
-      $check = "SELECT `con_id` FROM " . $teachpress_signup . " WHERE `course_id` = '$checkbox' and `wp_id` = '$wp_id'";
-      $check = $wpdb->query($check);
-      if ( $check == 0 ) {
-         // Check if there is a parent course with strict signup
-         $check = get_tp_course_data ($row1->parent, 'strict_signup');
-         if ( $check != 0 ) {
-            $check = "SELECT c.course_id FROM " . $teachpress_courses . " c INNER JOIN " . $teachpress_signup . " s ON s.course_id = c.course_id WHERE c.parent = '$row1->parent' AND s.wp_id = '$wp_id' AND s.waitinglist = '0'";
-            $check = $wpdb->query($check);
-            // if the user is signed in a child course of the parent
-            if ( $check != 0 ) {
-               return '<div class="teachpress_message_error">&quot;' . stripslashes($row1->name) . '&quot;: ' . __('Registration is not possible, because you are already registered for an other course of this course group.','teachpress') . '</div>';
-            }
-         }
-         $wpdb->query( "INSERT INTO " . $teachpress_signup . " (`course_id`, `wp_id`, `waitinglist`, `date`) VALUES ('$checkbox', '$wp_id', '0', NOW() )" );
-         // reduce the number of free places in the course
-         $neu = $row1->fplaces - 1;
-         $wpdb->query( "UPDATE " . $teachpress_courses . " SET `fplaces` = '$neu' WHERE `course_id` = '$checkbox'" );
-         // Send user an E-Mail and return a message
-         $to = $wpdb->get_var("SELECT `email` FROM " . $teachpress_stud . " WHERE `wp_id` = '$wp_id'");
-         $subjetct = '[' . get_bloginfo('name') . '] ' . __('Registration','teachpress');
-         $message = __('Your Registration for the following course was successful:','teachpress') . chr(13) . chr(10);
-         $message = $message . stripslashes($row1->name);
-         $headers = 'From: ' . get_bloginfo('name') . ' ' . utf8_decode(chr(60)) .  get_bloginfo('admin_email') . utf8_decode(chr(62)) . "\r\n";
-         wp_mail($to, $subject, $message, $headers);
-         return '<div class="teachpress_message_success">&quot;' . stripslashes($row1->name) . '&quot;: ' . __('Registration was successful.','teachpress') . '</div>';
-      }
-      else {
-              return '<div class="teachpress_message_error">&quot;' . stripslashes($row1->name) . '&quot;: ' . __('You are already registered for this course.','teachpress') . '</div>';
-      }		
-   }
-   else {
-      // if there is a waiting lis available
-      if ($row1->waitinglist == '1') {
-         // Check if the user is already registered in the waitinglist
-         $check = $wpdb->query("SELECT con_id FROM " . $teachpress_signup . " WHERE course_id = '$checkbox' AND wp_id = '$wp_id'");
-         // if not: subscribe the user
-         if ($check == 0 ) {
-            $wpdb->query( "INSERT INTO " . $teachpress_signup . " (course_id, wp_id, waitinglist, date) VALUES ('$checkbox', '$wp_id', '1', NOW() )" );
-            // Send user an E-Mail and return a message
-            $to = $wpdb->get_var("SELECT `email` FROM " . $teachpress_stud . " WHERE `wp_id` = '$wp_id'");
-            $subjetct = '[' . get_bloginfo('name') . '] ' . __('Waitinglist','teachpress');
-            $message = __('You are signed up in the waitinglist for the following course:','teachpress') . chr(13) . chr(10);
-            $message = $message . stripslashes($row1->name);
-            $headers = 'From: ' . get_bloginfo('name') . ' ' . utf8_decode(chr(60)) . get_bloginfo('admin_email') . utf8_decode(chr(62)) . "\r\n";
-            wp_mail($to, $subject, $message, $headers);
-            return'<div class="teachpress_message_info">&quot;' . stripslashes($row1->name) . '&quot;: ' . __('For this course there are no more free places. You are automatically signed up in a waiting list.','teachpress') . '</div>';
-         }
-         // if the user is already registered
-         else {
-            return '<div class="teachpress_message_error">&quot;' . stripslashes($row1->name) . '&quot;: ' . __('You are already registered for this course.','teachpress') . '</div>';
-         }
-      }
-      // if there is no waiting list
-      else {
-           return '<div class="teachpress_message_error">&quot;' . stripslashes($row1->name) . '&quot;: ' . __('Registration is not possible, because there are no more free places available','teachpress') . '</div>';
-      }
-   }
-}
-
-/** 
  * Delete registration
  * @param ARRAY $checkbox - An array with course IDs
- * @param INT $user_ID - User_ID
 */
-function tp_delete_registration($checkbox, $user_ID) {
-     global $wpdb;
-     global $teachpress_courses;  
-     global $teachpress_signup;
-     global $teachpress_log;
-     for( $i = 0; $i < count( $checkbox ); $i++ ) {
-          settype($checkbox[$i], 'integer');
-          // select the course_ID
-          $row1 = "SELECT `course_id` FROM " . $teachpress_signup . " WHERE `con_id` = '$checkbox[$i]'";
-          $row1 = $wpdb->get_results($row1);
-          foreach ($row1 as $row1) {
-          // check if there are users in teh waiting list
-          $abfrage = "SELECT `con_id` FROM " . $teachpress_signup . " WHERE `course_id` = '$row1->course_id' AND `waitinglist` = '1' ORDER BY `con_id`";
-          $test= $wpdb->query($abfrage);
-          // if is true
-          if ($test != 0) {
-            $zahl = 0;
-            $wpdb->get_results($abfrage);
-            foreach ($row as $row) {
-               if ($zahl < 1) {
-                  $aendern = "UPDATE " . $teachpress_signup . " SET `waitinglist` = '0' WHERE `con_id` = '$row->con_id'";
-                  $wpdb->query( $aendern );
-                  $zahl++;
-               }
-            }
-          }
-          // if not enhance the number of free places
-          else {
-            $fplaces= "SELECT `fplaces` FROM " . $teachpress_courses . " WHERE `course_id` = '$row1->course_id'";
-            $fplaces = $wpdb->get_var($fplaces);
-            $neu = $fplaces + 1;
-            $aendern = "UPDATE " . $teachpress_courses . " SET `fplaces` = '$neu' WHERE `course_id` = '$row1->course_id'";
-            $wpdb->query( $aendern );
-          }	
-          }
-          $wpdb->query( "DELETE FROM " . $teachpress_signup . " WHERE `con_id` = '$checkbox[$i]'" );
-          // Security log
-          // since version 0.8
-          $mess = __('Delete registration','teachpress');
-          $wpdb->query( "INSERT INTO " . $teachpress_log . " (id, user, description, date) VALUES ('$checkbox[$i]', '$user_ID', '$mess', NOW())");
-     }
-}
-
-/** 
- * Unsubscribe a student (frontend function)
- * @param ARRAY $checkbox2 - An array with the registration IDs
-*/
-function tp_delete_registration_student($checkbox2) {
-     global $wpdb;
-     global $teachpress_courses; 
-     global $teachpress_signup;
-     for( $i = 0; $i < count( $checkbox2 ); $i++ ) {
-          settype($checkbox2[$i], 'integer');
-          // Select course ID
-          $row1 = "SELECT course_id FROM " . $teachpress_signup . " WHERE con_id = '$checkbox2[$i]'";
-          $row1 = $wpdb->get_results($row1);
-          foreach ($row1 as $row1) {
-               // check if there are users in teh waiting list
-               $abfrage = "SELECT con_id FROM " . $teachpress_signup . " WHERE course_id = '$row1->course_id' AND waitinglist = '1' ORDER BY con_id";
-               $test = $wpdb->query($abfrage);
-               // if is true
-               if ($test!= 0) {
-                    $zahl = 0;
-                    $row = $wpdb->get_results($abfrage);
-                    foreach ($row as $row) {
-                         if ($zahl < 1) {
-                               $aendern = "UPDATE " . $teachpress_signup . " SET waitinglist = '0' WHERE con_id = '$row->con_id'";
-                               $wpdb->query( $aendern );
-                               $zahl++;
-                         }
+function tp_delete_registration($checkbox) {
+    global $wpdb;
+    global $teachpress_courses;  
+    global $teachpress_signup;
+    for( $i = 0; $i < count( $checkbox ); $i++ ) {
+        settype($checkbox[$i], 'integer');
+        // select the course_ID
+        $row1 = "SELECT `course_id` FROM " . $teachpress_signup . " WHERE `con_id` = '$checkbox[$i]'";
+        $row1 = $wpdb->get_results($row1);
+        foreach ($row1 as $row1) {
+            // check if there are users in teh waiting list
+            $abfrage = "SELECT `con_id` FROM " . $teachpress_signup . " WHERE `course_id` = '$row1->course_id' AND `waitinglist` = '1' ORDER BY `con_id`";
+            $test= $wpdb->query($abfrage);
+            // if is true
+            if ($test != 0) {
+                $zahl = 0;
+                $wpdb->get_results($abfrage);
+                foreach ($row as $row) {
+                    if ($zahl < 1) {
+                        $aendern = "UPDATE " . $teachpress_signup . " SET `waitinglist` = '0' WHERE `con_id` = '$row->con_id'";
+                        $wpdb->query( $aendern );
+                        $zahl++;
                     }
-               }
-               // if not enhance the number of free places
-               else {
-                    $fplaces = "SELECT fplaces FROM " . $teachpress_courses . " WHERE course_id = '$row1->course_id'";
-                    $fplaces = $wpdb->get_var($fplaces);
-                    $neu = $fplaces + 1;
-                    $aendern = "UPDATE " . $teachpress_courses . " SET fplaces = '$neu' WHERE course_id = '$row1->course_id'";
-                    $wpdb->query( $aendern );
-               }
-          }
-          $wpdb->query( "DELETE FROM " . $teachpress_signup . " WHERE con_id = '$checkbox2[$i]'" );
-     }	
-     return '<div class="teachpress_message_success">' . __('You are signed out successful','teachpress') . '</div>';
+                }
+            }
+            // if not enhance the number of free places
+            else {
+                $fplaces= "SELECT `fplaces` FROM " . $teachpress_courses . " WHERE `course_id` = '$row1->course_id'";
+                $fplaces = $wpdb->get_var($fplaces);
+                $neu = $fplaces + 1;
+                $aendern = "UPDATE " . $teachpress_courses . " SET `fplaces` = '$neu' WHERE `course_id` = '$row1->course_id'";
+                $wpdb->query( $aendern );
+            }	
+        }
+        $wpdb->query( "DELETE FROM " . $teachpress_signup . " WHERE `con_id` = '$checkbox[$i]'" );
+    }
 }
 
 /** 
@@ -602,52 +448,6 @@ function tp_subscribe_student_manually($student, $veranstaltung) {
 /************/
 
 /** 
- * Add student
- * @param INT $wp_id - The WordPress user ID
- * @param ARRAY $data
- * @return BOOLEAN
-*/
-function tp_add_student($wp_id, $data) {
-     global $wpdb;
-     global $teachpress_stud;
-     $wp_id = tp_sec_var($wp_id, 'integer');
-     $sql = "SELECT `wp_id` FROM " . $teachpress_stud . " WHERE `wp_id` = '$wp_id'";
-     $test = $wpdb->query($sql);
-     if ($test == '0') {
-          $data['birthday'] = $data['birth_year'] . '-' . $data['birth_month'] . '-' . $data['birth_day'];
-          $wpdb->insert( $teachpress_stud, array( 'wp_id' => $wp_id, 'firstname' => $data['firstname'], 'lastname' => $data['lastname'], 'course_of_studies' => $data['course_of_studies'], 'userlogin' => $data['userlogin'], 'birthday' => $data['birthday'], 'email' => $data['email'], 'semesternumber' => $data['semester_number'], 'matriculation_number' => $data['matriculation_number'] ), array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d' ) );
-          //return $wpdb->insert_id;
-          return true;
-     }
-     else {
-          return false;
-     }
-}
-
-/** 
- * Edit userdata
- * @param INT $wp_id - user ID
- * @param ARRAY_A $data - user data
- * @param INT $user_ID - current user ID
- * @return STRING
-*/
-function tp_change_student($wp_id, $data, $user_ID = 0) {
-     global $wpdb;
-     global $teachpress_stud;
-     $wp_id = tp_sec_var($wp_id, 'integer');
-     $user_ID = tp_sec_var($user_ID, 'integer');
-     $wpdb->update( $teachpress_stud, array( 'firstname' => $data['firstname'], 'lastname' => $data['lastname'], 'course_of_studies' => $data['course_of_studies'], 'userlogin' => $data['userlogin'], 'birthday' => $data['birthday'], 'email' => $data['email'], 'semesternumber' => $data['semester_number'], 'matriculation_number' => $data['matriculation_number'] ), array( 'wp_id' => $wp_id ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d' ), array( '%d' ) );
-     if ($user_ID == 0) {
-           $return = '<div class="teachpress_message_success">' . __('Changes in your profile successful.','teachpress') . '</div>';
-           return $return;
-     }
-     else {
-           $mess = __('Student data changed','teachpress');
-           $wpdb->query( "INSERT INTO " . $teachpress_log . " (id, user, description, date) VALUES ('$wp_id', '$user_ID', '$mess', NOW())");
-     }
-}
-
-/** 
  * Delete student
  * @param ARRAY $checkbox - ID of the enrollment
  * @param INT $user_ID - User ID
@@ -657,7 +457,6 @@ function tp_delete_student($checkbox, $user_ID){
      global $teachpress_courses; 
      global $teachpress_stud; 
      global $teachpress_signup;
-     global $teachpress_log;
      $user_ID = tp_sec_var($user_ID, 'integer');
      for( $i = 0; $i < count( $checkbox ); $i++ ) {
           settype($checkbox[$i], 'integer');
@@ -669,7 +468,7 @@ function tp_delete_student($checkbox, $user_ID){
                $abfrage = "SELECT con_id FROM " . $teachpress_signup . " WHERE course_id = '$row1->course_id' AND waitinglist = '1' ORDER BY con_id";
                $test = $wpdb->query($abfrage);
                // if is true
-               if ($rows > 0) {
+               if ($test > 0) {
                     $zahl = 0;
                     $row = $wpdb->get_results($abfrage);
                     foreach($row as $row) {
@@ -690,10 +489,6 @@ function tp_delete_student($checkbox, $user_ID){
                }
           }
           $wpdb->query( "DELETE FROM " . $teachpress_stud . " WHERE wp_id = $checkbox[$i]" );
-          // security log
-          // Since Version 0.8
-          $mess = __('Delete student data','teachpress');
-          $wpdb->query( "INSERT INTO " . $teachpress_log . " (id, user, description, date) VALUES ('$checkbox[$i]', '$user_ID', '$mess', NOW())");
           $wpdb->query( "DELETE FROM " . $teachpress_signup . " WHERE wp_id = $checkbox[$i]" );
     }
 }

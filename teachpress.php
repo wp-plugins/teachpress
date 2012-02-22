@@ -37,7 +37,6 @@ $teachpress_courses = $wpdb->prefix . 'teachpress_courses'; //Events
 $teachpress_stud = $wpdb->prefix . 'teachpress_stud'; //Students
 $teachpress_settings = $wpdb->prefix . 'teachpress_settings'; //Settings
 $teachpress_signup = $wpdb->prefix . 'teachpress_signup'; //Enrollments
-$teachpress_log = $wpdb->prefix . 'teachpress_log'; // Security-Log
 $teachpress_pub = $wpdb->prefix . 'teachpress_pub'; //Publications
 $teachpress_tags = $wpdb->prefix . 'teachpress_tags'; //Tags
 $teachpress_relation = $wpdb->prefix . 'teachpress_relation'; //Relationship Tags - Publications
@@ -62,13 +61,15 @@ function tp_add_menu() {
 function tp_add_menu2() {
    global $tp_admin_page3;
    global $tp_admin_page4;
+   global $tp_admin_page5;
    $tp_admin_page3 = add_menu_page (__('Publications','teachpress'), __('Publications','teachpress'), 'use_teachpress', 'publications.php', 'teachpress_publications_page', WP_PLUGIN_URL . '/teachpress/images/logo_small.png');
    $tp_admin_page4 = add_submenu_page('publications.php',__('Your publications','teachpress'), __('Your publications','teachpress'),'use_teachpress','teachpress/publications.php','teachpress_publications_page');
-   add_submenu_page('publications.php',__('Add New', 'teachpress'), __('Add New','teachpress'),'use_teachpress','teachpress/addpublications.php','teachpress_addpublications_page');
+   $tp_admin_page5 = add_submenu_page('publications.php',__('Add New', 'teachpress'), __('Add New','teachpress'),'use_teachpress','teachpress/addpublications.php','teachpress_addpublications_page');
    add_submenu_page('publications.php',__('Import/Export'), __('Import/Export'), 'use_teachpress', 'teachpress/import.php','teachpress_import_page');
    add_submenu_page('publications.php',__('Tags'),__('Tags'),'use_teachpress','teachpress/tags.php','teachpress_tags_page');
    add_action("load-$tp_admin_page3", 'tp_show_publications_page_help');
    add_action("load-$tp_admin_page4", 'tp_show_publications_page_help');
+   add_action("load-$tp_admin_page5", 'tp_add_publication_page_help');
 }
 // Settings
 function tp_add_menu_settings() {
@@ -93,8 +94,9 @@ include_once("admin/add_publication.php");
 include_once("admin/edit_tags.php");
 include_once("admin/import_publications.php");
 // Core functions
-include_once("core/shortcodes.php");
 include_once("core/admin.php");
+include_once("core/shortcodes.php");
+include_once("core/enrollments.php");
 include_once("core/class-bibtex.php");
 include_once("core/class-mail.php");
 include_once("core/class-export.php");
@@ -165,6 +167,56 @@ function get_tp_publication_types() {
 }
 
 /**
+ * get the path to a mimetype image
+ * @param string $url   --> the URL of a file
+ * @return string 
+ * @since version 3.1.0
+ */
+function get_tp_mimetype_images($url) {
+    $mimetype = substr($url,-4,4);
+    $mimetypes = array(
+        '.pdf' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-pdf.png',
+        '.doc' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-msword.png',
+        'docx' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-msword.png',
+        '.ppt' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-mspowerpoint.png',
+        'pptx' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-mspowerpoint.png',
+        '.xls' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-msexcel.png',
+        'xlsx' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-msexcel.png',
+        '.odt' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-opendocument.text.png',
+        '.ods' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-opendocument.spreadsheet.png',
+        '.odp' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-opendocument.presentation.png',
+        '.odf' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-opendocument.formula.png',
+        '.odg' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-opendocument.graphics.png',
+        '.odc' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-opendocument.chart.png',
+        '.odi' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-opendocument.image.png',
+        '.rtf' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-rtf.png',
+        '.rdf' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/text-rdf.png',
+        '.txt' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/text-plain.png',
+        '.tex' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/text-x-bibtex.png',
+        'html' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/text-html.png',
+        '.php' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/text-html.png',
+        '.mp3' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/audio-x-generic.png',
+        '.wma' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/audio-x-generic.png',
+        '.wav' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/audio-x-generic.png',
+        '.gif' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/image-x-generic.png',
+        '.jpg' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/image-x-generic.png',
+        '.png' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/image-x-generic.png',
+        '.svg' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/image-x-generic.png',
+        '.dvi' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/video-x-generic.png',
+        '.flv' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/video-x-generic.png',
+        '.mov' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/video-x-generic.png',
+        '.mp4' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/video-x-generic.png',
+        '.wmv' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/video-x-generic.png',
+        );
+    if ( isset ($mimetypes[$mimetype]) ) {
+        return $mimetypes[$mimetype];
+    }
+    else {
+        return $mimetypes['html'];
+    }
+}
+
+/**
  * Translate a publication type
  * @param STRING $string
  * @param STRING $num - sin (singular) or pl (plural)
@@ -172,6 +224,7 @@ function get_tp_publication_types() {
  */
 function tp_translate_pub_type($string, $num = 'sin') {
    $t = get_tp_publication_types();
+   $tr = '';
    $num = $num == 'sin' ? 1 : 2;
    for ( $i=1; $i <= 15; $i++ ) {
         if ( $string == $t[$i][0] ) {
@@ -234,10 +287,58 @@ function get_tp_publication_type_options ($selected, $mode = 'list', $url = '', 
  */
 function get_tp_var_types($type) {
      if ($type == 'course_array') {
-          $ret = array( 'course_id' => '','name' => '','type' => '','room' => '','lecturer' => '','date' => '','places' => '','fplaces' => '','start' => '','end' => '','semester' => '','comment' => '','rel_page' => '','parent' => '','visible' => '','waitinglist' => '','image_url' => '','strict_signup' => '' );
+          $ret = array( 'course_id' => '',
+                        'name' => '',
+                        'type' => '',
+                        'room' => '',
+                        'lecturer' => '',
+                        'date' => '',
+                        'places' => '',
+                        'fplaces' => '',
+                        'start' => '',
+                        'end' => '',
+                        'semester' => '',
+                        'comment' => '',
+                        'rel_page' => '',
+                        'parent' => '',
+                        'visible' => '',
+                        'waitinglist' => '',
+                        'image_url' => '',
+                        'strict_signup' => '' );
      }
      if ($type == 'publication_array') {
-          $ret = array( 'pub_id' => '', 'name' => '', 'type' => '', 'bibtex' => '', 'author' => '', 'editor' => '', 'isbn' => '', 'url' => '', 'date' => '', 'booktitle' => '', 'journal' => '', 'volume' => '', 'number' => '', 'pages' => '', 'publisher' => '', 'address' => '', 'edition' => '', 'chapter' => '', 'institution' => '', 'organization' => '', 'school' => '', 'series' => '', 'crossref' => '', 'abstract' => '', 'howpublished' => '', 'key' => '', 'techtype' => '', 'comment' => '', 'note' => '', 'image_url' => '', 'is_isbn' => '', 'rel_page' => '');
+          $ret = array( 'pub_id' => '',
+                        'name' => '',
+                        'type' => '',
+                        'bibtex' => '',
+                        'author' => '',
+                        'editor' => '',
+                        'isbn' => '',
+                        'url' => '',
+                        'date' => '',
+                        'booktitle' => '',
+                        'journal' => '',
+                        'volume' => '',
+                        'number' => '',
+                        'pages' => '',
+                        'publisher' => '',
+                        'address' => '',
+                        'edition' => '',
+                        'chapter' => '',
+                        'institution' => '',
+                        'organization' => '',
+                        'school' => '',
+                        'series' => '',
+                        'crossref' => '',
+                        'abstract' => '',
+                        'howpublished' => '',
+                        'key' => '',
+                        'techtype' => '',
+                        'comment' => '',
+                        'note' => '',
+                        'image_url' => '',
+                        'is_isbn' => '',
+                        'rel_page' => '');
      }
      return $ret;
 }
@@ -256,11 +357,11 @@ function get_tp_version(){
  * @param ARRAY $roles
  */
 function tp_update_userrole($roles) {
-	global $wp_roles;
+    global $wp_roles;
 
     if ( empty($roles) || ! is_array($roles) ) { 
-		$roles = array(); 
-	}
+            $roles = array(); 
+    }
     $who_can = $roles;
     $who_cannot = array_diff( array_keys($wp_roles->role_names), $roles);
     foreach ($who_can as $role) {
@@ -285,16 +386,34 @@ function get_tp_option($var) {
    return $term;
 }
 
+/** 
+ * Get course data
+ * @param INT $id - Parent-ID (Course_ID)
+ * @param STRING $col - Column name
+ * @param STRING $mode - single (default), all (planned)
+ * @return STRING
+*/  
+function get_tp_course_data ($id, $col, $mode = 'single') {
+     global $wpdb;
+     global $teachpress_courses;
+     $id = tp_sec_var($id, 'integer');
+     if ( $mode == 'single' ) {
+           $value = "SELECT `" . $col . "` FROM `" . $teachpress_courses . "` WHERE `course_id` = '$id'";
+           $value = $wpdb->get_var($value);
+           return $value;
+     }
+}
+
 /** Secure variables
  * @param STRING $var
  * @param STRING $type --> integer, string (default)
 */
 function tp_sec_var($var, $type = 'string') {
-   $var = htmlspecialchars($var);
-   if ($type == 'integer') {
-           settype($var, 'integer');
-   }
-   return $var;
+    $var = htmlspecialchars($var);
+    if ($type == 'integer') {
+        settype($var, 'integer');
+    }
+    return $var;
 }
 
 /** Function for the integrated registration mode */
@@ -308,10 +427,12 @@ function tp_advanced_registration() {
           if ($user->user_firstname == '') {
               $user->user_firstname = $user->display_name;
           }
-          $data['firstname'] = $user->user_firstname;
-          $data['lastname'] = $user->user_lastname;
-          $data['userlogin'] = $user->user_login;
-          $data['email'] = $user->user_email;
+          $data = array (
+            'firstname' => $user->user_firstname,
+            'lastname' => $user->user_lastname,
+            'userlogin' => $user->user_login,
+            'email' => $user->user_email
+          );
           tp_add_student($user->ID, $data );
      }
 } 
@@ -372,10 +493,10 @@ class tp_books_widget extends WP_Widget {
           $row= $wpdb->get_results($sql);
           foreach ($row as $row) {
               if ( in_array($row->pub_id, $books) ) {
-              echo '<option value="' . $row->pub_id . '" selected="selected">' . $row->pub_id . ': ' . $row->name . '</option>';
+                echo '<option value="' . $row->pub_id . '" selected="selected">' . $row->pub_id . ': ' . $row->name . '</option>';
               }
               else {
-                      echo '<option value="' . $row->pub_id . '">' . $row->pub_id . ': ' . $row->name . '</option>';
+                echo '<option value="' . $row->pub_id . '">' . $row->pub_id . ': ' . $row->name . '</option>';
               }
           }
           echo '</select></label><small class="setting-description">' . __('use &lt;Ctrl&gt; key to select multiple books', 'teachpress') . '</small></p>';
@@ -405,7 +526,6 @@ function tp_install() {
    $teachpress_courses = $wpdb->prefix . 'teachpress_courses'; // Courses
    $teachpress_stud = $wpdb->prefix . 'teachpress_stud'; // Students
    $teachpress_settings = $wpdb->prefix . 'teachpress_settings'; // Settings
-   $teachpress_log = $wpdb->prefix . 'teachpress_log'; // Security-Log
    $teachpress_pub = $wpdb->prefix . 'teachpress_pub'; // Publications
    $teachpress_tags = $wpdb->prefix . 'teachpress_tags'; // Tags
    $teachpress_signup = $wpdb->prefix . 'teachpress_signup'; // Relationship Courses - Students
@@ -416,210 +536,196 @@ function tp_install() {
    global $wp_roles;
    $role = $wp_roles->get_role('administrator');
    if ( !$role->has_cap('use_teachpress') ) {
-           $wp_roles->add_cap('administrator', 'use_teachpress');
+       $wp_roles->add_cap('administrator', 'use_teachpress');
    }
 
    // charset & collate like WordPress
    $charset_collate = '';
    if ( version_compare(mysql_get_server_info(), '4.1.0', '>=') ) {
-           if ( ! empty($wpdb->charset) ) {
-                   $charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
-           }	
-           if ( ! empty($wpdb->collate) ) {
-                   $charset_collate .= " COLLATE $wpdb->collate";
-           }	
+        if ( ! empty($wpdb->charset) ) {
+            $charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
+        }	
+        if ( ! empty($wpdb->collate) ) {
+            $charset_collate .= " COLLATE $wpdb->collate";
+        }
+        $charset_collate .= " ENGINE = INNODB";
    }
-
+   require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
    // teachpress_courses
    $table_name = $teachpress_courses;
    if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
-           $sql = "CREATE TABLE " . $teachpress_courses. " (
-                                            `course_id` INT UNSIGNED AUTO_INCREMENT ,
-                                            `name` VARCHAR(100) ,
-                                            `type` VARCHAR (100) ,
-                                            `room` VARCHAR(100) ,
-                                            `lecturer` VARCHAR (100) ,
-                                            `date` VARCHAR(60) ,
-                                            `places` INT(4) ,
-                                            `fplaces` INT(4) ,
-                                            `start` DATETIME ,
-                                            `end` DATETIME ,
-                                            `semester` VARCHAR(100) ,
-                                            `comment` VARCHAR(500) ,
-                                            `rel_page` INT ,
-                                            `parent` INT ,
-                                            `visible` INT(1) ,
-                                            `waitinglist` INT(1),
-                                            `image_url` VARCHAR(400) ,
-                                            `strict_signup` INT(1) ,
-                                            PRIMARY KEY (course_id)
-                                      ) $charset_collate;";
-           require_once(ABSPATH . 'wp-admin/upgrade-functions.php');			
-           dbDelta($sql);
+        $sql = "CREATE TABLE " . $teachpress_courses. " (
+                    `course_id` INT UNSIGNED AUTO_INCREMENT ,
+                    `name` VARCHAR(100) ,
+                    `type` VARCHAR (100) ,
+                    `room` VARCHAR(100) ,
+                    `lecturer` VARCHAR (100) ,
+                    `date` VARCHAR(60) ,
+                    `places` INT(4) ,
+                    `fplaces` INT(4) ,
+                    `start` DATETIME ,
+                    `end` DATETIME ,
+                    `semester` VARCHAR(100) ,
+                    `comment` VARCHAR(500) ,
+                    `rel_page` INT ,
+                    `parent` INT ,
+                    `visible` INT(1) ,
+                    `waitinglist` INT(1),
+                    `image_url` VARCHAR(400) ,
+                    `strict_signup` INT(1) ,
+                    PRIMARY KEY (course_id)
+                ) $charset_collate;";			
+        dbDelta($sql);
 
     }
     // teachpress_stud
    $table_name = $teachpress_stud;
    if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
-           $sql = "CREATE TABLE " . $teachpress_stud . " (
-                                            `wp_id` INT UNSIGNED ,
-                                            `firstname` VARCHAR(100) ,
-                                            `lastname` VARCHAR(100) ,
-                                            `course_of_studies` VARCHAR(100) ,
-                                            `userlogin` VARCHAR (100) ,
-                                            `birthday` DATE ,
-                                            `email` VARCHAR(50) ,
-                                            `semesternumber` INT(2) ,
-                                            `matriculation_number` INT,
-                                            PRIMARY KEY (wp_id)
-                                      ) $charset_collate;";
-           dbDelta($sql);
+        $sql = "CREATE TABLE " . $teachpress_stud . " (
+                    `wp_id` INT UNSIGNED ,
+                    `firstname` VARCHAR(100) ,
+                    `lastname` VARCHAR(100) ,
+                    `course_of_studies` VARCHAR(100) ,
+                    `userlogin` VARCHAR (100) ,
+                    `birthday` DATE ,
+                    `email` VARCHAR(50) ,
+                    `semesternumber` INT(2) ,
+                    `matriculation_number` INT,
+                    PRIMARY KEY (wp_id)
+                ) $charset_collate;";
+        dbDelta($sql);
     }
     // teachpress_signup
    $table_name = $teachpress_signup;
    if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
-           $sql = "CREATE TABLE " . $teachpress_signup . " (
-                                            `con_id` INT UNSIGNED AUTO_INCREMENT ,
-                                            `course_id` INT UNSIGNED,
-                                            `wp_id` INT UNSIGNED ,
-                                            `waitinglist` INT(1) UNSIGNED ,
-                                            `date` DATETIME ,
-                                            FOREIGN KEY (course_id) REFERENCES " . $teachpress_courses. "(course_id) ,
-                                            FOREIGN KEY (wp_id) REFERENCES " . $teachpress_stud . "(wp_id) ,
-                                            PRIMARY KEY (con_id)
-                                      ) $charset_collate;";
-           dbDelta($sql);
+        $sql = "CREATE TABLE " . $teachpress_signup . " (
+                    `con_id` INT UNSIGNED AUTO_INCREMENT ,
+                    `course_id` INT UNSIGNED,
+                    `wp_id` INT UNSIGNED ,
+                    `waitinglist` INT(1) UNSIGNED ,
+                    `date` DATETIME ,
+                    FOREIGN KEY (course_id) REFERENCES " . $teachpress_courses. "(course_id) ,
+                    FOREIGN KEY (wp_id) REFERENCES " . $teachpress_stud . "(wp_id) ,
+                    PRIMARY KEY (con_id)
+                ) $charset_collate;";
+        dbDelta($sql);
     }
     // teachpress_settings
    $table_name = $teachpress_settings;
    if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
-           $sql = "CREATE TABLE " . $teachpress_settings . " (
-                                           `setting_id` INT UNSIGNED AUTO_INCREMENT ,
-                                           `variable` VARCHAR (100) ,
-                                           `value` VARCHAR (100) ,
-                                           `category` VARCHAR (100) ,
-                                           PRIMARY KEY (setting_id)
-                                           ) $charset_collate;";
-           dbDelta($sql);
-           // Default settings		
-           $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('sem', 'Example term', 'system')");
-           $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('db-version', '3.0.0', 'system')");
-           $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('permalink', '1', 'system')");
-           $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('sign_out', '0', 'system')");
-           $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('login', 'std', 'system')");
-           $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('stylesheet', '1', 'system')");
-           $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('regnum', '1', 'system')");
-           $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('studies', '1', 'system')");
-           $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('termnumber', '1', 'system')");
-           $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('birthday', '1', 'system')");
-           $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('rel_page_courses', 'page', 'system')");
-           $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('rel_page_publications', 'page', 'system')");
-           $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('Example term', 'Example term', 'semester')");									
-           $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('Example', 'Example', 'course_of_studies')");	
-           $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('Lecture', 'Lecture', 'course_type')");
+        $sql = "CREATE TABLE " . $teachpress_settings . " (
+                    `setting_id` INT UNSIGNED AUTO_INCREMENT ,
+                    `variable` VARCHAR (100) ,
+                    `value` VARCHAR (100) ,
+                    `category` VARCHAR (100) ,
+                    PRIMARY KEY (setting_id)
+                    ) $charset_collate;";
+        dbDelta($sql);
+        // Default settings		
+        $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('sem', 'Example term', 'system')");
+        $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('db-version', '3.0.0', 'system')");
+        $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('permalink', '1', 'system')");
+        $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('sign_out', '0', 'system')");
+        $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('login', 'std', 'system')");
+        $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('stylesheet', '1', 'system')");
+        $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('regnum', '1', 'system')");
+        $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('studies', '1', 'system')");
+        $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('termnumber', '1', 'system')");
+        $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('birthday', '1', 'system')");
+        $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('rel_page_courses', 'page', 'system')");
+        $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('rel_page_publications', 'page', 'system')");
+        $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('Example term', 'Example term', 'semester')");									
+        $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('Example', 'Example', 'course_of_studies')");	
+        $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('Lecture', 'Lecture', 'course_type')");
     }
-    // teachpress_log
-   $table_name = $teachpress_log;
-   if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
-           $sql = "CREATE TABLE " . $teachpress_log . " (
-                                           `log_id` INT UNSIGNED AUTO_INCREMENT ,
-                                           `id` INT ,
-                                           `user` INT ,
-                                           `description` VARCHAR (200) ,
-                                           `date` DATE ,
-                                           PRIMARY KEY (log_id)
-                                           ) $charset_collate;";
-           dbDelta($sql);
-    }
-    //teachpress_pub
+   //teachpress_pub
    $table_name = $teachpress_pub;
    if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
-           $sql = "CREATE TABLE " . $teachpress_pub. " (
-                                            `pub_id` INT UNSIGNED AUTO_INCREMENT ,
-                                            `name` VARCHAR(500) ,
-                                            `type` VARCHAR (50) ,
-                                            `bibtex` VARCHAR (50) ,
-                                            `author` VARCHAR (500) ,
-                                            `editor` VARCHAR (500) ,
-                                            `isbn` VARCHAR (50) ,
-                                            `url` VARCHAR (400) ,
-                                            `date` DATE ,
-                                            `booktitle` VARCHAR (200) ,
-                                            `journal` VARCHAR(200) ,
-                                            `volume` VARCHAR(40) ,
-                                            `number` VARCHAR(40) ,
-                                            `pages` VARCHAR(40) ,
-                                            `publisher` VARCHAR (500) ,
-                                            `address` VARCHAR (300) ,
-                                            `edition` VARCHAR (100) ,
-                                            `chapter` VARCHAR (40) ,
-                                            `institution` VARCHAR (200) ,
-                                            `organization` VARCHAR (200) ,
-                                            `school` VARCHAR (200) ,
-                                            `series` VARCHAR (200) ,
-                                            `crossref` VARCHAR (100) ,
-                                            `abstract` TEXT ,
-                                            `howpublished` VARCHAR (200) ,
-                                            `key` VARCHAR (100) ,
-                                            `techtype` VARCHAR (200) ,
-                                            `comment` TEXT ,
-                                            `note` TEXT ,
-                                            `image_url` VARCHAR(400) ,
-                                            `rel_page` INT ,
-                                            `is_isbn` INT(1) ,
-                                            PRIMARY KEY (pub_id)
-                                      ) $charset_collate;";			   
-           dbDelta($sql);
+        $sql = "CREATE TABLE " . $teachpress_pub. " (
+                    `pub_id` INT UNSIGNED AUTO_INCREMENT ,
+                    `name` VARCHAR(500) ,
+                    `type` VARCHAR (50) ,
+                    `bibtex` VARCHAR (50) ,
+                    `author` VARCHAR (500) ,
+                    `editor` VARCHAR (500) ,
+                    `isbn` VARCHAR (50) ,
+                    `url` TEXT ,
+                    `date` DATE ,
+                    `booktitle` VARCHAR (200) ,
+                    `journal` VARCHAR(200) ,
+                    `volume` VARCHAR(40) ,
+                    `number` VARCHAR(40) ,
+                    `pages` VARCHAR(40) ,
+                    `publisher` VARCHAR (500) ,
+                    `address` VARCHAR (300) ,
+                    `edition` VARCHAR (100) ,
+                    `chapter` VARCHAR (40) ,
+                    `institution` VARCHAR (200) ,
+                    `organization` VARCHAR (200) ,
+                    `school` VARCHAR (200) ,
+                    `series` VARCHAR (200) ,
+                    `crossref` VARCHAR (100) ,
+                    `abstract` TEXT ,
+                    `howpublished` VARCHAR (200) ,
+                    `key` VARCHAR (100) ,
+                    `techtype` VARCHAR (200) ,
+                    `comment` TEXT ,
+                    `note` TEXT ,
+                    `image_url` VARCHAR(400) ,
+                    `rel_page` INT ,
+                    `is_isbn` INT(1) ,
+                    PRIMARY KEY (pub_id)
+                ) $charset_collate;";			   
+        dbDelta($sql);
     }
     //teachpress_tags
    $table_name = $teachpress_tags;
    if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
-           $sql = "CREATE TABLE " . $teachpress_tags . " (
-                                            `tag_id` INT UNSIGNED AUTO_INCREMENT ,
-                                            `name` VARCHAR(300) ,
-                                            PRIMARY KEY (tag_id)
-                                       ) $charset_collate;";
-           dbDelta($sql);
+        $sql = "CREATE TABLE " . $teachpress_tags . " (
+                    `tag_id` INT UNSIGNED AUTO_INCREMENT ,
+                    `name` VARCHAR(300) ,
+                    PRIMARY KEY (tag_id)
+                ) $charset_collate;";
+        dbDelta($sql);
     }
     //teachpress_relation
    $table_name = $teachpress_relation;
    if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
-           $sql = "CREATE TABLE " . $teachpress_relation . " (
-                                            `con_id` INT UNSIGNED AUTO_INCREMENT ,
-                                            `pub_id` INT UNSIGNED,
-                                            `tag_id` INT UNSIGNED,
-                                            FOREIGN KEY (pub_id) REFERENCES " . $teachpress_pub. "(pub_id) ,
-                                            FOREIGN KEY (tag_id) REFERENCES " . $teachpress_tags . "(tag_id) ,
-                                            PRIMARY KEY (con_id)
-                                      ) $charset_collate;";
-           dbDelta($sql);
+        $sql = "CREATE TABLE " . $teachpress_relation . " (
+                    `con_id` INT UNSIGNED AUTO_INCREMENT ,
+                    `pub_id` INT UNSIGNED,
+                    `tag_id` INT UNSIGNED,
+                    FOREIGN KEY (pub_id) REFERENCES " . $teachpress_pub. "(pub_id) ,
+                    FOREIGN KEY (tag_id) REFERENCES " . $teachpress_tags . "(tag_id) ,
+                    PRIMARY KEY (con_id)
+                ) $charset_collate;";
+        dbDelta($sql);
     }
     //teachpress_user
    $table_name = $teachpress_user;
    if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
-           $sql = "CREATE TABLE " . $teachpress_user . " (
-                                            `bookmark_id` INT UNSIGNED AUTO_INCREMENT ,
-                                            `pub_id` INT UNSIGNED,
-                                            `user` INT UNSIGNED,
-                                            PRIMARY KEY (bookmark_id)
-                                      ) $charset_collate;";
-           dbDelta($sql);
+        $sql = "CREATE TABLE " . $teachpress_user . " (
+                    `bookmark_id` INT UNSIGNED AUTO_INCREMENT ,
+                    `pub_id` INT UNSIGNED,
+                    `user` INT UNSIGNED,
+                    PRIMARY KEY (bookmark_id)
+                                    ) $charset_collate;";
+        dbDelta($sql);
     }
 }
 
 /** Uninstalling */ 
 function tp_uninstall() {
-   global $wpdb;
-   global $teachpress_courses;
-   global $teachpress_stud;
-   global $teachpress_settings;
-   global $teachpress_signup;
-   global $teachpress_log;
-   global $teachpress_pub;
-   global $teachpress_tags;
-   global $teachpress_relation;
-   global $teachpress_user;
-   $wpdb->query("DROP TABLE " . $teachpress_courses . ", " . $teachpress_stud . ", " . $teachpress_settings . ", " . $teachpress_signup . ", " . $teachpress_log . ", " . $teachpress_pub . ", " . $teachpress_tags . ", " . $teachpress_user . ", " . $teachpress_relation . "");
+    global $wpdb;
+    global $teachpress_courses;
+    global $teachpress_stud;
+    global $teachpress_settings;
+    global $teachpress_signup;
+    global $teachpress_pub;
+    global $teachpress_tags;
+    global $teachpress_relation;
+    global $teachpress_user;
+    $wpdb->query("DROP TABLE " . $teachpress_courses . ", " . $teachpress_stud . ", " . $teachpress_settings . ", " . $teachpress_signup . ", " . $teachpress_pub . ", " . $teachpress_tags . ", " . $teachpress_user . ", " . $teachpress_relation . "");
 }
 
 /*********************/
@@ -628,52 +734,52 @@ function tp_uninstall() {
 
 /** Admin interface script loader */ 
 function tp_backend_scripts() {
-   // Define $page
-   if ( isset($_GET['page']) ) {
-           $page = $_GET['page'];
-   }
-   else {
-           $page = '';
-   }
-   wp_enqueue_style('teachpress-print-css', WP_PLUGIN_URL . '/teachpress/styles/print.css', false, false, 'print');
-   // load scripts only, when it's teachpress page
-   if ( eregi('teachpress', $page) || eregi('publications', $page) ) {
-     wp_enqueue_script('teachpress-standard', WP_PLUGIN_URL . '/teachpress/js/backend.js');
-     wp_enqueue_style('teachpress.css', WP_PLUGIN_URL . '/teachpress/styles/teachpress.css');
-     wp_enqueue_script('media-upload');
-     add_thickbox();
-     // Datepicker
-     wp_enqueue_script(array('jquery-ui-core', 'jquery-ui-datepicker'));
-     wp_enqueue_style('teachpress-datepicker.css', WP_PLUGIN_URL . '/teachpress/js/datepicker/jquery.ui.datepicker.css');
-     $lang = array('de_DE','it_IT','es_ES');
-     if ( in_array( WPLANG , $lang) ) {
-          wp_enqueue_script('teachpress-datepicker-de', WP_PLUGIN_URL . '/teachpress/js/datepicker/jquery.ui.datepicker-' . WPLANG . '.js');
-     }
-   }
+    // Define $page
+    if ( isset($_GET['page']) ) {
+        $page = $_GET['page'];
+    }
+    else {
+        $page = '';
+    }
+    wp_enqueue_style('teachpress-print-css', WP_PLUGIN_URL . '/teachpress/styles/print.css', false, false, 'print');
+    // load scripts only, when it's teachpress page
+    if ( eregi('teachpress', $page) || eregi('publications', $page) ) {
+        wp_enqueue_script('teachpress-standard', WP_PLUGIN_URL . '/teachpress/js/backend.js');
+        wp_enqueue_style('teachpress.css', WP_PLUGIN_URL . '/teachpress/styles/teachpress.css');
+        wp_enqueue_script('media-upload');
+        add_thickbox();
+        // Datepicker
+        wp_enqueue_script(array('jquery-ui-core', 'jquery-ui-datepicker'));
+        wp_enqueue_style('teachpress-datepicker.css', WP_PLUGIN_URL . '/teachpress/js/datepicker/jquery.ui.datepicker.css');
+        $lang = array('de_DE','it_IT','es_ES');
+        if ( in_array( WPLANG , $lang) ) {
+            wp_enqueue_script('teachpress-datepicker-de', WP_PLUGIN_URL . '/teachpress/js/datepicker/jquery.ui.datepicker-' . WPLANG . '.js');
+        }
+    }
 }
 
 /** Adds files to the WordPress Frontend Admin Header */ 
 function tp_frontend_scripts() {
-     echo chr(13) . chr(10) . '<!-- teachPress ' . get_tp_version() . ' -->' . chr(13) . chr(10);
-     echo '<script type="text/javascript" src="' . WP_PLUGIN_URL . '/teachpress/js/frontend.js"></script>' . chr(13) . chr(10);
-     $value = get_tp_option('stylesheet');
-     if ($value == '1') {
-      echo '<link type="text/css" href="' . WP_PLUGIN_URL . '/teachpress/styles/teachpress_front.css" rel="stylesheet" />' . chr(13) . chr(10);
-     }
-     echo '<!-- END teachPress -->' . chr(13) . chr(10);
+    echo chr(13) . chr(10) . '<!-- teachPress ' . get_tp_version() . ' -->' . chr(13) . chr(10);
+    echo '<script type="text/javascript" src="' . WP_PLUGIN_URL . '/teachpress/js/frontend.js"></script>' . chr(13) . chr(10);
+    $value = get_tp_option('stylesheet');
+    if ($value == '1') {
+        echo '<link type="text/css" href="' . WP_PLUGIN_URL . '/teachpress/styles/teachpress_front.css" rel="stylesheet" />' . chr(13) . chr(10);
+    }
+    echo '<!-- END teachPress -->' . chr(13) . chr(10);
 }
 
 // load language files
 function tp_language_support() {
-     load_plugin_textdomain('teachpress', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/');
+    load_plugin_textdomain('teachpress', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/');
 }
 
 // Add link to wp plugin overview
 function tp_plugin_link($links, $file){
-     if ($file == plugin_basename(__FILE__)) {
-          return array_merge($links, array( sprintf('<a href="options-general.php?page=teachpress/settings.php">%s</a>', __('Settings') ) ));
-     }
-     return $links;
+    if ($file == plugin_basename(__FILE__)) {
+        return array_merge($links, array( sprintf('<a href="options-general.php?page=teachpress/settings.php">%s</a>', __('Settings') ) ));
+    }
+    return $links;
 }
 
 // Register WordPress-Hooks

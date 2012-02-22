@@ -84,19 +84,19 @@ class tp_bibtex {
         $keywords = '';
         // show tags
         if ( $settings['with_tags'] == 1 ) {
-                if ( $url["permalink"] == 1 ) {
-                        $href = $url["link"] . '?';
+            if ( $url["permalink"] == 1 ) {
+                $href = $url["link"] . '?';
+            }
+            else {
+                $href = $url["link"] . '?p=' . $url["post_id"] . '&amp;';
+            }
+            foreach ($all_tags as $tag) {
+                if ($tag["pub_id"] == $row['pub_id']) {
+                    $keywords[] = array('name' => stripslashes($tag["name"]));
+                    $tag_string = $tag_string . '<a href="' . $href . 'tgid=' . $tag["tag_id"] . $settings['html_anchor'] . '" title="' . __('Show all publications which have a relationship to this tag','teachpress') . '">' . stripslashes($tag["name"]) . '</a>, ';
                 }
-                else {
-                        $href = $url["link"] . '?p=' . $url["post_id"] . '&amp;';
-                }
-                foreach ($all_tags as $tag) {
-                        if ($tag["pub_id"] == $row['pub_id']) {
-                                $keywords[] = array('name' => stripslashes($tag["name"]));
-                                $tag_string = $tag_string . '<a href="' . $href . 'tgid=' . $tag["tag_id"] . $settings['html_anchor'] . '" title="' . __('Show all publications which have a relationship to this tag','teachpress') . '">' . stripslashes($tag["name"]) . '</a>, ';
-                        }
-                }
-                $tag_string = substr($tag_string, 0, -2);
+            }
+            $tag_string = substr($tag_string, 0, -2);
         }
         // handle images
         $image_marginally = '';
@@ -104,30 +104,27 @@ class tp_bibtex {
         $td_left = '';
         $td_right = '';
         if ($settings['image'] == 'left' || $settings['image'] == 'right') {
-                if ($row['image_url'] != '') {
-                        $image_marginally = '<img name="' . $row['name'] . '" src="' . $row['image_url'] . '" width="' . ($settings['pad_size'] - 5) .'" alt="' . $row['name'] . '" />';
-                }
+            if ($row['image_url'] != '') {
+                $image_marginally = '<img name="' . $row['name'] . '" src="' . $row['image_url'] . '" width="' . ($settings['pad_size'] - 5) .'" alt="' . $row['name'] . '" />';
+            }
         }
         if ($settings['image'] == 'left') {
-                $td_left = '<td width="' . $settings['pad_size'] . '">' . $image_marginally . '</td>';
+            $td_left = '<td width="' . $settings['pad_size'] . '">' . $image_marginally . '</td>';
         }
         if ($settings['image'] == 'right') {
-                $td_right = '<td width="' . $settings['pad_size']  . '">' . $image_marginally . '</td>';
+            $td_right = '<td width="' . $settings['pad_size']  . '">' . $image_marginally . '</td>';
         }
         if ($settings['image'] == 'bottom') {
-                if ($row['image_url'] != '') {
-                        $image_bottom = '<div class="tp_pub_image_bottom"><img name="' . stripslashes($row['name']) . '" src="' . $row['image_url'] . '" style="max-width:' . ($settings['pad_size']  - 5) .'px;" alt="' . stripslashes($row['name']) . '" /></div>';
-                }
+            if ($row['image_url'] != '') {
+                $image_bottom = '<div class="tp_pub_image_bottom"><img name="' . stripslashes($row['name']) . '" src="' . $row['image_url'] . '" style="max-width:' . ($settings['pad_size']  - 5) .'px;" alt="' . stripslashes($row['name']) . '" /></div>';
+            }
         }
         // transform URL into full HTML link
-        if ($row['url'] !='') {
-                $name = '<a href="' . $row['url'] . '">' . $row['name'] . '</a>';
-        }
-        elseif ($row['rel_page'] != 0) {
-                $name = '<a href="' . get_permalink($row['rel_page']) . '">' . $row['name'] . '</a>';
+        if ($row['rel_page'] != 0) {
+            $name = '<a href="' . get_permalink($row['rel_page']) . '">' . $row['name'] . '</a>';
         }
         else {
-                $name = $row['name'];
+            $name = $row['name'];
         }
 
         // parse author names
@@ -138,32 +135,50 @@ class tp_bibtex {
 
         $a2 = '';
         $a3 = '';
-        if ($settings['style'] == 'simple') {
-               $in = $row['editor'] != '' ? '' . __('In','teachpress') . ': ' : '';
-               $a1 = '<tr class="tp_publication_simple">
-                    ' . $td_left . '
-                    <td class="tp_pub_info_simple">
-                    <span class="tp_pub_autor_simple">' . stripslashes($all_authors) . '</span> <span class="tp_pub_year_simple">(' . $row['jahr'] . ')</span>: <span class="tp_pub_titel_simple">' . stripslashes($name) . '.</span> <span class="tp_pub_zusatz_simple">' . $in . tp_bibtex::single_publication_meta_row($row, $settings) . '</span>';
-               if ($settings['with_tags'] == '1') {			
-                   $a2 = ' <span class="tp_pub_tags_simple">(' . __('Type') . ': <span class="tp_pub_typ_simple">' . stripslashes($type) . '</span> | <a onclick="teachpress_showhide(' . $str . 'tp_bibtex_' . $row['pub_id'] . $str . ')" style="cursor:pointer;" title="' . __('Show BibTeX entry','teachpress') . '">' . __('BibTeX','teachpress') . '</a> | ' . __('Tags') . ': ' . $tag_string . ')</span>';
-                }			
+        $abstract = '';
+        $url = '';
+        
+        if ( $row['abstract'] != '' ) {
+            $abstract = '<a onclick="teachpress_showhide(' . $str . 'tp_abstract_' . $row['pub_id'] . $str . ')" title="' . __('Show BibTeX entry','teachpress') . '" style="cursor:pointer;">' . __('Abstract','teachPress') . '</a> | ';
         }
-        else {
-                $a1 = '<tr class="tp_publication">
-                         ' . $td_left . '
-                         <td class="tp_pub_info">
-                         <p class="tp_pub_autor">' . stripslashes($all_authors) . '</p>
-                         <p class="tp_pub_titel">' . stripslashes($name) . ' <span class="tp_pub_typ">(' . stripslashes($type) . ')</span></p>
-                         <p class="tp_pub_zusatz">' . tp_bibtex::single_publication_meta_row($row, $settings) . '</p>';
-                if ($settings['with_tags'] == '1') {			
-                        $a2 = '<p class="tp_pub_tags">(<a onclick="teachpress_showhide(' . $str . 'tp_bibtex_' . $row['pub_id'] . $str . ')" style="cursor:pointer;" title="' . __('Show BibTeX entry','teachpress') . '">' . __('BibTeX','teachpress') . '</a> | ' . __('Tags') . ': ' . $tag_string . ')</p>';
-                }
+        if ( $row['url'] != '' ) {
+            $url = ' | ' . __('Links','teachpress') . ': ' . tp_bibtex::prepare_url($row['url']) . '';
         }
         if ($settings['with_tags'] == '1') {
-             $a3 = '<div class="tp_bibtex" id="tp_bibtex_' . $row['pub_id'] . '" style="display:none;">
-                        <textarea name="tp_bibtex_area" rows="10" cols="30" style="width:90%; margin:10px;">' . tp_bibtex::get_single_publication_bibtex($row, $keywords) . '</textarea>
-                        <p class="tp_bibtex_menu"><a class="tp_bibtex_close" onclick="teachpress_showhide(' . $str . 'tp_bibtex_' . $row['pub_id'] . $str . ')">' . __('Close','teachpress') . '</a></p>
-                   </div>';
+            $tag_string = ' | ' . __('Tags') . ': ' . $tag_string;
+        }
+        $a2 = '(' . $abstract . '<a onclick="teachpress_showhide(' . $str . 'tp_bibtex_' . $row['pub_id'] . $str . ')" style="cursor:pointer;" title="' . __('Show BibTeX entry','teachpress') . '">' . __('BibTeX','teachpress') . '</a>' . $tag_string . $url . ')';
+        
+        // different styles: simple and normal
+        if ($settings['style'] == 'simple') {
+            $in = $row['editor'] != '' ? '' . __('In','teachpress') . ': ' : '';
+            $a1 = '<tr class="tp_publication_simple">
+                ' . $td_left . '
+                <td class="tp_pub_info_simple">
+                <span class="tp_pub_autor_simple">' . stripslashes($all_authors) . '</span> 
+                <span class="tp_pub_year_simple">(' . $row['jahr'] . ')</span>: 
+                <span class="tp_pub_titel_simple">' . stripslashes($name) . '.</span> 
+                <span class="tp_pub_zusatz_simple">' . $in . tp_bibtex::single_publication_meta_row($row, $settings) . '</span>';		
+            $a2 = ' <span class="tp_pub_tags_simple">(' . __('Type') . ': <span class="tp_pub_typ_simple">' . stripslashes($type) . '</span> | ' . $a2 . '</span>';	
+        }
+        else {
+            $a1 = '<tr class="tp_publication">
+                        ' . $td_left . '
+                        <td class="tp_pub_info">
+                        <p class="tp_pub_autor">' . stripslashes($all_authors) . '</p>
+                        <p class="tp_pub_titel">' . stripslashes($name) . ' <span class="tp_pub_typ">(' . stripslashes($type) . ')</span></p>
+                        <p class="tp_pub_zusatz">' . tp_bibtex::single_publication_meta_row($row, $settings) . '</p>';
+            $a2 = '<p class="tp_pub_tags">' . $a2 . '</p>';
+        }
+        $a3 = '<div class="tp_bibtex" id="tp_bibtex_' . $row['pub_id'] . '" style="display:none;">
+                    <div class="tp_bibtex_entry">' . nl2br(tp_bibtex::get_single_publication_bibtex($row, $keywords)) . '</div>
+                    <p class="tp_bibtex_menu"><a class="tp_bibtex_close" onclick="teachpress_showhide(' . $str . 'tp_bibtex_' . $row['pub_id'] . $str . ')">' . __('Close','teachpress') . '</a></p>
+                </div>';
+        if ( $row['abstract'] != '' ) {
+            $a3 = $a3 . '<div class="tp_abstract" id="tp_abstract_' . $row['pub_id'] . '" style="display:none;">
+                            <div class="tp_abstract_entry">' . nl2br(stripslashes($row['abstract'])) . '</div>
+                            <p class="tp_abstract_menu"><a class="tp_abstract_close" onclick="teachpress_showhide(' . $str . 'tp_abstract_' . $row['pub_id'] . $str . ')">' . __('Close','teachpress') . '</a></p>    
+                         </div>';
         }
         $a4 = '' . $image_bottom . '
               </td>
@@ -210,7 +225,7 @@ class tp_bibtex {
         $pages = isset( $row['pages'] ) ? $pages = tp_bibtex::prepare_html_line($row['pages'],'' . __('Page(s)','teachpress') . ': ',', ') : '';
         $publisher = isset( $row['publisher'] ) ? $publisher = tp_bibtex::prepare_html_line($row['publisher'],'',', ') : '';
         $address = isset( $row['address'] ) ? $address = tp_bibtex::prepare_html_line($row['address'],'',', ') : '';
-        $edtion = isset( $row['edition'] ) ? $edition = tp_bibtex::prepare_html_line($row['edition'],'',', ') : '';
+        $edition = isset( $row['edition'] ) ? $edition = tp_bibtex::prepare_html_line($row['edition'],'',', ') : '';
         $chapter = isset( $row['chapter'] ) ? $chapter = tp_bibtex::prepare_html_line($row['chapter'],'',' ') : '';
         $institution = isset( $row['institution'] ) ? $institution = tp_bibtex::prepare_html_line($row['institution'],'',' ') : '';
         $organization = isset( $row['organization'] ) ? $organization = tp_bibtex::prepare_html_line($row['organization'],'',' ') : '';
@@ -221,52 +236,52 @@ class tp_bibtex {
 
         // end format after type
         if ($row['type'] == 'article') {
-                $end = $journal . $volume . $number . $pages . $year . $isbn . '.';
+            $end = $journal . $volume . $number . $pages . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'book') {
-                $end = $edition . $publisher . $address . $year . $isbn . '.';
+            $end = $edition . $publisher . $address . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'booklet') {
-                $end = $howpublished . $address . $edition . $isbn . '.';
+            $end = $howpublished . $address . $edition . $isbn . '.';
         }
         elseif ($row['type'] == 'conference') {
-                $end = $booktitle . $year . $volume . $number . $series . $publisher . $address . $isbn . '.';
+            $end = $booktitle . $year . $volume . $number . $series . $publisher . $address . $isbn . '.';
         }
         elseif ($row['type'] == 'inbook') {
-                $end = $editor . $booktitle . $volume . $pages . $publisher . $address . $edition . $year . $isbn . '.';
+            $end = $editor . $booktitle . $volume . $pages . $publisher . $address . $edition . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'incollection') {
-                $end = $editor . $booktitle . $publisher . $isbn . '.';
+            $end = $editor . $booktitle . $publisher . $isbn . '.';
         }
         elseif ($row['type'] == 'inproceedings') {
-                $end = $editor . $booktitle . $pages . $address . $publisher . $year . $isbn . '.';
+            $end = $editor . $booktitle . $pages . $address . $publisher . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'manual') {
-                $end = $editor . $address. $edition . $year . $isbn . '.';
+            $end = $editor . $address. $edition . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'mastersthesis') {
-                $end = $school . $year . $isbn . '.';
+            $end = $school . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'misc') {
-                $end = $journal . $volume . $howpublished . $year . $isbn . '.';
+            $end = $journal . $volume . $howpublished . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'phdthesis') {
-                $end = $school . $year . $isbn . '.';
+            $end = $school . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'presentation') {
-                $end = $howpublished . $row['address'] . '.';
+            $end = $howpublished . $row['address'] . '.';
         }
         elseif ($row['type'] == 'proceedings') {
-                $end = $howpublished . $address . $edition . $year . $isbn . '.';
+            $end = $howpublished . $address . $edition . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'techreport') {
-                $end = $school . $institution . $address . $number . $year . $isbn . '.';
+            $end = $school . $institution . $address . $number . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'unpublished') {
-                $end = $year . $isbn . '.';
+            $end = $year . $isbn . '.';
         }
         else {
-                $end = $row['jahr'] . '.';
+            $end = $row['jahr'] . '.';
         }
         $end = stripslashes($end);
         return $end;
@@ -275,7 +290,7 @@ class tp_bibtex {
       * Import a BibTeX String
       * @global $PARSEENTRIES (CLASS)
       * @param STRING $input 
-      * @param ARRAY $settings --> with index names: keyword_separator
+      * @param ARRAY $settings --> with index names: keyword_separator, author_format
       */
      function import_bibtex ($input, $settings) {
           global $PARSEENTRIES;
@@ -315,6 +330,24 @@ class tp_bibtex {
               // for name
               if ($entries[$i]['name'] == '') {
                    $entries[$i]['name'] = $entries[$i]['title'];
+              }
+              // for author / editor
+              // for format lastname1, firstname1 and lastname2, firstname2
+              if ($settings['author_format'] == 2) {
+                  $end = '';
+                  $new = explode(' and ', $entries[$i]['author'] );
+                  foreach ( $new as $new ) {
+                      $parts = explode(',', $new); 
+                      $num = count($parts); 
+                      $one = ''; 
+                      for ($j = 1; $j < $num; $j++) {
+                          $parts[$j] = trim($parts[$j]);
+                          $one = $one . ' '. $parts[$j];
+                      }
+                      $one = $one . ' ' . trim($parts[0]);
+                      $end = $end != '' ? $end . ' and ' . $one : $one;
+                  }
+                  $entries[$i]['author'] = $end;
               }
               // add in database
               $entries[$i]['type'] = $entries[$i]['bibtexEntryType'];
@@ -384,6 +417,23 @@ class tp_bibtex {
           }
           return $input;
      }
+     
+     /**
+      * Prepare a url link for publication resources 
+      * @param string $url
+      * @return string 
+      */
+     private function prepare_url($url) {
+         $end = '';
+         $url = explode(chr(13) . chr(10), $url);
+         foreach ($url as $url) {
+             $parts = explode(', ',$url);
+             $parts[0] = trim( $parts[0] );
+             $parts[1] = isset( $parts[1] ) ? $parts[1] : $parts[0];
+             $end = $end . '<a class="tp_pub_resource" href="' . $parts[0] . '" title="' . $parts[1] . '" target="_blank"><img class="tp_pub_resource_image" alt="" src="' . get_tp_mimetype_images( $parts[0] ) . '"/></a>';
+         }
+         return $end;
+     }
 
      /**
       * Parse author names
@@ -403,17 +453,17 @@ class tp_bibtex {
            $creatorArray = $creator->parse($input);
            $all_authors = "";
            for ($i = 0; $i < count($creatorArray); $i++) {
-                   $one_author = "";
-                   if ($mode == 'last' || $mode == 'initials') {
-                           if ($creatorArray[$i][3] != '') { $one_author = trim($creatorArray[$i][3]);}
-                           if ($creatorArray[$i][2] != '') { $one_author = $one_author . ' ' .trim($creatorArray[$i][2]) . ',';}
-                           if ($creatorArray[$i][0] != '') { $one_author = $one_author . ' ' .trim($creatorArray[$i][0]);}
-                           if ($mode == 'initials') { 
-                                   if ($creatorArray[$i][1] != '') { $one_author = $one_author . ' ' .trim($creatorArray[$i][1]);}
-                           }
-                           $all_authors = $all_authors . stripslashes($one_author);
-                           if ($i < count($creatorArray) -1) {$all_authors = $all_authors . '; ';}
-                   }
+                $one_author = "";
+                if ($mode == 'last' || $mode == 'initials') {
+                    if ($creatorArray[$i][3] != '') { $one_author = trim($creatorArray[$i][3]);}
+                    if ($creatorArray[$i][2] != '') { $one_author = $one_author . ' ' .trim($creatorArray[$i][2]) . ',';}
+                    if ($creatorArray[$i][0] != '') { $one_author = $one_author . ' ' .trim($creatorArray[$i][0]);}
+                    if ($mode == 'initials') { 
+                        if ($creatorArray[$i][1] != '') { $one_author = $one_author . ' ' .trim($creatorArray[$i][1]);}
+                    }
+                    $all_authors = $all_authors . stripslashes($one_author);
+                    if ($i < count($creatorArray) -1) {$all_authors = $all_authors . '; ';}
+                }
            }
         }
         /* the original (old) teachpress parsing
@@ -425,19 +475,19 @@ class tp_bibtex {
            $array = explode(" and ",$input);
            $lenth = count ($array);
            for ($i=0; $i < $lenth; $i++) {
-                   $array[$i] = trim($array[$i]);
-                   $names = explode(" ",$array[$i]);
-                   $lenth2 = count($names);
-                   for ($j=0; $j < $lenth2-1; $j++) {
-                           $one_author = $one_author . ' ' . trim( $names[$j] );
-                   }
-                   $one_author = trim( $names[$lenth2 - 1] ). ', ' . $one_author;
-                   $all_authors = $all_authors . $one_author;
-                   if ($i < $lenth - 1) {
-                           $all_authors = $all_authors . '; ';
-                   }
-                   $one_author = "";
+                $array[$i] = trim($array[$i]);
+                $names = explode(" ",$array[$i]);
+                $lenth2 = count($names);
+                for ($j=0; $j < $lenth2-1; $j++) {
+                        $one_author = $one_author . ' ' . trim( $names[$j] );
                 }
+                $one_author = trim( $names[$lenth2 - 1] ). ', ' . $one_author;
+                $all_authors = $all_authors . $one_author;
+                if ($i < $lenth - 1) {
+                        $all_authors = $all_authors . '; ';
+                }
+                $one_author = "";
+            }
         }
         /* the simple teachpress_parsing
          * example: Adolf F. Weinhold and Albert Einstein --> Adolf F. Weinhold, Albert Einstein
