@@ -623,7 +623,7 @@ function tp_install() {
         dbDelta($sql);
         // Default settings		
         $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('sem', 'Example term', 'system')");
-        $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('db-version', '3.0.0', 'system')");
+        $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('db-version', '3.1.0', 'system')");
         $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('permalink', '1', 'system')");
         $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('sign_out', '0', 'system')");
         $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('login', 'std', 'system')");
@@ -751,7 +751,7 @@ function tp_backend_scripts() {
         // Datepicker
         wp_enqueue_script(array('jquery-ui-core', 'jquery-ui-datepicker'));
         wp_enqueue_style('teachpress-datepicker.css', WP_PLUGIN_URL . '/teachpress/js/datepicker/jquery.ui.datepicker.css');
-        $lang = array('de_DE','it_IT','es_ES');
+        $lang = array('de_DE','it_IT','es_ES', 'sk_SK');
         if ( in_array( WPLANG , $lang) ) {
             wp_enqueue_script('teachpress-datepicker-de', WP_PLUGIN_URL . '/teachpress/js/datepicker/jquery.ui.datepicker-' . WPLANG . '.js');
         }

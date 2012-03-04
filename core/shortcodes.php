@@ -220,7 +220,7 @@ function tp_single_shortcode ($atts) {
    extract(shortcode_atts(array(
       'id' => 0,
       'author_name' => 'simple',
-      'editor_name' => 'old'
+      'editor_name' => 'last'
    ), $atts));
    // secure parameters
    settype($id, 'integer');
