@@ -139,7 +139,7 @@ class tp_bibtex {
         $url = '';
         
         if ( $row['abstract'] != '' ) {
-            $abstract = '<a onclick="teachpress_showhide(' . $str . 'tp_abstract_' . $row['pub_id'] . $str . ')" title="' . __('Show BibTeX entry','teachpress') . '" style="cursor:pointer;">' . __('Abstract','teachPress') . '</a> | ';
+            $abstract = '<a onclick="teachpress_showhide(' . $str . 'tp_abstract_' . $row['pub_id'] . $str . ')" title="' . __('Show Show abstract','teachpress') . '" style="cursor:pointer;">' . __('Abstract','teachPress') . '</a> | ';
         }
         if ( $row['url'] != '' ) {
             $url = ' | ' . __('Links','teachpress') . ': ' . tp_bibtex::prepare_url($row['url']) . '';
@@ -158,7 +158,8 @@ class tp_bibtex {
                 <span class="tp_pub_autor_simple">' . stripslashes($all_authors) . '</span> 
                 <span class="tp_pub_year_simple">(' . $row['jahr'] . ')</span>: 
                 <span class="tp_pub_titel_simple">' . stripslashes($name) . '.</span> 
-                <span class="tp_pub_zusatz_simple">' . $in . tp_bibtex::single_publication_meta_row($row, $settings) . '</span>';		
+                <span class="tp_pub_zusatz_simple">' . $in . tp_bibtex::single_publication_meta_row($row, $settings) . '</span>';
+            $a2 = substr($a2, 1);
             $a2 = ' <span class="tp_pub_tags_simple">(' . __('Type') . ': <span class="tp_pub_typ_simple">' . stripslashes($type) . '</span> | ' . $a2 . '</span>';	
         }
         else {
@@ -242,7 +243,7 @@ class tp_bibtex {
             $end = $edition . $publisher . $address . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'booklet') {
-            $end = $howpublished . $address . $edition . $isbn . '.';
+            $end = $howpublished . $address . $edition . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'conference') {
             $end = $booktitle . $year . $volume . $number . $series . $publisher . $address . $isbn . '.';
