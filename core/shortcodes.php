@@ -303,7 +303,7 @@ function tp_generate_pub_table($tparray, $tpz, $headline, $row_year, $colspan) {
  * @param $atts (ARRAY) with: 
  *   user (INT)             => 0 for all publications of all users, default: 0
  *   type (STRING)          => a publication type
- *   exclude (INT)      	=> one or more IDs of publications (separate by comma) you don't want to show
+ *   exclude (INT)          => one or more IDs of publications (separate by comma) you don't want to show
  *   order (STRING)         => name, year, bibtex or type, default: date DESC
  *   headline (INT)         => show headlines with years(1) with publication types(2) or not(0), default: 1
  *   maxsize (INT)          => maximal font size for the tag cloud, default: 35
@@ -713,12 +713,11 @@ function tp_cloud_shortcode($atts) {
    $join = "INNER JOIN " . $teachpress_tags . " t ON t.tag_id = b.tag_id
             INNER JOIN " . $teachpress_pub . " p ON p.pub_id = b.pub_id ";
    $where = "";
-   
    // define where clause
    if ( $yr != 0 && $yr != '' ) {
        $where = "(p.date BETWEEN '$yr-01-01' AND '$yr-12-31')";
    }
-   if ( $type != '0' && $sort_type == '' ) {
+   if ( $type != '0' && $sort_type == 'all' ) {
        $and = $where == '' ? '' : ' AND '; 
        $where = $where . $and . 'p.type = ' . $str . '' . $type . '' . $str . '';
    }

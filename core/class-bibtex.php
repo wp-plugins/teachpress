@@ -139,7 +139,7 @@ class tp_bibtex {
         $url = '';
         
         if ( $row['abstract'] != '' ) {
-            $abstract = '<a onclick="teachpress_showhide(' . $str . 'tp_abstract_' . $row['pub_id'] . $str . ')" title="' . __('Show Show abstract','teachpress') . '" style="cursor:pointer;">' . __('Abstract','teachPress') . '</a> | ';
+            $abstract = '<a onclick="teachpress_showhide(' . $str . 'tp_abstract_' . $row['pub_id'] . $str . ')" title="' . __('Show abstract','teachpress') . '" style="cursor:pointer;">' . __('Abstract','teachPress') . '</a> | ';
         }
         if ( $row['url'] != '' ) {
             $url = ' | ' . __('Links','teachpress') . ': ' . tp_bibtex::prepare_url($row['url']) . '';
