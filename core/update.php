@@ -489,10 +489,10 @@ function tp_db_update_function() {
             $wpdb->query("ALTER TABLE " . $teachpress_pub . " DROP `verlag`");
             echo '<p>Table for publications updated.</p>';
         }
-
-        /******************************/
-        /* End teachPress 2.0 Upgrade */
-        /******************************/
+        
+        /*********************************/
+        /* teachPress 2.1 - 3.0 Upgrades */
+        /*********************************/
 
         /*
         * teachpress_courses
@@ -612,7 +612,7 @@ function tp_db_update_function() {
         /* Fixes */
         /*********/
         // Change type in column birthday
-        // Fixed a bug with the installer in tp 2.0.0 to 2.1.0
+        // Fixed a bug with the installer in teachpress versions 2.0.0 to 2.1.0
         $sql = "SELECT `birthday` FROM " . $teachpress_stud . "";
         $wpdb->get_results($sql);
         $test = $wpdb->get_col_info('type', 0);

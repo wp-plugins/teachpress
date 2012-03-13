@@ -139,7 +139,7 @@ class tp_bibtex {
         $url = '';
         
         if ( $row['abstract'] != '' ) {
-            $abstract = '<a onclick="teachpress_showhide(' . $str . 'tp_abstract_' . $row['pub_id'] . $str . ')" title="' . __('Show abstract','teachpress') . '" style="cursor:pointer;">' . __('Abstract','teachPress') . '</a> | ';
+            $abstract = '<a onclick="teachpress_pub_showhide(' . $str . $row['pub_id'] . $str . ',' . $str . 'tp_abstract' . $str . ')" title="' . __('Show abstract','teachpress') . '" style="cursor:pointer;">' . __('Abstract','teachPress') . '</a> | ';
         }
         if ( $row['url'] != '' ) {
             $url = ' | ' . __('Links','teachpress') . ': ' . tp_bibtex::prepare_url($row['url']) . '';
@@ -147,7 +147,7 @@ class tp_bibtex {
         if ($settings['with_tags'] == '1') {
             $tag_string = ' | ' . __('Tags') . ': ' . $tag_string;
         }
-        $a2 = '(' . $abstract . '<a onclick="teachpress_showhide(' . $str . 'tp_bibtex_' . $row['pub_id'] . $str . ')" style="cursor:pointer;" title="' . __('Show BibTeX entry','teachpress') . '">' . __('BibTeX','teachpress') . '</a>' . $tag_string . $url . ')';
+        $a2 = '(' . $abstract . '<a onclick="teachpress_pub_showhide(' . $str . $row['pub_id'] . $str . ',' . $str . 'tp_bibtex' . $str . ')" style="cursor:pointer;" title="' . __('Show BibTeX entry','teachpress') . '">' . __('BibTeX','teachpress') . '</a>' . $tag_string . $url . ')';
         
         // different styles: simple and normal
         if ($settings['style'] == 'simple') {

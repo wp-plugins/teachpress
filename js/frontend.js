@@ -2,19 +2,41 @@
 
 // for jumpmenu
 function teachpress_jumpMenu(targ,selObj,restore){
-  eval(targ+".location='"+selObj.options[selObj.selectedIndex].value+"'");
-  if (restore) selObj.selectedIndex=0;
+    eval(targ+".location='"+selObj.options[selObj.selectedIndex].value+"'");
+    if (restore) selObj.selectedIndex=0;
 }
 
 // for show/hide buttons
 function teachpress_showhide(where) {
-	 var mode = "block";
-     if (document.getElementById(where).style.display != mode) {
-     	document.getElementById(where).style.display = mode;
-     }
-     else {
-     	document.getElementById(where).style.display = "none";
-     }
+    var mode = "block";
+    if (document.getElementById(where).style.display != mode) {
+        document.getElementById(where).style.display = mode;
+    }
+    else {
+        document.getElementById(where).style.display = "none";
+    }
+}
+// for show/hide div container in publication lists
+function teachpress_pub_showhide(id, button) {
+    var mode = "block";
+    var curr = button + "_" + id;
+    if ( document.getElementById(curr).style.display == mode ) {
+        document.getElementById(curr).style.display = "none";
+    }
+    else {
+        container = new Array("tp_abstract_" + id, "tp_bibtex_" + id, "tp_links_" + id);
+        for ( i=0; i < (container.length - 1); i++ ) {
+            if ( document.getElementById(container[i]) ) {
+                if ( container[i] == curr ) {
+                    document.getElementById(container[i]).style.display = mode;
+                    continue;
+                }
+                if ( document.getElementById(container[i]).style.display == mode ) {
+                    document.getElementById(container[i]).style.display = "none";
+                }
+            }
+        }
+    }
 }
 
 // validate forms
