@@ -315,6 +315,7 @@ function tp_generate_pub_table($tparray, $tpz, $headline, $row_year, $colspan) {
  *   author_name (STRING)   => simple, last, initials or old, default: last
  *   editor_name (STRING)   => simple, last, initials or old, default: last
  *   style (STRING)         => simple or std, default: std
+ *   link_style (STRING)    => inline or images, default: inline
  * $_GET: $yr (Year, INT), $type (Type, STRING), $autor (Author, INT)
  * @return STRING
 */
@@ -342,7 +343,8 @@ function tp_cloud_shortcode($atts) {
       'anchor' => 1,
       'author_name' => 'last',
       'editor_name' => 'last',
-      'style' => 'std'
+      'style' => 'std',
+      'link_style' => 'inline'
    ), $atts));
    $user = $id; // switch to the new parameter
    settype($user, 'integer');
@@ -385,11 +387,15 @@ function tp_cloud_shortcode($atts) {
    settype($anchor, 'integer');
    settype($headline, 'integer');
    $order_all = tp_sec_var($order);
-   $settings['author_name'] = tp_sec_var($author_name);
-   $settings['editor_name'] = tp_sec_var($editor_name);
-   $settings['style'] = tp_sec_var($style);
-   $settings['image'] = tp_sec_var($image);
-   $settings['with_tags'] = '1';
+   $settings = array(
+       'author_name' => tp_sec_var($author_name),
+       'editor_name' => tp_sec_var($editor_name),
+       'style' => tp_sec_var($style),
+       'image' => tp_sec_var($image),
+       'with_tags' => 1,
+       'link_style' => tp_sec_var($link_style),
+       'html_anchor' => ''
+       );
    // define order_by clause
    $order = '';
    $array = explode(",",$order_all);
@@ -436,12 +442,9 @@ function tp_cloud_shortcode($atts) {
    else {
       $page = "p";
    }
-   // With anchor or not
+   // With html anchors?
    if ($anchor == '1') {
       $settings['html_anchor'] = '#tppubs';
-   }
-   else {
-      $settings['html_anchor'] = '';
    }
    $url["permalink"] = get_tp_option('permalink');
 
@@ -582,7 +585,7 @@ function tp_cloud_shortcode($atts) {
 
    /**********/ 
    /* Filter */
-   /**********/ 
+   /**********/
 
    // for javascripts
    $str ="'";
@@ -818,6 +821,7 @@ function tp_cloud_shortcode($atts) {
  *   author_name (STRING)   => last, initials or old, default: last
  *   editor_name (STRING)   => last, initials or old, default: last
  *   style (STRING)         => simple or std, default: std
+ *   link_style (STRING)    => inline or images, default: inline
  * @return STRING
 */
 function tp_list_shortcode($atts){
@@ -839,7 +843,8 @@ function tp_list_shortcode($atts){
       'image_size' => 0,
       'author_name' => 'last',
       'editor_name' => 'last',
-      'style' => 'std'
+      'style' => 'std',
+      'link_style' => 'inline'
    ), $atts));
    $userid = $user;
    $tag_id = $tag;
@@ -859,7 +864,8 @@ function tp_list_shortcode($atts){
        'editor_name' => tp_sec_var($editor_name),
        'style' => tp_sec_var($style),
        'image' => tp_sec_var($image),
-       'with_tags' => 0
+       'with_tags' => 0,
+       'link_style' => tp_sec_var($link_style)
    );
    // define order_by clause
    $order = '';

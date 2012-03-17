@@ -49,28 +49,31 @@ h3.tp_enrollments {color:#005A46;}
 .teachpress_publication_list td, .teachpress_course_list td {padding:5px;}
 /* standard style */ 
 td.tp_pub_info {border-bottom:1px solid silver; vertical-align:top; padding:8px;}
-.tp_pub_autor, #content p.tp_pub_autor {font-size:small; margin-bottom:1px; margin-top:1px;}
-.tp_pub_titel, #content p.tp_pub_titel {font-size:small; font-weight:bold; margin-top:1px; margin-bottom:1px;}
-.tp_pub_zusatz, #content p.tp_pub_zusatz {font-size:small; margin-top:1px; margin-bottom:1px;}
+.tp_pub_author, #content p.tp_pub_author {font-size:small; margin-bottom:1px; margin-top:1px;}
+.tp_pub_title, #content p.tp_pub_title {font-size:small; font-weight:bold; margin-top:1px; margin-bottom:1px;}
+.tp_pub_additional, #content p.tp_pub_additional {font-size:small; margin-top:1px; margin-bottom:1px;}
 .tp_pub_tags, #content p.tp_pub_tags  {font-size:small; margin-top:1px; margin-bottom:1px; color:#AAAAAA;}
 .tp_pub_tags a {color:#AAAAAA; text-decoration:underline;}
 .tp_pub_tags a:hover {color:#AAAAAA; text-decoration:none;}
 .tp_pub_typ {font-weight:bold;}
 /* simple style */
 td.tp_pub_info_simple {border-bottom:1px solid silver; vertical-align:top; padding:8px;}
-.tp_pub_autor_simple, #content span.tp_pub_autor_simple {}
-.tp_pub_titel_simple, #content span.tp_pub_titel_simple {font-weight:bold;}
-.tp_pub_zusatz_simple, #content span.tp_pub_zusatz_simple {}
+.tp_pub_author_simple, #content span.tp_pub_author_simple {}
+.tp_pub_title_simple, #content span.tp_pub_title_simple {font-weight:bold;}
+.tp_pub_additional_simple, #content span.tp_pub_additional_simple {}
 .tp_pub_tags_simple, #content span.tp_pub_tags_simple  {color:#AAAAAA;}
 .tp_pub_tags_simple a {color:#AAAAAA; text-decoration:underline;}
 .tp_pub_tags_simple a:hover {color:#AAAAAA; text-decoration:none;}
 .tp_pub_typ_simple {}
-/* meta line */
-.tp_bibtex, .tp_abstract{}
-.tp_bibtex_entry, .tp_abstract_entry{padding:8px 8px 8px 8px;}
-.tp_bibtex_menu, .tp_abstract_menu {margin-top:1px; margin-bottom:1px;}
-.tp_bibtex_close, .tp_abstract_close {cursor:pointer;}
-.tp_pub_resource img {margin: 0; width: 17px; height: 17px; padding: 0 1px 0 1px; display: inline;}
+/* abstract, bibtex, link boxes */
+.tp_bibtex_entry, .tp_abstract_entry, .tp_links_entry{padding:8px 8px 8px 8px;}
+.tp_close_menu {margin-top:1px; margin-bottom:1px;}
+.tp_close {cursor:pointer; font-weight: bold;}
+.tp_pub_link img {margin: 0; width: 17px; height: 17px; padding: 0 1px 0 1px; display: inline;}
+ul.tp_pub_list li {padding: 3px 0 3px 0;}
+a.tp_pub_list {padding: 5px 0 5px 22px; background: no-repeat 0 3px; background-size: 18px 18px;}
+a.tp_show {color: inherit;}
+a.tp_show_block {font-weight: bold; text-decoration: none;}
 .tp_pub_image_bottom {text-align:center;}
 .teachpress_message {border:1px solid #f90; border-left-width:0.9em; font-weight:bold; margin:1em; padding:.5em 1em;}
 .teachpress_message_error {border:1px solid #FF0000; border-left-width:0.9em; font-weight:bold; margin:1em; padding:.5em 1em;}

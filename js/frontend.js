@@ -20,19 +20,23 @@ function teachpress_showhide(where) {
 function teachpress_pub_showhide(id, button) {
     var mode = "block";
     var curr = button + "_" + id;
+    var currSh = button + "_sh_" + id;
     if ( document.getElementById(curr).style.display == mode ) {
         document.getElementById(curr).style.display = "none";
+        document.getElementById(currSh).setAttribute("class", "tp_show");
     }
     else {
-        container = new Array("tp_abstract_" + id, "tp_bibtex_" + id, "tp_links_" + id);
-        for ( i=0; i < (container.length - 1); i++ ) {
-            if ( document.getElementById(container[i]) ) {
-                if ( container[i] == curr ) {
-                    document.getElementById(container[i]).style.display = mode;
+        container = new Array("tp_abstract_", "tp_bibtex_", "tp_links_");
+        for ( i=0; i < (container.length); i++ ) {
+            if ( document.getElementById(container[i] + id) ) {
+                if ( (container[i] + id) == curr ) {
+                    document.getElementById(container[i] + id).style.display = mode;
+                    document.getElementById(container[i] + "sh_" + id).setAttribute("class", "tp_show_block");
                     continue;
                 }
-                if ( document.getElementById(container[i]).style.display == mode ) {
-                    document.getElementById(container[i]).style.display = "none";
+                if ( document.getElementById(container[i] + id).style.display == mode ) {
+                    document.getElementById(container[i] + id).style.display = "none";
+                    document.getElementById(container[i] + "sh_" + id).setAttribute("class", "tp_show");
                 }
             }
         }
