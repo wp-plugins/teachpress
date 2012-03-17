@@ -136,7 +136,7 @@ function teachpress_addpublications_page() {
                    }
              }	
              else {
-                           echo '<p><input type="checkbox" name="bookmark[]" id="bookmark" value="' . $user . '" title="' . __('Click to add the publication in your own list','teachpress') . '"/> <label for="bookmark" title="' . __('Click to add the publication in your own list','teachpress') . '">' . __('add to your own list','teachpress') . '</label></p>';
+                   echo '<p><input type="checkbox" name="bookmark[]" id="bookmark" value="' . $user . '" title="' . __('Click to add the publication in your own list','teachpress') . '"/> <label for="bookmark" title="' . __('Click to add the publication in your own list','teachpress') . '">' . __('add to your own list','teachpress') . '</label></p>';
                    }
              // search users with min. one bookmark
              $abfrage = "SELECT DISTINCT user FROM " . $teachpress_user . "";
@@ -192,18 +192,18 @@ function teachpress_addpublications_page() {
             <td>
             <?php if ($pub_ID != '') {
             $sql = "SELECT t.name, b.con_id 
-                        FROM " . $teachpress_relation . " b
-                        INNER JOIN " . $teachpress_tags . " t ON t.tag_id=b.tag_id
-                        INNER JOIN " . $teachpress_pub . " p ON p.pub_id=b.pub_id
-                        WHERE p.pub_id = '$pub_ID'
-                        ORDER BY t.name";	
+                    FROM " . $teachpress_relation . " b
+                    INNER JOIN " . $teachpress_tags . " t ON t.tag_id=b.tag_id
+                    INNER JOIN " . $teachpress_pub . " p ON p.pub_id=b.pub_id
+                    WHERE p.pub_id = '$pub_ID'
+                    ORDER BY t.name";	
             $test = $wpdb->query($sql);
             if ($test != '0') {
                 $sql = $wpdb->get_results($sql);
                 echo '<p><strong>' . __('Current','teachpress') . '</strong></p>';
                 foreach ($sql as $row3){
-                        $s = "'";
-                        echo'<input name="delbox[]" type="checkbox" value="' . $row3->con_id . '" title="Tag &laquo;' . $row3->name . '&raquo; ' . __('Delete','teachpress') . '" id="checkbox_' . $row3->con_id . '" onclick="teachpress_change_label_color(' . $s . $row3->con_id . $s . ')"/> <span style="font-size:12px;" ><label for="checkbox_' . $row3->con_id . '" title="Tag &laquo;' . $row3->name . '&raquo; ' . __('Delete','teachpress') . '" id="tag_label_' . $row3->con_id . '">' . $row3->name . '</label></span> | ';
+                    $s = "'";
+                    echo'<input name="delbox[]" type="checkbox" value="' . $row3->con_id . '" title="Tag &laquo;' . $row3->name . '&raquo; ' . __('Delete','teachpress') . '" id="checkbox_' . $row3->con_id . '" onclick="teachpress_change_label_color(' . $s . $row3->con_id . $s . ')"/> <span style="font-size:12px;" ><label for="checkbox_' . $row3->con_id . '" title="Tag &laquo;' . $row3->name . '&raquo; ' . __('Delete','teachpress') . '" id="tag_label_' . $row3->con_id . '">' . $row3->name . '</label></span> | ';
                 } 
             }	
             }?>  
@@ -216,26 +216,25 @@ function teachpress_addpublications_page() {
             // Font sizes
             $maxsize = 25;
             $minsize = 11;
-            // Ermittle Anzahl der Tags absteigend sortiert
+            // Select number of tags
             $sql = "SELECT anzahlTags FROM ( SELECT COUNT(*) AS anzahlTags FROM " . $teachpress_relation . " GROUP BY " . $teachpress_relation . ".`tag_id` ORDER BY anzahlTags DESC ) as temp1 GROUP BY anzahlTags ORDER BY anzahlTags DESC";
-            // Ermittle einzelnes Vorkommen der Tags, sowie Min und Max
             $sql = "SELECT MAX(anzahlTags) AS max, min(anzahlTags) AS min, COUNT(anzahlTags) as gesamt FROM (".$sql.") AS temp";
             $tagcloud_temp = $wpdb->get_row($sql, ARRAY_A);
             $max = $tagcloud_temp['max'];
             $min = $tagcloud_temp['min'];
-            // Tags und Anzahl zusammenstellen
+            // Compose tags and numbers
             $sql = "SELECT tagPeak, name, tag_id FROM ( SELECT COUNT(b.tag_id) as tagPeak, t.name AS name,  t.tag_id as tag_id FROM " . $teachpress_relation . " b LEFT JOIN " . $teachpress_tags . " t ON b.tag_id = t.tag_id GROUP BY b.tag_id ORDER BY tagPeak DESC LIMIT " . $limit . " ) AS temp WHERE tagPeak>=".$min." ORDER BY name";
             $test = $wpdb->query($sql);
             if ($test != '0') {
                 $temp = $wpdb->get_results($sql, ARRAY_A);
-                // Endausgabe der Cloud zusammenstellen
+                // create the cloud
                 foreach ($temp as $tagcloud) {
                     if ($min == 1) {
                         $min = 0;
                     }
-                    // Formel: max. Schriftgroesse*(aktuelle anzahl - kleinste Anzahl)/ (groe�te Anzahl - kleinste Anzahl)
+                    // Formula: max. font size * (current number - min number) / (max number - min number)
                     $size = floor(($maxsize*($tagcloud['tagPeak']-$min)/($max-$min)));
-                    // Ausgleich der Schriftgr��e
+                    // Balancing the font size
                     if ($size < $minsize) {
                         $size = $minsize ;
                     }

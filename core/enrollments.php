@@ -126,10 +126,10 @@ function tp_add_registration($checkbox, $wp_id){
  * @param ARRAY $checkbox2 - An array with the registration IDs
 */
 function tp_delete_registration_student($checkbox2) {
-     global $wpdb;
-     global $teachpress_courses; 
-     global $teachpress_signup;
-     for( $i = 0; $i < count( $checkbox2 ); $i++ ) {
+    global $wpdb;
+    global $teachpress_courses; 
+    global $teachpress_signup;
+    for( $i = 0; $i < count( $checkbox2 ); $i++ ) {
         settype($checkbox2[$i], 'integer');
         // Select course ID
         $sql = "SELECT `course_id` FROM " . $teachpress_signup . " WHERE `con_id` = '$checkbox2[$i]'";
@@ -157,8 +157,8 @@ function tp_delete_registration_student($checkbox2) {
         $wpdb->query("DELETE FROM " . $teachpress_signup . " WHERE `con_id` = '$checkbox2[$i]'");
         // End transaction
         $wpdb->query("COMMIT");
-     }	
-     return '<div class="teachpress_message_success">' . __('You are signed out successful','teachpress') . '</div>';
+    }	
+    return '<div class="teachpress_message_success">' . __('You are signed out successful','teachpress') . '</div>';
 }
 
 /** 
@@ -168,19 +168,19 @@ function tp_delete_registration_student($checkbox2) {
  * @return BOOLEAN
 */
 function tp_add_student($wp_id, $data) {
-     global $wpdb;
-     global $teachpress_stud;
-     $wp_id = tp_sec_var($wp_id, 'integer');
-     $sql = "SELECT `wp_id` FROM " . $teachpress_stud . " WHERE `wp_id` = '$wp_id'";
-     $test = $wpdb->query($sql);
-     if ($test == '0') {
-          $data['birthday'] = $data['birth_year'] . '-' . $data['birth_month'] . '-' . $data['birth_day'];
-          $wpdb->insert( $teachpress_stud, array( 'wp_id' => $wp_id, 'firstname' => $data['firstname'], 'lastname' => $data['lastname'], 'course_of_studies' => $data['course_of_studies'], 'userlogin' => $data['userlogin'], 'birthday' => $data['birthday'], 'email' => $data['email'], 'semesternumber' => $data['semester_number'], 'matriculation_number' => $data['matriculation_number'] ), array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d' ) );
-          return true;
-     }
-     else {
-          return false;
-     }
+    global $wpdb;
+    global $teachpress_stud;
+    $wp_id = tp_sec_var($wp_id, 'integer');
+    $sql = "SELECT `wp_id` FROM " . $teachpress_stud . " WHERE `wp_id` = '$wp_id'";
+    $test = $wpdb->query($sql);
+    if ($test == '0') {
+        $data['birthday'] = $data['birth_year'] . '-' . $data['birth_month'] . '-' . $data['birth_day'];
+        $wpdb->insert( $teachpress_stud, array( 'wp_id' => $wp_id, 'firstname' => $data['firstname'], 'lastname' => $data['lastname'], 'course_of_studies' => $data['course_of_studies'], 'userlogin' => $data['userlogin'], 'birthday' => $data['birthday'], 'email' => $data['email'], 'semesternumber' => $data['semester_number'], 'matriculation_number' => $data['matriculation_number'] ), array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d' ) );
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 /** 
@@ -413,7 +413,7 @@ function tp_enrollments_shortcode($atts) {
                   * Menu
                  */
                  $rtn = $rtn . '<div class="tp_user_menu" style="padding:5px;">
-                                   <h4>' . __('Hello','teachpress') . ', ' . stripslashes($row->firstname) . ' ' . stripslashes($row->lastname) . '</h4>';
+                                 <h4>' . __('Hello','teachpress') . ', ' . stripslashes($row->firstname) . ' ' . stripslashes($row->lastname) . '</h4>';
                  // handle permalink usage
                  // No Permalinks: Page or Post?
                  if (is_page()) {

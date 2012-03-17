@@ -247,27 +247,27 @@ function tp_single_shortcode ($atts) {
  * @return STRING 
  */
 function tp_sort_pub_table($tparray, $tpz, $headline, $colspan, $line_title, $line_name = '') {
-     $save = '';
-     $publications = '';
-     $field = $headline == 2 ? 2 : 0;
-     $line_name = $line_name == '' ? $line_title : $line_name;
-     for ($i=0; $i < $tpz; $i++) {
-          // without headlines
-          if ( $headline == 0 ) {
-               $publications = $publications . $tparray[$i][1];
-          }
-          // with headlines
-          if ( $headline == 1 || $headline == 2 ) {
-               if ($tparray[$i][$field] == $line_name) {
-                    $save = $save . $tparray[$i][1];
-               }
-               if ( ( $tparray[$i][$field] != $line_name || $i == $tpz - 1 ) && $save != '' ) {
-                    $publications = $publications . '<tr><td' . $colspan . '><h3 class="tp_h3">' . $line_title . '</h3></td></tr>' . $save;
-                    $save = '';
-               }
-          }
-     }
-     return $publications;
+    $save = '';
+    $publications = '';
+    $field = $headline == 2 ? 2 : 0;
+    $line_name = $line_name == '' ? $line_title : $line_name;
+    for ($i=0; $i < $tpz; $i++) {
+        // without headlines
+        if ( $headline == 0 ) {
+            $publications = $publications . $tparray[$i][1];
+        }
+        // with headlines
+        if ( $headline == 1 || $headline == 2 ) {
+            if ($tparray[$i][$field] == $line_name) {
+                $save = $save . $tparray[$i][1];
+            }
+            if ( ( $tparray[$i][$field] != $line_name || $i == $tpz - 1 ) && $save != '' ) {
+                $publications = $publications . '<tr><td' . $colspan . '><h3 class="tp_h3">' . $line_title . '</h3></td></tr>' . $save;
+                $save = '';
+            }
+        }
+    }
+    return $publications;
 }
 
 /**
@@ -280,22 +280,22 @@ function tp_sort_pub_table($tparray, $tpz, $headline, $colspan, $line_title, $li
  * @return STRING
  */
 function tp_generate_pub_table($tparray, $tpz, $headline, $row_year, $colspan) {
-     $pubs = '';
-      if ( $headline == 1 ) {
-           foreach($row_year as $row) {
-                $pubs = $pubs . tp_sort_pub_table($tparray, $tpz, $headline, $colspan, $row->jahr);
-           }
-      }
-      if ( $headline == 2 ) {
-           $pub_types = get_tp_publication_types();
-           for ( $j=1; $j<count($pub_types); $j++ ) {
-                $pubs = $pubs . tp_sort_pub_table($tparray, $tpz, $headline, $colspan, $pub_types[$j][2], $pub_types[$j][0]);
-           }
-      }
-      else {
-           $pubs = $pubs . tp_sort_pub_table($tparray, $tpz, $headline, $colspan, '', '');
-      }
-      return '<table class="teachpress_publication_list">' . $pubs . '</table>';
+    $pubs = '';
+    if ( $headline == 1 ) {
+        foreach($row_year as $row) {
+            $pubs = $pubs . tp_sort_pub_table($tparray, $tpz, $headline, $colspan, $row->jahr);
+        }
+    }
+    if ( $headline == 2 ) {
+        $pub_types = get_tp_publication_types();
+        for ( $j=1; $j<count($pub_types); $j++ ) {
+            $pubs = $pubs . tp_sort_pub_table($tparray, $tpz, $headline, $colspan, $pub_types[$j][2], $pub_types[$j][0]);
+        }
+    }
+    else {
+        $pubs = $pubs . tp_sort_pub_table($tparray, $tpz, $headline, $colspan, '', '');
+    }
+    return '<table class="teachpress_publication_list">' . $pubs . '</table>';
 }
 
 /** 
