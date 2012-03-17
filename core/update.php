@@ -598,6 +598,11 @@ function tp_db_update_function() {
         if ($test == 'varchar') {
             $wpdb->query("ALTER TABLE `" . $$teachpress_pub . "` CHANGE `url` `url` TEXT " . $charset_collate . " NULL DEFAULT NULL");
         }
+        // drop table teachpress_log
+        $table_name = $wpdb->prefix . 'teachpress_log';
+        if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") == $table_name) {
+            $wpdb->query("DROP TABLE " . $table_name . "");
+        }
         // Change database engine
         $wpdb->query("ALTER TABLE $teachpress_stud ENGINE = INNODB");
         $wpdb->query("ALTER TABLE $teachpress_pub ENGINE = INNODB");

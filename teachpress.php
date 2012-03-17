@@ -709,7 +709,7 @@ function tp_install() {
                     `pub_id` INT UNSIGNED,
                     `user` INT UNSIGNED,
                     PRIMARY KEY (bookmark_id)
-                                    ) $charset_collate;";
+                 ) $charset_collate;";
         dbDelta($sql);
     }
 }
@@ -742,15 +742,15 @@ function tp_backend_scripts() {
         $page = '';
     }
     wp_enqueue_style('teachpress-print-css', WP_PLUGIN_URL . '/teachpress/styles/print.css', false, false, 'print');
-    // load scripts only, when it's teachpress page
+    // Load scripts only, when it's teachpress page
     if ( eregi('teachpress', $page) || eregi('publications', $page) ) {
         wp_enqueue_script('teachpress-standard', WP_PLUGIN_URL . '/teachpress/js/backend.js');
         wp_enqueue_style('teachpress.css', WP_PLUGIN_URL . '/teachpress/styles/teachpress.css');
         wp_enqueue_script('media-upload');
         add_thickbox();
-        // Datepicker
-        wp_enqueue_script(array('jquery-ui-core', 'jquery-ui-datepicker'));
-        wp_enqueue_style('teachpress-datepicker.css', WP_PLUGIN_URL . '/teachpress/js/datepicker/jquery.ui.datepicker.css');
+        // Load jQuery + ui plugins
+        wp_enqueue_script(array('jquery-ui-core', 'jquery-ui-datepicker', 'jquery-ui-resizable', 'jquery-ui-autocomplete'));
+        wp_enqueue_style('teachpress-jquery-ui.css', WP_PLUGIN_URL . '/teachpress/styles/jquery.ui.css');
         $lang = array('de_DE','it_IT','es_ES', 'sk_SK');
         if ( in_array( WPLANG , $lang) ) {
             wp_enqueue_script('teachpress-datepicker-de', WP_PLUGIN_URL . '/teachpress/js/datepicker/jquery.ui.datepicker-' . WPLANG . '.js');
@@ -805,5 +805,4 @@ if ( !defined('TP_PUBLICATION_SYSTEM') ) {
      add_shortcode('tplist', 'tp_list_shortcode');
      add_shortcode('tpsingle','tp_single_shortcode');
 }
-
 ?>

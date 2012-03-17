@@ -118,7 +118,7 @@ function teachpress_addpublications_page() {
      <table class="widefat" style="margin-bottom:15px;">
            <thead>
            <tr>
-               <th><strong><?php _e('Publications','teachpress'); ?></strong></th>
+               <th><?php _e('Publications','teachpress'); ?></th>
            </tr>
            <tr>
              <td>
@@ -211,9 +211,9 @@ function teachpress_addpublications_page() {
             <input name="tags" type="text" id="tags" title="<?php _e('New (separate by comma)','teachpress'); ?>" style="width:95%">
             <div class="teachpress_cloud" style="padding-top:15px;">
             <?php
-            // Anzahl darzustellender Tags
+            // Number of tags
             $limit = 30;
-            // Schriftgroessen
+            // Font sizes
             $maxsize = 25;
             $minsize = 11;
             // Ermittle Anzahl der Tags absteigend sortiert
@@ -223,7 +223,6 @@ function teachpress_addpublications_page() {
             $tagcloud_temp = $wpdb->get_row($sql, ARRAY_A);
             $max = $tagcloud_temp['max'];
             $min = $tagcloud_temp['min'];
-            $insgesamt = $tagcloud_temp['gesamt'];
             // Tags und Anzahl zusammenstellen
             $sql = "SELECT tagPeak, name, tag_id FROM ( SELECT COUNT(b.tag_id) as tagPeak, t.name AS name,  t.tag_id as tag_id FROM " . $teachpress_relation . " b LEFT JOIN " . $teachpress_tags . " t ON b.tag_id = t.tag_id GROUP BY b.tag_id ORDER BY tagPeak DESC LIMIT " . $limit . " ) AS temp WHERE tagPeak>=".$min." ORDER BY name";
             $test = $wpdb->query($sql);
@@ -231,16 +230,14 @@ function teachpress_addpublications_page() {
                 $temp = $wpdb->get_results($sql, ARRAY_A);
                 // Endausgabe der Cloud zusammenstellen
                 foreach ($temp as $tagcloud) {
-                    // Schriftgr��e berechnen
-                    // Minimum ausgleichen
                     if ($min == 1) {
-                            $min = 0;
+                        $min = 0;
                     }
                     // Formel: max. Schriftgroesse*(aktuelle anzahl - kleinste Anzahl)/ (groe�te Anzahl - kleinste Anzahl)
                     $size = floor(($maxsize*($tagcloud['tagPeak']-$min)/($max-$min)));
                     // Ausgleich der Schriftgr��e
                     if ($size < $minsize) {
-                            $size = $minsize ;
+                        $size = $minsize ;
                     }
                     ?>
                     <span style="font-size:<?php echo $size; ?>px;"><a href="javascript:teachpress_inserttag('<?php echo $tagcloud['name']; ?>')" title="&laquo;<?php echo $tagcloud['name']; ?>&raquo; <?php _e('add as tag','teachpress'); ?>"><?php echo $tagcloud['name']; ?> </a></span> 
@@ -266,9 +263,9 @@ function teachpress_addpublications_page() {
             <p><label for="image_url" title="<?php _e('With the image field you can add an image to a publication. You can display images in all publication lists','teachpress'); ?>"><strong><?php _e('Image URL','teachpress'); ?></strong></label></p>
             <input name="image_url" id="image_url" class="upload" type="text" title="<?php _e('With the image field you can add an image to a publication. You can display images in all publication lists','teachpress'); ?>" style="width:90%;" value="<?php echo $daten["image_url"]; ?>"/>
             <a class="upload_button_image" title="<?php _e('Add Image','teachpress'); ?>" style="cursor:pointer; border:none;"><img src="images/media-button-image.gif" alt="<?php _e('Add Image','teachpress'); ?>" /></a>
-            <p><label for="rel_page" title="<?php _e('With the related page you can link a publication with a normal post/page. It is only used for the teachPress books widget.','teachpress'); ?>"><strong><?php _e('Related page','teachpress'); ?></strong></label></p>
+            <p><label for="rel_page" title="<?php _e('With the related page you can link a publication with a normal post/page.','teachpress'); ?>"><strong><?php _e('Related page','teachpress'); ?></strong></label></p>
             <div style="overflow:hidden;">
-            <select name="rel_page" id="rel_page" title="<?php _e('With the related page you can link a publication with a normal post/page. It is only used for the teachPress books widget.','teachpress'); ?>" style="width:90%;">
+            <select name="rel_page" id="rel_page" title="<?php _e('With the related page you can link a publication with a normal post/page.','teachpress'); ?>" style="width:90%;">
             <?php
             $post_type = get_tp_option('rel_page_publications');
             get_tp_wp_pages("menu_order","ASC",$daten["rel_page"],$post_type,0,0); 
@@ -280,7 +277,7 @@ function teachpress_addpublications_page() {
         </thead>
      </table>
      </div>
-           <div style="width:67%; float:left;">
+     <div style="width:67%; float:left;">
            <div id="post-body">
            <div id="post-body-content">
            <div id="titlediv">
@@ -294,28 +291,28 @@ function teachpress_addpublications_page() {
            <table class="widefat" style="margin-bottom:15px;">
            <thead>
            <tr>
-                   <th><?php _e('General information','teachpress'); ?></th>
+               <th><?php _e('General information','teachpress'); ?></th>
            </tr>
            <tr>
              <td>
-                   <table>
-                   <tr>
-                    <td style="border:none; padding:0 0 0 0; margin: 0 0 0 0;">
-                     <p><label for="type" title="<?php _e('The type of publication','teachpress'); ?>"><strong><?php _e('Type'); ?></strong></label></p>
-                     <select name="type" id="type" title="<?php _e('The type of publication','teachpress'); ?>" onchange="teachpress_publicationFields('std')" tabindex="2">
-                            <?php echo get_tp_publication_type_options ($daten["type"], $mode = 'list'); ?>
-                     </select>
-                    </td>
-                    <td style="border:none; padding:0 0 0 0; margin: 0 0 0 0;">
-                     <p><label for="bibtex" title="<?php _e('A simple unique key without spaces','teachpress'); ?>"><strong><?php _e('BibTex-Key','teachpress'); ?></strong></label></p>
-                     <input name="bibtex" id="bibtex" type="text" title="<?php _e('A simple unique key without spaces','teachpress'); ?>" value="<?php echo stripslashes($daten["bibtex"]); ?>" tabindex="3" />
-                    </td>
-                   </tr>
+               <table>
+                <tr>
+                <td style="border:none; padding:0 0 0 0; margin: 0 0 0 0;">
+                    <p><label for="type" title="<?php _e('The type of publication','teachpress'); ?>"><strong><?php _e('Type'); ?></strong></label></p>
+                    <select name="type" id="type" title="<?php _e('The type of publication','teachpress'); ?>" onchange="teachpress_publicationFields('std')" tabindex="2">
+                        <?php echo get_tp_publication_type_options ($daten["type"], $mode = 'list'); ?>
+                    </select>
+                </td>
+                <td style="border:none; padding:0 0 0 0; margin: 0 0 0 0;">
+                    <p><label for="bibtex" title="<?php _e('A simple unique key without spaces','teachpress'); ?>"><strong><?php _e('BibTex-Key','teachpress'); ?></strong></label></p>
+                    <input name="bibtex" id="bibtex" type="text" title="<?php _e('A simple unique key without spaces','teachpress'); ?>" value="<?php echo stripslashes($daten["bibtex"]); ?>" tabindex="3" />
+                </td>
+                </tr>
               </table>
              <p><label for="author" title="<?php _e('The names of the authors, separate by `and`. Example: Mark Twain and Albert Einstein','teachpress'); ?>"><strong><?php _e('Author(s)','teachpress'); ?></strong></label></p>
-             <textarea name="author" wrap="virtual" id="author" title="<?php _e('The names of the authors, separate by `and`. Example: Mark Twain and Albert Einstein','teachpress'); ?>" style="width:95%" tabindex="4"><?php echo stripslashes($daten["author"]); ?></textarea>
+             <textarea name="author" wrap="virtual" id="author" title="<?php _e('The names of the authors, separate by `and`. Example: Mark Twain and Albert Einstein','teachpress'); ?>" style="width:95%" rows="3" tabindex="4"><?php echo stripslashes($daten["author"]); ?></textarea>
              <p><label for="editor" title="<?php _e('The names of the editors, separate by `and`. Example: Mark Twain and Albert Einstein','teachpress'); ?>"><strong><?php _e('Editor(s)','teachpress'); ?></strong></label></p>
-             <textarea name="editor" id="editor" type="text" title="<?php _e('The names of the editors, separate by `and`. Example: Mark Twain and Albert Einstein','teachpress'); ?>" style="width:95%" tabindex="5"><?php echo stripslashes($daten["editor"]); ?></textarea>
+             <textarea name="editor" id="editor" type="text" title="<?php _e('The names of the editors, separate by `and`. Example: Mark Twain and Albert Einstein','teachpress'); ?>" style="width:95%" rows="3" tabindex="5"><?php echo stripslashes($daten["editor"]); ?></textarea>
              <p><label for="date" title="<?php _e('The date of publishing','teachpress'); ?>"><strong><?php _e('Date','teachpress'); ?></strong></label></p>
              <input type="text" name="date" id="date" title="<?php _e('The date of publishing','teachpress'); ?>" value="<?php if ($pub_ID != '') { echo $daten["date"]; } else {_e('JJJJ-MM-TT','teachpress'); } ?>" onblur="if(this.value=='') this.value='<?php _e('JJJJ-MM-TT','teachpress'); ?>';" onfocus="if(this.value=='<?php _e('JJJJ-MM-TT','teachpress'); ?>') this.value='';" tabindex="6"/>
            </td>
@@ -503,7 +500,7 @@ function teachpress_addpublications_page() {
                 <p style="margin-bottom:0;"><label for="url" title="<?php _e('URL/Files', 'teachpress'); ?>"><strong><?php _e('URL/Files', 'teachpress'); ?></strong></label></p>
                 <input name="upload_mode" id="upload_mode" type="hidden" value="" />
                 <a class="upload_button" style="cursor:pointer; border:none; float:right; padding-right: 34px;" title="<?php _e('Insert a file from the WordPress Media Library','teachpress'); ?>"><?php _e('Add/Upload','teachpress'); ?> <img src="images/media-button-other.gif"/></a>
-                <textarea name="url" type="text" id="url" class="upload" title="<?php _e('URL/Files', 'teachpress'); ?>" style="width:95%" rows="4" tabindex="27"><?php echo $daten["url"]; ?></textarea>
+                <textarea name="url" type="text" id="url" class="upload" title="<?php echo __('You can add one URL or file per line. Insert the name of the URL/file behind the address and separate it by a comma and a space. Example:') . ' http://mywebsite.com/docs/readme.pdf, Basic Instructions'; ?>" style="width:95%" rows="4" tabindex="27"><?php echo $daten["url"]; ?></textarea>
              </div>
              </td>
            </tr>
@@ -532,5 +529,77 @@ function teachpress_addpublications_page() {
          $('#date').datepicker({showWeek: true, changeMonth: true, changeYear: true, showOtherMonths: true, firstDay: 1, renderer: $.extend({}, $.datepicker.weekOfYearRenderer), onShow: $.datepicker.showStatus, dateFormat: 'yy-mm-dd', yearRange: '1950:c+5'});
      });
      </script>
+     <script type="text/javascript" charset="utf-8">
+        jQuery(document).ready(function($) {
+            $('#author').resizable({handles: "se", minHeight: 55, minWidth: 400});
+	});
+        jQuery(document).ready(function($) {
+            $('#editor').resizable({handles: "se", minHeight: 55, minWidth: 400});
+	});
+        jQuery(document).ready(function($) {
+            $('#booktitle').resizable({handles: "se", minHeight: 80, minWidth: 500});
+	});
+        jQuery(document).ready(function($) {
+            $('#abstract').resizable({handles: "se", minHeight: 80, minWidth: 500});
+	});
+        jQuery(document).ready(function($) {
+            $('#url').resizable({handles: "se", minHeight: 80, minWidth: 500});
+	});
+	jQuery(document).ready(function($) {
+            $('#comment').resizable({handles: "se", minHeight: 70, minWidth: 400});
+	});
+        jQuery(document).ready(function($) {
+            $('#note').resizable({handles: "se", minHeight: 70, minWidth: 400});
+	});
+    </script>
+    <script type="text/javascript" charset="utf-8">
+	jQuery(document).ready(function($) {
+            var availableTags = [
+                <?php
+                $sql = "SELECT name FROM " . $teachpress_tags . " ORDER BY name ASC";
+                $sql = $wpdb->get_results($sql, ARRAY_A);
+                foreach ($sql as $row) {
+                    echo '"' . $row['name'] . '",';        
+                } ?>
+            ];
+            function split( val ) {
+                return val.split( /,\s*/ );
+            }
+            function extractLast( term ) {
+                return split( term ).pop();
+            }
+
+            $( "#tags" )
+                // don't navigate away from the field on tab when selecting an item
+                .bind( "keydown", function( event ) {
+                    if ( event.keyCode === $.ui.keyCode.TAB && $( this ).data( "autocomplete" ).menu.active ) {
+                        event.preventDefault();
+                    }
+                })
+                .autocomplete({
+                    minLength: 0,
+                    source: function( request, response ) {
+                        // delegate back to autocomplete, but extract the last term
+                        response( $.ui.autocomplete.filter(
+                            availableTags, extractLast( request.term ) ) );
+                    },
+                    focus: function() {
+                        // prevent value inserted on focus
+                        return false;
+                    },
+                    select: function( event, ui ) {
+                        var terms = split( this.value );
+                        // remove the current input
+                        terms.pop();
+                        // add the selected item
+                        terms.push( ui.item.value );
+                        // add placeholder to get the comma-and-space at the end
+                        terms.push( "" );
+                        this.value = terms.join( ", " );
+                        return false;
+                    }
+                });
+	});
+	</script>
    </div>
 <?php } ?>
