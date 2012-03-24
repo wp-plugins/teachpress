@@ -3,7 +3,7 @@ Contributors: Michael Winkler
 Tags: management, publications, enrollments, teachpress, education, course management, BibTeX, bibliography
 Requires at least: 3.3
 Tested up to: 3.3.1
-Stable tag: 3.0.1
+Stable tag: 3.1.0
 
 With this plugin you can easy manage courses, enrollments and publications.
 
@@ -14,11 +14,11 @@ For more information see [here](http://www.mtrv.wordpress.com/teachpress/).
 
 = Features: =
 * BibTeX compatible publication management
-* Course management with enrollment system
-* Student management
-* Import and export function for publications (BibTeX format)
-* xls/csv-export for course lists
-* RSS-feed for publicaitons
+* Course management with integrated enrollment system
+* BibTeX import for publication entries
+* BibTeX and RTF export for publication entries
+* XLS/CSV export for course lists
+* RSS feed for publications
 * Widget for displaying books in the sidebar
 * Many shortcodes for an easy using of publication lists, enrollments and course overviews
 
@@ -26,6 +26,7 @@ For more information see [here](http://www.mtrv.wordpress.com/teachpress/).
 * English 
 * German
 * Italian
+* Slovak
 * Spanish
 
 = Disclaimer =  
@@ -49,10 +50,15 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+= Licence information of external resources =
+* Graphics for mimetypes by Oxygen Icons 4.3.1 http://www.oxygen-icons.org/ (Licence: LPGL)
+* bibtexParse by Mark Grimshaw & Guillaume Gardey (Licence: GPL)
+
 = Thanks =
 I would like to thank the team of [CBIS, Chemnitz University of Technology](http://www.tu-chemnitz.de/wirtschaft/wi2/wp/en/) for the support and the collaboration during the last years.
 
 = Translators who did a great job in translating the plugin into other languages. Thank you! =
+* [Jozef Dobos] (http://xn--dobo-j6a.eu/) (Slovak)
 * Elisabetta Mancini (Italian)
 * Aurelio Pons (Spanish)
 
@@ -107,6 +113,29 @@ If you save plugins outside the normal path (/wp-content/plugins/), the plugin c
 [See teachPress shortcode reference](http://mtrv.wordpress.com/teachpress/shortcode-reference/)
 
 == Changelog ==
+= 3.1.0 - (24.03.2012) =
+* New: [tplist, tpcloud]: New parameter "exclude" for excluding publications from the lists
+* New: [tplist, tpcloud]: New parameter "link_style"
+* New: [tplist, tpcloud]: Abstracts will be displayed directly in publication lists
+* New: [tplist]: Abstracts and BibTeX entries will be displayed
+* New: [tplist]: Expand type parameter for more than one publication type
+* New: Sending emails as a separate copy to the email author (optional)
+* New: Adding more than one website/file to a publication
+* New: Some small UI improvements
+* New: Slovak translation added
+* Changed: URL field for publications changed from varchar to text
+* Changed: Using INNODB as default database engine
+* Changed: Using transactions for subscribing/unsubscribing users
+* Changed: Names of some CSS style classes in publication lists
+* Bugfix: BibTeX import ignores date field
+* Bugfix: BibTeX export could not display edition field
+* Bugfix: Colspan was not set in publication tables
+* Bugfix: Highlighting of the saved date in datepicker doesn't work
+* Bugfix: Students were not correctly deleted
+* Bugfix: Fixed a bug in displaying publications: year was not displayed for booklets
+* Bugfix: Fixed a bug which prevent an installation under WordPress Multisite
+* Bugfix: Fixed a bug which prevent adding of publications
+* Killed: Log system, teachpress_log table
 = 3.0.1 - (06.01.2012) =
 * Bugfix: Fixed a bug which prevent sending of e-mail notifications
 = 3.0.0 - (05.01.2012) =
@@ -177,7 +206,7 @@ If you save plugins outside the normal path (/wp-content/plugins/), the plugin c
 = 2.0.14 - (24.02.2011) =
 * New: New style option for [tpcloud], [tplist]
 * Bugfix: Fixed a bug in teachPress books widget - the name of a book is no longer a html-element name
-* Bugfix: The Room is now vissible again in single course overviews (Bug was introcuced with teachPress 2.0.10)
+* Bugfix: The Room is now vissible again in single course overviews (Bug was introduced with version 2.0.10)
 = 2.0.13 - (20.02.2011) =
 * New: Spanish translation added
 = 2.0.12 - (01.02.2011) =
@@ -254,7 +283,7 @@ If you save plugins outside the normal path (/wp-content/plugins/), the plugin c
 * Bugfix: Fixed bugs in the overview of students
 * Bugfix: Fixed problems with the user data field selection for registration forms
 * Bugfix: It's now possible to add images directly from the WordPress Media Library
-* Bugfix: Fixed a bug with the email column in the course lists.
+* Bugfix: Fixed a bug with the email column in the course lists
 * Bugfix: Fixed a bug in xls export: The parent course name is now displaying
 * Killed: own database functions tp_var, tp_query, tp_results
 * Bugfix: Fixed some bugs with the pagination in the students and the publication overview
@@ -280,9 +309,9 @@ If you save plugins outside the normal path (/wp-content/plugins/), the plugin c
 * Bufgix: Some function names now more unique
 * Bugfix: Fix some security vulnerabilities
 = 0.80.2 =
-* Bugfix: Fixed different bugs, which originated with the file merging in the publication management in 0.80.0
+* Bugfix: Fixed different bugs, which originated with the file merging in the publication management in version 0.80.0
 = 0.80.1 =
-* Bugfix: Fixed bug when adding a publication
+* Bugfix: Fixed a bug when adding a publication
 = 0.80.0 =
 * New: Capabilities for backend access control
 * New: Possible to prevent sign outs for registrations 
@@ -302,13 +331,12 @@ If you save plugins outside the normal path (/wp-content/plugins/), the plugin c
 * New: Related pages for publications
 * New: Related pages for courses
 * New: ISSN field for publications
-* Changed: Many little changes in the enrollment form (now display.php)
-* Changed: Many file names
-* Changed: Better script loading
-* Bugfix: Fixed bug when you add a student manually
-* Bugfix: Fixed bug in sort order of terms
+* Changed: Many small changes in the enrollment form (now display.php)
+* Changed: Smarter script loading
+* Bugfix: Fixed a bug when you add a student manually
+* Bugfix: Fixed bug in the sort order of terms
 * Bugfix: Fixed charset and collation for teachpress tables
-* Bugfix: Fixed bug when parent and child course has the same name
+* Bugfix: Fixed bug when parent and child course have the same name
 * Killed: URL field for courses
 = 0.32.0 = 
 * Changed: Design for course overview

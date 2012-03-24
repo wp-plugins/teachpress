@@ -221,10 +221,10 @@ function tp_delete_course($checkbox){
     global $teachpress_signup;
     for( $i = 0; $i < count( $checkbox ); $i++ ) { 
         settype($checkbox[$i], 'integer'); 
-        $wpdb->query( "DELETE FROM " . $teachpress_courses . " WHERE course_id = $checkbox[$i]" );
-        $wpdb->query( "DELETE FROM " . $teachpress_signup . " WHERE course_id = $checkbox[$i]" );
+        $wpdb->query( "DELETE FROM " . $teachpress_courses . " WHERE `course_id` = $checkbox[$i]" );
+        $wpdb->query( "DELETE FROM " . $teachpress_signup . " WHERE `course_id` = $checkbox[$i]" );
         // Check if there are parent courses, which are not selected for erasing, and set there parent to default
-        $sql = "SELECT course_id FROM " . $teachpress_courses . " WHERE parent = $checkbox[$i]";
+        $sql = "SELECT `course_id` FROM " . $teachpress_courses . " WHERE `parent` = $checkbox[$i]";
         $test = $wpdb->query($sql);
         if ($test != '0') {
             $row = $wpdb->get_results($sql);
@@ -431,14 +431,14 @@ function tp_subscribe_student_manually($student, $veranstaltung) {
     global $wpdb;
     global $teachpress_courses; 
     global $teachpress_signup;
-    $eintragen = "INSERT INTO " . $teachpress_signup . " (course_id, wp_id, waitinglist, date) VALUES ('$veranstaltung', '$student', '0', NOW() )";
+    $eintragen = "INSERT INTO " . $teachpress_signup . " (`course_id`, `wp_id`, `waitinglist`, `date`) VALUES ('$veranstaltung', '$student', '0', NOW() )";
     $wpdb->query( $eintragen );
-    // if there are free places -->reduce this number
-    $fplaces = "SELECT fplaces FROM " . $teachpress_courses . " WHERE course_id = '$veranstaltung'";
+    // if there are free places --> reduce the number
+    $fplaces = "SELECT `fplaces` FROM " . $teachpress_courses . " WHERE `course_id` = '$veranstaltung'";
     $fplaces = $wpdb->get_var($fplaces);
     if ($fplaces > 0 ) {
         $neu = $fplaces - 1;
-        $aendern = "UPDATE " . $teachpress_courses . " SET fplaces = '$neu' WHERE course_id = '$veranstaltung'";
+        $aendern = "UPDATE " . $teachpress_courses . " SET `fplaces` = '$neu' WHERE `course_id` = '$veranstaltung'";
         $wpdb->query( $aendern );
     }
 }	
@@ -461,11 +461,11 @@ function tp_delete_student($checkbox, $user_ID){
     for( $i = 0; $i < count( $checkbox ); $i++ ) {
         settype($checkbox[$i], 'integer');
         // search courses where the user was registered
-        $row1 = "SELECT course_id FROM " . $teachpress_signup . " WHERE wp_id = '$checkbox[$i]'";
+        $row1 = "SELECT `course_id` FROM " . $teachpress_signup . " WHERE `wp_id` = '$checkbox[$i]'";
         $row1 = $wpdb->get_results($row1);
         foreach ($row1 as $row1) {
             // check if there are users in the waiting list
-            $abfrage = "SELECT con_id FROM " . $teachpress_signup . " WHERE course_id = '$row1->course_id' AND waitinglist = '1' ORDER BY con_id";
+            $abfrage = "SELECT `con_id` FROM " . $teachpress_signup . " WHERE `course_id` = '$row1->course_id' AND `waitinglist` = '1' ORDER BY con_id";
             $test = $wpdb->query($abfrage);
             // if is true
             if ($test > 0) {
@@ -473,7 +473,7 @@ function tp_delete_student($checkbox, $user_ID){
                 $row = $wpdb->get_results($abfrage);
                 foreach($row as $row) {
                     if ($zahl < 1) {
-                        $aendern = "UPDATE " . $teachpress_signup . " SET waitinglist = '0' WHERE con_id = '$row->con_id'";
+                        $aendern = "UPDATE " . $teachpress_signup . " SET `waitinglist` = '0' WHERE `con_id` = '$row->con_id'";
                         $wpdb->query( $aendern );
                         $zahl++;
                     }
@@ -481,15 +481,15 @@ function tp_delete_student($checkbox, $user_ID){
             }
             // if not enhance the number of free places
             else {
-                $fplaces = "SELECT fplaces FROM " . $teachpress_courses . " WHERE course_id = '$row1->course_id'";
+                $fplaces = "SELECT `fplaces` FROM " . $teachpress_courses . " WHERE `course_id` = '$row1->course_id'";
                 $fplaces = $wpdb->get_var($fplaces);
                 $neu = $fplaces + 1;
-                $aendern = "UPDATE " . $teachpress_courses . " SET fplaces = '$neu' WHERE course_id = '$row1->course_id'";
+                $aendern = "UPDATE " . $teachpress_courses . " SET `fplaces` = '$neu' WHERE `course_id` = '$row1->course_id'";
                 $wpdb->query( $aendern );
             }
         }
-        $wpdb->query( "DELETE FROM " . $teachpress_stud . " WHERE wp_id = $checkbox[$i]" );
-        $wpdb->query( "DELETE FROM " . $teachpress_signup . " WHERE wp_id = $checkbox[$i]" );
+        $wpdb->query( "DELETE FROM " . $teachpress_stud . " WHERE `wp_id` = $checkbox[$i]" );
+        $wpdb->query( "DELETE FROM " . $teachpress_signup . " WHERE `wp_id` = $checkbox[$i]" );
     }
 }
 
@@ -511,13 +511,13 @@ function tp_add_publication($data, $tags, $bookmark) {
      global $teachpress_tags; 
      global $teachpress_relation;
      global $teachpress_user;
-     $wpdb->insert( $teachpress_pub, array( 'name' => $data['name'], 'type' => $data['type'], 'bibtex' => $data['bibtex'], 'author' => $data['author'], 'editor' => $data['editor'], 'isbn' => $data['isbn'], 'url' => $data['url'], 'date' => $data['date'], 'booktitle' => $data['booktitle'], 'journal' => $data['journal'], 'volume' => $data['volume'], 'number' => $data['number'], 'pages' => $data['pages'] , 'publisher' => $data['publisher'], 'address' => $data['address'], 'edition' => $data['edition'], 'chapter' => $data['chapter'], 'institution' => $data['institution'], 'organization' => $data['organization'], 'school' => $data['school'], 'series' => $data['series'], 'crossref' => $data['crossref'], 'abstract' => $data['abstract'], 'howpublished' => $data['howpublished'], 'key' => $data['key'], 'techtype' => $data['techtype'], 'comment' => $data['comment'], 'note' => $data['note'], 'image_url' => $data['image_url'], 'is_isbn' => $data['is_isbn'], 'rel_page' => $data['rel_page'] ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '$d' ) );
+     $wpdb->insert( $teachpress_pub, array( 'name' => $data['name'], 'type' => $data['type'], 'bibtex' => $data['bibtex'], 'author' => $data['author'], 'editor' => $data['editor'], 'isbn' => $data['isbn'], 'url' => $data['url'], 'date' => $data['date'], 'booktitle' => $data['booktitle'], 'journal' => $data['journal'], 'volume' => $data['volume'], 'number' => $data['number'], 'pages' => $data['pages'] , 'publisher' => $data['publisher'], 'address' => $data['address'], 'edition' => $data['edition'], 'chapter' => $data['chapter'], 'institution' => $data['institution'], 'organization' => $data['organization'], 'school' => $data['school'], 'series' => $data['series'], 'crossref' => $data['crossref'], 'abstract' => $data['abstract'], 'howpublished' => $data['howpublished'], 'key' => $data['key'], 'techtype' => $data['techtype'], 'comment' => $data['comment'], 'note' => $data['note'], 'image_url' => $data['image_url'], 'is_isbn' => $data['is_isbn'], 'rel_page' => $data['rel_page'] ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d' ) );
      $pub_ID = $wpdb->insert_id;
      // Bookmarks
      for( $i = 0; $i < count( $bookmark ); $i++ ) {
         settype($bookmark[$i], 'integer');
         if ($bookmark[$i] != '' || $bookmark[$i] != 0) {
-            $wpdb->query( "INSERT INTO " . $teachpress_user . " (pub_id, user) VALUES ('$pub_ID', '$bookmark[$i]')" );
+            $wpdb->query( "INSERT INTO " . $teachpress_user . " (`pub_id`, `user`) VALUES ('$pub_ID', '$bookmark[$i]')" );
         }
      }
      $array = explode(",",$tags);
@@ -525,11 +525,11 @@ function tp_add_publication($data, $tags, $bookmark) {
         $element = trim($element);
         if ($element != '') {
             $element = tp_sec_var($element);
-            $row = "SELECT tag_id FROM " . $teachpress_tags . " WHERE name = '$element'";
+            $row = "SELECT `tag_id` FROM " . $teachpress_tags . " WHERE `name` = '$element'";
             $check = $wpdb->query($row);
             // if tag not exist
             if ($check == 0){
-                $eintrag = "INSERT INTO " . $teachpress_tags . " (name) VALUES ('$element')";
+                $eintrag = "INSERT INTO " . $teachpress_tags . " (`name`) VALUES ('$element')";
                 $wpdb->query($eintrag);
                 $row = $wpdb->get_results($row);
             }
@@ -538,10 +538,10 @@ function tp_add_publication($data, $tags, $bookmark) {
             }
             // add releation between publication and tag
             foreach($row as $row) {
-                $test ="SELECT pub_id FROM " .$teachpress_relation . " WHERE pub_id = '$pub_ID' AND tag_id = '$row->tag_id'";
+                $test ="SELECT `pub_id` FROM " .$teachpress_relation . " WHERE `pub_id` = '$pub_ID' AND `tag_id` = '$row->tag_id'";
                 $test = $wpdb->query($test);
                 if ($test == 0) {
-                    $eintrag = "INSERT INTO " .$teachpress_relation . " (pub_id, tag_id) VALUES ('$pub_ID', '$row->tag_id')";
+                    $eintrag = "INSERT INTO " .$teachpress_relation . " (`pub_id`, `tag_id`) VALUES ('$pub_ID', '$row->tag_id')";
                     $wpdb->query($eintrag);
                 }
             }
@@ -552,7 +552,7 @@ function tp_add_publication($data, $tags, $bookmark) {
 
 /** 
  * Delete publications
- * @param ARRAY $checkbox - An array with IDs of the publication
+ * @param ARRAY $checkbox - An array with IDs of publication
 */
 function tp_delete_publications($checkbox){	
     global $wpdb;
@@ -585,27 +585,31 @@ function tp_change_publication($pub_ID, $data, $bookmark, $delbox, $tags) {
     // update row
     $wpdb->update( $teachpress_pub, array( 'name' => $data['name'], 'type' => $data['type'], 'bibtex' => $data['bibtex'], 'author' => $data['author'], 'editor' => $data['editor'], 'isbn' => $data['isbn'], 'url' => $data['url'], 'date' => $data['date'], 'booktitle' => $data['booktitle'], 'journal' => $data['journal'], 'volume' => $data['volume'], 'number' => $data['number'], 'pages' => $data['pages'] , 'publisher' => $data['publisher'], 'address' => $data['address'], 'edition' => $data['edition'], 'chapter' => $data['chapter'], 'institution' => $data['institution'], 'organization' => $data['organization'], 'school' => $data['school'], 'series' => $data['series'], 'crossref' => $data['crossref'], 'abstract' => $data['abstract'], 'howpublished' => $data['howpublished'], 'key' => $data['key'], 'techtype' => $data['techtype'], 'comment' => $data['comment'], 'note' => $data['note'], 'image_url' => $data['image_url'], 'is_isbn' => $data['is_isbn'], 'rel_page' => $data['rel_page'] ), array( 'pub_id' => $pub_ID ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d' ), array( '%d' ) );
     // Bookmarks
-    for( $i = 0; $i < count( $bookmark ); $i++ ) {
-        settype($bookmark[$i], 'integer');
-        if ($bookmark[$i] != '' || $bookmark[$i] != 0) {
-            $wpdb->query( "INSERT INTO " . $teachpress_user . " (pub_id, user) VALUES ('$pub_ID', '$bookmark[$i]')" );
+    if ($bookmark != '') {
+        for( $i = 0; $i < count( $bookmark ); $i++ ) {
+            settype($bookmark[$i], 'integer');
+            if ($bookmark[$i] != '' || $bookmark[$i] != 0) {
+                $wpdb->query( "INSERT INTO " . $teachpress_user . " (`pub_id`, `user`) VALUES ('$pub_ID', '$bookmark[$i]')" );
+            }
         }
     }
     // Delete tag relations
-    for( $i = 0; $i < count( $delbox ); $i++ ) {
-        $delbox[$i] = tp_sec_var($delbox[$i], 'integer');
-        $wpdb->query( "DELETE FROM " . $teachpress_relation . " WHERE con_id = $delbox[$i]" );
+    if ($delbox != '') {
+        for( $i = 0; $i < count( $delbox ); $i++ ) {
+            $delbox[$i] = tp_sec_var($delbox[$i], 'integer');
+            $wpdb->query( "DELETE FROM " . $teachpress_relation . " WHERE `con_id` = $delbox[$i]" );
+        }
     }
     $array = explode(",",$tags);
     foreach($array as $element) {
         $element = trim($element);
         if ($element != '') {
             $element = tp_sec_var($element);
-            $row = "SELECT tag_id FROM " . $teachpress_tags . " WHERE name = '$element'";
+            $row = "SELECT `tag_id` FROM " . $teachpress_tags . " WHERE `name` = '$element'";
             $check = $wpdb->query($row);
             // if tag not exist
             if ($check == 0){
-                $eintrag = "INSERT INTO " . $teachpress_tags . " (name) VALUES ('$element')";
+                $eintrag = "INSERT INTO " . $teachpress_tags . " (`name`) VALUES ('$element')";
                 $wpdb->query($eintrag);
                 $row = $wpdb->get_results($row);
             }
@@ -614,10 +618,10 @@ function tp_change_publication($pub_ID, $data, $bookmark, $delbox, $tags) {
             }
             // add releation between publication and tag
             foreach($row as $row) {
-                $test ="SELECT pub_id FROM " .$teachpress_relation . " WHERE pub_id = '$pub_ID' AND tag_id = '$row->tag_id'";
+                $test ="SELECT `pub_id` FROM " .$teachpress_relation . " WHERE `pub_id` = '$pub_ID' AND `tag_id` = '$row->tag_id'";
                 $test = $wpdb->query($test);
                 if ($test == 0) {
-                    $eintrag = "INSERT INTO " .$teachpress_relation . " (pub_id, tag_id) VALUES ('$pub_ID', '$row->tag_id')";
+                    $eintrag = "INSERT INTO " .$teachpress_relation . " (`pub_id`, `tag_id`) VALUES ('$pub_ID', '$row->tag_id')";
                     $wpdb->query($eintrag);
                 }
             }

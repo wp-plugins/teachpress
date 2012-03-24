@@ -86,14 +86,13 @@ function teachpress_publications_page() {
           echo '<div class="teachpress_message">
               <p class="hilfe_headline">' . __('Are you sure to delete the selected elements?','teachpress') . '</p>
               <p><input name="delete_ok" type="submit" class="button-secondary" value="' . __('Delete','teachpress') . '"/>
-              <a href="admin.php?page=publications.php&search=' . $search . '"> ' . __('Cancel','teachpress') . '</a></p>
+              <a href="admin.php?page=publications.php&search=' . $search . '&amp;limit=' . $curr_page . '"> ' . __('Cancel','teachpress') . '</a></p>
               </div>';
      }
      // delete publications - part 2
      if ( isset($_GET['delete_ok']) ) {
           tp_delete_publications($checkbox);
-          $message = __('Removing successful','teachpress');
-          get_tp_message($message);
+          get_tp_message( __('Removing successful','teachpress') );
      }
 
      if ($page == 'publications.php' && $search == '') {
@@ -223,7 +222,7 @@ function teachpress_publications_page() {
          <thead>
             <tr>
                <th>&nbsp;</th>
-               <th><input name="tp_check_all" id="tp_check_all" type="checkbox" value="" onclick="teachpress_checkboxes();" /></th>
+               <th class="check-column"><input name="tp_check_all" id="tp_check_all" type="checkbox" value="" onclick="teachpress_checkboxes();" /></th>
                <th><?php _e('Name','teachpress'); ?></th>
                <th><?php _e('ID'); ?></th>
                <th><?php _e('Type'); ?></th> 
@@ -243,7 +242,7 @@ function teachpress_publications_page() {
                  $get_string = '&amp;search=' . $search . '&amp;filter=' . $filter . '&amp;limit=' . $curr_page . '&amp;site=' . $page . '&amp;tag=' . $tag_id . '';
                  ?>
                <tr>
-                  <td style="font-size:20px; padding-top:4px; padding-bottom:0px; padding-right:0px;">
+                  <td style="font-size:20px; padding-top:8px; padding-bottom:0px; padding-right:0px;">
                   <?php
                   // check if the publication is already in users publication list
                   $test2 = false;
@@ -271,7 +270,7 @@ function teachpress_publications_page() {
                         if ( $row->pub_id == $checkbox[$k] ) { $checked = 'checked="checked" '; } 
                      } 
                   }
-                  echo '<td><input style="margin-left:8px; padding-left:7px; text-align:left;" name="checkbox[]" type="checkbox" ' . $checked . 'value="' . $row->pub_id . '" /></td>';
+                  echo '<th class="check-column"><input name="checkbox[]" class="tp_checkbox" type="checkbox" ' . $checked . ' value="' . $row->pub_id . '" /></th>';
                   ?>
                   <td><?php echo '<a href="admin.php?page=teachpress/addpublications.php&amp;pub_ID=' . $row->pub_id . $get_string . '" class="teachpress_link" title="' . __('Click to edit','teachpress') . '"><strong>' . stripslashes($row->name) . '</strong></a>'; ?>
                       <div class="tp_row_actions"><?php echo '<a href="admin.php?page=teachpress/addpublications.php&amp;pub_ID=' . $row->pub_id . $get_string . '" class="teachpress_link" title="' . __('Click to edit','teachpress') . '">' . __('Edit','teachpress') . '</a> | <a href="' . $pagenow . '?page=' . $page .'&amp;checkbox%5B%5D=' . $row->pub_id . '&amp;action=delete' . $get_string . '" style="color:red;" title="' . __('Delete','teachpress') . '">' . __('Delete','teachpress') . '</a>'; ?></div>

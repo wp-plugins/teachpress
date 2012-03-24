@@ -118,7 +118,7 @@ function teachpress_students_page() {
             } ?>
         </select>
         <input name="anzeigen" type="submit" id="teachpress_search_senden" value="<?php _e('Show','teachpress'); ?>" class="button-secondary"/>
-    <?php }
+        <?php }
         // Page Menu
         echo tp_admin_page_menu ($test, $number_messages, $curr_page, $entry_limit, 'admin.php?page=' . $page . '', 'search=' . $search . '&amp;students_group=' . $students_group . ''); ?>
     </div>

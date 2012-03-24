@@ -297,11 +297,7 @@ jQuery(document).ready(function() {
             var old = document.getElementById("url");
             // IE
             if (document.selection){
-                var newVal = old.value + imgurl;
-                old.value = newVal;
-                old.focus();
-                tb_remove();
-                return;
+                imgurl = old.value + imgurl;
             }
             // Firefox, Chrome, Safari, Opera
             else if (old.selectionStart || old.selectionStart == '0') {
@@ -309,14 +305,17 @@ jQuery(document).ready(function() {
                 var endPos = old.selectionEnd;
                 var urlLength = imgurl.length;
                 imgurl = old.value.substring(0, startPos) + imgurl + old.value.substring(endPos, old.value.length);
-                old.focus();
                 old.selectionStart = startPos + urlLength;
                 old.selectionEnd = startPos + urlLength;
             }
             // IE and others
             else {
                 imgurl = old.value + imgurl;
-            }    
+            }
+            old.focus();
+            old.value = imgurl;
+            tb_remove();
+            return;
         }
         uploadID.val(imgurl);
         tb_remove();

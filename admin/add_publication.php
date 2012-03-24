@@ -508,7 +508,7 @@ function teachpress_addpublications_page() {
            <table class="widefat">
            <thead>
            <tr>
-             <th><?php _e('comments','teachpress'); ?></th>
+             <th><?php _e('Comments','teachpress'); ?></th>
            </tr>
            <tr>
              <td>
@@ -528,29 +528,6 @@ function teachpress_addpublications_page() {
          $('#date').datepicker({showWeek: true, changeMonth: true, changeYear: true, showOtherMonths: true, firstDay: 1, renderer: $.extend({}, $.datepicker.weekOfYearRenderer), onShow: $.datepicker.showStatus, dateFormat: 'yy-mm-dd', yearRange: '1950:c+5'});
      });
      </script>
-     <script type="text/javascript" charset="utf-8">
-        jQuery(document).ready(function($) {
-            $('#author').resizable({handles: "se", minHeight: 55, minWidth: 400});
-	});
-        jQuery(document).ready(function($) {
-            $('#editor').resizable({handles: "se", minHeight: 55, minWidth: 400});
-	});
-        jQuery(document).ready(function($) {
-            $('#booktitle').resizable({handles: "se", minHeight: 80, minWidth: 500});
-	});
-        jQuery(document).ready(function($) {
-            $('#abstract').resizable({handles: "se", minHeight: 80, minWidth: 500});
-	});
-        jQuery(document).ready(function($) {
-            $('#url').resizable({handles: "se", minHeight: 80, minWidth: 500});
-	});
-	jQuery(document).ready(function($) {
-            $('#comment').resizable({handles: "se", minHeight: 70, minWidth: 400});
-	});
-        jQuery(document).ready(function($) {
-            $('#note').resizable({handles: "se", minHeight: 70, minWidth: 400});
-	});
-    </script>
     <script type="text/javascript" charset="utf-8">
 	jQuery(document).ready(function($) {
             var availableTags = [
@@ -600,5 +577,29 @@ function teachpress_addpublications_page() {
                 });
 	});
 	</script>
+        <script type="text/javascript" charset="utf-8">
+        jQuery(document).ready(function($) {
+            $('#author').resizable({handles: "se", minHeight: 55, minWidth: 400});
+	});
+        jQuery(document).ready(function($) {
+            $('#editor').resizable({handles: "se", minHeight: 55, minWidth: 400});
+	});
+        jQuery(document).ready(function($) {
+            $('#booktitle').resizable({handles: "se", minHeight: 80, minWidth: 500});
+	});
+        jQuery(document).ready(function($) {
+            $('#abstract').resizable({handles: "se", minHeight: 80, minWidth: 500});
+	});
+        // breaks the url import
+        jQuery(document).ready(function($) {
+            $('#url').resizable({handles: "se", minHeight: 80, minWidth: 500});
+	});
+	jQuery(document).ready(function($) {
+            $('#comment').resizable({handles: "se", minHeight: 70, minWidth: 400});
+	});
+        jQuery(document).ready(function($) {
+            $('#note').resizable({handles: "se", minHeight: 70, minWidth: 400});
+	});
+    </script>
    </div>
 <?php } ?>

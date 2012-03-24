@@ -140,15 +140,15 @@ class tp_bibtex {
 
     // if is abstract
     if ( $row['abstract'] != '' ) {
-        $abstract = '<a id="tp_abstract_sh_' . $row['pub_id'] . '" class="tp_show" onclick="teachpress_pub_showhide(' . $str . $row['pub_id'] . $str . ',' . $str . 'tp_abstract' . $str . ')" title="' . __('Show abstract','teachpress') . '" style="cursor:pointer;">' . __('Abstract','teachPress') . '</a> | ';
+        $abstract = '<a id="tp_abstract_sh_' . $row['pub_id'] . '" class="tp_show" onclick="teachpress_pub_showhide(' . $str . $row['pub_id'] . $str . ',' . $str . 'tp_abstract' . $str . ')" title="' . __('Show abstract','teachpress') . '" style="cursor:pointer;">' . __('Abstract','teachpress') . '</a> | ';
     }
     // if are links
     if ( $row['url'] != '' ) {
         if ( $settings['link_style'] == 'inline' ) {
-            $url = '<a id="tp_links_sh_' . $row['pub_id'] . '" class="tp_show" onclick="teachpress_pub_showhide(' . $str . $row['pub_id'] . $str . ',' . $str . 'tp_links' . $str . ')" title="' . __('Show links and resources','teachpress') . '" style="cursor:pointer;">' . __('Links','teachPress') . '</a> | ';
+            $url = '<a id="tp_links_sh_' . $row['pub_id'] . '" class="tp_show" onclick="teachpress_pub_showhide(' . $str . $row['pub_id'] . $str . ',' . $str . 'tp_links' . $str . ')" title="' . __('Show links and resources','teachpress') . '" style="cursor:pointer;">' . __('Links','teachpress') . '</a> | ';
         }
         else {
-            $url = ' | ' . __('Links','teachpress') . ': ' . tp_bibtex::prepare_url($row['url']) . '';
+            $url = ' | ' . __('Links','teachpress') . ': ' . tp_bibtex::prepare_url($row['url'], 'enumeration') . '';
         }
     }
     // if with tags
@@ -157,11 +157,10 @@ class tp_bibtex {
     }
     // link style
     if ( $settings['link_style'] == 'inline' ) {
-        $a2 = '(' . $abstract . $url . '<a id="tp_bibtex_sh_' . $row['pub_id'] . '" class="tp_show" onclick="teachpress_pub_showhide(' . $str . $row['pub_id'] . $str . ',' . $str . 'tp_bibtex' . $str . ')" style="cursor:pointer;" title="' . __('Show BibTeX entry','teachpress') . '">' . __('BibTeX','teachpress') . '</a>' . $tag_string . ')';
+        $a2 = $abstract . $url . '<a id="tp_bibtex_sh_' . $row['pub_id'] . '" class="tp_show" onclick="teachpress_pub_showhide(' . $str . $row['pub_id'] . $str . ',' . $str . 'tp_bibtex' . $str . ')" style="cursor:pointer;" title="' . __('Show BibTeX entry','teachpress') . '">' . __('BibTeX','teachpress') . '</a>' . $tag_string;
     }
     else {
-        $a2 = '(' . $abstract . '<a onclick="teachpress_pub_showhide(' . $str . $row['pub_id'] . $str . ',' . $str . 'tp_bibtex' . $str . ')" style="cursor:pointer;" title="' . __('Show BibTeX entry','teachpress') . '">' . __('BibTeX','teachpress') . '</a>' . $tag_string . $url . ')';
-        $a2 = substr($a2, 1);
+        $a2 = $abstract . '<a onclick="teachpress_pub_showhide(' . $str . $row['pub_id'] . $str . ',' . $str . 'tp_bibtex' . $str . ')" style="cursor:pointer;" title="' . __('Show BibTeX entry','teachpress') . '">' . __('BibTeX','teachpress') . '</a>' . $tag_string . $url;
     }
     // different styles: simple and normal
     if ($settings['style'] == 'simple') {
@@ -170,7 +169,7 @@ class tp_bibtex {
         $a1 = $a1 . $td_left;
         $a1 = $a1 . '<td class="tp_pub_info_simple">';
         $a1 = $a1 . '<span class="tp_pub_author_simple">' . stripslashes($all_authors) . '</span> ';
-        $a1 = $a1 . '<span class="tp_pub_year_simple">(' . $row['jahr'] . ')</span>:';
+        $a1 = $a1 . '<span class="tp_pub_year_simple">(' . $row['jahr'] . ')</span>: ';
         $a1 = $a1 . '<span class="tp_pub_title_simple">' . stripslashes($name) . '.</span>';
         $a1 = $a1 . '<span class="tp_pub_additional_simple">' . $in . tp_bibtex::single_publication_meta_row($row, $settings) . '</span>';
         $a2 = ' <span class="tp_pub_tags_simple">(' . __('Type') . ': <span class="tp_pub_typ_simple">' . stripslashes($type) . '</span> | ' . $a2 . '</span>';
@@ -185,7 +184,7 @@ class tp_bibtex {
         if ($meta_row != '.') {
             $a1 = $a1 . '<p class="tp_pub_additional">' . $meta_row . '</p>';
         }
-        $a2 = '<p class="tp_pub_tags">' . $a2 . '</p>';
+        $a2 = '<p class="tp_pub_tags">(' . $a2 . ')</p>';
     }
     // end styles
 
