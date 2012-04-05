@@ -85,8 +85,8 @@ msgstr "Sichtbarkeit"
 #: admin/settings.php:419
 #: admin/settings.php:424
 #: admin/show_courses.php:182
-#: core/enrollments.php:473
-#: core/enrollments.php:519
+#: core/enrollments.php:480
+#: core/enrollments.php:526
 #@ teachpress
 msgid "Term"
 msgstr "Semester"
@@ -138,8 +138,8 @@ msgstr "Dozent"
 #: admin/show_courses.php:179
 #: admin/show_single_course.php:165
 #: core/class-export.php:121
-#: core/enrollments.php:471
-#: core/enrollments.php:517
+#: core/enrollments.php:478
+#: core/enrollments.php:524
 #@ teachpress
 msgid "Date"
 msgstr "Termin"
@@ -148,8 +148,8 @@ msgstr "Termin"
 #: admin/create_lists.php:131
 #: admin/show_single_course.php:161
 #: core/class-export.php:123
-#: core/enrollments.php:472
-#: core/enrollments.php:518
+#: core/enrollments.php:479
+#: core/enrollments.php:525
 #@ teachpress
 msgid "Room"
 msgstr "Raum"
@@ -188,7 +188,7 @@ msgstr "Ende"
 #: admin/add_course.php:202
 #: core/class-export.php:143
 #: core/class-export.php:165
-#: core/enrollments.php:509
+#: core/enrollments.php:516
 #@ teachpress
 msgid "Waiting list"
 msgstr "Warteliste"
@@ -250,8 +250,8 @@ msgstr "Verlinkte Seite"
 #: admin/show_publications.php:228
 #: admin/show_single_course.php:153
 #: core/class-bibtex.php:175
-#: core/enrollments.php:470
-#: core/enrollments.php:516
+#: core/enrollments.php:477
+#: core/enrollments.php:523
 #@ default
 msgid "Type"
 msgstr ""
@@ -264,8 +264,8 @@ msgstr ""
 #: admin/settings.php:452
 #: admin/show_courses.php:175
 #: admin/show_publications.php:226
-#: core/enrollments.php:469
-#: core/enrollments.php:515
+#: core/enrollments.php:476
+#: core/enrollments.php:522
 #@ teachpress
 msgid "Name"
 msgstr "Name"
@@ -277,7 +277,7 @@ msgid "Author(s)"
 msgstr "Autor(en)"
 
 #: admin/show_publications.php:231
-#: core/enrollments.php:393
+#: core/enrollments.php:400
 #@ teachpress
 msgid "Year"
 msgstr "Jahr"
@@ -311,19 +311,19 @@ msgstr ""
 msgid "add as tag"
 msgstr "als Tag hinzufügen"
 
-#: core/enrollments.php:246
+#: core/enrollments.php:253
 #@ teachpress
 msgid "Enrollments for the"
 msgstr "Einschreibungen für das"
 
-#: core/enrollments.php:323
+#: core/enrollments.php:330
 #@ teachpress
 msgid "Please fill in the following registration form and sign up in the system. You can edit your data later."
 msgstr "Du musst dich erst noch im System registrieren, damit du das Einschreibesystem nutzen kannst. Diese Eintragung ist einmalig. Du kannst deine Daten auch später ändern."
 
-#: core/enrollments.php:325
-#: core/enrollments.php:451
-#: core/enrollments.php:454
+#: core/enrollments.php:332
+#: core/enrollments.php:458
+#: core/enrollments.php:461
 #@ teachpress
 msgid "Your data"
 msgstr "Deine Daten"
@@ -336,8 +336,8 @@ msgstr "Deine Daten"
 #: admin/show_students.php:133
 #: core/class-export.php:51
 #: core/class-export.php:165
-#: core/enrollments.php:335
-#: core/enrollments.php:558
+#: core/enrollments.php:342
+#: core/enrollments.php:565
 #@ teachpress
 msgid "First name"
 msgstr "Vorname"
@@ -351,8 +351,8 @@ msgstr "Vorname"
 #: admin/show_students.php:132
 #: core/class-export.php:50
 #: core/class-export.php:165
-#: core/enrollments.php:339
-#: core/enrollments.php:562
+#: core/enrollments.php:346
+#: core/enrollments.php:569
 #@ teachpress
 msgid "Last name"
 msgstr "Nachname"
@@ -368,8 +368,8 @@ msgstr "Nachname"
 #: admin/show_students.php:138
 #: core/class-export.php:56
 #: core/class-export.php:163
-#: core/enrollments.php:345
-#: core/enrollments.php:568
+#: core/enrollments.php:352
+#: core/enrollments.php:575
 #@ teachpress
 msgid "Course of studies"
 msgstr "Studiengang"
@@ -381,8 +381,8 @@ msgstr "Studiengang"
 #: admin/edit_student.php:189
 #: admin/settings.php:346
 #: admin/show_students.php:142
-#: core/enrollments.php:360
-#: core/enrollments.php:588
+#: core/enrollments.php:367
+#: core/enrollments.php:595
 #@ teachpress
 msgid "Number of terms"
 msgstr "Fachsemester"
@@ -398,7 +398,7 @@ msgstr "Fachsemester"
 #: admin/show_students.php:148
 #: core/class-export.php:58
 #: core/class-export.php:165
-#: core/enrollments.php:371
+#: core/enrollments.php:378
 #@ teachpress
 msgid "User account"
 msgstr "Nutzerkennzeichen"
@@ -410,14 +410,14 @@ msgstr "Nutzerkennzeichen"
 #: admin/edit_student.php:195
 #: admin/settings.php:357
 #: admin/show_students.php:146
-#: core/enrollments.php:377
-#: core/enrollments.php:606
+#: core/enrollments.php:384
+#: core/enrollments.php:613
 #@ teachpress
 msgid "Date of birth"
 msgstr "Geburtsdatum"
 
 #: admin/edit_student.php:137
-#: core/enrollments.php:608
+#: core/enrollments.php:615
 #@ teachpress
 msgid "Format: JJJJ-MM-TT"
 msgstr "Format: JJJJ-MM-TT"
@@ -433,41 +433,41 @@ msgstr "Format: JJJJ-MM-TT"
 #: admin/show_students.php:149
 #: core/class-export.php:59
 #: core/class-export.php:165
-#: core/enrollments.php:398
-#: core/enrollments.php:612
+#: core/enrollments.php:405
+#: core/enrollments.php:619
 #@ default
 msgid "E-Mail"
 msgstr ""
 
 #: admin/mail.php:103
-#: core/enrollments.php:403
+#: core/enrollments.php:410
 #@ teachpress
 msgid "Send"
 msgstr "Senden"
 
-#: core/enrollments.php:416
+#: core/enrollments.php:423
 #@ teachpress
 msgid "Hello"
 msgstr "Hallo"
 
-#: core/enrollments.php:445
-#: core/enrollments.php:448
+#: core/enrollments.php:452
+#: core/enrollments.php:455
 #@ teachpress
 msgid "Your enrollments"
 msgstr "Deine Einschreibungen"
 
-#: core/enrollments.php:463
+#: core/enrollments.php:470
 #@ teachpress
 msgid "Signed up for"
 msgstr "Eingeschrieben in"
 
-#: core/enrollments.php:542
+#: core/enrollments.php:549
 #@ teachpress
 msgid "unsubscribe"
 msgstr "austragen"
 
-#: core/enrollments.php:677
-#: core/enrollments.php:733
+#: core/enrollments.php:684
+#: core/enrollments.php:740
 #: core/shortcodes.php:166
 #@ teachpress
 msgid "Date(s)"
@@ -476,26 +476,26 @@ msgstr "Termin(e)"
 #: admin/add_course.php:303
 #: admin/show_single_course.php:138
 #: core/class-export.php:129
-#: core/enrollments.php:680
-#: core/enrollments.php:734
+#: core/enrollments.php:687
+#: core/enrollments.php:741
 #@ teachpress
 msgid "free places"
 msgstr "freie Pl&auml;tze"
 
-#: core/enrollments.php:705
-#: core/enrollments.php:754
+#: core/enrollments.php:712
+#: core/enrollments.php:761
 #@ teachpress
 msgid "Possible to subscribe in the waiting list"
 msgstr "Wartelisteneintrag möglich"
 
-#: core/enrollments.php:713
-#: core/enrollments.php:762
+#: core/enrollments.php:720
+#: core/enrollments.php:769
 #@ teachpress
 msgid "Registration period"
 msgstr "Einschreibefrist"
 
 #: admin/show_single_course.php:258
-#: core/enrollments.php:773
+#: core/enrollments.php:780
 #@ teachpress
 msgid "Sign up"
 msgstr "Einschreiben"
@@ -920,17 +920,17 @@ msgid "Publications"
 msgstr "Publikationen"
 
 #: admin/add_students.php:44
-#: core/enrollments.php:304
+#: core/enrollments.php:311
 #@ teachpress
 msgid "Registration successful"
 msgstr "Anmeldung erfolgreich"
 
-#: core/enrollments.php:200
+#: core/enrollments.php:207
 #@ teachpress
 msgid "Changes in your profile successful."
 msgstr "Änderungen am Nutzerprofil erfolgreich."
 
-#: core/enrollments.php:161
+#: core/enrollments.php:168
 #@ teachpress
 msgid "You are signed out successful"
 msgstr "Du wurdest erfolgreich ausgetragen."
@@ -1114,7 +1114,7 @@ msgid "For all publications:"
 msgstr "Für alle Publikationen:"
 
 #: admin/add_students.php:47
-#: core/enrollments.php:307
+#: core/enrollments.php:314
 #@ teachpress
 msgid "Error: User already exist"
 msgstr "Fehler: Nutzer existiert bereits"
@@ -1140,8 +1140,8 @@ msgstr "Felder für Nutzerdaten"
 msgid "Define which fields for the registration form you will use. Some are required."
 msgstr "Wähle welche Datenfelder für die Einschreibungen genutzt werden sollen. Einige können nicht deaktiviert werden."
 
-#: core/enrollments.php:439
-#: core/enrollments.php:442
+#: core/enrollments.php:446
+#: core/enrollments.php:449
 #@ teachpress
 msgid "Current enrollments"
 msgstr "Aktuelle Einschreibungen"
@@ -1572,8 +1572,8 @@ msgstr "Das Ende des Einschreibezeitraums"
 #: admin/show_students.php:135
 #: core/class-export.php:53
 #: core/class-export.php:162
-#: core/enrollments.php:330
-#: core/enrollments.php:553
+#: core/enrollments.php:337
+#: core/enrollments.php:560
 #@ teachpress
 msgid "Matr. number"
 msgstr "Matrikel"
@@ -1610,7 +1610,7 @@ msgstr "Eine Aktualisierung der Datenbank ist erforderlich."
 
 #: admin/edit_student.php:269
 #: admin/show_single_course.php:223
-#: core/enrollments.php:48
+#: core/enrollments.php:50
 #@ teachpress
 msgid "Waitinglist"
 msgstr "Warteliste"
@@ -1667,8 +1667,8 @@ msgstr "Nächste Seite"
 #: core/admin.php:38
 #: core/admin.php:58
 #: core/admin.php:61
-#: core/enrollments.php:698
-#: core/enrollments.php:748
+#: core/enrollments.php:705
+#: core/enrollments.php:755
 #@ teachpress
 msgid "of"
 msgstr "von"
@@ -1801,68 +1801,68 @@ msgstr "Die Namen der Herausgeber, getrennt durch `and`. Beispiel: Mark Twain an
 msgid "Standard - teachPress has a separate registration. This is usefull if you have an auto login for WordPress or most of your users are registered in your blog, for example in a network."
 msgstr "Standard - teachPress nutzt eine eigene Registrierung."
 
-#: core/enrollments.php:380
+#: core/enrollments.php:387
 #@ teachpress
 msgid "Jan"
 msgstr "Jan"
 
-#: core/enrollments.php:381
+#: core/enrollments.php:388
 #@ teachpress
 msgid "Feb"
 msgstr "Feb"
 
-#: core/enrollments.php:382
+#: core/enrollments.php:389
 #@ teachpress
 msgid "Mar"
 msgstr "Mär"
 
-#: core/enrollments.php:383
+#: core/enrollments.php:390
 #@ teachpress
 msgid "Apr"
 msgstr "Apr"
 
-#: core/enrollments.php:384
+#: core/enrollments.php:391
 #@ teachpress
 msgid "May"
 msgstr "Mai"
 
-#: core/enrollments.php:385
+#: core/enrollments.php:392
 #@ teachpress
 msgid "Jun"
 msgstr "Jun"
 
-#: core/enrollments.php:386
+#: core/enrollments.php:393
 #@ teachpress
 msgid "Jul"
 msgstr "Jul"
 
-#: core/enrollments.php:387
+#: core/enrollments.php:394
 #@ teachpress
 msgid "Aug"
 msgstr "Aug"
 
-#: core/enrollments.php:388
+#: core/enrollments.php:395
 #@ teachpress
 msgid "Sep"
 msgstr "Sep"
 
-#: core/enrollments.php:389
+#: core/enrollments.php:396
 #@ teachpress
 msgid "Oct"
 msgstr "Okt"
 
-#: core/enrollments.php:390
+#: core/enrollments.php:397
 #@ teachpress
 msgid "Nov"
 msgstr "Nov"
 
-#: core/enrollments.php:391
+#: core/enrollments.php:398
 #@ teachpress
 msgid "Dec"
 msgstr "Dez"
 
-#: core/enrollments.php:713
-#: core/enrollments.php:762
+#: core/enrollments.php:720
+#: core/enrollments.php:769
 #@ teachpress
 msgid "to"
 msgstr "bis"
@@ -1954,7 +1954,7 @@ msgstr "Löschen"
 msgid "Registration is not possible, because you are already registered for an other course of this course group."
 msgstr "Eine Registrierung ist nicht möglich, da du bereits für eine andere Veranstaltung dieser Gruppe eingeschrieben bist."
 
-#: core/enrollments.php:22
+#: core/enrollments.php:24
 #@ teachpress
 msgid "Registration was successful."
 msgstr "Die Einschreibung war erfolgreich."
@@ -2154,7 +2154,7 @@ msgstr "Reset"
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: core/enrollments.php:669
+#: core/enrollments.php:676
 #@ teachpress
 msgid "Select"
 msgstr "Auswählen"
@@ -2198,17 +2198,17 @@ msgstr "Zurück zur Übersicht"
 msgid "Create attendance list"
 msgstr "Anwesenheitsliste erstellen"
 
-#: core/enrollments.php:44
+#: core/enrollments.php:46
 #@ teachpress
 msgid "Registration"
 msgstr "Anmeldung"
 
-#: core/enrollments.php:45
+#: core/enrollments.php:47
 #@ teachpress
 msgid "Your Registration for the following course was successful:"
 msgstr "Ihre Anmeldung für die folgende Veranstaltung war erfolgreich:"
 
-#: core/enrollments.php:49
+#: core/enrollments.php:51
 #@ teachpress
 msgid "You are signed up in the waitinglist for the following course:"
 msgstr "Sie wurden in die Warteliste für die folgende Veranstaltung aufgenommen:"
@@ -2523,13 +2523,18 @@ msgstr "Warnung: Falsche ID der Veranstaltung"
 msgid "Registration is not possible, because you are already registered in the waitinglist."
 msgstr "Eine Registrierung ist nicht möglich, da du bereits auf der Warteliste stehst."
 
-#: core/enrollments.php:24
+#: core/enrollments.php:26
 #@ teachpress
 msgid "For this course there are no more free places available. You are automatically signed up in a waiting list."
 msgstr "Für diese Veranstaltung sind keine freien Plätze mehr verfügbar. Du wurdest daher automatisch auf die Warteliste gesetzt. "
 
-#: core/enrollments.php:500
+#: core/enrollments.php:507
 #@ teachpress
 msgid "No enrollments"
 msgstr "Keine Einschreibungen gefunden"
+
+#: core/enrollments.php:22
+#@ teachpress
+msgid "No free places available."
+msgstr "Es sind keine freien Plätze mehr verfügbar."
 

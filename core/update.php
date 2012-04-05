@@ -595,8 +595,8 @@ function tp_db_update_function() {
         $sql = "SELECT `url` FROM " . $teachpress_pub . "";
         $wpdb->get_results($sql);
         $test = $wpdb->get_col_info('type', 0);
-        if ($test == 'varchar') {
-            $wpdb->query("ALTER TABLE `" . $$teachpress_pub . "` CHANGE `url` `url` TEXT " . $charset_collate . " NULL DEFAULT NULL");
+        if ($test == 'string') {
+            $wpdb->query("ALTER TABLE `" . $teachpress_pub . "` CHANGE `url` `url` TEXT " . $charset_collate . " NULL DEFAULT NULL");
         }
         // drop table teachpress_log
         $table_name = $wpdb->prefix . 'teachpress_log';

@@ -18,6 +18,8 @@ function tp_get_registration_message($code) {
         return __('Registration is not possible, because you are already registered in the waitinglist.','teachpress');
     case 103:
         return __('Registration is not possible, because you are already registered for an other course of this course group.','teachpress');
+    case 104:
+        return __('No free places available.','teachpress');
     case 201:
         return __('Registration was successful.','teachpress');
     case 202:
@@ -63,6 +65,7 @@ function tp_send_notification($code, $wp_id, $name) {
  *   code 101  --> user is already registered,
  *   code 102  --> user is already registered in waitinglist,
  *   code 103  --> user is already registered for an other course of the course group,
+ *   code 104  --> no free places availablea,
  *   code 201  --> registration was successful,
  *   code 202  --> registration was successful for waitinglist,
 */
@@ -117,6 +120,10 @@ function tp_add_registration($checkbox, $wp_id){
               $wpdb->query( "INSERT INTO " . $teachpress_signup . " (course_id, wp_id, waitinglist, date) VALUES ('$checkbox', '$wp_id', '1', NOW() )" );
               $wpdb->query("COMMIT");
               return 202;
+        }
+        else {
+            $wpdb->query("ROLLBACK");
+            return 104;
         }
    }
 }
@@ -510,7 +517,7 @@ function tp_enrollments_shortcode($atts) {
                                        <table class="teachpress_enr_old" border="1" cellpadding="5" cellspacing="0">
                                        <tr>';
                          if ($is_sign_out == '0') {
-                                 $rtn = $rtn . '<th>&nbsp;</th>';
+                                 $rtn = $rtn . '<th width="15">&nbsp;</th>';
                          }
                          $rtn = $rtn . '<th>' . __('Name','teachpress') . '</th>
                                         <th>' . __('Type') . '</th>
