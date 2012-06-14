@@ -297,7 +297,7 @@ function tp_add_course_page() {
                 <input name="date" type="text" id="date" title="<?php _e('The date(s) for the course','teachpress'); ?>" tabindex="5" style="width:95%;" value="<?php echo stripslashes($daten["date"]); ?>" />
                 <p><label for="room" title="<?php _e('The room or place for the course','teachpress'); ?>"><strong><?php _e('Room','teachpress'); ?></strong></label></p>
                 <input name="room" type="text" id="room" title="<?php _e('The room or place for the course','teachpress'); ?>" style="width:95%;" tabindex="6" value="<?php echo stripslashes($daten["room"]); ?>" />
-                <p><label for="platz" title="<?php _e('The number of available places.','teachpress'); ?>"><strong><?php _e('Number of places','teachpress'); ?></strong></label></p>
+                <p><label for="places" title="<?php _e('The number of available places.','teachpress'); ?>"><strong><?php _e('Number of places','teachpress'); ?></strong></label></p>
                 <input name="places" type="text" id="places" title="<?php _e('The number of available places.','teachpress'); ?>" style="width:70px;" tabindex="7" value="<?php echo $daten["places"]; ?>" />
                 <?php if ($course_ID != 0) {
                     echo ' | ' . __('free places','teachpress') . ': ' . $daten["fplaces"]; ?>

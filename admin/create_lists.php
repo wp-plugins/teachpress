@@ -92,7 +92,7 @@ function tp_lists_page() {
             if ($val == '1') {
                 echo '<input name="birthday_field" id="birthday_field" type="checkbox" value="1" /> <label for="birthday_field">' .  __('Date of birth','teachpress') . '</label><br />';
             }
-            echo '<input name="email_field" id="email_field" type="checkbox" value="1" /> <label for="email_field_field">' . __('E-Mail') . '</label><br />';
+            echo '<input name="email_field" id="email_field" type="checkbox" value="1" /> <label for="email_field">' . __('E-Mail') . '</label><br />';
             ?>
          </td>
       </tr>
@@ -103,12 +103,12 @@ function tp_lists_page() {
    <?php
    }
    if ( $create == __('Create','teachpress') ) {
-      $row = "SELECT * FROM " . $teachpress_courses . " WHERE course_id = '$course_ID'";
+      $row = "SELECT * FROM " . $teachpress_courses . " WHERE `course_id` = '$course_ID'";
       $row = $wpdb->get_results($row);
       foreach($row as $row) {
          // define course name
          if ($row->parent != 0) {
-            $sql = "SELECT name FROM " . $teachpress_courses . " WHERE course_id = '$row->parent'";
+            $sql = "SELECT `name´ FROM " . $teachpress_courses . " WHERE `course_id` = '$row->parent'";
             $parent_name = $wpdb->get_var($sql);
             // if parent_name == child name
             if ($parent_name == $row->name) {

@@ -11,6 +11,7 @@
  *    image_size (INT) - default: 0
  *    headline (INT) - 0 for hide headline, 1 for show headline (default:1)
  *    text (STRING) - shows a custom text under the headline
+ *    term (STRING) - the term you want to show
  * @param STRING $semester (GET)
  * @return STRING
 */
@@ -23,16 +24,18 @@ function tp_courselist_shortcode($atts) {
       'image' => 'none',
       'image_size' => 0,
       'headline' => 1,
-     'text' => '',
+      'text' => '',
+      'term' => ''
    ), $atts));
    $image = tp_sec_var($image);
    $text = tp_sec_var($text);
+   $term = tp_sec_var($term);
    settype($image_size, 'integer');
    settype($headline, 'integer');
 
    $url = array(
-    "permalink" => get_tp_option('permalink'),
-    "post_id" => get_the_ID()
+        "permalink" => get_tp_option('permalink'),
+        "post_id" => get_the_ID()
    );    
    
    if ( $url["permalink"] == 0 ) {
@@ -47,9 +50,12 @@ function tp_courselist_shortcode($atts) {
    else {
       $page = "";
    }
-   // define semester
+   // define term
    if ( isset( $_GET['semester'] ) ) {
         $sem = tp_sec_var($_GET['semester']);
+   }
+   elseif ( $term != '' ) {
+        $sem = $term;
    }
    else {
         $sem = get_tp_option('sem');

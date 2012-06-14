@@ -209,11 +209,17 @@ function tp_change_student($wp_id, $data, $user_ID = 0) {
     }
 }
 
-/* Show the enrollment system
+/** Show the enrollment system
  * @param ARRAY $atts
+ *    term (STRING) - the term you want to show
  * @return: String
 */
-function tp_enrollments_shortcode($atts) {		
+function tp_enrollments_shortcode($atts) {
+   // Shortcode options
+   extract(shortcode_atts(array(
+      'term' => ''
+   ), $atts));
+   $term = tp_sec_var($term);
    // Advanced Login
    $tp_login = get_tp_option('login');
    if ( $tp_login == 'int' ) {
@@ -231,9 +237,15 @@ function tp_enrollments_shortcode($atts) {
    global $teachpress_stud; 
    global $teachpress_settings; 
    global $teachpress_signup;
-   $sem = get_tp_option('sem');
    $is_sign_out = get_tp_option('sign_out');
    $url["permalink"] = get_tp_option('permalink');
+   // term
+   if ( $term != '' ) {
+       $sem = $term;
+   }
+   else {
+       $sem = get_tp_option('sem');
+   }
 
    // Form
    global $pagenow;

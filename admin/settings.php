@@ -458,7 +458,7 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
             $row = $wpdb->get_results($row);
             foreach ($row as $row) { ?>  
                     <tr>
-                         <td><a title="<?php _e('Delete course','teachpress'); ?>" href="options-general.php?page=teachpress/settings.php&amp;delete=<?php echo $row->setting_id; ?>&amp;tab=courses" class="teachpress_delete">X</a></td>
+                         <td><a title="<?php _e('Delete type','teachpress'); ?>" href="options-general.php?page=teachpress/settings.php&amp;delete=<?php echo $row->setting_id; ?>&amp;tab=courses" class="teachpress_delete">X</a></td>
                          <td><?php echo stripslashes($row->value); ?></td>
                          <td><?php echo $row->number; ?></td>
                     </tr>

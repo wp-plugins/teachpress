@@ -8,7 +8,7 @@
 
 <body style="margin: 0 auto; text-align: center; width: 1000px;">
 <p><img src="../images/logo_big.png" alt="" /></p>
-<p style="font-size:20px; font-weight:bold;"> teachPress 3.1.0</p>
+<p style="font-size:20px; font-weight:bold;"> teachPress 3.1.2</p>
 <p><a href="index.html">Main Page</a> | <strong>Shortcode Reference</strong></p>
 <div style="text-align: left;">
 <p>teachPress brings you some powerful shortcodes, which you can use in posts and pages. If you don&#8217;t know, how you can use shortcodes in WordPress, so please <a title="WordPress Codex: Shortcodes" href="http://codex.wordpress.org/Shortcode">read this article before</a>.</p>
@@ -174,6 +174,8 @@
 <a name="tpenrollments"></a>
 <h3 style="border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:silver;margin-bottom:10px;">Displaying enrollment system: [tpenrollments]</h3>
 <p>Shows the enrollemt system in a post or page.</p>
+<p><strong>term</strong> (optional)</p>
+<p style="padding-left:30px;">(string)  The term you want to show. If it is not set, the plugins displays the courses of the current term.</p>
 <h4>Example</h4>
 <p style="background-color:#f0f0f0;padding-top:5px;padding-bottom:5px;margin-top:5px;margin-bottom:5px;padding-left:30px;border:1px solid silver;"><code>[tpenrollments]</code></p>
 <p style="height: 40px;">&nbsp;</p>
@@ -181,12 +183,14 @@
 <a name="tpcourselist"></a>
 <h3 style="border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:silver;margin-bottom:10px;">Overview of courses: [tpcourselist]</h3>
 <p>If you want to show a list of all courses of a semester.</p>
+<p><strong>headline</strong> (optional)</p>
+<p style="padding-left:30px;">(integer)  If you want to show the headline in the list (headline="1") or not (headline=&quot;0&quot;). Default is <strong>1</strong>.</p>
 <p><strong>image</strong> (optional)</p>
 <p style="padding-left:30px;">(string) Set the image position: left, right or bottom. Default is <strong>none </strong>(No images displaying).</p>
 <p><strong>image_size</strong> (optinal)</p>
 <p style="padding-left:30px;">(integer) Maximum size of an image in px. Default is 0. Use this only together with the &#8222;<strong>image&#8220;</strong>-parameter.</p>
-<p><strong>headline</strong> (optional)</p>
-<p style="padding-left:30px;">(integer)  If you want to show the headline in the list (headline="1") or not (headline=&quot;0&quot;). Default is <strong>1</strong>.</p>
+<p><strong>term</strong> (optional)</p>
+<p style="padding-left:30px;">(string)  The term you want to show. If it is not set, the plugins displays the courses of the current term.</p>
 <p><strong>text</strong> (optional)</p>
 <p style="padding-left:30px;">(string)  If you want to show a simple text or comment under the headline.</p>
 <h4>Example</h4>
