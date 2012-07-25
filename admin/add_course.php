@@ -37,6 +37,7 @@ function tp_add_course_page() {
    global $wpdb;
    global $teachpress_settings;
    global $teachpress_courses;
+   global $teachpress_signup;
 
    $data['type'] = isset( $_POST['course_type'] ) ? tp_sec_var($_POST['course_type']) : '';
    $data['name'] = isset( $_POST['post_title'] ) ? tp_sec_var($_POST['post_title']) : '';
@@ -44,7 +45,6 @@ function tp_add_course_page() {
    $data['lecturer'] = isset( $_POST['lecturer'] ) ? tp_sec_var($_POST['lecturer']) : '';
    $data['date'] = isset( $_POST['date'] ) ? tp_sec_var($_POST['date']) : '';
    $data['places'] = isset( $_POST['places'] ) ? (int) $_POST['places'] : 0;
-   $data['fplaces'] = isset( $_POST['fplaces'] ) ? (int) $_POST['fplaces'] : 0;
    $data['start'] = isset( $_POST['start'] ) ? tp_sec_var($_POST['start']) : ''; 
    $data['start_hour'] = isset( $_POST['start_hour'] ) ? tp_sec_var($_POST['start_hour']) : '';
    $data['start_minute'] = isset( $_POST['start_minute'] ) ? tp_sec_var($_POST['start_minute']) : '';
@@ -246,7 +246,7 @@ function tp_add_course_page() {
                 <p><label for="course_type" title="<?php _e('The course type','teachpress'); ?>"><strong><?php _e('Type'); ?></strong></label></p>
                 <select name="course_type" id="course_type" title="<?php _e('The course type','teachpress'); ?>" tabindex="2">
                 <?php 
-                    $row = "SELECT value FROM " . $teachpress_settings . " WHERE category = 'course_type' ORDER BY value";
+                    $row = "SELECT `value` FROM " . $teachpress_settings . " WHERE `category` = 'course_type' ORDER BY `value`";
                     $row = $wpdb->get_results($row);
                     foreach ($row as $row) {
                         if ($daten["type"] == $row->value) {
@@ -267,7 +267,7 @@ function tp_add_course_page() {
                 else {
                     $value = 0;
                 }
-                $sql = "SELECT value FROM " . $teachpress_settings . " WHERE category = 'semester' ORDER BY setting_id";
+                $sql = "SELECT `value` FROM " . $teachpress_settings . " WHERE `category` = 'semester' ORDER BY `setting_id`";
                 $sem = $wpdb->get_results($sql);
                 $x = 0;
                 // Semester in array speichern - wird spaeter fuer Parent-Menu genutzt
@@ -300,8 +300,8 @@ function tp_add_course_page() {
                 <p><label for="places" title="<?php _e('The number of available places.','teachpress'); ?>"><strong><?php _e('Number of places','teachpress'); ?></strong></label></p>
                 <input name="places" type="text" id="places" title="<?php _e('The number of available places.','teachpress'); ?>" style="width:70px;" tabindex="7" value="<?php echo $daten["places"]; ?>" />
                 <?php if ($course_ID != 0) {
-                    echo ' | ' . __('free places','teachpress') . ': ' . $daten["fplaces"]; ?>
-                    <input name="fplaces" id="fplaces" type="hidden" value="<?php echo $daten["fplaces"]; ?>"/>
+					$used_places = $wpdb->get_var("SELECT COUNT(`course_id`) FROM $teachpress_signup WHERE `course_id` = '" . $daten["course_id"] . "' AND `waitinglist` = 0");
+                    echo ' | ' . __('free places','teachpress') . ': ' . ($daten["places"] - $used_places); ?>
                 <?php } ?>
                 <p><label for="parent2" title="<?php _e('Here you can connect a course with a parent one. With this function you can create courses with an hierarchical order.','teachpress'); ?>"><strong><?php _e('Parent course','teachpress'); ?></strong></label></p>
                 <select name="parent2" id="parent2" title="<?php _e('Here you can connect a course with a parent one. With this function you can create courses with an hierarchical order.','teachpress'); ?>" tabindex="8">

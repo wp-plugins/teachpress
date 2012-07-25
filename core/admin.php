@@ -135,7 +135,7 @@ function get_tp_single_table_row_course ($course, $checkbox, $static, $parent_co
         } 
     }
     // Change the style for an important information
-    if ( $course['places'] > 0 && $course['fplaces'] == 0 ) {
+    if ( $course['places'] > 0 && $course['fplaces'] <= 0 ) {
         $style = ' style="color:#ff6600; font-weight:bold;"'; 
     }
     // Type specifics
@@ -204,7 +204,7 @@ function tp_add_course($data) {
     global $teachpress_courses;
     $data['start'] = $data['start'] . ' ' . $data['start_hour'] . ':' . $data['start_minute'] . ':00';
     $data['end'] = $data['end'] . ' ' . $data['end_hour'] . ':' . $data['end_minute'] . ':00';
-    $wpdb->insert( $teachpress_courses, array( 'name' => $data['name'], 'type' => $data['type'], 'room' => $data['room'], 'lecturer' => $data['lecturer'], 'date' => $data['date'], 'places' => $data['places'], 'fplaces' => $data['places'], 'start' => $data['start'], 'end' => $data['end'], 'semester' => $data['semester'], 'comment' => $data['comment'], 'rel_page' => $data['rel_page'], 'parent' => $data['parent'], 'visible' => $data['visible'], 'waitinglist' => $data['waitinglist'], 'image_url' => $data['image_url'], 'strict_signup' => $data['strict_signup'] ), array( '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%d' ) );
+    $wpdb->insert( $teachpress_courses, array( 'name' => $data['name'], 'type' => $data['type'], 'room' => $data['room'], 'lecturer' => $data['lecturer'], 'date' => $data['date'], 'places' => $data['places'], 'start' => $data['start'], 'end' => $data['end'], 'semester' => $data['semester'], 'comment' => $data['comment'], 'rel_page' => $data['rel_page'], 'parent' => $data['parent'], 'visible' => $data['visible'], 'waitinglist' => $data['waitinglist'], 'image_url' => $data['image_url'], 'strict_signup' => $data['strict_signup'] ), array( '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%d' ) );
     return $wpdb->insert_id;
 }
 	
@@ -250,10 +250,7 @@ function tp_change_course($course_ID, $data){
     $old_places = get_tp_course_data ($course_ID, 'places');
 
     // handle the number of free places
-    if ( $data['places'] == $old_places ) {
-        $fplaces = $data['fplaces'];
-    }
-    elseif ( $data['places'] > $old_places ) {
+    if ( $data['places'] > $old_places ) {
         $new_free_places = $data['places'] - $old_places;
         // subscribe students from the waiting list automatically
         $sql = "SELECT s.con_id, s.waitinglist, s.date
@@ -270,24 +267,16 @@ function tp_change_course($course_ID, $data){
                 else {
                     break;
                 }
-                $new_free_places = $new_free_places -1;
+                $new_free_places--;
             }
         }
         // END subscribe students from the waiting list automatically
-        $fplaces = $new_free_places + $data['fplaces'];
-    }
-    else {
-        $fplaces = $data['fplaces'] - ( $old_places - $data['places'] );
-        // no negative free places
-        if ( $fplaces < 0 ) { 
-            $fplaces = 0; 
-        }
     }
     // END handle the number of free places
 
     $data['start'] = $data['start'] . ' ' . $data['start_hour'] . ':' . $data['start_minute'] . ':00';
     $data['end'] = $data['end'] . ' ' . $data['end_hour'] . ':' . $data['end_minute'] . ':00';
-    $wpdb->update( $teachpress_courses, array( 'name' => $data['name'], 'type' => $data['type'], 'room' => $data['room'], 'lecturer' => $data['lecturer'], 'date' => $data['date'], 'places' => $data['places'], 'fplaces' => $fplaces, 'start' => $data['start'], 'end' => $data['end'], 'semester' => $data['semester'], 'comment' => $data['comment'], 'rel_page' => $data['rel_page'], 'parent' => $data['parent'], 'visible' => $data['visible'], 'waitinglist' => $data['waitinglist'], 'image_url' => $data['image_url'], 'strict_signup' => $data['strict_signup'] ), array( 'course_id' => $course_ID ), array( '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%d' ), array( '%d' ) );
+    $wpdb->update( $teachpress_courses, array( 'name' => $data['name'], 'type' => $data['type'], 'room' => $data['room'], 'lecturer' => $data['lecturer'], 'date' => $data['date'], 'places' => $data['places'], 'start' => $data['start'], 'end' => $data['end'], 'semester' => $data['semester'], 'comment' => $data['comment'], 'rel_page' => $data['rel_page'], 'parent' => $data['parent'], 'visible' => $data['visible'], 'waitinglist' => $data['waitinglist'], 'image_url' => $data['image_url'], 'strict_signup' => $data['strict_signup'] ), array( 'course_id' => $course_ID ), array( '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%d' ), array( '%d' ) );
 }
 
 /** 
@@ -373,7 +362,6 @@ function tp_copy_course($checkbox, $copysem) {
 */
 function tp_delete_registration($checkbox) {
     global $wpdb;
-    global $teachpress_courses;  
     global $teachpress_signup;
     for( $i = 0; $i < count( $checkbox ); $i++ ) {
         settype($checkbox[$i], 'integer');
@@ -381,31 +369,15 @@ function tp_delete_registration($checkbox) {
         $row1 = "SELECT `course_id` FROM " . $teachpress_signup . " WHERE `con_id` = '$checkbox[$i]'";
         $row1 = $wpdb->get_results($row1);
         foreach ($row1 as $row1) {
-            // check if there are users in teh waiting list
-            $abfrage = "SELECT `con_id` FROM " . $teachpress_signup . " WHERE `course_id` = '$row1->course_id' AND `waitinglist` = '1' ORDER BY `con_id`";
-            $test= $wpdb->query($abfrage);
-            // if is true
-            if ($test != 0) {
-                $zahl = 0;
-                $wpdb->get_results($abfrage);
-                foreach ($row as $row) {
-                    if ($zahl < 1) {
-                        $aendern = "UPDATE " . $teachpress_signup . " SET `waitinglist` = '0' WHERE `con_id` = '$row->con_id'";
-                        $wpdb->query( $aendern );
-                        $zahl++;
-                    }
-                }
-            }
-            // if not enhance the number of free places
-            else {
-                $fplaces= "SELECT `fplaces` FROM " . $teachpress_courses . " WHERE `course_id` = '$row1->course_id'";
-                $fplaces = $wpdb->get_var($fplaces);
-                $neu = $fplaces + 1;
-                $aendern = "UPDATE " . $teachpress_courses . " SET `fplaces` = '$neu' WHERE `course_id` = '$row1->course_id'";
-                $wpdb->query( $aendern );
+            // check if there are users in the waiting list
+            $sql = "SELECT `con_id` FROM $teachpress_signup WHERE `course_id` = '" . $row1->course_id . "' AND `waitinglist` = '1' ORDER BY `con_id` ASC LIMIT 0, 1";
+            $con_id = $wpdb->get_var($sql);
+            // if is true subscribe the first one in the waiting list for the course
+            if ($con_id != 0 && $con_id != "") {
+                $wpdb->query( "UPDATE $teachpress_signup SET `waitinglist` = '0' WHERE `con_id` = '$con_id'" );
             }	
         }
-        $wpdb->query( "DELETE FROM " . $teachpress_signup . " WHERE `con_id` = '$checkbox[$i]'" );
+        $wpdb->query( "DELETE FROM $teachpress_signup WHERE `con_id` = '$checkbox[$i]'" );
     }
 }
 
@@ -429,18 +401,8 @@ function tp_add_from_waitinglist($checkbox) {
 */	
 function tp_subscribe_student_manually($student, $veranstaltung) {
     global $wpdb;
-    global $teachpress_courses; 
     global $teachpress_signup;
-    $eintragen = "INSERT INTO " . $teachpress_signup . " (`course_id`, `wp_id`, `waitinglist`, `date`) VALUES ('$veranstaltung', '$student', '0', NOW() )";
-    $wpdb->query( $eintragen );
-    // if there are free places --> reduce the number
-    $fplaces = "SELECT `fplaces` FROM " . $teachpress_courses . " WHERE `course_id` = '$veranstaltung'";
-    $fplaces = $wpdb->get_var($fplaces);
-    if ($fplaces > 0 ) {
-        $neu = $fplaces - 1;
-        $aendern = "UPDATE " . $teachpress_courses . " SET `fplaces` = '$neu' WHERE `course_id` = '$veranstaltung'";
-        $wpdb->query( $aendern );
-    }
+    $wpdb->query( "INSERT INTO " . $teachpress_signup . " (`course_id`, `wp_id`, `waitinglist`, `date`) VALUES ('$veranstaltung', '$student', '0', NOW() )" );
 }	
 
 /************/
@@ -454,45 +416,27 @@ function tp_subscribe_student_manually($student, $veranstaltung) {
 */ 
 function tp_delete_student($checkbox, $user_ID){
     global $wpdb;
-    global $teachpress_courses; 
     global $teachpress_stud; 
     global $teachpress_signup;
     $user_ID = tp_sec_var($user_ID, 'integer');
     for( $i = 0; $i < count( $checkbox ); $i++ ) {
         settype($checkbox[$i], 'integer');
         // search courses where the user was registered
-        $row1 = "SELECT `course_id` FROM " . $teachpress_signup . " WHERE `wp_id` = '$checkbox[$i]'";
+        $row1 = "SELECT `course_id` FROM $teachpress_signup WHERE `wp_id` = '$checkbox[$i]'";
         $row1 = $wpdb->get_results($row1);
         foreach ($row1 as $row1) {
             // check if there are users in the waiting list
-            $abfrage = "SELECT `con_id` FROM " . $teachpress_signup . " WHERE `course_id` = '$row1->course_id' AND `waitinglist` = '1' ORDER BY con_id";
-            $test = $wpdb->query($abfrage);
-            // if is true
-            if ($test > 0) {
-                $zahl = 0;
-                $row = $wpdb->get_results($abfrage);
-                foreach($row as $row) {
-                    if ($zahl < 1) {
-                        $aendern = "UPDATE " . $teachpress_signup . " SET `waitinglist` = '0' WHERE `con_id` = '$row->con_id'";
-                        $wpdb->query( $aendern );
-                        $zahl++;
-                    }
-                }
-            }
-            // if not enhance the number of free places
-            else {
-                $fplaces = "SELECT `fplaces` FROM " . $teachpress_courses . " WHERE `course_id` = '$row1->course_id'";
-                $fplaces = $wpdb->get_var($fplaces);
-                $neu = $fplaces + 1;
-                $aendern = "UPDATE " . $teachpress_courses . " SET `fplaces` = '$neu' WHERE `course_id` = '$row1->course_id'";
-                $wpdb->query( $aendern );
+            $sql = "SELECT `con_id` FROM $teachpress_signup WHERE `course_id` = '" . $row1->course_id . "' AND `waitinglist` = '1' ORDER BY `con_id` ASC LIMIT 0, 1";
+            $con_id = $wpdb->get_var($sql);
+            // if is true subscribe the first one in the waiting list for the course
+            if ($con_id != 0 && $con_id != "") {
+                $wpdb->query( "UPDATE $teachpress_signup SET `waitinglist` = '0' WHERE `con_id` = '$con_id'" );
             }
         }
-        $wpdb->query( "DELETE FROM " . $teachpress_stud . " WHERE `wp_id` = $checkbox[$i]" );
-        $wpdb->query( "DELETE FROM " . $teachpress_signup . " WHERE `wp_id` = $checkbox[$i]" );
+        $wpdb->query( "DELETE FROM $teachpress_stud WHERE `wp_id` = $checkbox[$i]" );
+        $wpdb->query( "DELETE FROM $teachpress_signup WHERE `wp_id` = $checkbox[$i]" );
     }
 }
-
 
 /****************/
 /* Publications */

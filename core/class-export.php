@@ -94,6 +94,7 @@ class tp_export {
     function get_course_xls($course_ID) {
         global $wpdb;
         global $teachpress_courses;
+		global $teachpress_signup;
 
         // load course data
         $daten = $wpdb->get_row("SELECT * FROM " . $teachpress_courses . " WHERE `course_id` = '$course_ID'", ARRAY_A);
@@ -127,7 +128,8 @@ class tp_export {
         echo '<th>' . __('Places','teachpress') . '</th>';
         echo '<td>' . $daten['places'] . '</td>';
         echo '<th>' . __('free places','teachpress') . '</th>';
-        echo '<td>' . $daten['fplaces'] . '</td>';
+		$used_places = $wpdb->get_var("SELECT COUNT(`course_id`) FROM $teachpress_signup WHERE `course_id` = '" . $daten["course_id"] . "' AND `waitinglist` = 0");
+        echo '<td>' . ($daten["places"] - $used_places) . '</td>';
         echo '<td>&nbsp;</td>';
         echo '<td>&nbsp;</td>';
         echo '</tr>';

@@ -136,7 +136,11 @@ function tp_show_single_course_page() {
            <td><strong><?php _e('Places','teachpress'); ?></strong></th>
            <td><?php echo $daten["places"]; ?></td>  
            <td><strong><?php _e('free places','teachpress'); ?></strong></td>
-           <td><?php echo $daten["fplaces"]; ?></td>
+           <?php
+		   $used_places = $wpdb->get_var("SELECT COUNT(`course_id`) FROM $teachpress_signup WHERE `course_id` = '" . $daten["course_id"] . "' AND `waitinglist` = 0");
+		   $free_places = $daten["places"] - $used_places;
+		   ?>
+           <td <?php if ( $free_places < 0 ) { echo ' style="color:#ff6600; font-weight:bold;"';} ?>><?php echo $free_places ?></td>
          </tr>  
          <?php } else {?>
          <tr>

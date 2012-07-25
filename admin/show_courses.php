@@ -69,6 +69,7 @@ function teachpress_show_courses_page() {
      global $wpdb;
      global $teachpress_settings; 
      global $teachpress_courses;
+	 global $teachpress_signup;
 
      $search = isset( $_GET['search'] ) ? tp_sec_var($_GET['search']) : '';
      $course_ID = isset( $_GET['course_ID'] ) ? (int) $_GET['course_ID'] : '';
@@ -195,8 +196,8 @@ function teachpress_show_courses_page() {
            }
            // if the user is using the search
            else {
-                   $abfrage = "SELECT `course_id`, `name`, `type`, `lecturer`, `date`, `room`, `places`, `fplaces`, `start`, `end`, `semester`, `parent`, `visible`, `parent_name` 
-                   FROM (SELECT t.course_id AS course_id, t.name AS name, t.type AS type, t.lecturer AS lecturer, t.date AS date, t.room As room, t.places AS places, t.fplaces AS fplaces, t.start AS start, t.end As end, t.semester AS semester, t.parent As parent, t.visible AS visible, p.name AS parent_name FROM " . $teachpress_courses . " t LEFT JOIN " . $teachpress_courses . " p ON t.parent = p.course_id ) AS temp 
+                   $abfrage = "SELECT `course_id`, `name`, `type`, `lecturer`, `date`, `room`, `places`, `start`, `end`, `semester`, `parent`, `visible`, `parent_name` 
+                   FROM (SELECT t.course_id AS course_id, t.name AS name, t.type AS type, t.lecturer AS lecturer, t.date AS date, t.room As room, t.places AS places, t.start AS start, t.end As end, t.semester AS semester, t.parent As parent, t.visible AS visible, p.name AS parent_name FROM " . $teachpress_courses . " t LEFT JOIN " . $teachpress_courses . " p ON t.parent = p.course_id ) AS temp 
                    WHERE `name` like '%$search%' OR `parent_name` like '%$search%' OR `lecturer` like '%$search%' OR `date` like '%$search%' OR `room` like '%$search%' OR `course_id` = '$search' 
                    ORDER BY `semester` DESC, `name`";
            }
@@ -206,6 +207,13 @@ function teachpress_show_courses_page() {
                echo '<tr><td colspan="13"><strong>' . __('Sorry, no entries matched your criteria.','teachpress') . '</strong></td></tr>';
            }
            else {
+			    // free places
+				$sql = "SELECT `course_id`, COUNT(`course_id`) AS used_places FROM $teachpress_signup WHERE `waitinglist` = '0' GROUP BY `course_id`";
+				$r = $wpdb->get_results($sql);
+				foreach ($r as $r) {
+					$free_places[$r->course_id] = $r->used_places;
+				}
+				// END free places
                 $static['bulk'] = $bulk;
                 $static['sem'] = $sem;
                 $static['search'] = $search;
@@ -221,7 +229,13 @@ function teachpress_show_courses_page() {
                     $courses[$z]['lecturer'] = stripslashes($row->lecturer);
                     $courses[$z]['date'] = stripslashes($row->date);
                     $courses[$z]['places'] = $row->places;
-                    $courses[$z]['fplaces'] = $row->fplaces;
+                    // number of free places
+                    if ( array_key_exists($row->course_id, $free_places) ) {
+                        $courses[$z]['fplaces'] = $courses[$z]['places'] - $free_places[$row->course_id];
+                    }
+                    else {
+                        $courses[$z]['fplaces'] = $courses[$z]['places'];
+                    }
                     $courses[$z]['start'] = '' . $date1[0][0] . '-' . $date1[0][1] . '-' . $date1[0][2] . '';
                     $courses[$z]['end'] = '' . $date2[0][0] . '-' . $date2[0][1] . '-' . $date2[0][2] . '';
                     $courses[$z]['semester'] = stripslashes($row->semester);

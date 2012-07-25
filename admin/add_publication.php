@@ -333,7 +333,7 @@ function teachpress_addpublications_page() {
              ?>
              <div id="div_booktitle" <?php echo $display; ?>>
              <p><label for="booktitle" title="<?php _e('The title of a book','teachpress'); ?>"><strong><?php _e('booktitle','teachpress'); ?></strong></label></p>
-             <textarea name="booktitle" id="booktitle" wrap="virtual" style="width:95%" tabindex="7" title="<?php _e('The title of a book','teachpress'); ?>"><?php echo stripslashes($daten["booktitle"]); ?></textarea>
+             <textarea name="booktitle" id="booktitle" wrap="virtual" style="width:95%;" rows="3" tabindex="7" title="<?php _e('The title of a book','teachpress'); ?>"><?php echo stripslashes($daten["booktitle"]); ?></textarea>
              </div>
              <?php
              $display = "";
@@ -577,29 +577,25 @@ function teachpress_addpublications_page() {
                 });
 	});
 	</script>
-        <script type="text/javascript" charset="utf-8">
-        jQuery(document).ready(function($) {
-            $('#author').resizable({handles: "se", minHeight: 55, minWidth: 400});
-	});
-        jQuery(document).ready(function($) {
-            $('#editor').resizable({handles: "se", minHeight: 55, minWidth: 400});
-	});
-        jQuery(document).ready(function($) {
-            $('#booktitle').resizable({handles: "se", minHeight: 80, minWidth: 500});
-	});
-        jQuery(document).ready(function($) {
-            $('#abstract').resizable({handles: "se", minHeight: 80, minWidth: 500});
-	});
-        // breaks the url import
-        jQuery(document).ready(function($) {
-            $('#url').resizable({handles: "se", minHeight: 80, minWidth: 500});
-	});
-	jQuery(document).ready(function($) {
-            $('#comment').resizable({handles: "se", minHeight: 70, minWidth: 400});
-	});
-        jQuery(document).ready(function($) {
-            $('#note').resizable({handles: "se", minHeight: 70, minWidth: 400});
-	});
+	<script type="text/javascript" charset="utf-8">
+    jQuery(document).ready(function($) {
+        $('#author').resizable({handles: "se", minHeight: 55, minWidth: 400});
+    });
+    jQuery(document).ready(function($) {
+        $('#editor').resizable({handles: "se", minHeight: 55, minWidth: 400});
+    });
+    jQuery(document).ready(function($) {
+        $('#abstract').resizable({handles: "se", minHeight: 80, minWidth: 500});
+    });
+    jQuery(document).ready(function($) {
+    	$('#url').resizable({handles: "se", minHeight: 80, minWidth: 500});
+    });
+    jQuery(document).ready(function($) {
+        $('#comment').resizable({handles: "se", minHeight: 70, minWidth: 400});
+    });
+    jQuery(document).ready(function($) {
+    	$('#note').resizable({handles: "se", minHeight: 70, minWidth: 400});
+    });
     </script>
    </div>
 <?php } ?>

@@ -171,7 +171,7 @@ function tp_db_update_function() {
         }
 
         /*
-            * teachpress_settings
+         * teachpress_settings
         */
         $sql = "SHOW COLUMNS FROM " . $teachpress_einstellungen . " LIKE 'einstellungs_id'";
         $test = $wpdb->query($sql);
@@ -612,6 +612,16 @@ function tp_db_update_function() {
         $wpdb->query("ALTER TABLE $teachpress_signup ENGINE = INNODB");
         $wpdb->query("ALTER TABLE $teachpress_relation ENGINE = INNODB");
         $wpdb->query("ALTER TABLE $teachpress_user ENGINE = INNODB");
+        
+        /****************************/
+        /* teachPress 3.1.3 upgrade */
+        /****************************/
+        // Drop column fplaces
+        $sql = "SHOW COLUMNS FROM " . $teachpress_courses . " LIKE 'fplaces'";
+        $test = $wpdb->query($sql);
+        if ($test == '1') {
+            $wpdb->query("ALTER TABLE " . $teachpress_courses . " DROP `fplaces`");
+        }
         
         /*********/
         /* Fixes */
