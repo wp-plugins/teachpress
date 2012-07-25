@@ -3,7 +3,7 @@ Contributors: Michael Winkler
 Tags: management, publications, enrollments, teachpress, education, course management, BibTeX, bibliography
 Requires at least: 3.3
 Tested up to: 3.4.1
-Stable tag: 3.1.3
+Stable tag: 3.1.4
 
 With this plugin you can easy manage courses, enrollments and publications.
 
@@ -113,6 +113,8 @@ If you save plugins outside the normal path (/wp-content/plugins/), the plugin c
 [See teachPress shortcode reference](http://mtrv.wordpress.com/teachpress/shortcode-reference/)
 
 == Changelog ==
+= 3.1.4 - (25.07.2012) =
+* Bugfix: Fixed a bug at adding/changing of courses (was introduced with 3.1.3)
 = 3.1.3 - (25.07.2012) =
 * Bugfix: Fixed a silent overbooking of courses
 * Bugfix: Fixed the complete handling of free places to reduce possible collisions of database queries during the enrollment process
