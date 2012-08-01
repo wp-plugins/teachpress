@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: teachPress v0.20.0\n"
+"Project-Id-Version: teachPress v3.1.4\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-12-20 23:23+0100\n"
-"PO-Revision-Date: 2009-12-20 23:24+0100\n"
+"PO-Revision-Date: 2012-08-01 20:06:39+0000\n"
 "Last-Translator: Michael Winkler <michi.mtrv@googlemail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -39,7 +39,7 @@ msgstr "Für untergeordnete Veranstaltungen wird der Name der Parent-Veranstaltu
 
 #: admin/add_course.php:12
 #: admin/add_course.php:160
-#: admin/show_courses.php:181
+#: admin/show_courses.php:182
 #: admin/show_single_course.php:124
 #@ teachpress
 msgid "Enrollments"
@@ -75,7 +75,7 @@ msgstr "Für Veranstaltungsinfos"
 
 #: admin/add_course.php:18
 #: admin/add_course.php:137
-#: admin/show_courses.php:183
+#: admin/show_courses.php:184
 #: admin/show_single_course.php:109
 #@ teachpress
 msgid "Visibility"
@@ -84,16 +84,16 @@ msgstr "Sichtbarkeit"
 #: admin/add_course.php:261
 #: admin/settings.php:419
 #: admin/settings.php:424
-#: admin/show_courses.php:182
-#: core/enrollments.php:480
-#: core/enrollments.php:526
+#: admin/show_courses.php:183
+#: core/enrollments.php:481
+#: core/enrollments.php:527
 #@ teachpress
 msgid "Term"
 msgstr "Semester"
 
 #: admin/add_course.php:308
-#: admin/show_single_course.php:143
-#: admin/show_single_course.php:174
+#: admin/show_single_course.php:147
+#: admin/show_single_course.php:178
 #: core/admin.php:91
 #: core/admin.php:174
 #: teachpress.php:500
@@ -121,9 +121,9 @@ msgstr "nein"
 
 #: admin/add_course.php:294
 #: admin/create_lists.php:127
-#: admin/show_courses.php:178
-#: admin/show_single_course.php:157
-#: core/class-export.php:119
+#: admin/show_courses.php:179
+#: admin/show_single_course.php:161
+#: core/class-export.php:120
 #@ teachpress
 msgid "Lecturer"
 msgstr "Dozent"
@@ -135,21 +135,21 @@ msgstr "Dozent"
 #: admin/create_lists.php:129
 #: admin/edit_student.php:224
 #: admin/edit_student.php:279
-#: admin/show_courses.php:179
-#: admin/show_single_course.php:165
-#: core/class-export.php:121
-#: core/enrollments.php:478
-#: core/enrollments.php:524
+#: admin/show_courses.php:180
+#: admin/show_single_course.php:169
+#: core/class-export.php:122
+#: core/enrollments.php:479
+#: core/enrollments.php:525
 #@ teachpress
 msgid "Date"
 msgstr "Termin"
 
 #: admin/add_course.php:298
 #: admin/create_lists.php:131
-#: admin/show_single_course.php:161
-#: core/class-export.php:123
-#: core/enrollments.php:479
-#: core/enrollments.php:525
+#: admin/show_single_course.php:165
+#: core/class-export.php:124
+#: core/enrollments.php:480
+#: core/enrollments.php:526
 #@ teachpress
 msgid "Room"
 msgstr "Raum"
@@ -159,8 +159,8 @@ msgstr "Raum"
 msgid "Number of places"
 msgstr "Anzahl Pl&auml;tze"
 
-#: admin/show_single_course.php:169
-#: core/class-export.php:135
+#: admin/show_single_course.php:173
+#: core/class-export.php:137
 #@ teachpress
 msgid "Comment"
 msgstr "Kommentar"
@@ -186,9 +186,9 @@ msgid "End"
 msgstr "Ende"
 
 #: admin/add_course.php:202
-#: core/class-export.php:143
-#: core/class-export.php:165
-#: core/enrollments.php:516
+#: core/class-export.php:145
+#: core/class-export.php:167
+#: core/enrollments.php:517
 #@ teachpress
 msgid "Waiting list"
 msgstr "Warteliste"
@@ -236,7 +236,7 @@ msgstr "Bild hinzufügen"
 
 #: admin/add_course.php:332
 #: admin/add_publication.php:265
-#: admin/show_single_course.php:173
+#: admin/show_single_course.php:177
 #@ teachpress
 msgid "Related page"
 msgstr "Verlinkte Seite"
@@ -246,12 +246,12 @@ msgstr "Verlinkte Seite"
 #: admin/add_publication.php:486
 #: admin/edit_student.php:223
 #: admin/edit_student.php:278
-#: admin/show_courses.php:177
+#: admin/show_courses.php:178
 #: admin/show_publications.php:228
-#: admin/show_single_course.php:153
+#: admin/show_single_course.php:157
 #: core/class-bibtex.php:175
-#: core/enrollments.php:477
-#: core/enrollments.php:523
+#: core/enrollments.php:478
+#: core/enrollments.php:524
 #@ default
 msgid "Type"
 msgstr ""
@@ -262,10 +262,10 @@ msgstr ""
 #: admin/edit_tags.php:87
 #: admin/settings.php:394
 #: admin/settings.php:452
-#: admin/show_courses.php:175
+#: admin/show_courses.php:176
 #: admin/show_publications.php:226
-#: core/enrollments.php:476
-#: core/enrollments.php:522
+#: core/enrollments.php:477
+#: core/enrollments.php:523
 #@ teachpress
 msgid "Name"
 msgstr "Name"
@@ -277,7 +277,7 @@ msgid "Author(s)"
 msgstr "Autor(en)"
 
 #: admin/show_publications.php:231
-#: core/enrollments.php:400
+#: core/enrollments.php:401
 #@ teachpress
 msgid "Year"
 msgstr "Jahr"
@@ -311,19 +311,19 @@ msgstr ""
 msgid "add as tag"
 msgstr "als Tag hinzufügen"
 
-#: core/enrollments.php:253
+#: core/enrollments.php:254
 #@ teachpress
 msgid "Enrollments for the"
 msgstr "Einschreibungen für das"
 
-#: core/enrollments.php:330
+#: core/enrollments.php:331
 #@ teachpress
 msgid "Please fill in the following registration form and sign up in the system. You can edit your data later."
 msgstr "Du musst dich erst noch im System registrieren, damit du das Einschreibesystem nutzen kannst. Diese Eintragung ist einmalig. Du kannst deine Daten auch später ändern."
 
-#: core/enrollments.php:332
-#: core/enrollments.php:458
-#: core/enrollments.php:461
+#: core/enrollments.php:333
+#: core/enrollments.php:459
+#: core/enrollments.php:462
 #@ teachpress
 msgid "Your data"
 msgstr "Deine Daten"
@@ -331,13 +331,13 @@ msgstr "Deine Daten"
 #: admin/add_students.php:173
 #: admin/edit_student.php:76
 #: admin/settings.php:325
-#: admin/show_single_course.php:185
-#: admin/show_single_course.php:229
+#: admin/show_single_course.php:189
+#: admin/show_single_course.php:233
 #: admin/show_students.php:133
 #: core/class-export.php:51
-#: core/class-export.php:165
-#: core/enrollments.php:342
-#: core/enrollments.php:565
+#: core/class-export.php:167
+#: core/enrollments.php:343
+#: core/enrollments.php:566
 #@ teachpress
 msgid "First name"
 msgstr "Vorname"
@@ -346,13 +346,13 @@ msgstr "Vorname"
 #: admin/create_lists.php:50
 #: admin/edit_student.php:80
 #: admin/settings.php:326
-#: admin/show_single_course.php:184
-#: admin/show_single_course.php:228
+#: admin/show_single_course.php:188
+#: admin/show_single_course.php:232
 #: admin/show_students.php:132
 #: core/class-export.php:50
-#: core/class-export.php:165
-#: core/enrollments.php:346
-#: core/enrollments.php:569
+#: core/class-export.php:167
+#: core/enrollments.php:347
+#: core/enrollments.php:570
 #@ teachpress
 msgid "Last name"
 msgstr "Nachname"
@@ -363,13 +363,13 @@ msgstr "Nachname"
 #: admin/edit_student.php:87
 #: admin/edit_student.php:183
 #: admin/settings.php:336
-#: admin/show_single_course.php:188
-#: admin/show_single_course.php:231
+#: admin/show_single_course.php:192
+#: admin/show_single_course.php:235
 #: admin/show_students.php:138
 #: core/class-export.php:56
-#: core/class-export.php:163
-#: core/enrollments.php:352
-#: core/enrollments.php:575
+#: core/class-export.php:165
+#: core/enrollments.php:353
+#: core/enrollments.php:576
 #@ teachpress
 msgid "Course of studies"
 msgstr "Studiengang"
@@ -381,8 +381,8 @@ msgstr "Studiengang"
 #: admin/edit_student.php:189
 #: admin/settings.php:346
 #: admin/show_students.php:142
-#: core/enrollments.php:367
-#: core/enrollments.php:595
+#: core/enrollments.php:368
+#: core/enrollments.php:596
 #@ teachpress
 msgid "Number of terms"
 msgstr "Fachsemester"
@@ -393,12 +393,12 @@ msgstr "Fachsemester"
 #: admin/edit_student.php:128
 #: admin/edit_student.php:200
 #: admin/settings.php:347
-#: admin/show_single_course.php:191
-#: admin/show_single_course.php:233
+#: admin/show_single_course.php:195
+#: admin/show_single_course.php:237
 #: admin/show_students.php:148
 #: core/class-export.php:58
-#: core/class-export.php:165
-#: core/enrollments.php:378
+#: core/class-export.php:167
+#: core/enrollments.php:379
 #@ teachpress
 msgid "User account"
 msgstr "Nutzerkennzeichen"
@@ -410,14 +410,14 @@ msgstr "Nutzerkennzeichen"
 #: admin/edit_student.php:195
 #: admin/settings.php:357
 #: admin/show_students.php:146
-#: core/enrollments.php:384
-#: core/enrollments.php:613
+#: core/enrollments.php:385
+#: core/enrollments.php:614
 #@ teachpress
 msgid "Date of birth"
 msgstr "Geburtsdatum"
 
 #: admin/edit_student.php:137
-#: core/enrollments.php:615
+#: core/enrollments.php:616
 #@ teachpress
 msgid "Format: JJJJ-MM-TT"
 msgstr "Format: JJJJ-MM-TT"
@@ -428,94 +428,94 @@ msgstr "Format: JJJJ-MM-TT"
 #: admin/edit_student.php:141
 #: admin/edit_student.php:204
 #: admin/settings.php:358
-#: admin/show_single_course.php:192
-#: admin/show_single_course.php:234
+#: admin/show_single_course.php:196
+#: admin/show_single_course.php:238
 #: admin/show_students.php:149
 #: core/class-export.php:59
-#: core/class-export.php:165
-#: core/enrollments.php:405
-#: core/enrollments.php:619
+#: core/class-export.php:167
+#: core/enrollments.php:406
+#: core/enrollments.php:620
 #@ default
 msgid "E-Mail"
 msgstr ""
 
 #: admin/mail.php:103
-#: core/enrollments.php:410
+#: core/enrollments.php:411
 #@ teachpress
 msgid "Send"
 msgstr "Senden"
 
-#: core/enrollments.php:423
+#: core/enrollments.php:424
 #@ teachpress
 msgid "Hello"
 msgstr "Hallo"
 
-#: core/enrollments.php:452
-#: core/enrollments.php:455
+#: core/enrollments.php:453
+#: core/enrollments.php:456
 #@ teachpress
 msgid "Your enrollments"
 msgstr "Deine Einschreibungen"
 
-#: core/enrollments.php:470
+#: core/enrollments.php:471
 #@ teachpress
 msgid "Signed up for"
 msgstr "Eingeschrieben in"
 
-#: core/enrollments.php:549
+#: core/enrollments.php:550
 #@ teachpress
 msgid "unsubscribe"
 msgstr "austragen"
 
-#: core/enrollments.php:684
-#: core/enrollments.php:740
-#: core/shortcodes.php:166
+#: core/enrollments.php:688
+#: core/enrollments.php:746
+#: core/shortcodes.php:172
 #@ teachpress
 msgid "Date(s)"
 msgstr "Termin(e)"
 
-#: admin/add_course.php:303
+#: admin/add_course.php:304
 #: admin/show_single_course.php:138
-#: core/class-export.php:129
-#: core/enrollments.php:687
-#: core/enrollments.php:741
+#: core/class-export.php:130
+#: core/enrollments.php:691
+#: core/enrollments.php:747
 #@ teachpress
 msgid "free places"
 msgstr "freie Pl&auml;tze"
 
-#: core/enrollments.php:712
-#: core/enrollments.php:761
+#: core/enrollments.php:716
+#: core/enrollments.php:767
 #@ teachpress
 msgid "Possible to subscribe in the waiting list"
 msgstr "Wartelisteneintrag möglich"
 
-#: core/enrollments.php:720
-#: core/enrollments.php:769
+#: core/enrollments.php:724
+#: core/enrollments.php:775
 #@ teachpress
 msgid "Registration period"
 msgstr "Einschreibefrist"
 
-#: admin/show_single_course.php:258
-#: core/enrollments.php:780
+#: admin/show_single_course.php:262
+#: core/enrollments.php:786
 #@ teachpress
 msgid "Sign up"
 msgstr "Einschreiben"
 
-#: core/shortcodes.php:65
+#: core/shortcodes.php:71
 #@ teachpress
 msgid "Select the term"
 msgstr "Bitte wählen Sie das Semester"
 
-#: core/shortcodes.php:60
+#: core/shortcodes.php:66
 #@ teachpress
 msgid "Courses for the"
 msgstr "Lehrveranstaltungen für das"
 
 #: admin/edit_student.php:263
 #: admin/edit_tags.php:94
-#: admin/show_courses.php:206
+#: admin/show_courses.php:207
 #: admin/show_publications.php:237
 #: admin/show_students.php:157
-#: core/shortcodes.php:152
+#: core/shortcodes.php:158
 #@ teachpress
 msgid "Sorry, no entries matched your criteria."
 msgstr "Es sind leider keine Einträge vorhanden."
@@ -578,39 +578,39 @@ msgid "Edit course"
 msgstr "Veranstaltung ändern"
 
 #: admin/edit_tags.php:88
-#: admin/show_courses.php:176
+#: admin/show_courses.php:177
 #: admin/show_publications.php:227
 #: admin/show_single_course.php:103
 #@ default
 msgid "ID"
 msgstr ""
 
-#: admin/show_courses.php:180
+#: admin/show_courses.php:181
 #: admin/show_single_course.php:136
-#: core/class-export.php:127
+#: core/class-export.php:128
 #@ teachpress
 msgid "Places"
 msgstr "Pl&auml;tze"
 
 #: admin/edit_student.php:221
 #: admin/edit_student.php:276
-#: admin/show_single_course.php:193
-#: admin/show_single_course.php:235
+#: admin/show_single_course.php:197
+#: admin/show_single_course.php:239
 #: core/class-export.php:60
-#: core/class-export.php:165
+#: core/class-export.php:167
 #@ teachpress
 msgid "Registered at"
 msgstr "Eingeschrieben am"
 
-#: admin/show_single_course.php:212
-#: admin/show_single_course.php:249
+#: admin/show_single_course.php:216
+#: admin/show_single_course.php:253
 #: admin/show_students.php:185
 #@ teachpress
 msgid "send E-Mail"
 msgstr "E-Mail senden"
 
 #: admin/edit_student.php:309
-#: admin/show_single_course.php:259
+#: admin/show_single_course.php:263
 #@ teachpress
 msgid "delete enrollment"
 msgstr "Einschreibung löschen"
@@ -667,17 +667,17 @@ msgstr "Einschr.-Nr."
 msgid "Course"
 msgstr "Veranstaltung"
 
-#: core/class-export.php:141
+#: core/class-export.php:143
 #@ teachpress
 msgid "Registered participants"
 msgstr "Registrierte Teilnehmer"
 
-#: core/class-export.php:147
+#: core/class-export.php:149
 #@ teachpress
 msgid "Created on"
 msgstr "Erstellt am"
 
-#: core/class-export.php:165
+#: core/class-export.php:167
 #@ teachpress
 msgid "Record-ID"
 msgstr "Datensatz-ID"
@@ -776,42 +776,42 @@ msgstr "Update auf"
 msgid "install"
 msgstr "installieren"
 
-#: admin/show_courses.php:110
+#: admin/show_courses.php:111
 #@ teachpress
 msgid "Copy courses"
 msgstr "Veranstaltungen kopieren"
 
-#: admin/show_courses.php:111
+#: admin/show_courses.php:112
 #@ teachpress
 msgid "Select the term, in which you will copy the selected courses."
 msgstr "Wähle das Semester, in welches die ausgewählten Veranstaltungen kopiert werden sollen."
 
-#: admin/show_courses.php:127
-#: admin/show_courses.php:150
+#: admin/show_courses.php:128
+#: admin/show_courses.php:151
 #@ teachpress
 msgid "copy"
 msgstr "kopieren"
 
-#: admin/show_courses.php:136
+#: admin/show_courses.php:137
 #@ teachpress
 msgid "Copying successful"
 msgstr "Kopiervorgang erfolgreich"
 
 #: admin/edit_tags.php:68
-#: admin/show_courses.php:142
+#: admin/show_courses.php:143
 #: admin/show_publications.php:198
 #: admin/show_students.php:93
 #@ teachpress
 msgid "Cancel the search"
 msgstr "Suche abbrechen"
 
-#: admin/show_courses.php:155
+#: admin/show_courses.php:156
 #@ teachpress
 msgid "All terms"
 msgstr "Alle Semester"
 
 #: admin/edit_tags.php:74
-#: admin/show_courses.php:149
+#: admin/show_courses.php:150
 #: admin/show_publications.php:205
 #: admin/show_students.php:100
 #@ teachpress
@@ -920,17 +920,17 @@ msgid "Publications"
 msgstr "Publikationen"
 
 #: admin/add_students.php:44
-#: core/enrollments.php:311
+#: core/enrollments.php:312
 #@ teachpress
 msgid "Registration successful"
 msgstr "Anmeldung erfolgreich"
 
-#: core/enrollments.php:207
+#: core/enrollments.php:196
 #@ teachpress
 msgid "Changes in your profile successful."
 msgstr "Änderungen am Nutzerprofil erfolgreich."
 
-#: core/enrollments.php:168
+#: core/enrollments.php:157
 #@ teachpress
 msgid "You are signed out successful"
 msgstr "Du wurdest erfolgreich ausgetragen."
@@ -940,47 +940,47 @@ msgstr "Du wurdest erfolgreich ausgetragen."
 msgid "An update is not necessary."
 msgstr "Ein Update ist nicht erforderlich."
 
-#: core/update.php:634
+#: core/update.php:644
 #@ teachpress
 msgid "Update successful"
 msgstr "Update erfolgreich"
 
-#: core/shortcodes.php:551
+#: core/shortcodes.php:557
 #@ teachpress
 msgid "publication"
 msgstr "Publikation"
 
-#: core/shortcodes.php:554
+#: core/shortcodes.php:560
 #@ teachpress
 msgid "publications"
 msgstr "Publikationen"
 
 #: admin/show_publications.php:288
-#: core/shortcodes.php:563
-#: core/shortcodes.php:578
+#: core/shortcodes.php:569
+#: core/shortcodes.php:584
 #@ teachpress
 msgid "Delete tag as filter"
 msgstr "Tag als Filter entfernen"
 
-#: core/shortcodes.php:625
+#: core/shortcodes.php:631
 #@ teachpress
 msgid "All years"
 msgstr "Alle Jahre"
 
 #: admin/show_publications.php:213
-#: core/shortcodes.php:655
-#: teachpress.php:150
+#: core/shortcodes.php:661
+#: teachpress.php:151
 #@ teachpress
 msgid "All types"
 msgstr "Alle Typen"
 
-#: core/shortcodes.php:683
+#: core/shortcodes.php:689
 #@ teachpress
 msgid "All authors"
 msgstr "Alle Autoren"
 
-#: core/shortcodes.php:701
-#: core/shortcodes.php:704
+#: core/shortcodes.php:707
+#: core/shortcodes.php:710
 #@ teachpress
 msgid "Show all"
 msgstr "Zeige alle"
@@ -991,7 +991,7 @@ msgstr "Zeige alle"
 msgid "Show all publications which have a relationship to this tag"
 msgstr "Alle Publikationen anzeigen, die mit diesem Tag verbunden sind."
 
-#: core/shortcodes.php:802
+#: core/shortcodes.php:767
 #@ teachpress
 msgid "Sorry, no publications matched your criteria."
 msgstr "Es sind leider keine Einträge vorhanden."
@@ -1086,7 +1086,7 @@ msgstr "Für normale Veranstaltungen ist der Kommetar in der Übersicht sichtbar
 
 #: admin/settings.php:88
 #: admin/settings.php:91
-#: admin/show_courses.php:89
+#: admin/show_courses.php:90
 #@ teachpress
 msgid "Courses"
 msgstr "Veranstaltungen"
@@ -1114,7 +1114,7 @@ msgid "For all publications:"
 msgstr "Für alle Publikationen:"
 
 #: admin/add_students.php:47
-#: core/enrollments.php:314
+#: core/enrollments.php:315
 #@ teachpress
 msgid "Error: User already exist"
 msgstr "Fehler: Nutzer existiert bereits"
@@ -1140,8 +1140,8 @@ msgstr "Felder für Nutzerdaten"
 msgid "Define which fields for the registration form you will use. Some are required."
 msgstr "Wähle welche Datenfelder für die Einschreibungen genutzt werden sollen. Einige können nicht deaktiviert werden."
 
-#: core/enrollments.php:446
-#: core/enrollments.php:449
+#: core/enrollments.php:447
+#: core/enrollments.php:450
 #@ teachpress
 msgid "Current enrollments"
 msgstr "Aktuelle Einschreibungen"
@@ -1366,7 +1366,7 @@ msgstr "User auswählen"
 msgid "The Menu shows all your blog users who has no teachPress account"
 msgstr "Die Liste zeigt alle Nutzer, die noch keinen teachPress account besitzen"
 
-#: admin/show_single_course.php:199
+#: admin/show_single_course.php:203
 #@ teachpress
 msgid "No entries"
 msgstr "Keine Einträge"
@@ -1571,9 +1571,9 @@ msgstr "Das Ende des Einschreibezeitraums"
 #: admin/settings.php:324
 #: admin/show_students.php:135
 #: core/class-export.php:53
-#: core/class-export.php:162
-#: core/enrollments.php:337
-#: core/enrollments.php:560
+#: core/class-export.php:164
+#: core/enrollments.php:338
+#: core/enrollments.php:561
 #@ teachpress
 msgid "Matr. number"
 msgstr "Matrikel"
@@ -1609,7 +1609,7 @@ msgid "An database update is necessary."
 msgstr "Eine Aktualisierung der Datenbank ist erforderlich."
 
 #: admin/edit_student.php:269
-#: admin/show_single_course.php:223
+#: admin/show_single_course.php:227
 #: core/enrollments.php:50
 #@ teachpress
 msgid "Waitinglist"
@@ -1667,8 +1667,8 @@ msgstr "Nächste Seite"
 #: core/admin.php:38
 #: core/admin.php:58
 #: core/admin.php:61
-#: core/enrollments.php:705
-#: core/enrollments.php:755
+#: core/enrollments.php:709
+#: core/enrollments.php:761
 #@ teachpress
 msgid "of"
 msgstr "von"
@@ -1801,68 +1801,68 @@ msgstr "Die Namen der Herausgeber, getrennt durch `and`. Beispiel: Mark Twain an
 msgid "Standard - teachPress has a separate registration. This is usefull if you have an auto login for WordPress or most of your users are registered in your blog, for example in a network."
 msgstr "Standard - teachPress nutzt eine eigene Registrierung."
 
-#: core/enrollments.php:387
+#: core/enrollments.php:388
 #@ teachpress
 msgid "Jan"
 msgstr "Jan"
 
-#: core/enrollments.php:388
+#: core/enrollments.php:389
 #@ teachpress
 msgid "Feb"
 msgstr "Feb"
 
-#: core/enrollments.php:389
+#: core/enrollments.php:390
 #@ teachpress
 msgid "Mar"
 msgstr "Mär"
 
-#: core/enrollments.php:390
+#: core/enrollments.php:391
 #@ teachpress
 msgid "Apr"
 msgstr "Apr"
 
-#: core/enrollments.php:391
+#: core/enrollments.php:392
 #@ teachpress
 msgid "May"
 msgstr "Mai"
 
-#: core/enrollments.php:392
+#: core/enrollments.php:393
 #@ teachpress
 msgid "Jun"
 msgstr "Jun"
 
-#: core/enrollments.php:393
+#: core/enrollments.php:394
 #@ teachpress
 msgid "Jul"
 msgstr "Jul"
 
-#: core/enrollments.php:394
+#: core/enrollments.php:395
 #@ teachpress
 msgid "Aug"
 msgstr "Aug"
 
-#: core/enrollments.php:395
+#: core/enrollments.php:396
 #@ teachpress
 msgid "Sep"
 msgstr "Sep"
 
-#: core/enrollments.php:396
+#: core/enrollments.php:397
 #@ teachpress
 msgid "Oct"
 msgstr "Okt"
 
-#: core/enrollments.php:397
+#: core/enrollments.php:398
 #@ teachpress
 msgid "Nov"
 msgstr "Nov"
 
-#: core/enrollments.php:398
+#: core/enrollments.php:399
 #@ teachpress
 msgid "Dec"
 msgstr "Dez"
 
-#: core/enrollments.php:720
-#: core/enrollments.php:769
+#: core/enrollments.php:724
+#: core/enrollments.php:775
 #@ teachpress
 msgid "to"
 msgstr "bis"
@@ -1871,11 +1871,6 @@ msgstr "bis"
 #@ teachpress
 msgid "Delete course of studies"
 msgstr "Studiengang löschen"
-
-#: admin/settings.php:461
-#@ teachpress
-msgid "Delete course"
-msgstr "Veranstaltung löschen"
 
 #: admin/settings.php:432
 #@ teachpress
@@ -1915,10 +1910,10 @@ msgstr "Weitere Informationen"
 #: admin/settings.php:489
 #: admin/settings.php:491
 #: admin/settings.php:493
-#: admin/show_courses.php:169
+#: admin/show_courses.php:170
 #: admin/show_students.php:120
 #: core/admin.php:160
-#: core/shortcodes.php:78
+#: core/shortcodes.php:84
 #@ teachpress
 msgid "Show"
 msgstr "Anzeigen"
@@ -1937,8 +1932,8 @@ msgstr "Bearbeiten"
 #: admin/edit_tags.php:39
 #: admin/edit_tags.php:75
 #: admin/edit_tags.php:119
-#: admin/show_courses.php:97
-#: admin/show_courses.php:151
+#: admin/show_courses.php:98
+#: admin/show_courses.php:152
 #: admin/show_publications.php:88
 #: admin/show_publications.php:208
 #: admin/show_publications.php:276
@@ -2055,7 +2050,7 @@ msgid "Parent course"
 msgstr "Übergeordnete Veranstaltung"
 
 #: admin/edit_tags.php:38
-#: admin/show_courses.php:96
+#: admin/show_courses.php:97
 #: admin/show_publications.php:87
 #: admin/show_students.php:78
 #@ teachpress
@@ -2082,7 +2077,7 @@ msgstr "Die Veranstaltung ist unsichtbar."
 msgid "Title"
 msgstr "Titel"
 
-#: teachpress.php:152
+#: teachpress.php:153
 #: teachpress.php:486
 #@ teachpress
 msgid "Books"
@@ -2146,26 +2141,26 @@ msgstr "Reset"
 
 #: admin/edit_student.php:162
 #: admin/edit_tags.php:40
-#: admin/show_courses.php:98
-#: admin/show_courses.php:128
+#: admin/show_courses.php:99
+#: admin/show_courses.php:129
 #: admin/show_publications.php:89
 #: admin/show_students.php:80
 #@ teachpress
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: core/enrollments.php:676
+#: core/enrollments.php:680
 #@ teachpress
 msgid "Select"
 msgstr "Auswählen"
 
-#: teachpress.php:121
+#: teachpress.php:122
 #@ teachpress
 msgid "Resume"
 msgstr "Weiter"
 
 #: admin/edit_tags.php:70
-#: admin/show_courses.php:145
+#: admin/show_courses.php:146
 #: admin/show_publications.php:201
 #: admin/show_students.php:96
 #@ default
@@ -2213,12 +2208,12 @@ msgstr "Ihre Anmeldung für die folgende Veranstaltung war erfolgreich:"
 msgid "You are signed up in the waitinglist for the following course:"
 msgstr "Sie wurden in die Warteliste für die folgende Veranstaltung aufgenommen:"
 
-#: teachpress.php:775
+#: teachpress.php:774
 #@ default
 msgid "Settings"
 msgstr ""
 
-#: admin/show_courses.php:153
+#: admin/show_courses.php:154
 #: admin/show_publications.php:211
 #: admin/show_students.php:103
 #@ teachpress
@@ -2269,142 +2264,142 @@ msgid "Import/Export"
 msgstr ""
 
 #: core/class-bibtex.php:167
-#: core/class-export.php:244
+#: core/class-export.php:246
 #@ teachpress
 msgid "In"
 msgstr "In"
 
-#: teachpress.php:151
+#: teachpress.php:152
 #@ teachpress
 msgid "Article"
 msgstr "Artikel"
 
-#: teachpress.php:151
+#: teachpress.php:152
 #@ teachpress
 msgid "Articles"
 msgstr "Artikel"
 
-#: teachpress.php:152
+#: teachpress.php:153
 #@ teachpress
 msgid "Book"
 msgstr "Buch"
 
-#: teachpress.php:153
+#: teachpress.php:154
 #@ teachpress
 msgid "Booklet"
 msgstr "Booklet"
 
-#: teachpress.php:153
+#: teachpress.php:154
 #@ teachpress
 msgid "Booklets"
 msgstr "Booklets"
 
-#: teachpress.php:154
+#: teachpress.php:155
 #@ teachpress
 msgid "Conferences"
 msgstr "Konferenzen"
 
-#: teachpress.php:155
+#: teachpress.php:156
 #@ teachpress
 msgid "Inbook"
 msgstr "Buchkapitel"
 
-#: teachpress.php:155
+#: teachpress.php:156
 #@ teachpress
 msgid "Inbooks"
 msgstr "Buchkapitel"
 
-#: teachpress.php:156
+#: teachpress.php:157
 #@ teachpress
 msgid "Incollection"
 msgstr "Buchkapitel mit eigenem Titel"
 
-#: teachpress.php:156
+#: teachpress.php:157
 #@ teachpress
 msgid "Incollections"
 msgstr "Buchkapitel mit eigenem Titel"
 
-#: teachpress.php:157
+#: teachpress.php:158
 #@ teachpress
 msgid "Inproceedings"
 msgstr "Konferenzbeiträge"
 
-#: teachpress.php:158
+#: teachpress.php:159
 #@ teachpress
 msgid "Manual"
 msgstr "Dokumentation"
 
-#: teachpress.php:158
+#: teachpress.php:159
 #@ teachpress
 msgid "Manuals"
 msgstr "Dokumentationen"
 
-#: teachpress.php:159
+#: teachpress.php:160
 #@ teachpress
 msgid "Mastersthesis"
 msgstr "Abschlussarbeit"
 
-#: teachpress.php:159
+#: teachpress.php:160
 #@ teachpress
 msgid "Masterstheses"
 msgstr "Abschlussarbeiten"
 
-#: teachpress.php:160
+#: teachpress.php:161
 #@ teachpress
 msgid "Misc"
 msgstr "Sonstiges"
 
-#: teachpress.php:162
+#: teachpress.php:163
 #@ teachpress
 msgid "Presentation"
 msgstr "Vortrag"
 
-#: teachpress.php:162
+#: teachpress.php:163
 #@ teachpress
 msgid "Presentations"
 msgstr "Vorträge"
 
-#: teachpress.php:163
+#: teachpress.php:164
 #@ teachpress
 msgid "Proceedings"
 msgstr "Konferenzberichte"
 
-#: teachpress.php:164
+#: teachpress.php:165
 #@ teachpress
 msgid "Techreport"
 msgstr "Forschungsbericht"
 
-#: teachpress.php:164
+#: teachpress.php:165
 #@ teachpress
 msgid "Techreports"
 msgstr "Forschungsberichte"
 
-#: teachpress.php:165
+#: teachpress.php:166
 #@ teachpress
 msgid "Unpublished"
 msgstr "Unveröffentlicht"
 
-#: teachpress.php:154
+#: teachpress.php:155
 #@ teachpress
 msgid "Conference"
 msgstr "Konferenz"
 
-#: teachpress.php:157
+#: teachpress.php:158
 #@ teachpress
 msgid "Inproceeding"
 msgstr "Konferenzbeitrag"
 
-#: teachpress.php:161
+#: teachpress.php:162
 #@ teachpress
 msgid "PhD Thesis"
 msgstr "Promotionsarbeit"
 
-#: teachpress.php:161
+#: teachpress.php:162
 #@ teachpress
 msgid "PhD Theses"
 msgstr "Promotionsarbeiten"
 
-#: teachpress.php:163
+#: teachpress.php:164
 #@ teachpress
 msgid "Proceeding"
 msgstr "Konferenzbericht"
@@ -2463,7 +2458,7 @@ msgid "Comments"
 msgstr "Kommentare"
 
 #: admin/edit_tags.php:46
-#: admin/show_courses.php:104
+#: admin/show_courses.php:105
 #: admin/show_publications.php:95
 #: admin/show_single_course.php:39
 #: admin/show_students.php:86
@@ -2528,7 +2523,7 @@ msgstr "Eine Registrierung ist nicht möglich, da du bereits auf der Warteliste 
 msgid "For this course there are no more free places available. You are automatically signed up in a waiting list."
 msgstr "Für diese Veranstaltung sind keine freien Plätze mehr verfügbar. Du wurdest daher automatisch auf die Warteliste gesetzt. "
 
-#: core/enrollments.php:507
+#: core/enrollments.php:508
 #@ teachpress
 msgid "No enrollments"
 msgstr "Keine Einschreibungen gefunden"
@@ -2537,4 +2532,9 @@ msgstr "Keine Einschreibungen gefunden"
 #@ teachpress
 msgid "No free places available."
 msgstr "Es sind keine freien Plätze mehr verfügbar."
+
+#: admin/settings.php:461
+#@ teachpress
+msgid "Delete type"
+msgstr "Typ löschen"
 

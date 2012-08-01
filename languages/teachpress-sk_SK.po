@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: teachPress v3.0.1\n"
+"Project-Id-Version: teachPress v3.1.4\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2012-03-01 13:44+0000\n"
+"PO-Revision-Date: 2012-08-01 20:06:22+0000\n"
 "Last-Translator: jozef <jozef@volting.sk>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -26,8 +26,8 @@ msgid "Create a new course"
 msgstr "Vytvor nový kurz"
 
 #: admin/add_course.php:10
-#: admin/add_course.php:232
 #: admin/add_course.php:233
+#: admin/add_course.php:234
 #@ teachpress
 msgid "Course name"
 msgstr "Meno kurzu"
@@ -38,9 +38,9 @@ msgid "For child courses: The name of the parent course will be add automaticall
 msgstr "Pre deti kurzu: Mená rodičovského kurzu budú pridané automaticky."
 
 #: admin/add_course.php:12
-#: admin/add_course.php:159
-#: admin/show_courses.php:180
-#: admin/show_single_course.php:129
+#: admin/add_course.php:160
+#: admin/show_courses.php:182
+#: admin/show_single_course.php:124
 #@ teachpress
 msgid "Enrollments"
 msgstr "Registrácie"
@@ -56,14 +56,14 @@ msgid "Please note, that your local time is not the same as the server time. The
 msgstr "Všimnite si, že váš lokálny čas nie je taký istý ako čas servera. Aktuálny čas servera je:"
 
 #: admin/add_course.php:14
-#: admin/add_course.php:212
-#: admin/add_course.php:220
+#: admin/add_course.php:213
+#: admin/add_course.php:221
 #@ teachpress
 msgid "Strict sign up"
 msgstr "Striktné prihlásenie"
 
 #: admin/add_course.php:15
-#: admin/add_course.php:220
+#: admin/add_course.php:221
 #@ teachpress
 msgid "This is an option only for parent courses. If you activate it, subscribing is only possible for one of the child courses and not in all. This option has no influence on waiting lists."
 msgstr "Toto je možnosť iba pre rodičovské kurzy. Ak ju aktivujete, prihlásenie sa je možné iba pre jeden z detských kurzov a nie pre všetky. Táto možnosť nemá vplyv na čakacie zoznamy."
@@ -73,20 +73,10 @@ msgstr "Toto je možnosť iba pre rodičovské kurzy. Ak ju aktivujete, prihlás
 msgid "Terms and course types"
 msgstr "Semestre a typy kurzov"
 
-#: admin/add_course.php:17
-#@ teachpress
-msgid "You can add new course types and terms"
-msgstr "Môžete pridať nové typy kurzov a semestrov"
-
-#: admin/add_course.php:17
-#@ teachpress
-msgid "here"
-msgstr "tu"
-
 #: admin/add_course.php:18
-#: admin/add_course.php:136
-#: admin/show_courses.php:182
-#: admin/show_single_course.php:114
+#: admin/add_course.php:137
+#: admin/show_courses.php:184
+#: admin/show_single_course.php:109
 #@ teachpress
 msgid "Visibility"
 msgstr "Viditeľnosť"
@@ -97,8 +87,8 @@ msgid "You can choice between the following visibiltiy options"
 msgstr "Môžete si vybrať z nasledujúcich možností viditeľnosti"
 
 #: admin/add_course.php:21
-#: admin/add_course.php:138
-#: admin/show_single_course.php:118
+#: admin/add_course.php:139
+#: admin/show_single_course.php:113
 #: core/admin.php:178
 #@ teachpress
 msgid "normal"
@@ -110,8 +100,8 @@ msgid "The course is visible at the enrollment pages, if enrollments are justifi
 msgstr "Kurz je viditeľný v registračných stránkach, ak sú registrácie opodstatnené. Ak je to rodičovský kurz, tak je viditeľný na prehľade semestra."
 
 #: admin/add_course.php:22
-#: admin/add_course.php:139
-#: admin/show_single_course.php:121
+#: admin/add_course.php:140
+#: admin/show_single_course.php:116
 #: core/admin.php:181
 #@ teachpress
 msgid "extend"
@@ -128,8 +118,8 @@ msgid "The same as normal, but in the frontend semester overview all sub-courses
 msgstr "Rovnaké ako normálne, ale v prehľade semestra všetky podkurzy budú tiež zobrazené."
 
 #: admin/add_course.php:23
-#: admin/add_course.php:140
-#: admin/show_single_course.php:124
+#: admin/add_course.php:141
+#: admin/show_single_course.php:119
 #: core/admin.php:184
 #@ teachpress
 msgid "invisible"
@@ -146,28 +136,29 @@ msgid "Course created successful."
 msgstr "Kurz úspešne vytvorený."
 
 #: admin/add_course.php:84
-#: admin/add_publication.php:75
-#: teachpress.php:55
+#: admin/add_publication.php:90
+#: teachpress.php:54
 #: teachpress.php:67
 #@ teachpress
 msgid "Add New"
 msgstr "Pridaj nový"
 
 #: admin/add_course.php:89
+#: admin/add_publication.php:96
 #: admin/edit_student.php:41
 #@ teachpress
 msgid "Changes successful"
 msgstr "Zmeny úspešné"
 
 #: admin/add_course.php:111
-#: admin/add_publication.php:86
+#: admin/add_publication.php:101
 #: admin/create_lists.php:30
 #: admin/create_lists.php:33
 #: admin/edit_student.php:44
-#: admin/import_publications.php:12
+#: admin/import_publications.php:15
 #: admin/mail.php:53
-#: admin/show_publications.php:107
-#: admin/show_single_course.php:71
+#: admin/show_publications.php:106
+#: admin/show_single_course.php:66
 #@ teachpress
 msgid "Back"
 msgstr "Späť"
@@ -177,56 +168,56 @@ msgstr "Späť"
 msgid "Edit course"
 msgstr "Edituj kurz"
 
-#: admin/add_course.php:126
+#: admin/add_course.php:127
 #@ teachpress
 msgid "Meta"
 msgstr "Meta"
 
-#: admin/add_course.php:133
+#: admin/add_course.php:134
 #@ teachpress
 msgid "With the image field you can add an image to a course."
 msgstr "Obrázok ku kurzu môžete pridať cez kolonku obrázok."
 
-#: admin/add_course.php:133
 #: admin/add_course.php:134
-#: admin/add_publication.php:251
+#: admin/add_course.php:135
+#: admin/add_publication.php:262
 #@ teachpress
 msgid "Image URL"
 msgstr "URL obrázku"
 
-#: admin/add_course.php:135
-#: admin/add_publication.php:253
+#: admin/add_course.php:136
+#: admin/add_publication.php:264
 #@ teachpress
 msgid "Add Image"
 msgstr "Pridaj obrázok"
 
-#: admin/add_course.php:136
 #: admin/add_course.php:137
+#: admin/add_course.php:138
 #@ teachpress
 msgid "Here you can edit the visibility of a course in the enrollments."
 msgstr "Tu môžete editovať viditeľnosť kurzu v regustráciach."
 
-#: admin/add_course.php:147
-#: admin/add_publication.php:165
+#: admin/add_course.php:148
+#: admin/add_publication.php:180
 #: admin/edit_student.php:161
 #: admin/settings.php:379
-#: admin/show_single_course.php:69
+#: admin/show_single_course.php:64
 #@ default
 msgid "Save"
 msgstr ""
 
-#: admin/add_course.php:149
-#: admin/add_publication.php:155
+#: admin/add_course.php:150
+#: admin/add_publication.php:170
 #@ teachpress
 msgid "Reset"
 msgstr "Reset"
 
-#: admin/add_course.php:150
-#: admin/add_publication.php:158
+#: admin/add_course.php:151
+#: admin/add_publication.php:173
 #: admin/add_students.php:134
 #: admin/add_students.php:236
-#: admin/create_lists.php:99
-#: admin/create_lists.php:103
+#: admin/create_lists.php:101
+#: admin/create_lists.php:105
 #: admin/settings.php:413
 #: admin/settings.php:443
 #: admin/settings.php:471
@@ -234,178 +225,180 @@ msgstr "Reset"
 msgid "Create"
 msgstr "Vytvoriť"
 
-#: admin/add_course.php:163
+#: admin/add_course.php:164
 #@ teachpress
 msgid "The start date for the enrollment"
 msgstr "Začiatočný dátum pre registráciu"
 
-#: admin/add_course.php:163
-#: admin/show_single_course.php:133
+#: admin/add_course.php:164
+#: admin/show_single_course.php:128
 #@ teachpress
 msgid "Start"
 msgstr "Štart"
 
-#: admin/add_course.php:167
-#: admin/add_publication.php:305
+#: admin/add_course.php:168
+#: admin/add_publication.php:316
 #: admin/add_students.php:223
 #: admin/add_students.php:225
 #@ teachpress
 msgid "JJJJ-MM-TT"
 msgstr "DDDD-MM-RR"
 
-#: admin/add_course.php:178
-#: admin/add_course.php:191
-#: admin/add_course.php:295
-#: admin/add_publication.php:304
-#: admin/create_lists.php:127
+#: admin/add_course.php:179
+#: admin/add_course.php:192
+#: admin/add_course.php:296
+#: admin/add_publication.php:315
+#: admin/create_lists.php:129
 #: admin/edit_student.php:224
-#: admin/show_courses.php:178
-#: admin/show_single_course.php:170
-#: core/class-export.php:121
-#: core/shortcodes.php:256
-#: core/shortcodes.php:297
+#: admin/edit_student.php:279
+#: admin/show_courses.php:180
+#: admin/show_single_course.php:169
+#: core/class-export.php:122
+#: core/enrollments.php:479
+#: core/enrollments.php:525
 #@ teachpress
 msgid "Date"
 msgstr "Dátum"
 
-#: admin/add_course.php:178
-#: admin/add_course.php:191
+#: admin/add_course.php:179
+#: admin/add_course.php:192
 #@ teachpress
 msgid "Hours"
 msgstr "Hodiny"
 
-#: admin/add_course.php:178
-#: admin/add_course.php:191
+#: admin/add_course.php:179
+#: admin/add_course.php:192
 #@ teachpress
 msgid "Minutes"
 msgstr "Minúty"
 
-#: admin/add_course.php:179
+#: admin/add_course.php:180
 #@ teachpress
 msgid "The end date for the enrollment"
 msgstr "Konečný dátum pre registráciu"
 
-#: admin/add_course.php:179
-#: admin/show_single_course.php:137
+#: admin/add_course.php:180
+#: admin/show_single_course.php:132
 #@ teachpress
 msgid "End"
 msgstr "Koniec"
 
-#: admin/add_course.php:192
-#: admin/import_publications.php:42
+#: admin/add_course.php:193
+#: admin/import_publications.php:45
 #@ teachpress
 msgid "Options"
 msgstr "Možnosti"
 
-#: admin/add_course.php:201
-#: core/class-export.php:143
-#: core/class-export.php:165
-#: core/shortcodes.php:289
+#: admin/add_course.php:202
+#: core/class-export.php:145
+#: core/class-export.php:167
+#: core/enrollments.php:517
 #@ teachpress
 msgid "Waiting list"
 msgstr "Čakačka"
 
-#: admin/add_course.php:212
+#: admin/add_course.php:213
 #@ teachpress
 msgid "This is a child course. You can only change this option in the parent course"
 msgstr "Toto je detský kurz. Môžete zmeniť túto možnosť iba v rodičovskom kurze"
 
-#: admin/add_course.php:241
+#: admin/add_course.php:242
 #: admin/settings.php:81
 #: admin/settings.php:84
 #@ teachpress
 msgid "General"
 msgstr "Generálny"
 
-#: admin/add_course.php:245
 #: admin/add_course.php:246
+#: admin/add_course.php:247
 #@ teachpress
 msgid "The course type"
 msgstr "Typ kurzu"
 
-#: admin/add_course.php:245
-#: admin/add_publication.php:289
-#: admin/add_publication.php:475
+#: admin/add_course.php:246
+#: admin/add_publication.php:300
+#: admin/add_publication.php:486
 #: admin/edit_student.php:223
-#: admin/show_courses.php:176
-#: admin/show_publications.php:224
-#: admin/show_single_course.php:158
-#: core/class-bibtex.php:147
-#: core/shortcodes.php:255
-#: core/shortcodes.php:296
+#: admin/edit_student.php:278
+#: admin/show_courses.php:178
+#: admin/show_publications.php:228
+#: admin/show_single_course.php:157
+#: core/class-bibtex.php:175
+#: core/enrollments.php:478
+#: core/enrollments.php:524
 #@ default
 msgid "Type"
 msgstr ""
 
-#: admin/add_course.php:260
 #: admin/add_course.php:261
+#: admin/add_course.php:262
 #@ teachpress
 msgid "The term where the course will be happening"
 msgstr "Semester v ktorom sa kurz udeje"
 
-#: admin/add_course.php:260
+#: admin/add_course.php:261
 #: admin/settings.php:419
 #: admin/settings.php:424
-#: admin/show_courses.php:181
-#: core/shortcodes.php:258
-#: core/shortcodes.php:299
+#: admin/show_courses.php:183
+#: core/enrollments.php:481
+#: core/enrollments.php:527
 #@ teachpress
 msgid "Term"
 msgstr "Semester"
 
-#: admin/add_course.php:293
 #: admin/add_course.php:294
+#: admin/add_course.php:295
 #@ teachpress
 msgid "The lecturer(s) of the course"
 msgstr "Učitelia kurzu"
 
-#: admin/add_course.php:293
-#: admin/create_lists.php:125
-#: admin/show_courses.php:177
-#: admin/show_single_course.php:162
-#: core/class-export.php:119
+#: admin/add_course.php:294
+#: admin/create_lists.php:127
+#: admin/show_courses.php:179
+#: admin/show_single_course.php:161
+#: core/class-export.php:120
 #@ teachpress
 msgid "Lecturer"
 msgstr "Učiteľ"
 
-#: admin/add_course.php:295
 #: admin/add_course.php:296
+#: admin/add_course.php:297
 #@ teachpress
 msgid "The date(s) for the course"
 msgstr "Dátumy kurzu"
 
-#: admin/add_course.php:297
 #: admin/add_course.php:298
+#: admin/add_course.php:299
 #@ teachpress
 msgid "The room or place for the course"
 msgstr "Miestnosť kurzu"
 
-#: admin/add_course.php:297
-#: admin/create_lists.php:129
-#: admin/show_single_course.php:166
-#: core/class-export.php:123
-#: core/shortcodes.php:257
-#: core/shortcodes.php:298
+#: admin/add_course.php:298
+#: admin/create_lists.php:131
+#: admin/show_single_course.php:165
+#: core/class-export.php:124
+#: core/enrollments.php:480
+#: core/enrollments.php:526
 #@ teachpress
 msgid "Room"
 msgstr "Miestnosť"
 
-#: admin/add_course.php:299
 #: admin/add_course.php:300
+#: admin/add_course.php:301
 #@ teachpress
 msgid "The number of available places."
 msgstr "Počet voľných miest."
 
-#: admin/add_course.php:299
+#: admin/add_course.php:300
 #@ teachpress
 msgid "Number of places"
 msgstr "Počet miest"
 
-#: admin/add_course.php:303
-#: admin/show_single_course.php:143
-#: core/class-export.php:129
-#: core/shortcodes.php:460
-#: core/shortcodes.php:514
+#: admin/add_course.php:304
+#: admin/show_single_course.php:138
+#: core/class-export.php:130
+#: core/enrollments.php:691
+#: core/enrollments.php:747
 #@ teachpress
 msgid "free places"
 msgstr "voľné miesta"
@@ -422,11 +415,11 @@ msgid "Parent course"
 msgstr "Rodičovský kurz"
 
 #: admin/add_course.php:308
-#: admin/show_single_course.php:148
-#: admin/show_single_course.php:179
+#: admin/show_single_course.php:147
+#: admin/show_single_course.php:178
 #: core/admin.php:91
 #: core/admin.php:174
-#: teachpress.php:384
+#: teachpress.php:500
 #@ teachpress
 msgid "none"
 msgstr "žiaden"
@@ -449,88 +442,80 @@ msgid "If you will connect a course with a page (it is used as link in the cours
 msgstr "Ak spojíte kurz so stránkou (použitý ako link v prehľade kurzov) môžete tak urobiť tu"
 
 #: admin/add_course.php:332
-#: admin/add_publication.php:254
-#: admin/show_single_course.php:178
+#: admin/add_publication.php:265
+#: admin/show_single_course.php:177
 #@ teachpress
 msgid "Related page"
 msgstr "Príbuzná stránka"
 
-#: admin/add_publication.php:75
+#: admin/add_publication.php:90
 #@ teachpress
 msgid "Publication added"
 msgstr "Publikácia pridaná"
 
-#: admin/add_publication.php:81
-#@ teachpress
-msgid "Publication changed"
-msgstr "Publikácia zmenená"
-
-#: admin/add_publication.php:88
+#: admin/add_publication.php:103
 #@ teachpress
 msgid "Add a new publication"
 msgstr "Pridaj novú publikáciu"
 
-#: admin/add_publication.php:88
+#: admin/add_publication.php:103
 #@ teachpress
 msgid "Edit publication"
 msgstr "Edituj publikáciu"
 
-#: admin/add_publication.php:106
-#@ teachpress
-msgid "Publication"
-msgstr "Publikácia"
-
-#: admin/add_publication.php:110
+#: admin/add_publication.php:125
 #@ teachpress
 msgid "Add a publication to different publication lists"
 msgstr "Pridaj publikáciu do rozličných publikačných zoznamov"
 
-#: admin/add_publication.php:110
+#: admin/add_publication.php:125
 #@ teachpress
 msgid "Bookmarks"
 msgstr "Záložky"
 
-#: admin/add_publication.php:117
-#: admin/add_publication.php:120
-#: admin/add_publication.php:124
+#: admin/add_publication.php:132
+#: admin/add_publication.php:135
+#: admin/add_publication.php:139
 #@ teachpress
 msgid "add to your own list"
 msgstr "pridaj do vlastného zoznamu"
 
-#: admin/add_publication.php:120
-#: admin/add_publication.php:124
+#: admin/add_publication.php:135
+#: admin/add_publication.php:139
 #@ teachpress
 msgid "Click to add the publication in your own list"
 msgstr "Klikni na pridanie publikácie do vlastného zoznamu"
 
-#: admin/add_publication.php:139
-#: admin/add_publication.php:143
+#: admin/add_publication.php:154
+#: admin/add_publication.php:158
 #@ teachpress
 msgid "Bookmark for"
 msgstr "Záložka pre"
 
-#: admin/add_publication.php:174
-#: admin/edit_tags.php:34
-#: admin/show_publications.php:226
-#: core/class-bibtex.php:147
-#: core/class-bibtex.php:158
+#: admin/add_publication.php:189
+#: admin/edit_tags.php:66
+#: admin/show_publications.php:230
+#: core/class-bibtex.php:156
 #: teachpress.php:69
 #@ default
 msgid "Tags"
 msgstr ""
 
-#: admin/add_publication.php:188
+#: admin/add_publication.php:203
 #@ teachpress
 msgid "Current"
 msgstr "Aktuálny"
 
-#: admin/add_publication.php:191
-#: admin/edit_student.php:265
-#: admin/edit_tags.php:43
-#: admin/show_courses.php:96
-#: admin/show_courses.php:150
+#: admin/add_publication.php:206
+#: admin/edit_student.php:310
+#: admin/edit_tags.php:39
+#: admin/edit_tags.php:75
+#: admin/edit_tags.php:119
+#: admin/show_courses.php:98
+#: admin/show_courses.php:152
 #: admin/show_publications.php:88
-#: admin/show_publications.php:204
+#: admin/show_publications.php:208
+#: admin/show_publications.php:276
 #: admin/show_students.php:79
 #: admin/show_students.php:101
 #: core/admin.php:160
@@ -538,367 +523,346 @@ msgstr "Aktuálny"
 msgid "Delete"
 msgstr "Zmazať"
 
-#: admin/add_publication.php:195
-#: admin/add_publication.php:196
+#: admin/add_publication.php:210
+#: admin/add_publication.php:211
 #@ teachpress
 msgid "New (separate by comma)"
 msgstr "Nové (oddelené čiarkou)"
 
-#: admin/add_publication.php:231
+#: admin/add_publication.php:242
 #@ teachpress
 msgid "add as tag"
 msgstr "pridaj ako tag"
 
-#: admin/add_publication.php:244
+#: admin/add_publication.php:255
 #@ teachpress
 msgid "Image &amp; Related page"
 msgstr "Obrázok &amp; príslušná stránka"
 
-#: admin/add_publication.php:251
-#: admin/add_publication.php:252
+#: admin/add_publication.php:262
+#: admin/add_publication.php:263
 #@ teachpress
 msgid "With the image field you can add an image to a publication. You can display images in all publication lists"
 msgstr "Cez kolkonku obrázok môžete pridať obrázok k publikácii. Obrázky môžete zobraziť vo všetkých publikačných zoznamoch"
 
-#: admin/add_publication.php:254
-#: admin/add_publication.php:256
-#@ teachpress
-msgid "With the related page you can link a publication with a normal post/page. It is only used for the teachPress books widget."
-msgstr "Príslušná stránka linkuje publikáciu s normálnym článkom/stránkou. Je to využité iba pre teachPress books widget"
-
-#: admin/add_publication.php:273
-#: admin/create_lists.php:137
-#: admin/edit_tags.php:52
+#: admin/add_publication.php:284
+#: admin/add_publication.php:285
+#: admin/create_lists.php:139
+#: admin/edit_tags.php:87
 #: admin/settings.php:394
 #: admin/settings.php:452
-#: admin/show_courses.php:174
-#: admin/show_publications.php:222
-#: core/shortcodes.php:254
-#: core/shortcodes.php:295
+#: admin/show_courses.php:176
+#: admin/show_publications.php:226
+#: core/enrollments.php:477
+#: core/enrollments.php:523
 #@ teachpress
 msgid "Name"
 msgstr "Meno"
 
-#: admin/add_publication.php:274
-#@ teachpress
-msgid "Publication name"
-msgstr "Meno publikácie"
-
-#: admin/add_publication.php:282
+#: admin/add_publication.php:293
 #@ teachpress
 msgid "General information"
 msgstr "Všeobecné informácie"
 
-#: admin/add_publication.php:289
-#: admin/add_publication.php:290
+#: admin/add_publication.php:300
+#: admin/add_publication.php:301
 #@ teachpress
 msgid "The type of publication"
 msgstr "Typ publikácie"
 
-#: admin/add_publication.php:295
-#: admin/add_publication.php:296
+#: admin/add_publication.php:306
+#: admin/add_publication.php:307
 #@ teachpress
 msgid "A simple unique key without spaces"
 msgstr "Jednouchý kĺúč bez medzier"
 
-#: admin/add_publication.php:295
+#: admin/add_publication.php:306
 #@ teachpress
 msgid "BibTex-Key"
 msgstr "BibTeX-kľúč"
 
-#: admin/add_publication.php:300
-#: admin/add_publication.php:301
+#: admin/add_publication.php:311
+#: admin/add_publication.php:312
 #@ teachpress
 msgid "The names of the authors, separate by `and`. Example: Mark Twain and Albert Einstein"
 msgstr "Mená autorov oddlené pomocou 'and'. Príklad: Mark Twain and Albert Einstein"
 
-#: admin/add_publication.php:300
-#: admin/show_publications.php:225
+#: admin/add_publication.php:311
+#: admin/show_publications.php:229
 #@ teachpress
 msgid "Author(s)"
 msgstr "Autori"
 
-#: admin/add_publication.php:302
-#: admin/add_publication.php:303
+#: admin/add_publication.php:313
+#: admin/add_publication.php:314
 #@ teachpress
 msgid "The names of the editors, separate by `and`. Example: Mark Twain and Albert Einstein"
 msgstr "Mená editorov oddelené pomocou 'and'. Príklad: Mark Twain and Albert Einstein"
 
-#: admin/add_publication.php:302
+#: admin/add_publication.php:313
 #@ teachpress
 msgid "Editor(s)"
 msgstr "Editori"
 
-#: admin/add_publication.php:304
-#: admin/add_publication.php:305
+#: admin/add_publication.php:315
+#: admin/add_publication.php:316
 #@ teachpress
 msgid "The date of publishing"
 msgstr "Dátum publikovania"
 
-#: admin/add_publication.php:313
+#: admin/add_publication.php:324
 #@ teachpress
 msgid "Detailed information"
 msgstr "Detailné informácie"
 
-#: admin/add_publication.php:313
+#: admin/add_publication.php:324
 #@ teachpress
 msgid "Show all fields"
 msgstr "Zobraz všetky položky"
 
-#: admin/add_publication.php:313
+#: admin/add_publication.php:324
 #@ teachpress
 msgid "Show recommend fields"
 msgstr "Zobraz odporúčané položky"
 
-#: admin/add_publication.php:324
-#: admin/add_publication.php:325
+#: admin/add_publication.php:335
+#: admin/add_publication.php:336
 #@ teachpress
 msgid "The title of a book"
 msgstr "Názov knihy"
 
-#: admin/add_publication.php:324
+#: admin/add_publication.php:335
 #@ teachpress
 msgid "booktitle"
 msgstr "booktitle"
 
-#: admin/add_publication.php:334
-#: admin/add_publication.php:335
+#: admin/add_publication.php:345
+#: admin/add_publication.php:346
 #@ teachpress
 msgid "The title of a journal"
 msgstr "Názov žurnálu"
 
-#: admin/add_publication.php:334
+#: admin/add_publication.php:345
 #@ teachpress
 msgid "journal"
 msgstr "žurnál"
 
-#: admin/add_publication.php:344
-#: admin/add_publication.php:345
+#: admin/add_publication.php:355
+#: admin/add_publication.php:356
 #@ teachpress
 msgid "The volume of a journal or book"
 msgstr "Volume žurnálu alebo knihy"
 
-#: admin/add_publication.php:344
+#: admin/add_publication.php:355
 #@ teachpress
 msgid "volume"
 msgstr "volume"
 
-#: admin/add_publication.php:354
-#: admin/add_publication.php:355
+#: admin/add_publication.php:365
+#: admin/add_publication.php:366
 #@ teachpress
 msgid "The number of a book, journal or work in a series"
 msgstr "Číslo knihy, žurnálu alebo práce v sérii"
 
-#: admin/add_publication.php:354
-#: admin/edit_tags.php:54
+#: admin/add_publication.php:365
+#: admin/edit_tags.php:89
 #@ teachpress
 msgid "Number"
 msgstr "Číslo"
 
-#: admin/add_publication.php:364
-#: admin/add_publication.php:365
+#: admin/add_publication.php:375
+#: admin/add_publication.php:376
 #@ teachpress
 msgid "The page you are referring to."
 msgstr "Strana, na ktorú sa odvolávate."
 
-#: admin/add_publication.php:364
+#: admin/add_publication.php:375
 #@ teachpress
 msgid "pages"
 msgstr "strany"
 
-#: admin/add_publication.php:374
-#: admin/add_publication.php:375
+#: admin/add_publication.php:385
+#: admin/add_publication.php:386
 #@ teachpress
 msgid "The names of publisher"
 msgstr "Mená vydavateľov"
 
-#: admin/add_publication.php:374
+#: admin/add_publication.php:385
 #@ teachpress
 msgid "publisher"
 msgstr "vydavateľ"
 
-#: admin/add_publication.php:384
-#: admin/add_publication.php:385
+#: admin/add_publication.php:395
+#: admin/add_publication.php:396
 #@ teachpress
 msgid "The address of the publisher or the place of confernece"
 msgstr "Adresa vydavateľa alebo miesto konferencie"
 
-#: admin/add_publication.php:384
+#: admin/add_publication.php:395
 #@ teachpress
 msgid "address"
 msgstr "adresa"
 
-#: admin/add_publication.php:394
-#: admin/add_publication.php:395
+#: admin/add_publication.php:405
+#: admin/add_publication.php:406
 #@ teachpress
 msgid "The edition of a book"
 msgstr "Edícia knihy"
 
-#: admin/add_publication.php:394
+#: admin/add_publication.php:405
 #@ teachpress
 msgid "edition"
 msgstr "edícia"
 
-#: admin/add_publication.php:404
-#: admin/add_publication.php:405
+#: admin/add_publication.php:415
+#: admin/add_publication.php:416
 #@ teachpress
 msgid "The chapter or the section number"
 msgstr "Kapiloa alebo číslo sekcie"
 
-#: admin/add_publication.php:404
+#: admin/add_publication.php:415
 #@ teachpress
 msgid "chapter"
 msgstr "kapitola"
 
-#: admin/add_publication.php:414
-#: admin/add_publication.php:415
+#: admin/add_publication.php:425
+#: admin/add_publication.php:426
 #@ teachpress
 msgid "The name of a sponsoring institution"
 msgstr "Meno sponzorujúcej inštitúcie"
 
-#: admin/add_publication.php:414
+#: admin/add_publication.php:425
 #@ teachpress
 msgid "institution"
 msgstr "inštitúcia"
 
-#: admin/add_publication.php:424
-#: admin/add_publication.php:425
+#: admin/add_publication.php:435
+#: admin/add_publication.php:436
 #@ teachpress
 msgid "The names of a sponsoring organization"
 msgstr "Mená sponzorujúcich organizácií"
 
-#: admin/add_publication.php:424
+#: admin/add_publication.php:435
 #@ teachpress
 msgid "organization"
 msgstr "organizácia"
 
-#: admin/add_publication.php:434
-#: admin/add_publication.php:435
+#: admin/add_publication.php:445
+#: admin/add_publication.php:446
 #@ teachpress
 msgid "The names of the academic instituion where a thesis was written"
 msgstr "Meno akademickej inštitúcie kde bola téza napísaná"
 
-#: admin/add_publication.php:434
+#: admin/add_publication.php:445
 #@ teachpress
 msgid "school"
 msgstr "škola"
 
-#: admin/add_publication.php:444
-#: admin/add_publication.php:445
+#: admin/add_publication.php:455
+#: admin/add_publication.php:456
 #@ teachpress
 msgid "The name of a series"
 msgstr "Meno série"
 
-#: admin/add_publication.php:444
+#: admin/add_publication.php:455
 #@ teachpress
 msgid "series"
 msgstr "séria"
 
-#: admin/add_publication.php:448
-#: admin/add_publication.php:449
+#: admin/add_publication.php:459
+#: admin/add_publication.php:460
 #@ teachpress
 msgid "The bibTeX key this work is referring to"
 msgstr "BibTeX kľúč, ktorý táto práca referuje"
 
-#: admin/add_publication.php:448
+#: admin/add_publication.php:459
 #@ teachpress
 msgid "crossref"
 msgstr "crossref"
 
-#: admin/add_publication.php:452
-#: admin/add_publication.php:453
+#: admin/add_publication.php:463
+#: admin/add_publication.php:464
 #@ teachpress
 msgid "A short summary of the publication"
 msgstr "Krátky sumár publikácie"
 
-#: admin/add_publication.php:452
+#: admin/add_publication.php:463
 #@ teachpress
 msgid "abstract"
 msgstr "abstrakt"
 
-#: admin/add_publication.php:462
-#: admin/add_publication.php:463
+#: admin/add_publication.php:473
+#: admin/add_publication.php:474
 #@ teachpress
 msgid "An unusual method for publishing"
 msgstr "Nezvyčajná metóda publikovania"
 
-#: admin/add_publication.php:462
+#: admin/add_publication.php:473
 #@ teachpress
 msgid "howpublished"
 msgstr "howpublished"
 
-#: admin/add_publication.php:466
-#: admin/add_publication.php:467
+#: admin/add_publication.php:477
+#: admin/add_publication.php:478
 #@ teachpress
 msgid "If there is no author or editor given, so this field is used for the sorting."
 msgstr "Ak nie je žiaden autor ani editor poskytnutý, toto pole je použité na triedenie."
 
-#: admin/add_publication.php:466
+#: admin/add_publication.php:477
 #@ teachpress
 msgid "Key"
 msgstr "Kľúč"
 
-#: admin/add_publication.php:475
-#: admin/add_publication.php:476
+#: admin/add_publication.php:486
+#: admin/add_publication.php:487
 #@ teachpress
 msgid "The type of a technical report."
 msgstr "Typ technickej správy."
 
-#: admin/add_publication.php:479
-#: admin/add_publication.php:480
+#: admin/add_publication.php:490
+#: admin/add_publication.php:491
 #@ teachpress
 msgid "The ISBN or ISSN of the publication"
 msgstr "ISBN alebo ISSN publikácie"
 
-#: admin/add_publication.php:479
+#: admin/add_publication.php:490
 #@ teachpress
 msgid "ISBN/ISSN"
 msgstr "ISBN/ISSN"
 
-#: admin/add_publication.php:482
+#: admin/add_publication.php:493
 #@ teachpress
 msgid "ISBN"
 msgstr "ISBN"
 
-#: admin/add_publication.php:483
+#: admin/add_publication.php:494
 #@ teachpress
 msgid "ISSN"
 msgstr "ISSN"
 
-#: admin/add_publication.php:486
-#: admin/add_publication.php:487
-#@ default
-msgid "URL"
-msgstr ""
-
-#: admin/add_publication.php:488
+#: admin/add_publication.php:501
 #@ teachpress
 msgid "Insert a file from the WordPress Media Library"
 msgstr "Vlož súbor z WordPress Multimediálnej Knižnice"
 
-#: admin/add_publication.php:496
-#@ teachpress
-msgid "comments"
-msgstr "komentáre"
-
-#: admin/add_publication.php:500
-#: admin/add_publication.php:501
+#: admin/add_publication.php:515
+#: admin/add_publication.php:516
 #@ teachpress
 msgid "A not vissible private comment"
 msgstr "Neviditeľný privátny komentár"
 
-#: admin/add_publication.php:500
+#: admin/add_publication.php:515
 #@ teachpress
 msgid "private comment"
 msgstr "privátny komentár"
 
-#: admin/add_publication.php:502
-#: admin/add_publication.php:503
+#: admin/add_publication.php:517
+#: admin/add_publication.php:518
 #@ teachpress
 msgid "Additional information"
 msgstr "Prídavná informácia"
 
-#: admin/add_publication.php:502
+#: admin/add_publication.php:517
 #@ teachpress
 msgid "note"
 msgstr "poznámka"
@@ -912,13 +876,13 @@ msgid "WordPress User-ID"
 msgstr "WordPress užívateľské ID"
 
 #: admin/add_students.php:44
-#: core/shortcodes.php:88
+#: core/enrollments.php:312
 #@ teachpress
 msgid "Registration successful"
 msgstr "Registrácia úspešná"
 
 #: admin/add_students.php:47
-#: core/shortcodes.php:91
+#: core/enrollments.php:315
 #@ teachpress
 msgid "Error: User already exist"
 msgstr "Chyba: Užívateľ už existuje"
@@ -974,17 +938,17 @@ msgid "The Menu shows all your blog users who has no teachPress account"
 msgstr "Menu ukazuje všetkých užívateľov blogu, ktorí nemajú teachPress účet"
 
 #: admin/add_students.php:167
-#: admin/create_lists.php:53
-#: admin/create_lists.php:78
-#: admin/create_lists.php:140
+#: admin/create_lists.php:54
+#: admin/create_lists.php:80
+#: admin/create_lists.php:142
 #: admin/edit_student.php:71
 #: admin/edit_student.php:177
 #: admin/settings.php:324
-#: admin/show_students.php:133
+#: admin/show_students.php:135
 #: core/class-export.php:53
-#: core/class-export.php:162
-#: core/shortcodes.php:114
-#: core/shortcodes.php:333
+#: core/class-export.php:164
+#: core/enrollments.php:338
+#: core/enrollments.php:561
 #@ teachpress
 msgid "Matr. number"
 msgstr "Matr. číslo"
@@ -992,110 +956,110 @@ msgstr "Matr. číslo"
 #: admin/add_students.php:173
 #: admin/edit_student.php:76
 #: admin/settings.php:325
-#: admin/show_single_course.php:190
-#: admin/show_single_course.php:234
-#: admin/show_students.php:131
+#: admin/show_single_course.php:189
+#: admin/show_single_course.php:233
+#: admin/show_students.php:133
 #: core/class-export.php:51
-#: core/class-export.php:165
-#: core/shortcodes.php:119
-#: core/shortcodes.php:338
+#: core/class-export.php:167
+#: core/enrollments.php:343
+#: core/enrollments.php:566
 #@ teachpress
 msgid "First name"
 msgstr "Prvé meno"
 
 #: admin/add_students.php:178
-#: admin/create_lists.php:49
+#: admin/create_lists.php:50
 #: admin/edit_student.php:80
 #: admin/settings.php:326
-#: admin/show_single_course.php:189
-#: admin/show_single_course.php:233
-#: admin/show_students.php:130
+#: admin/show_single_course.php:188
+#: admin/show_single_course.php:232
+#: admin/show_students.php:132
 #: core/class-export.php:50
-#: core/class-export.php:165
-#: core/shortcodes.php:123
-#: core/shortcodes.php:342
+#: core/class-export.php:167
+#: core/enrollments.php:347
+#: core/enrollments.php:570
 #@ teachpress
 msgid "Last name"
 msgstr "Priezvisko"
 
 #: admin/add_students.php:185
-#: admin/create_lists.php:83
-#: admin/create_lists.php:146
+#: admin/create_lists.php:85
+#: admin/create_lists.php:148
 #: admin/edit_student.php:87
 #: admin/edit_student.php:183
 #: admin/settings.php:336
-#: admin/show_single_course.php:193
-#: admin/show_single_course.php:236
-#: admin/show_students.php:136
+#: admin/show_single_course.php:192
+#: admin/show_single_course.php:235
+#: admin/show_students.php:138
 #: core/class-export.php:56
-#: core/class-export.php:163
-#: core/shortcodes.php:129
-#: core/shortcodes.php:348
+#: core/class-export.php:165
+#: core/enrollments.php:353
+#: core/enrollments.php:576
 #@ teachpress
 msgid "Course of studies"
 msgstr "Kurz štúdia"
 
 #: admin/add_students.php:202
-#: admin/create_lists.php:87
-#: admin/create_lists.php:149
+#: admin/create_lists.php:89
+#: admin/create_lists.php:151
 #: admin/edit_student.php:109
 #: admin/edit_student.php:189
 #: admin/settings.php:346
-#: admin/show_students.php:140
-#: core/shortcodes.php:145
-#: core/shortcodes.php:368
+#: admin/show_students.php:142
+#: core/enrollments.php:368
+#: core/enrollments.php:596
 #@ teachpress
 msgid "Number of terms"
 msgstr "Počet semestrov"
 
 #: admin/add_students.php:215
-#: admin/create_lists.php:80
-#: admin/create_lists.php:143
+#: admin/create_lists.php:82
+#: admin/create_lists.php:145
 #: admin/edit_student.php:128
 #: admin/edit_student.php:200
 #: admin/settings.php:347
-#: admin/show_single_course.php:196
-#: admin/show_single_course.php:238
-#: admin/show_students.php:146
+#: admin/show_single_course.php:195
+#: admin/show_single_course.php:237
+#: admin/show_students.php:148
 #: core/class-export.php:58
-#: core/class-export.php:165
-#: core/shortcodes.php:156
+#: core/class-export.php:167
+#: core/enrollments.php:379
 #@ teachpress
 msgid "User account"
 msgstr "Užívateľské konto"
 
 #: admin/add_students.php:222
-#: admin/create_lists.php:91
-#: admin/create_lists.php:152
+#: admin/create_lists.php:93
+#: admin/create_lists.php:154
 #: admin/edit_student.php:135
 #: admin/edit_student.php:195
 #: admin/settings.php:357
-#: admin/show_students.php:144
-#: core/shortcodes.php:162
-#: core/shortcodes.php:386
+#: admin/show_students.php:146
+#: core/enrollments.php:385
+#: core/enrollments.php:614
 #@ teachpress
 msgid "Date of birth"
 msgstr "Dátum narodenia"
 
 #: admin/add_students.php:225
-#: admin/import_publications.php:82
+#: admin/import_publications.php:98
 #@ default
 msgid "Format"
 msgstr ""
 
 #: admin/add_students.php:229
-#: admin/create_lists.php:93
-#: admin/create_lists.php:155
+#: admin/create_lists.php:95
+#: admin/create_lists.php:157
 #: admin/edit_student.php:141
 #: admin/edit_student.php:204
 #: admin/settings.php:358
-#: admin/show_single_course.php:197
-#: admin/show_single_course.php:239
-#: admin/show_students.php:147
+#: admin/show_single_course.php:196
+#: admin/show_single_course.php:238
+#: admin/show_students.php:149
 #: core/class-export.php:59
-#: core/class-export.php:165
-#: core/shortcodes.php:183
-#: core/shortcodes.php:392
+#: core/class-export.php:167
+#: core/enrollments.php:406
+#: core/enrollments.php:620
 #@ default
 msgid "E-Mail"
 msgstr ""
@@ -1107,7 +1071,7 @@ msgid "back to the course"
 msgstr "späť na kurz"
 
 #: admin/create_lists.php:43
-#: admin/show_single_course.php:71
+#: admin/show_single_course.php:66
 #@ teachpress
 msgid "Create attendance list"
 msgstr "Vytvoriť prezenčku"
@@ -1117,12 +1081,12 @@ msgstr "Vytvoriť prezenčku"
 msgid "Sort after"
 msgstr "Vytriediť po"
 
-#: admin/create_lists.php:59
+#: admin/create_lists.php:60
 #@ teachpress
 msgid "Number of free columns"
 msgstr "Počet voľných stĺpcov"
 
-#: admin/create_lists.php:74
+#: admin/create_lists.php:76
 #@ teachpress
 msgid "Additional columns"
 msgstr "Ďalšie stĺpce"
@@ -1138,7 +1102,9 @@ msgid "back to the overview"
 msgstr "späť na prehľad"
 
 #: admin/edit_student.php:57
-#: admin/show_single_course.php:99
+#: admin/edit_tags.php:119
+#: admin/show_publications.php:276
+#: admin/show_single_course.php:94
 #: core/admin.php:160
 #@ teachpress
 msgid "Edit"
@@ -1150,14 +1116,15 @@ msgid "Edit Data"
 msgstr "Editovať dáta"
 
 #: admin/edit_student.php:137
-#: core/shortcodes.php:388
+#: core/enrollments.php:616
 #@ teachpress
 msgid "Format: JJJJ-MM-TT"
 msgstr "Formát: DDDD-MM-RR"
 
 #: admin/edit_student.php:162
-#: admin/show_courses.php:97
-#: admin/show_courses.php:127
+#: admin/edit_tags.php:40
+#: admin/show_courses.php:99
+#: admin/show_courses.php:129
 #: admin/show_publications.php:89
 #: admin/show_students.php:80
 #@ teachpress
@@ -1170,105 +1137,106 @@ msgid "Send E-Mail to"
 msgstr "Poslať email "
 
 #: admin/edit_student.php:220
+#: admin/edit_student.php:275
 #@ teachpress
 msgid "Enrollment-Nr."
 msgstr "Číslo registrácie"
 
 #: admin/edit_student.php:221
-#: admin/show_single_course.php:198
-#: admin/show_single_course.php:240
+#: admin/edit_student.php:276
+#: admin/show_single_course.php:197
+#: admin/show_single_course.php:239
 #: core/class-export.php:60
-#: core/class-export.php:165
+#: core/class-export.php:167
 #@ teachpress
 msgid "Registered at"
 msgstr "Registrovaný na"
 
 #: admin/edit_student.php:222
-#: teachpress.php:54
+#: admin/edit_student.php:277
+#: teachpress.php:53
 #@ teachpress
 msgid "Course"
 msgstr "Kurz"
 
-#: admin/edit_student.php:258
-#: admin/edit_tags.php:69
-#: admin/show_courses.php:205
-#: admin/show_publications.php:233
-#: admin/show_students.php:155
-#: core/shortcodes.php:704
+#: admin/edit_student.php:263
+#: admin/edit_tags.php:94
+#: admin/show_courses.php:207
+#: admin/show_publications.php:237
+#: admin/show_students.php:157
+#: core/shortcodes.php:158
 #@ teachpress
 msgid "Sorry, no entries matched your criteria."
 msgstr "Prepáčte, žiadne údaje sa nezhodujú s vašimi kritériami"
 
-#: admin/edit_student.php:264
-#: admin/show_single_course.php:264
+#: admin/edit_student.php:309
+#: admin/show_single_course.php:263
 #@ teachpress
 msgid "delete enrollment"
 msgstr "zmazať registráciu"
 
-#: admin/edit_tags.php:25
-#@ teachpress
-msgid "Selected tags are deleted"
-msgstr "Vybrané tagy sú zmazané"
-
-#: admin/edit_tags.php:31
+#: admin/edit_tags.php:52
 #@ teachpress
 msgid "Tag saved"
 msgstr "Tag uložený"
 
-#: admin/edit_tags.php:36
-#: admin/show_courses.php:141
-#: admin/show_publications.php:194
+#: admin/edit_tags.php:68
+#: admin/show_courses.php:143
+#: admin/show_publications.php:198
 #: admin/show_students.php:93
 #@ teachpress
 msgid "Cancel the search"
 msgstr "Zrušiť hľadanie"
 
-#: admin/edit_tags.php:38
-#: admin/show_courses.php:144
-#: admin/show_publications.php:197
+#: admin/edit_tags.php:70
+#: admin/show_courses.php:146
+#: admin/show_publications.php:201
 #: admin/show_students.php:96
 #@ default
 msgid "Search"
 msgstr ""
 
-#: admin/edit_tags.php:42
-#: admin/show_courses.php:148
-#: admin/show_publications.php:201
+#: admin/edit_tags.php:74
+#: admin/show_courses.php:150
+#: admin/show_publications.php:205
 #: admin/show_students.php:100
 #@ teachpress
 msgid "Bulk actions"
 msgstr "Viacnásobné úkony"
 
-#: admin/edit_tags.php:53
-#: admin/show_courses.php:175
-#: admin/show_publications.php:223
-#: admin/show_single_course.php:108
+#: admin/edit_tags.php:88
+#: admin/show_courses.php:177
+#: admin/show_publications.php:227
+#: admin/show_single_course.php:103
 #@ default
 msgid "ID"
 msgstr ""
 
-#: admin/edit_tags.php:84
-#: admin/show_publications.php:265
-#: admin/show_students.php:168
+#: admin/edit_tags.php:117
+#: admin/edit_tags.php:119
+#: admin/show_publications.php:275
+#: admin/show_publications.php:276
+#: admin/show_students.php:170
 #@ teachpress
 msgid "Click to edit"
 msgstr "Klikni na editovanie"
 
-#: admin/import_publications.php:16
 #: admin/import_publications.php:19
-#: admin/import_publications.php:51
+#: admin/import_publications.php:22
+#: admin/import_publications.php:67
 #@ default
 msgid "Import"
 msgstr ""
 
-#: admin/import_publications.php:23
 #: admin/import_publications.php:26
-#: admin/import_publications.php:91
+#: admin/import_publications.php:29
+#: admin/import_publications.php:108
 #@ default
 msgid "Export"
 msgstr ""
 
-#: admin/import_publications.php:30
+#: admin/add_publication.php:121
+#: admin/import_publications.php:33
 #: admin/settings.php:95
 #: admin/settings.php:98
 #: teachpress.php:65
@@ -1276,33 +1244,33 @@ msgstr ""
 msgid "Publications"
 msgstr "Publikácie"
 
-#: admin/import_publications.php:33
+#: admin/import_publications.php:36
 #@ teachpress
 msgid "Copy your BibTeX entries in the textarea. Restrictions: teachPress can't converting LaTeX special chars as well as not numeric month and day attributes."
 msgstr "Skopírujte svoje BibTeX údaje do textového poľa. Obmedzenia: teachPress nevie konvertovať špeciálne LaTeX znaky ani numerické mesiace a dni."
 
-#: admin/import_publications.php:38
+#: admin/import_publications.php:41
 #@ teachpress
 msgid "Import Area"
 msgstr "Oblasť vloženia"
 
-#: admin/import_publications.php:39
+#: admin/import_publications.php:42
 #@ teachpress
 msgid "Insert your BibTeX entries here"
 msgstr "Vložte svoj BibTeX sem"
 
-#: admin/import_publications.php:46
-#: admin/import_publications.php:47
+#: admin/import_publications.php:62
+#: admin/import_publications.php:63
 #@ teachpress
 msgid "Keyword Separator"
 msgstr "Oddeľovač keyword"
 
-#: admin/import_publications.php:62
+#: admin/import_publications.php:78
 #@ teachpress
 msgid "Publications by user"
 msgstr "Publikácie podľa užívateľa"
 
-#: admin/import_publications.php:65
+#: admin/import_publications.php:81
 #@ default
 msgid "All"
 msgstr ""
@@ -1322,18 +1290,13 @@ msgstr "Od"
 msgid "To"
 msgstr "Do"
 
-#: admin/mail.php:70
-#@ teachpress
-msgid "BCC"
-msgstr "BCC"
-
 #: admin/mail.php:90
 #@ teachpress
 msgid "Subject"
 msgstr "Subjekt"
 
-#: admin/mail.php:98
-#: core/shortcodes.php:188
+#: admin/mail.php:103
+#: core/enrollments.php:411
 #@ teachpress
 msgid "Send"
 msgstr "Poslať"
@@ -1368,7 +1331,7 @@ msgstr "teachPress nastavenia"
 
 #: admin/settings.php:88
 #: admin/settings.php:91
-#: admin/show_courses.php:88
+#: admin/show_courses.php:90
 #@ teachpress
 msgid "Courses"
 msgstr "Kurzy"
@@ -1607,11 +1570,6 @@ msgstr "Zmazať semester"
 msgid "Types of courses"
 msgstr "Typ kurzov"
 
-#: admin/settings.php:461
-#@ teachpress
-msgid "Delete course"
-msgstr "Zmazať kurz"
-
 #: admin/settings.php:487
 #@ teachpress
 msgid "RSS feed addresses"
@@ -1625,10 +1583,10 @@ msgstr "Pre všetky publikácie:"
 #: admin/settings.php:489
 #: admin/settings.php:491
 #: admin/settings.php:493
-#: admin/show_courses.php:168
+#: admin/show_courses.php:170
 #: admin/show_students.php:120
 #: core/admin.php:160
-#: core/shortcodes.php:630
+#: core/shortcodes.php:84
 #@ teachpress
 msgid "Show"
 msgstr "Ukázať"
@@ -1691,59 +1649,56 @@ msgstr "Viac informácií"
 msgid "An database update is necessary."
 msgstr "Aktualizácia databázy je nevyhnutná."
 
-#: admin/show_courses.php:45
+#: admin/show_courses.php:46
 #: admin/show_students.php:45
 #@ teachpress
 msgid "E-Mail sent"
 msgstr "Email poslaný"
 
-#: admin/show_courses.php:95
+#: admin/edit_tags.php:38
+#: admin/show_courses.php:97
 #: admin/show_publications.php:87
+#: admin/show_students.php:78
 #@ teachpress
 msgid "Are you sure to delete the selected elements?"
 msgstr "Ste si istí, že chcete zmazať vybraté položky?"
 
-#: admin/show_courses.php:103
-#@ teachpress
-msgid "Course(s) deleted"
-msgstr "Kurz(y) zmazané"
-
-#: admin/show_courses.php:109
+#: admin/show_courses.php:111
 #@ teachpress
 msgid "Copy courses"
 msgstr "Kopírovať kurzy"
 
-#: admin/show_courses.php:110
+#: admin/show_courses.php:112
 #@ teachpress
 msgid "Select the term, in which you will copy the selected courses."
 msgstr "Vyberte semester, v ktorom budete kopírovať zvolené kurzy."
 
-#: admin/show_courses.php:126
-#: admin/show_courses.php:149
+#: admin/show_courses.php:128
+#: admin/show_courses.php:151
 #@ teachpress
 msgid "copy"
 msgstr "kopírovať"
 
-#: admin/show_courses.php:135
+#: admin/show_courses.php:137
 #@ teachpress
 msgid "Copying successful"
 msgstr "Kopírovanie úspešné"
 
-#: admin/show_courses.php:152
-#: admin/show_publications.php:207
+#: admin/show_courses.php:154
+#: admin/show_publications.php:211
 #: admin/show_students.php:103
 #@ teachpress
 msgid "OK"
 msgstr "OK"
 
-#: admin/show_courses.php:154
+#: admin/show_courses.php:156
 #@ teachpress
 msgid "All terms"
 msgstr "Všetky semestre"
 
-#: admin/show_courses.php:179
-#: admin/show_single_course.php:141
-#: core/class-export.php:127
+#: admin/show_courses.php:181
+#: admin/show_single_course.php:136
+#: core/class-export.php:128
 #@ teachpress
 msgid "Places"
 msgstr "Miesta"
@@ -1773,191 +1728,174 @@ msgstr "Pre zoznam publikácií s tag cloud:"
 msgid "For normal publication lists:"
 msgstr "Pre normálny zoznam publikácií:"
 
-#: admin/show_publications.php:95
-#@ teachpress
-msgid "Publications deleted"
-msgstr "Publikácie zmazané"
-
-#: admin/show_publications.php:100
+#: admin/show_publications.php:99
 #@ teachpress
 msgid "All publications"
 msgstr "Všetky publikácie"
 
-#: admin/show_publications.php:103
+#: admin/show_publications.php:102
 #: teachpress.php:66
 #@ teachpress
 msgid "Your publications"
 msgstr "Vaše publikácie"
 
-#: admin/show_publications.php:108
-#: core/class-bibtex.php:147
-#: core/class-bibtex.php:158
+#: admin/show_publications.php:107
+#: core/class-bibtex.php:160
+#: core/class-bibtex.php:163
 #@ teachpress
 msgid "BibTeX"
 msgstr "BibTeX"
 
-#: admin/show_publications.php:202
+#: admin/show_publications.php:206
 #@ teachpress
 msgid "Show as BibTeX entry"
 msgstr "Ukázať ako BibTeX"
 
-#: admin/show_publications.php:209
-#: core/shortcodes.php:1152
-#: teachpress.php:148
+#: admin/show_publications.php:213
+#: core/shortcodes.php:661
+#: teachpress.php:151
 #@ teachpress
 msgid "All types"
 msgstr "Všetky typy"
 
-#: admin/show_publications.php:212
+#: admin/show_publications.php:216
 #@ teachpress
 msgid "Limit selection"
 msgstr "Limitovať výber"
 
-#: admin/show_publications.php:227
-#: core/shortcodes.php:178
+#: admin/show_publications.php:231
+#: core/enrollments.php:401
 #@ teachpress
 msgid "Year"
 msgstr "Rok"
 
-#: admin/show_publications.php:247
+#: admin/show_publications.php:258
 #@ teachpress
 msgid "Add to your own list"
 msgstr "Pridať do vlastného zoznamu"
 
-#: admin/show_publications.php:253
+#: admin/show_publications.php:263
 #@ teachpress
 msgid "Delete from you own publication list"
 msgstr "Zmazať z vlastného zoznamu publikácií"
 
-#: admin/show_publications.php:276
-#: core/shortcodes.php:1064
-#: core/shortcodes.php:1079
+#: admin/show_publications.php:288
+#: core/shortcodes.php:569
+#: core/shortcodes.php:584
 #@ teachpress
 msgid "Delete tag as filter"
 msgstr "Zmazať tag ako filter"
 
-#: admin/show_publications.php:279
-#: core/class-bibtex.php:95
+#: admin/show_publications.php:291
+#: core/class-bibtex.php:96
 #@ teachpress
 msgid "Show all publications which have a relationship to this tag"
 msgstr "Zobraziť všetky publikácie, čo majú vzťah k tomuto tagu"
 
-#: admin/show_publications.php:301
-#: admin/show_students.php:197
+#: admin/edit_tags.php:143
+#: admin/show_publications.php:313
+#: admin/show_students.php:199
 #@ teachpress
 msgid "entry"
 msgstr "záznam"
 
-#: admin/show_publications.php:304
-#: admin/show_students.php:200
+#: admin/edit_tags.php:146
+#: admin/show_publications.php:316
+#: admin/show_students.php:202
 #: core/admin.php:58
 #: core/admin.php:61
 #@ teachpress
 msgid "entries"
 msgstr "záznamy"
 
-#: admin/show_single_course.php:39
+#: admin/show_single_course.php:34
 #@ teachpress
 msgid "Participant added"
 msgstr "Účastník pridaný"
 
-#: admin/show_single_course.php:44
-#@ teachpress
-msgid "Enrollments deleted"
-msgstr "Registrácie zmazané"
-
-#: admin/show_single_course.php:71
+#: admin/show_single_course.php:66
 #@ teachpress
 msgid "Back to the overview"
 msgstr "Spať na prehľad"
 
-#: admin/show_single_course.php:73
+#: admin/show_single_course.php:68
 #@ teachpress
 msgid "Export as"
 msgstr "Exportovať ako"
 
-#: admin/show_single_course.php:74
+#: admin/show_single_course.php:69
 #@ teachpress
 msgid "csv-file"
 msgstr "csv-súbor"
 
-#: admin/show_single_course.php:75
+#: admin/show_single_course.php:70
 #@ teachpress
 msgid "xls-file"
 msgstr "xls-súbor"
 
-#: admin/show_single_course.php:78
+#: admin/show_single_course.php:73
 #@ teachpress
 msgid "E-Mail to"
 msgstr "Email"
 
-#: admin/show_single_course.php:79
+#: admin/show_single_course.php:74
 #@ teachpress
 msgid "registered participants"
 msgstr "registrovaní účastníci"
 
-#: admin/show_single_course.php:80
+#: admin/show_single_course.php:75
 #@ teachpress
 msgid "participants in waiting list"
 msgstr "účastníci na čakačke"
 
-#: admin/show_single_course.php:81
+#: admin/show_single_course.php:76
 #@ teachpress
 msgid "all participants"
 msgstr "všetci účastníci"
 
-#: admin/show_single_course.php:105
+#: admin/show_single_course.php:100
 #@ teachpress
 msgid "Meta Information"
 msgstr "Meta informácie"
 
-#: admin/show_single_course.php:110
+#: admin/show_single_course.php:105
 #@ teachpress
 msgid "Parent-ID"
 msgstr "Rodičovské-ID"
 
-#: admin/show_single_course.php:174
-#: core/class-export.php:135
+#: admin/show_single_course.php:173
+#: core/class-export.php:137
 #@ teachpress
 msgid "Comment"
 msgstr "Komentár"
 
-#: admin/show_single_course.php:204
+#: admin/show_single_course.php:203
 #@ teachpress
 msgid "No entries"
 msgstr "Žiadne záznamy"
 
-#: admin/show_single_course.php:217
-#: admin/show_single_course.php:254
-#: admin/show_students.php:183
+#: admin/show_single_course.php:216
+#: admin/show_single_course.php:253
+#: admin/show_students.php:185
 #@ teachpress
 msgid "send E-Mail"
 msgstr "poslať email"
 
-#: admin/show_single_course.php:228
-#: core/admin.php:456
+#: admin/edit_student.php:269
+#: admin/show_single_course.php:227
+#: core/enrollments.php:50
 #@ teachpress
 msgid "Waitinglist"
 msgstr "Čakačka"
 
-#: admin/show_single_course.php:263
-#: core/shortcodes.php:553
+#: admin/show_single_course.php:262
+#: core/enrollments.php:786
 #@ teachpress
 msgid "Sign up"
 msgstr "Prihlásiť sa"
 
-#: admin/show_students.php:78
-#@ teachpress
-msgid "Are you sure to delete the selected students?"
-msgstr "Ste si istý, že chcete zmazať vybratých študentov?"
-
-#: admin/show_students.php:86
-#@ teachpress
-msgid "Students deleted"
-msgstr "Študenti zmazaní"
-
 #: admin/show_students.php:90
-#: teachpress.php:56
+#: teachpress.php:55
 #@ teachpress
 msgid "Students"
 msgstr "Študenti"
@@ -1980,8 +1918,8 @@ msgstr "predošlá strana"
 #: core/admin.php:38
 #: core/admin.php:58
 #: core/admin.php:61
-#: core/shortcodes.php:478
-#: core/shortcodes.php:528
+#: core/enrollments.php:709
+#: core/enrollments.php:761
 #@ teachpress
 msgid "of"
 msgstr "z"
@@ -2001,290 +1939,266 @@ msgstr "posledná strana"
 msgid "Click to show"
 msgstr "Kliknút na zobrazenie"
 
-#: core/admin.php:426
+#: core/enrollments.php:20
 #@ teachpress
 msgid "Registration is not possible, because you are already registered for an other course of this course group."
 msgstr "Registrácia nie je možná, pretože ste už registrovaní na iný kurz v tejto skupine kurzov."
 
-#: core/admin.php:435
+#: core/enrollments.php:46
 #@ teachpress
 msgid "Registration"
 msgstr "Registrácia"
 
-#: core/admin.php:436
+#: core/enrollments.php:47
 #@ teachpress
 msgid "Your Registration for the following course was successful:"
 msgstr "Vaša registrácia na nasledujúci kurz bola úspešná:"
 
-#: core/admin.php:440
+#: core/enrollments.php:24
 #@ teachpress
 msgid "Registration was successful."
 msgstr "Registrácia úspešná."
 
-#: core/admin.php:443
-#: core/admin.php:465
+#: core/enrollments.php:16
 #@ teachpress
 msgid "You are already registered for this course."
 msgstr "Už ste registrovaní na tento kurz."
 
-#: core/admin.php:457
+#: core/enrollments.php:51
 #@ teachpress
 msgid "You are signed up in the waitinglist for the following course:"
 msgstr "Ste prihlásený na čakačke na nasledujúci kurz:"
 
-#: core/admin.php:461
-#@ teachpress
-msgid "For this course there are no more free places. You are automatically signed up in a waiting list."
-msgstr "Tento kurz nemá už žiadne voľné miesta. Ste automaticky priradení na čakačku."
-
-#: core/admin.php:470
-#@ teachpress
-msgid "Registration is not possible, because there are no more free places available"
-msgstr "Registrácia nie je možná, lebo už nie je viac voľných miest"
-
-#: core/admin.php:518
-#@ teachpress
-msgid "Delete registration"
-msgstr "Zmazať registráciu"
-
-#: core/admin.php:563
+#: core/enrollments.php:157
 #@ teachpress
 msgid "You are signed out successful"
 msgstr "Ste úspešne odhlásení"
 
-#: core/admin.php:641
+#: core/enrollments.php:196
 #@ teachpress
 msgid "Changes in your profile successful."
 msgstr "Zmeny v profile boli úspešné."
 
-#: core/admin.php:645
-#@ teachpress
-msgid "Student data changed"
-msgstr "Dáta študenta zmenené"
-
-#: core/admin.php:695
-#@ teachpress
-msgid "Delete student data"
-msgstr "Zmazať dáta študenta"
-
-#: core/class-bibtex.php:141
-#: core/class-export.php:244
+#: core/class-bibtex.php:167
+#: core/class-export.php:246
 #@ teachpress
 msgid "In"
 msgstr "V"
 
-#: core/class-bibtex.php:147
-#: core/class-bibtex.php:158
+#: core/class-bibtex.php:160
+#: core/class-bibtex.php:163
 #@ teachpress
 msgid "Show BibTeX entry"
 msgstr "Ukázať BibTeX záznam"
 
-#: core/class-bibtex.php:164
+#: core/class-bibtex.php:194
+#: core/class-bibtex.php:200
+#: core/class-bibtex.php:207
 #@ teachpress
 msgid "Close"
 msgstr "Zatvoriť"
 
-#: core/class-bibtex.php:198
+#: core/class-bibtex.php:241
 #@ teachpress
 msgid "Ed."
 msgstr "Ed."
 
-#: core/class-bibtex.php:209
+#: core/class-bibtex.php:252
 #@ teachpress
 msgid "Page(s)"
 msgstr "Strany"
 
-#: core/class-bibtex.php:291
+#: core/class-bibtex.php:334
 #@ teachpress
 msgid "Imported Publications:"
 msgstr "Importované publikácie:"
 
-#: core/class-export.php:141
+#: core/class-export.php:143
 #@ teachpress
 msgid "Registered participants"
 msgstr "Registrovaní účastníci"
 
-#: core/class-export.php:147
+#: core/class-export.php:149
 #@ teachpress
 msgid "Created on"
 msgstr "Vytvorené "
 
-#: core/class-export.php:165
+#: core/class-export.php:167
 #@ teachpress
 msgid "Record-ID"
 msgstr "Záznam-ID"
 
-#: core/shortcodes.php:47
+#: core/enrollments.php:254
 #@ teachpress
 msgid "Enrollments for the"
 msgstr "Registrácie na"
 
-#: core/shortcodes.php:107
+#: core/enrollments.php:331
 #@ teachpress
 msgid "Please fill in the following registration form and sign up in the system. You can edit your data later."
 msgstr "Prosím vyplnte nasledujúci dotazník na prihlásenie sa do systému. Svoje dáta môžete editovať aj neskôr."
 
-#: core/shortcodes.php:109
-#: core/shortcodes.php:236
-#: core/shortcodes.php:239
+#: core/enrollments.php:333
+#: core/enrollments.php:459
+#: core/enrollments.php:462
 #@ teachpress
 msgid "Your data"
 msgstr "Vaše dáta"
 
-#: core/shortcodes.php:165
+#: core/enrollments.php:388
 #@ teachpress
 msgid "Jan"
 msgstr "jan"
 
-#: core/shortcodes.php:166
+#: core/enrollments.php:389
 #@ teachpress
 msgid "Feb"
 msgstr "feb"
 
-#: core/shortcodes.php:167
+#: core/enrollments.php:390
 #@ teachpress
 msgid "Mar"
 msgstr "mar"
 
-#: core/shortcodes.php:168
+#: core/enrollments.php:391
 #@ teachpress
 msgid "Apr"
 msgstr "apr"
 
-#: core/shortcodes.php:169
+#: core/enrollments.php:392
 #@ teachpress
 msgid "May"
 msgstr "máj"
 
-#: core/shortcodes.php:170
+#: core/enrollments.php:393
 #@ teachpress
 msgid "Jun"
 msgstr "jún"
 
-#: core/shortcodes.php:171
+#: core/enrollments.php:394
 #@ teachpress
 msgid "Jul"
 msgstr "júl"
 
-#: core/shortcodes.php:172
+#: core/enrollments.php:395
 #@ teachpress
 msgid "Aug"
 msgstr "aug"
 
-#: core/shortcodes.php:173
+#: core/enrollments.php:396
 #@ teachpress
 msgid "Sep"
 msgstr "sep"
 
-#: core/shortcodes.php:174
+#: core/enrollments.php:397
 #@ teachpress
 msgid "Oct"
 msgstr "okt"
 
-#: core/shortcodes.php:175
+#: core/enrollments.php:398
 #@ teachpress
 msgid "Nov"
 msgstr "nov"
 
-#: core/shortcodes.php:176
+#: core/enrollments.php:399
 #@ teachpress
 msgid "Dec"
 msgstr "dec"
 
-#: core/shortcodes.php:201
+#: core/enrollments.php:424
 #@ teachpress
 msgid "Hello"
 msgstr "Ahoj"
 
-#: core/shortcodes.php:224
-#: core/shortcodes.php:227
+#: core/enrollments.php:447
+#: core/enrollments.php:450
 #@ teachpress
 msgid "Current enrollments"
 msgstr "Aktuálne registrácie"
 
-#: core/shortcodes.php:230
-#: core/shortcodes.php:233
+#: core/enrollments.php:453
+#: core/enrollments.php:456
 #@ teachpress
 msgid "Your enrollments"
 msgstr "Vaše registrácie"
 
-#: core/shortcodes.php:248
+#: core/enrollments.php:471
 #@ teachpress
 msgid "Signed up for"
 msgstr "Prihlásený na"
 
-#: core/shortcodes.php:322
+#: core/enrollments.php:550
 #@ teachpress
 msgid "unsubscribe"
 msgstr "odhlásiť"
 
-#: core/shortcodes.php:449
+#: core/enrollments.php:680
 #@ teachpress
 msgid "Select"
 msgstr "Vybrať"
 
-#: core/shortcodes.php:457
-#: core/shortcodes.php:513
-#: core/shortcodes.php:718
+#: core/enrollments.php:688
+#: core/enrollments.php:746
+#: core/shortcodes.php:172
 #@ teachpress
 msgid "Date(s)"
 msgstr "Dátum(y)"
 
-#: core/shortcodes.php:485
-#: core/shortcodes.php:534
+#: core/enrollments.php:716
+#: core/enrollments.php:767
 #@ teachpress
 msgid "Possible to subscribe in the waiting list"
 msgstr "Možné prihlásiť sa na čakačku"
 
-#: core/shortcodes.php:493
-#: core/shortcodes.php:542
+#: core/enrollments.php:724
+#: core/enrollments.php:775
 #@ teachpress
 msgid "Registration period"
 msgstr "Registračné obdobie"
 
-#: core/shortcodes.php:493
-#: core/shortcodes.php:542
+#: core/enrollments.php:724
+#: core/enrollments.php:775
 #@ teachpress
 msgid "to"
 msgstr "do"
 
-#: core/shortcodes.php:612
+#: core/shortcodes.php:66
 #@ teachpress
 msgid "Courses for the"
 msgstr "Kurzy pre"
 
-#: core/shortcodes.php:617
+#: core/shortcodes.php:71
 #@ teachpress
 msgid "Select the term"
 msgstr "Vybrať semester"
 
-#: core/shortcodes.php:1052
+#: core/shortcodes.php:557
 #@ teachpress
 msgid "publication"
 msgstr "publikácia"
 
-#: core/shortcodes.php:1055
+#: core/shortcodes.php:560
 #@ teachpress
 msgid "publications"
 msgstr "publikácie"
 
-#: core/shortcodes.php:1124
+#: core/shortcodes.php:631
 #@ teachpress
 msgid "All years"
 msgstr "Všetky roky"
 
-#: core/shortcodes.php:1180
+#: core/shortcodes.php:689
 #@ teachpress
 msgid "All authors"
 msgstr "Všetci autori"
 
-#: core/shortcodes.php:1198
-#: core/shortcodes.php:1201
+#: core/shortcodes.php:707
+#: core/shortcodes.php:710
 #@ teachpress
 msgid "Show all"
 msgstr "Zobraziť všetko"
 
-#: core/shortcodes.php:1324
+#: core/shortcodes.php:767
 #@ teachpress
 msgid "Sorry, no publications matched your criteria."
 msgstr "Prepáčte, žiadne publikácie nespĺňajú vaše kritériá."
@@ -2294,12 +2208,12 @@ msgstr "Prepáčte, žiadne publikácie nespĺňajú vaše kritériá."
 msgid "An update is not necessary."
 msgstr "Aktualizácia nie je potrebná."
 
-#: core/update.php:609
+#: core/update.php:644
 #@ teachpress
 msgid "Update successful"
 msgstr "Aktualizácia úspešná"
 
-#: teachpress.php:57
+#: teachpress.php:56
 #@ teachpress
 msgid "Add manually"
 msgstr "Pridať manuálne"
@@ -2309,189 +2223,318 @@ msgstr "Pridať manuálne"
 msgid "Import/Export"
 msgstr ""
 
-#: teachpress.php:75
+#: teachpress.php:76
 #@ teachpress
 msgid "teachPress Settings"
 msgstr "teachPress nastavenia"
 
-#: teachpress.php:119
+#: teachpress.php:122
 #@ teachpress
 msgid "Resume"
 msgstr "Pokračovať"
 
-#: teachpress.php:149
+#: teachpress.php:152
 #@ teachpress
 msgid "Article"
 msgstr "Článok"
 
-#: teachpress.php:149
+#: teachpress.php:152
 #@ teachpress
 msgid "Articles"
 msgstr "Články"
 
-#: teachpress.php:150
+#: teachpress.php:153
 #@ teachpress
 msgid "Book"
 msgstr "Kniha"
 
-#: teachpress.php:150
-#: teachpress.php:370
+#: teachpress.php:153
+#: teachpress.php:486
 #@ teachpress
 msgid "Books"
 msgstr "Knihy"
 
-#: teachpress.php:151
+#: teachpress.php:154
 #@ teachpress
 msgid "Booklet"
-msgstr "Brožúra"
+msgstr "Skriptá"
 
-#: teachpress.php:151
+#: teachpress.php:154
 #@ teachpress
 msgid "Booklets"
-msgstr "Brožúry"
+msgstr "Skriptá"
 
-#: teachpress.php:152
+#: teachpress.php:155
 #@ teachpress
 msgid "Conference"
 msgstr "Konferencia"
 
-#: teachpress.php:152
+#: teachpress.php:155
 #@ teachpress
 msgid "Conferences"
 msgstr "Konferencie"
 
-#: teachpress.php:153
+#: teachpress.php:156
 #@ teachpress
 msgid "Inbook"
-msgstr "Časť knihy"
+msgstr "Kapitola v knihe"
 
-#: teachpress.php:153
+#: teachpress.php:156
 #@ teachpress
 msgid "Inbooks"
-msgstr "Časť kníh"
+msgstr "Kapitoly v knihách"
 
-#: teachpress.php:154
+#: teachpress.php:157
 #@ teachpress
 msgid "Incollection"
 msgstr "V zbierke"
 
-#: teachpress.php:154
+#: teachpress.php:157
 #@ teachpress
 msgid "Incollections"
 msgstr "V zbierkach"
 
-#: teachpress.php:155
+#: teachpress.php:158
 #@ teachpress
 msgid "Inproceeding"
-msgstr "V zborníku"
+msgstr "Príspevok v zborníku"
 
-#: teachpress.php:155
+#: teachpress.php:158
 #@ teachpress
 msgid "Inproceedings"
-msgstr "V zborníkoch"
+msgstr "Príspevky v zborníkoch"
 
-#: teachpress.php:156
+#: teachpress.php:159
 #@ teachpress
 msgid "Manual"
 msgstr "Manuál"
 
-#: teachpress.php:156
+#: teachpress.php:159
 #@ teachpress
 msgid "Manuals"
 msgstr "Manuály"
 
-#: teachpress.php:157
+#: teachpress.php:160
 #@ teachpress
 msgid "Mastersthesis"
 msgstr "Dizertačná práca"
 
-#: teachpress.php:157
+#: teachpress.php:160
 #@ teachpress
 msgid "Masterstheses"
 msgstr "Dizertačné práce"
 
-#: teachpress.php:158
+#: teachpress.php:161
 #@ teachpress
 msgid "Misc"
 msgstr "Rôzne"
 
-#: teachpress.php:159
+#: teachpress.php:162
 #@ teachpress
 msgid "PhD Thesis"
 msgstr "PhD téza"
 
-#: teachpress.php:159
+#: teachpress.php:162
 #@ teachpress
 msgid "PhD Theses"
 msgstr "PhD tézy"
 
-#: teachpress.php:160
+#: teachpress.php:163
 #@ teachpress
 msgid "Presentation"
 msgstr "Prezentácia"
 
-#: teachpress.php:160
+#: teachpress.php:163
 #@ teachpress
 msgid "Presentations"
 msgstr "Prezentácie"
 
-#: teachpress.php:161
+#: teachpress.php:164
 #@ teachpress
 msgid "Proceeding"
 msgstr "Zborník"
 
-#: teachpress.php:161
+#: teachpress.php:164
 #@ teachpress
 msgid "Proceedings"
 msgstr "Zborníky"
 
-#: teachpress.php:162
+#: teachpress.php:165
 #@ teachpress
 msgid "Techreport"
-msgstr "Technická správa"
+msgstr "Preprint"
 
-#: teachpress.php:162
+#: teachpress.php:165
 #@ teachpress
 msgid "Techreports"
-msgstr "Technické správy"
+msgstr "Preprinty"
 
-#: teachpress.php:163
+#: teachpress.php:166
 #@ teachpress
 msgid "Unpublished"
 msgstr "Nepublikované"
 
-#: teachpress.php:325
+#: teachpress.php:446
 #@ teachpress
 msgid "Shows a random book in the sidebar"
 msgstr "Zobrazuje náhodnú knihu v bočnom poli"
 
-#: teachpress.php:327
+#: teachpress.php:448
 #@ teachpress
 msgid "teachPress books"
 msgstr "teachPress knihy"
 
-#: teachpress.php:352
+#: teachpress.php:468
 #@ teachpress
 msgid "All books"
 msgstr "Všetky knihy"
 
-#: teachpress.php:368
+#: teachpress.php:484
 #@ teachpress
 msgid "Title"
 msgstr "Názov"
 
-#: teachpress.php:381
+#: teachpress.php:497
 #@ teachpress
 msgid "use &lt;Ctrl&gt; key to select multiple books"
 msgstr "použite &lt;Ctrl&gt; na vybratie viacerých kníh"
 
-#: teachpress.php:383
+#: teachpress.php:499
 #@ teachpress
 msgid "Releated Page for &laquo;all books&raquo; link:"
 msgstr "Príbuzná stránka pre &laquo;všetky knihy&raquo; link:"
 
-#: teachpress.php:674
+#: teachpress.php:774
 #@ default
 msgid "Settings"
+msgstr ""
+
+#: admin/add_course.php:17
+#@ teachpress
+msgid "Add new course types and terms"
+msgstr ""
+
+#: admin/add_publication.php:9
+#@ teachpress
+msgid "Create a new publication"
+msgstr ""
+
+#: admin/add_publication.php:10
+#@ teachpress
+msgid "Required fields"
+msgstr ""
+
+#: admin/add_publication.php:11
+#@ teachpress
+msgid "The required fields for a new publication: title, author, bibtex key, tags"
+msgstr ""
+
+#: admin/add_publication.php:12
+#: admin/add_publication.php:499
+#@ teachpress
+msgid "URL/Files"
+msgstr ""
+
+#: admin/add_publication.php:13
+#: admin/add_publication.php:502
+#@ default
+msgid "You can add one URL or file per line. Insert the name of the URL/file behind the address and separate it by a comma and a space. Example:"
+msgstr ""
+
+#: admin/add_publication.php:265
+#: admin/add_publication.php:267
+#@ teachpress
+msgid "With the related page you can link a publication with a normal post/page."
+msgstr ""
+
+#: admin/add_publication.php:501
+#@ teachpress
+msgid "Add/Upload"
+msgstr ""
+
+#: admin/add_publication.php:511
+#@ teachpress
+msgid "Comments"
+msgstr ""
+
+#: admin/edit_tags.php:46
+#: admin/show_courses.php:105
+#: admin/show_publications.php:95
+#: admin/show_single_course.php:39
+#: admin/show_students.php:86
+#@ teachpress
+msgid "Removing successful"
+msgstr ""
+
+#: admin/import_publications.php:49
+#@ teachpress
+msgid "Author/Editor Format"
+msgstr ""
+
+#: admin/mail.php:70
+#@ teachpress
+msgid "Bcc"
+msgstr ""
+
+#: admin/mail.php:98
+#: admin/mail.php:99
+#@ teachpress
+msgid "Send me the e-mail as separate copy"
+msgstr ""
+
+#: admin/settings.php:461
+#@ teachpress
+msgid "Delete type"
+msgstr ""
+
+#: admin/show_courses.php:46
+#@ teachpress
+msgid "Error: E-Mail could not sent"
+msgstr ""
+
+#: core/class-bibtex.php:143
+#@ teachpress
+msgid "Show abstract"
+msgstr ""
+
+#: core/class-bibtex.php:143
+#@ teachpress
+msgid "Abstract"
+msgstr ""
+
+#: core/class-bibtex.php:148
+#@ teachpress
+msgid "Show links and resources"
+msgstr ""
+
+#: core/class-bibtex.php:148
+#: core/class-bibtex.php:151
+#@ teachpress
+msgid "Links"
+msgstr ""
+
+#: core/enrollments.php:14
+#@ teachpress
+msgid "Warning: Wrong course_ID"
+msgstr ""
+
+#: core/enrollments.php:18
+#@ teachpress
+msgid "Registration is not possible, because you are already registered in the waitinglist."
+msgstr ""
+
+#: core/enrollments.php:22
+#@ teachpress
+msgid "No free places available."
+msgstr ""
+
+#: core/enrollments.php:26
+#@ teachpress
+msgid "For this course there are no more free places available. You are automatically signed up in a waiting list."
+msgstr ""
+
+#: core/enrollments.php:508
+#@ teachpress
+msgid "No enrollments"
 msgstr ""
 
