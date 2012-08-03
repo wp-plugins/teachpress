@@ -94,12 +94,13 @@ include_once("admin/add_publication.php");
 include_once("admin/edit_tags.php");
 include_once("admin/import_publications.php");
 // Core functions
-include_once("core/admin.php");
-include_once("core/shortcodes.php");
-include_once("core/enrollments.php");
 include_once("core/class-bibtex.php");
 include_once("core/class-mail.php");
 include_once("core/class-export.php");
+include_once("core/admin.php");
+include_once("core/database.php");
+include_once("core/shortcodes.php");
+include_once("core/enrollments.php");
 // BibTeX Parse
 if ( !class_exists( 'PARSEENTRIES' ) ) {
     include_once("includes/bibtexParse/PARSEENTRIES.php");
@@ -369,20 +370,6 @@ function tp_update_userrole($roles) {
     foreach ($who_cannot as $role) {
         $wp_roles->remove_cap($role, 'use_teachpress');
     }
-}
-
-/** 
- * Get a teachPress option
- * @param STRING $var --> permalink, sem, db-version, sign_out or login
- * @Return STRING
-*/
-function get_tp_option($var) {
-    global $wpdb;
-    global $teachpress_settings;
-    $var = tp_sec_var($var);
-    $term = "SELECT `value` FROM " . $teachpress_settings . " WHERE `variable` = '$var'";
-    $term = $wpdb->get_var($term);
-    return $term;
 }
 
 /** 
