@@ -501,6 +501,31 @@ function tp_db_update() {
    tp_db_update_function();
 }
 
+/**
+ * teachPress plugin activation
+ * @param boolean $network_wide
+ * @since 3.2.0
+ */
+function tp_activation ( $network_wide ) {
+    global $wpdb;
+    // it's a network activation
+    if ( $network_wide ) {
+        $old_blog = $wpdb->blogid;
+        // Get all blog ids
+        $blogids = $wpdb->get_col($wpdb->prepare("SELECT `blog_id` FROM $wpdb->blogs"));
+        foreach ($blogids as $blog_id) {
+            switch_to_blog($blog_id);
+            tp_install();
+        }
+        switch_to_blog($old_blog);
+        return;
+    } 
+    // it's a normal activation
+    else {
+        tp_install();
+    }
+}
+
 /** Installation */
 function tp_install() {
     global $wpdb;
@@ -763,7 +788,7 @@ function tp_plugin_link($links, $file){
 }
 
 // Register WordPress-Hooks
-register_activation_hook( __FILE__, 'tp_install');
+register_activation_hook( __FILE__, 'tp_activation');
 add_action('init', 'tp_language_support');
 add_action('admin_menu', 'tp_add_menu_settings');
 add_action('wp_head', 'tp_frontend_scripts');
