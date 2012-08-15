@@ -63,8 +63,7 @@ class tp_bibtex {
             foreach ( $all_tags as $all_tags ) {
                 $keywords = $keywords . $all_tags['name'] . ', ';
             }
-            $keywords = substr($keywords, 0, -2);
-            $string = $string . 'keywords = {' . $keywords . '}' . chr(13) . chr(10);
+            $string = $string . 'keywords = {' . substr($keywords, 0, -2) . '}' . chr(13) . chr(10);
         }     
         $string = $string . '}' . chr(13) . chr(10);
         return $string;
@@ -392,24 +391,33 @@ class tp_bibtex {
     * @return STRING $input
     */
     function replace_html_chars ($input) {
-        $array_1 = array('&Uuml;','&uuml;', '&Ouml;', '&ouml;', '&Auml;','&auml;', '&nbsp;', '&szlig;', '&sect;', '&ndash;', '&rdquo;', '&ldquo;', '&eacute;', '&egrave;', '&aacute;', '&agrave;', '&ograve;','&oacute;', '&copy;', '&reg;', '&micro;', '&pound;', '&raquo;', '&laquo;', '&yen;', '&Agrave;', '&Aacute;', '&Egrave;', '&Eacute;', '&Ograve;', '&Oacute;', '&shy;', '&amp;');
-        $array_2 = array('Ü','ü', 'Ö', 'ö', 'Ä', 'ä', ' ', 'ß', '§', '-', '”', '“', 'é', 'è', 'á', 'à', 'ò', 'ó', '©', '®', 'µ', '£', '»', '«', '¥', 'À', 'Á', 'È', 'É', 'Ò', 'Ó', '­', '&');
+        $array_1 = array('&Uuml;','&uuml;','&Ouml;','&ouml;','&Auml;','&auml;','&nbsp;','&szlig;','&sect;','&ndash;','&rdquo;','&ldquo;','&eacute;','&egrave;','&aacute;','&agrave;','&ograve;','&oacute;','&copy;','&reg;','&micro;','&pound;','&raquo;','&laquo;','&yen;','&Agrave;','&Aacute;','&Egrave;','&Eacute;','&Ograve;','&Oacute;','&shy;','&amp;');
+        $array_2 = array('Ü','ü','Ö','ö','Ä','ä',' ','ß','§','-','”','“','é','è','á','à','ò','ó','©','®','µ','£','»','«','¥','À','Á','È','É','Ò','Ó','­','&');
         $input = str_replace($array_1, $array_2, $input);
         return $input;
     }
 
     /**
     * Replace some BibTeX special chars with the UTF-8 versions and secure the parameter
-    * @param STRING $input
-    * @return STRING $input
+    * @param string $input
+    * @return string $input
     */
     function replace_bibtex_chars ($input) {
         $input = str_replace(chr(92),'',$input);
-        $array_1 = array ('{"A}','{"a}','{"O}','{"o}','{ss}','{"U}','{"u}');
-        $array_2 = array('Ä','ä','Ö','ö','ß','Ü','ü');
-        $input = str_replace($array_1, $array_2, $input);
-        $input = tp_sec_var($input);
-        return $input;
+        $array_1 = array('{"A}','{"a}','r{a}','k{a}',"'{a}",'`{a}',"'{A}",'`{A}',
+                         'c{c}',
+                         "'{e}",'`{e}',"'{E}",'`{E}',
+                         '{"O}','{"o}','u{o}','.{o}','={o}','~{o}','H{o}','^{o}',"'{o}",'`{o}',"'{O}",'`{O}',
+                         '{ss}','v{s}',
+                         '{"U}','{"u}','d{u}');
+        $array_2 = array('Ä','ä','å','ą','á','à','Á','À',
+                         'ç',
+                         'é','è','É','È',
+                         'Ö','ö','ŏ','ȯ','ō','õ','ő','ô','ó','ò','Ó','Ò',
+                         'ß','š',
+                         'Ü','ü','ụ');
+        $return = str_replace($array_1, $array_2, $input);
+        return htmlspecialchars($return);
     }
 
     /**

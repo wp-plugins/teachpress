@@ -7,14 +7,15 @@
 /**
  * Get a single publication
  * @param int $id
+ * @param string $output_type (OBJECT, ARRAY_A or ARRAY_N)
  * @return object
  * @since 3.2.0 
  */
-function get_tp_publication($id) {
+function get_tp_publication($id, $output_type = OBJECT) {
     global $wpdb;
     global $teachpress_pub;
-    settype($id, 'integer');
-    $result = $wpdb->get_row("SELECT * FROM $teachpress_pub WHERE `pub_id` = '$id'");
+    $id = intval($id);
+    $result = $wpdb->get_row("SELECT * FROM $teachpress_pub WHERE `pub_id` = '$id'", $output_type);
     return $result;
 }
 
@@ -35,7 +36,7 @@ function get_tp_publications($args) {
         'order' => 'date DESC',
         'limit' => '',
         'search' => '',
-        'return_type' => 'ARRAY_A'
+        'output_type' => 'ARRAY_A'
     ); 
     $args = wp_parse_args( $args, $defaults );
     extract( $args, EXTR_SKIP );
@@ -82,8 +83,7 @@ function get_tp_publications($args) {
 
     // define global search
     if ( $search != "" ) {
-        $search = htmlspecialchars($search);
-        $search = esc_sql($search);
+        $search = esc_sql(htmlspecialchars($search));
         $search = "p.name LIKE '`%$search%' OR p.author LIKE '%$search%' OR p.editor LIKE '%$search%' OR p.isbn LIKE '%$search%' OR p.booktitle LIKE '%$search%' OR p.journal LIKE '%$search%'";
     }
 
@@ -130,7 +130,7 @@ function get_tp_publications($args) {
     // End
     $sql = $select . $join . $where . $having . " ORDER BY $order $limit";
     echo $sql;
-    $sql = $wpdb->get_results($sql, $return_type);
+    $sql = $wpdb->get_results($sql, $output_type);
     return $sql;
 }
 
@@ -158,7 +158,7 @@ function tp_add_publication($data, $tags, $bookmark) {
      foreach($array as $element) {
         $element = trim($element);
         if ($element != '') {
-            $element = tp_sec_var($element);
+            $element = htmlspecialchars($element);
             $check = $wpdb->get_var("SELECT `tag_id` FROM $teachpress_tags WHERE `name` = '$element'");
             // if tag not exist
             if ($check == 0){
@@ -184,7 +184,7 @@ function tp_delete_publications($checkbox){
     global $teachpress_relation;
     global $teachpress_user;
     for( $i = 0; $i < count( $checkbox ); $i++ ) {
-        settype($checkbox[$i], 'integer');
+        $checkbox[$i] = intval($checkbox[$i]);
         $wpdb->query( "DELETE FROM $teachpress_pub WHERE `pub_id` = $checkbox[$i]" );
         $wpdb->query( "DELETE FROM $teachpress_relation WHERE `pub_id` = $checkbox[$i]" );
         $wpdb->query( "DELETE FROM $teachpress_user WHERE `pub_id` = $checkbox[$i]" );
@@ -204,7 +204,7 @@ function tp_change_publication($pub_ID, $data, $bookmark, $delbox, $tags) {
     global $teachpress_pub;
     global $teachpress_tags;
     global $teachpress_relation;
-    $pub_ID = tp_sec_var($pub_ID, 'integer');
+    $pub_ID = intval($pub_ID);
     // update row
     $wpdb->update( $teachpress_pub, array( 'name' => $data['name'], 'type' => $data['type'], 'bibtex' => $data['bibtex'], 'author' => $data['author'], 'editor' => $data['editor'], 'isbn' => $data['isbn'], 'url' => $data['url'], 'date' => $data['date'], 'booktitle' => $data['booktitle'], 'journal' => $data['journal'], 'volume' => $data['volume'], 'number' => $data['number'], 'pages' => $data['pages'] , 'publisher' => $data['publisher'], 'address' => $data['address'], 'edition' => $data['edition'], 'chapter' => $data['chapter'], 'institution' => $data['institution'], 'organization' => $data['organization'], 'school' => $data['school'], 'series' => $data['series'], 'crossref' => $data['crossref'], 'abstract' => $data['abstract'], 'howpublished' => $data['howpublished'], 'key' => $data['key'], 'techtype' => $data['techtype'], 'comment' => $data['comment'], 'note' => $data['note'], 'image_url' => $data['image_url'], 'is_isbn' => $data['is_isbn'], 'rel_page' => $data['rel_page'] ), array( 'pub_id' => $pub_ID ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d' ), array( '%d' ) );
     // Bookmarks
@@ -223,7 +223,7 @@ function tp_change_publication($pub_ID, $data, $bookmark, $delbox, $tags) {
     foreach($array as $element) {
         $element = trim($element);
         if ($element != '') {
-            $element = tp_sec_var($element);
+            $element = htmlspecialchars($element);
             $check = $wpdb->get_var("SELECT `tag_id` FROM $teachpress_tags WHERE `name` = '$element'");
             // if tag not exist
             if ( $check === NULL ){
@@ -236,6 +236,23 @@ function tp_change_publication($pub_ID, $data, $bookmark, $delbox, $tags) {
             }
         }	
     }
+}
+
+/*********/
+/* Years */
+/*********/
+
+/**
+ * Get an object or array with the years where publications are written
+ * @global type $wpdb
+ * @global type $teachpress_pub
+ * @param string $output_type (OBJECT, ARRAY_A or ARRAY_N)
+ */
+function get_tp_publication_years($output_type = OBJECT) {
+    global $wpdb;
+    global $teachpress_pub;
+    $result = $wpdb->get_results("SELECT DISTINCT DATE_FORMAT(p.date, '%Y') AS year FROM $teachpress_pub p ORDER BY year DESC", $output_type);
+    return $result;
 }
 
 /********/
@@ -253,7 +270,7 @@ function get_tp_tags($args) {
         'pub_id' => '',
         'order' => 'ASC',
         'limit' => '',
-        'return_type' => 'ARRAY_A'
+        'output_type' => 'ARRAY_A'
     ); 
     $args = wp_parse_args( $args, $defaults );
     extract( $args, EXTR_SKIP );
@@ -273,7 +290,7 @@ function get_tp_tags($args) {
 
     // End
     $sql = $select . $join . $where . " ORDER BY t.name $order $limit";
-    $sql = $wpdb->get_results($sql, $return_type);
+    $sql = $wpdb->get_results($sql, $output_type);
     return $sql;
 }
 
@@ -300,7 +317,7 @@ function tp_delete_tags($checkbox) {
     global $teachpress_relation;
     global $teachpress_tags;
     for( $i = 0; $i < count( $checkbox ); $i++ ) {
-        settype($checkbox[$i], 'integer');
+        $checkbox[$i] = intval($checkbox[$i]);
         $wpdb->query( "DELETE FROM $teachpress_relation WHERE `tag_id` = $checkbox[$i]" );
         $wpdb->query( "DELETE FROM $teachpress_tags WHERE `tag_id` = $checkbox[$i]" );
     }
@@ -326,7 +343,7 @@ function tp_delete_tag_relation($delbox) {
     global $wpdb;
     global $teachpress_relation;
     for ( $i = 0; $i < count($delbox); $i++ ) {
-        $delbox[$i] = tp_sec_var($delbox[$i], 'integer');
+        $delbox[$i] = intval($delbox[$i]);
         $wpdb->query( "DELETE FROM $teachpress_relation WHERE `con_id` = $delbox[$i]" );
     }
 }
@@ -358,6 +375,8 @@ function tp_add_tag_relation($pub_id, $tag_id) {
 function tp_add_bookmark($pub_id, $user) {
     global $wpdb;
     global $teachpress_user;
+    $pub_id = intval($pub_id);
+    $user = intval($user);
     $wpdb->insert($teachpress_user, array('pub_id' => $pub_id, 'user' => $user), array('%d', '%d'));
     return $wpdb->insert_id;
 }
@@ -370,7 +389,7 @@ function tp_add_bookmark($pub_id, $user) {
 function tp_delete_bookmark($del_id) {
     global $wpdb;
     global $teachpress_user;
-    $del_id = tp_sec_var($del_id, 'integer');
+    $del_id = intval($del_id);
     $wpdb->query( "DELETE FROM $teachpress_user WHERE `bookmark_id` = '$del_id'" );
 }
 
@@ -381,15 +400,15 @@ function tp_delete_bookmark($del_id) {
 /**
  * Get data of a single course
  * @param int $id
- * @param string $return_type
+ * @param string $output_type
  * @return object
  * @since 3.2.0
  */
-function get_tp_course($id, $return_type = '') {
+function get_tp_course($id, $output_type = OBJECT) {
     global $wpdb;
     global $teachpress_courses;
-    $id = tp_sec_var($id);
-    $result = $wpdb->get_row("SELECT * FROM $teachpress_courses WHERE `course_id` = '$id'", $return_type);
+    $id = intval($id);
+    $result = $wpdb->get_row("SELECT * FROM $teachpress_courses WHERE `course_id` = '$id'", $output_type);
     return $result;
 }
 
@@ -404,7 +423,7 @@ function get_tp_courses ($args) {
         'exclude' => '',
         'order' => 'semester DESC, name',
         'limit' => '',
-        'return_type' => 'ARRAY_A'
+        'output_type' => 'ARRAY_A'
     ); 
     $args = wp_parse_args( $args, $defaults );
     extract( $args, EXTR_SKIP );
@@ -419,7 +438,7 @@ function get_tp_courses ($args) {
     $select = "SELECT DISTINCT c.course_id, c.name, c.type, c.lecturer, c.date, c.room, c.places, c.start, c.end, c.semester, c.parent, c.visible
                FROM $teachpress_courses c";
     $join = "INNER JOIN $teachpress_signup r ON r.course_id = c.course_id";
-    $where = tp_sec_var($where);
+    $where = htmlspecialchars($where);
     $limit = '';
     $order = '';
 }
@@ -447,7 +466,7 @@ function tp_delete_course($checkbox){
     global $teachpress_courses;
     global $teachpress_signup;
     for( $i = 0; $i < count( $checkbox ); $i++ ) { 
-        settype($checkbox[$i], 'integer'); 
+        $checkbox[$i] = intval($checkbox[$i]); 
         $wpdb->query( "DELETE FROM $teachpress_courses WHERE `course_id` = $checkbox[$i]" );
         $wpdb->query( "DELETE FROM $teachpress_signup WHERE `course_id` = $checkbox[$i]" );
         // Check if there are parent courses, which are not selected for erasing, and set there parent to default
@@ -473,7 +492,7 @@ function tp_change_course($course_ID, $data){
     global $wpdb;
     global $teachpress_courses;
     global $teachpress_signup;
-    $course_ID = tp_sec_var($course_ID, 'integer');
+    $course_ID = intval($course_ID);
     $old_places = get_tp_course_data ($course_ID, 'places');
 
     // handle the number of free places
@@ -515,15 +534,16 @@ function get_tp_course_signups ($args) {
         'course' => '',
         'waitinglist' => '',
         'order' => '',
-        'return_type' => 'ARRAY_A'
+        'output_type' => 'ARRAY_A'
     );
     $args = wp_parse_args( $args, $defaults );
     extract( $args, EXTR_SKIP );
     
     global $wpdb;
+    global $teachpress_stud;
     global $teachpress_signup;
     
-    $course = tp_sec_var($course);
+    $course = htmlspecialchars($course);
     
     $sql = "SELECT DISTINCT st.matriculation_number, st.firstname, st.lastname, st.course_of_studies, st.userlogin, st.email , s.date, s.con_id, s.waitinglist
            FROM $teachpress_signup s
@@ -534,7 +554,7 @@ function get_tp_course_signups ($args) {
     if ( $waitinglist != '' ) {
         $where = "  AND s.waitinglist = '$waitinglist'";
     }		
-    $result = $wpdb->get_results($sql . $where, $return_type);
+    $result = $wpdb->get_results($sql . $where, $output_type);
     return $result;
 }
 
@@ -551,7 +571,7 @@ function get_tp_course_signups ($args) {
 function get_tp_student ($id) {
     global $wpdb;
     global $teachpress_stud;
-    $id = tp_sec_var($id, 'integer');
+    $id = intval($id);
     $result = $wpdb->get_row("Select * FROM $teachpress_stud WHERE `wp_id` = '$id'");
     return $result;
 }
@@ -565,12 +585,11 @@ function tp_delete_student($checkbox, $user_ID){
     global $wpdb;
     global $teachpress_stud; 
     global $teachpress_signup;
-    $user_ID = tp_sec_var($user_ID, 'integer');
+    $user_ID = intval($user_ID);
     for( $i = 0; $i < count( $checkbox ); $i++ ) {
-        settype($checkbox[$i], 'integer');
+        $checkbox[$i] = intval($checkbox[$i]);
         // search courses where the user was registered
-        $row1 = "SELECT `course_id` FROM $teachpress_signup WHERE `wp_id` = '$checkbox[$i]'";
-        $row1 = $wpdb->get_results($row1);
+        $row1 = $wpdb->get_results("SELECT `course_id` FROM $teachpress_signup WHERE `wp_id` = '$checkbox[$i]'");
         foreach ($row1 as $row1) {
             // check if there are users in the waiting list
             $sql = "SELECT `con_id` FROM $teachpress_signup WHERE `course_id` = '" . $row1->course_id . "' AND `waitinglist` = '1' ORDER BY `con_id` ASC LIMIT 0, 1";
@@ -597,7 +616,7 @@ function tp_delete_student($checkbox, $user_ID){
 function get_tp_option($var) {
     global $wpdb;
     global $teachpress_settings;
-    $var = tp_sec_var($var);
+    $var = htmlspecialchars($var);
     $result = $wpdb->get_var("SELECT `value` FROM $teachpress_settings WHERE `variable` = '$var'");
     return $result;
 }
@@ -611,7 +630,7 @@ function get_tp_option($var) {
 function get_tp_settings($category) {
     global $wpdb;
     global $teachpress_settings;
-    $category = tp_sec_var($category);
+    $category = htmlspecialchars($category);
     $result = $wpdb->get_results("SELECT `value` FROM $teachpress_settings WHERE `category` = '$category' ORDER BY `setting_id` DESC");
     return $result;
 }
@@ -623,7 +642,7 @@ function get_tp_settings($category) {
 function tp_delete_setting($delete) {
     global $wpdb;
     global $teachpress_settings;
-    $delete = tp_sec_var($delete, 'integer');		
+    $delete = intval($delete);		
     $wpdb->query( "DELETE FROM $teachpress_settings WHERE `setting_id` = '$delete'" );
 }
 

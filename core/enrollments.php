@@ -8,7 +8,7 @@
  * @param int $code
  * @return boolean 
  */
-function tp_get_registration_message($code) {
+function get_tp_registration_message($code) {
     switch ($code) {
     case 0:
         return __('Warning: Wrong course_ID','teachpress');
@@ -73,8 +73,8 @@ function tp_add_registration($checkbox, $wp_id){
    global $wpdb;
    global $teachpress_courses;
    global $teachpress_signup;
-   settype($checkbox, 'integer');
-   settype($wp_id, 'integer');
+   $checkbox = intval($checkbox);
+   $wp_id = intval($wp_id);
    if ( $checkbox == 0 ) {
         return 0;
    }
@@ -92,8 +92,7 @@ function tp_add_registration($checkbox, $wp_id){
         return 102;
    }
    // Check if there is a strict signup
-   $row1 = "SELECT `places`, `waitinglist`, `parent` FROM $teachpress_courses WHERE `course_id` = '$checkbox'";
-   $row1 = $wpdb->get_row($row1);
+   $row1 = $wpdb->get_row("SELECT `places`, `waitinglist`, `parent` FROM $teachpress_courses WHERE `course_id` = '$checkbox'");
    if ( $row1->parent != 0 ) {
         $check = get_tp_course_data ($row1->parent, 'strict_signup');
         if ( $check != 0 ) {
@@ -134,7 +133,7 @@ function tp_delete_registration_student($checkbox2) {
     global $wpdb;
     global $teachpress_signup;
     for( $i = 0; $i < count( $checkbox2 ); $i++ ) {
-        settype($checkbox2[$i], 'integer');
+        $checkbox2[$i] = intval($checkbox2[$i]);
         // Select course ID
         $sql = "SELECT `course_id`, `waitinglist` FROM $teachpress_signup WHERE `con_id` = '$checkbox2[$i]'";
         $course = $wpdb->get_row($sql);
@@ -166,7 +165,7 @@ function tp_delete_registration_student($checkbox2) {
 function tp_add_student($wp_id, $data) {
     global $wpdb;
     global $teachpress_stud;
-    $wp_id = tp_sec_var($wp_id, 'integer');
+    $wp_id = intval($wp_id);
     $sql = "SELECT `wp_id` FROM " . $teachpress_stud . " WHERE `wp_id` = '$wp_id'";
     $test = $wpdb->query($sql);
     if ($test == '0') {
@@ -189,8 +188,8 @@ function tp_add_student($wp_id, $data) {
 function tp_change_student($wp_id, $data, $user_ID = 0) {
     global $wpdb;
     global $teachpress_stud;
-    $wp_id = tp_sec_var($wp_id, 'integer');
-    $user_ID = tp_sec_var($user_ID, 'integer');
+    $wp_id = intval($wp_id);
+    $user_ID = intval($user_ID);
     $wpdb->update( $teachpress_stud, array( 'firstname' => $data['firstname'], 'lastname' => $data['lastname'], 'course_of_studies' => $data['course_of_studies'], 'userlogin' => $data['userlogin'], 'birthday' => $data['birthday'], 'email' => $data['email'], 'semesternumber' => $data['semester_number'], 'matriculation_number' => $data['matriculation_number'] ), array( 'wp_id' => $wp_id ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d' ), array( '%d' ) );
     if ($user_ID == 0) {
         $return = '<div class="teachpress_message_success">' . __('Changes in your profile successful.','teachpress') . '</div>';
@@ -208,7 +207,7 @@ function tp_enrollments_shortcode($atts) {
    extract(shortcode_atts(array(
       'term' => ''
    ), $atts));
-   $term = tp_sec_var($term);
+   $term = htmlspecialchars($term);
    // Advanced Login
    $tp_login = get_tp_option('login');
    if ( $tp_login == 'int' ) {
@@ -224,7 +223,6 @@ function tp_enrollments_shortcode($atts) {
    // teachPress
    global $teachpress_courses; 
    global $teachpress_stud; 
-   global $teachpress_settings; 
    global $teachpress_signup;
    $is_sign_out = get_tp_option('sign_out');
    $url["permalink"] = get_tp_option('permalink');
@@ -246,7 +244,7 @@ function tp_enrollments_shortcode($atts) {
    if ( isset($_POST['checkbox2']) ) { $checkbox2 = $_POST['checkbox2']; }
    else { $checkbox2 = ''; }
    
-   if ( isset($_GET['tab']) ) { $tab = tp_sec_var($_GET['tab']); }
+   if ( isset($_GET['tab']) ) { $tab = htmlspecialchars($_GET['tab']); }
    else { $tab = ''; }
    
    $str = "'";
@@ -259,13 +257,13 @@ function tp_enrollments_shortcode($atts) {
    // change user
    if ( isset( $_POST['aendern'] ) ) {
       $data2 = array( 
-        'matriculation_number' => tp_sec_var($_POST['matriculation_number2'], 'integer'),
-        'firstname' => tp_sec_var($_POST['firstname2']),
-        'lastname' => tp_sec_var($_POST['lastname2']),
-        'course_of_studies' => tp_sec_var($_POST['course_of_studies2']),
-        'semester_number' => tp_sec_var($_POST['semesternumber2'], 'integer'),
-        'birthday' => tp_sec_var($_POST['birthday2']),
-        'email' => tp_sec_var($_POST['email2'])
+        'matriculation_number' => intval($_POST['matriculation_number2']),
+        'firstname' => htmlspecialchars($_POST['firstname2']),
+        'lastname' => htmlspecialchars($_POST['lastname2']),
+        'course_of_studies' => htmlspecialchars($_POST['course_of_studies2']),
+        'semester_number' => intval($_POST['semesternumber2']),
+        'birthday' => htmlspecialchars($_POST['birthday2']),
+        'email' => htmlspecialchars($_POST['email2'])
       );    
       $rtn = $rtn . tp_change_student($wp_id, $data2, 0);
    }
@@ -285,7 +283,7 @@ function tp_enrollments_shortcode($atts) {
          }
          $code = tp_add_registration($checkbox[$n], $wp_id);
          tp_send_notification($code, $wp_id, $rowr->name);
-         $message = tp_get_registration_message($code);
+         $message = get_tp_registration_message($code);
          if ($code == 201) { $class = 'teachpress_message_success'; }
          elseif ($code == 202) { $class = 'teachpress_message_info'; }
          else { $class = 'teachpress_message_error'; }
@@ -296,16 +294,16 @@ function tp_enrollments_shortcode($atts) {
    if ( isset( $_POST['eintragen'] ) ) {
       // Registration
       $data = array(
-          'firstname' => tp_sec_var($_POST['firstname']),
-          'lastname' => tp_sec_var($_POST['lastname']),
-          'course_of_studies' => tp_sec_var($_POST['course_of_studies']),
-          'semester_number' => tp_sec_var($_POST['semesternumber'], 'integer'),
+          'firstname' => htmlspecialchars($_POST['firstname']),
+          'lastname' => htmlspecialchars($_POST['lastname']),
+          'course_of_studies' => htmlspecialchars($_POST['course_of_studies']),
+          'semester_number' => intval($_POST['semesternumber']),
           'userlogin' => $user_login,
-          'birth_day' => tp_sec_var($_POST['birth_day']),
-          'birth_month' => tp_sec_var($_POST['birth_month']),
-          'birth_year' => tp_sec_var($_POST['birth_year'], 'integer'),
+          'birth_day' => htmlspecialchars($_POST['birth_day']),
+          'birth_month' => htmlspecialchars($_POST['birth_month']),
+          'birth_year' => intval($_POST['birth_year']),
           'email' => $user_email,
-          'matriculation_number' => tp_sec_var($_POST['matriculation_number'], 'integer')
+          'matriculation_number' => intval($_POST['matriculation_number'])
       );    
       $ret = tp_add_student($wp_id, $data);
       if ($ret != false) {
@@ -353,8 +351,7 @@ function tp_enrollments_shortcode($atts) {
                            <td><label for="course_of_studies">' . __('Course of studies','teachpress') . '</label></td>
                            <td>
                            <select name="course_of_studies" id="course_of_studies">';
-            $rowstud = "SELECT value FROM " . $teachpress_settings . " WHERE category = 'course_of_studies'";
-            $rowstud = $wpdb->get_results($rowstud);
+            $rowstud = get_tp_settings('course_of_studies');
             foreach ($rowstud as $rowstud) {
                     $rtn = $rtn . '<option value="' . $rowstud->value . '">' . $rowstud->value . '</option>';
             } 
@@ -413,230 +410,226 @@ function tp_enrollments_shortcode($atts) {
                        </form>';
            }
            else {
-              // Select all user information
-              $auswahl = "Select * FROM " . $teachpress_stud . " WHERE wp_id = '$user_ID'";
-              $auswahl = $wpdb->get_results($auswahl);
-              foreach ($auswahl as $row) {
-                 /*
-                  * Menu
-                 */
-                 $rtn = $rtn . '<div class="tp_user_menu" style="padding:5px;">
-                                 <h4>' . __('Hello','teachpress') . ', ' . stripslashes($row->firstname) . ' ' . stripslashes($row->lastname) . '</h4>';
-                 // handle permalink usage
-                 // No Permalinks: Page or Post?
-                 if (is_page()) {
-                     $page = "page_id";
-                 }
-                 else {
-                     $page = "p";
-                 }
-                 // Define permalinks
-                 if ($url["permalink"] == '1') {
-                    $url["link"] = $pagenow;
-                    $url["link"] = str_replace("index.php", "", $url["link"]);
-                    $url["link"] = $url["link"] . '?tab=';
-                 }
-                 else {
-                    $url["post_id"] = get_the_ID();
-                    $url["link"] = $pagenow;
-                    $url["link"] = str_replace("index.php", "", $url["link"]);
-                    $url["link"] = $url["link"] . '?' . $page . '=' . $url["post_id"] . '&amp;tab=';
-                 }
-                 // Create Tabs
-                 if ($tab == '' || $tab == 'current') {
-                    $tab1 = '<span class="teachpress_active_tab">' . __('Current enrollments','teachpress') . '</span>';
-                 }
-                 else {
-                    $tab1 = '<a href="' . $url["link"] . 'current">' . __('Current enrollments','teachpress') . '</a>';
-                 }
-                 if ($tab == 'old') {
-                    $tab2 = '<span class="teachpress_active_tab">' . __('Your enrollments','teachpress') . '</span>';
-                 }
-                 else {
-                    $tab2 = '<a href="' . $url["link"] . 'old">' . __('Your enrollments','teachpress') . '</a>';
-                 }
-                 if ($tab == 'data') {
-                    $tab3 = '<span class="teachpress_active_tab">' . __('Your data','teachpress') . '</span>';
-                 }
-                 else {
-                    $tab3 = '<a href="' . $url["link"] . 'data">' . __('Your data','teachpress') . '</a>';
-                 }
-                 $rtn = $rtn . '<p>' . $tab1 . ' | ' . $tab2 . ' | ' . $tab3 . '</p>
-                               </div>';
+                // Select all user information
+                $row = get_tp_student($user_ID);
+                /*
+                 * Menu
+                */
+                $rtn = $rtn . '<div class="tp_user_menu" style="padding:5px;">
+                                <h4>' . __('Hello','teachpress') . ', ' . stripslashes($row->firstname) . ' ' . stripslashes($row->lastname) . '</h4>';
+                // handle permalink usage
+                // No Permalinks: Page or Post?
+                if (is_page()) {
+                    $page = "page_id";
+                }
+                else {
+                    $page = "p";
+                }
+                // Define permalinks
+                if ($url["permalink"] == '1') {
+                   $url["link"] = $pagenow;
+                   $url["link"] = str_replace("index.php", "", $url["link"]);
+                   $url["link"] = $url["link"] . '?tab=';
+                }
+                else {
+                   $url["post_id"] = get_the_ID();
+                   $url["link"] = $pagenow;
+                   $url["link"] = str_replace("index.php", "", $url["link"]);
+                   $url["link"] = $url["link"] . '?' . $page . '=' . $url["post_id"] . '&amp;tab=';
+                }
+                // Create Tabs
+                if ($tab == '' || $tab == 'current') {
+                   $tab1 = '<span class="teachpress_active_tab">' . __('Current enrollments','teachpress') . '</span>';
+                }
+                else {
+                   $tab1 = '<a href="' . $url["link"] . 'current">' . __('Current enrollments','teachpress') . '</a>';
+                }
+                if ($tab == 'old') {
+                   $tab2 = '<span class="teachpress_active_tab">' . __('Your enrollments','teachpress') . '</span>';
+                }
+                else {
+                   $tab2 = '<a href="' . $url["link"] . 'old">' . __('Your enrollments','teachpress') . '</a>';
+                }
+                if ($tab == 'data') {
+                   $tab3 = '<span class="teachpress_active_tab">' . __('Your data','teachpress') . '</span>';
+                }
+                else {
+                   $tab3 = '<a href="' . $url["link"] . 'data">' . __('Your data','teachpress') . '</a>';
+                }
+                $rtn = $rtn . '<p>' . $tab1 . ' | ' . $tab2 . ' | ' . $tab3 . '</p>
+                              </div>';
 
-                 /*
-                  * Old Enrollments / Sign out
-                 */
-                 if ($tab == 'old') {
-                    $rtn = $rtn . '<p><strong>' . __('Signed up for','teachpress') . '</strong></p>   
-                                  <table class="teachpress_enr_old" border="1" cellpadding="5" cellspacing="0">
-                                  <tr>';
-                    if ($is_sign_out == '0') {
-                            $rtn = $rtn . '<th width="15">&nbsp;</th>';
-                    }
-                    $rtn = $rtn . '<th>' . __('Name','teachpress') . '</th>
-                                   <th>' . __('Type') . '</th>
-                                   <th>' . __('Date','teachpress') . '</th>
-                                   <th>' . __('Room','teachpress') . '</th>
-                                   <th>' . __('Term','teachpress') . '</th>
-                                  </tr>';
-                      // Select all courses where user is registered
-                      $row1 = "SELECT wp_id, v_id, b_id, waitinglist, name, type, room, date, semester, parent_name FROM (SELECT k.wp_id as wp_id, k.course_id as v_id, k.con_id as b_id, k.waitinglist as waitinglist, v.name as name, v.type as type, v.room as room, v.date as date, v.semester as semester, p.name as parent_name FROM " . $teachpress_signup . " k INNER JOIN " . $teachpress_courses . " v ON k.course_id = v.course_id LEFT JOIN " . $teachpress_courses . " p ON v.parent = p.course_id ) AS temp 
-                      WHERE wp_id = '$row->wp_id' AND waitinglist = '0' 
-                      ORDER BY b_id DESC";
-                      $row1 = $wpdb->get_results($row1);
-                      if ( $wpdb->num_rows != 0 ) {
-                        foreach($row1 as $row1) {
-                            $row1->parent_name = stripslashes($row1->parent_name);
-                            $row1->name = stripslashes($row1->name);
-                            if ($row1->parent_name != "") {
-                                $row1->parent_name = '' . $row1->parent_name . ' -';
-                            }
-                            $rtn = $rtn . '<tr>';
-                            if ($is_sign_out == '0') {
-                                $rtn = $rtn . '<td><input name="checkbox2[]" type="checkbox" value="' . $row1->b_id . '" title="' . $row1->name . '" id="ver_' . $row1->b_id . '"/></td>';
-                            }		
-                            $rtn = $rtn . '<td><label for="ver_' . $row1->b_id . '" style="line-height:normal;" title="' . $row1->parent_name . ' ' .  $row1->name . '">' . $row1->parent_name . ' ' .  $row1->name . '</label></td>
-                                            <td>' . stripslashes($row1->type) . '</td>
-                                            <td>' . stripslashes($row1->date) . '</td>
-                                            <td>' . stripslashes($row1->room) . '</td> 
-                                            <td>' . stripslashes($row1->semester) . '</td>
-                                            </tr>';
+                /*
+                 * Old Enrollments / Sign out
+                */
+                if ($tab == 'old') {
+                   $rtn = $rtn . '<p><strong>' . __('Signed up for','teachpress') . '</strong></p>   
+                                 <table class="teachpress_enr_old" border="1" cellpadding="5" cellspacing="0">
+                                 <tr>';
+                   if ($is_sign_out == '0') {
+                           $rtn = $rtn . '<th width="15">&nbsp;</th>';
+                   }
+                   $rtn = $rtn . '<th>' . __('Name','teachpress') . '</th>
+                                  <th>' . __('Type') . '</th>
+                                  <th>' . __('Date','teachpress') . '</th>
+                                  <th>' . __('Room','teachpress') . '</th>
+                                  <th>' . __('Term','teachpress') . '</th>
+                                 </tr>';
+                     // Select all courses where user is registered
+                     $row1 = "SELECT wp_id, v_id, b_id, waitinglist, name, type, room, date, semester, parent_name FROM (SELECT k.wp_id as wp_id, k.course_id as v_id, k.con_id as b_id, k.waitinglist as waitinglist, v.name as name, v.type as type, v.room as room, v.date as date, v.semester as semester, p.name as parent_name FROM " . $teachpress_signup . " k INNER JOIN " . $teachpress_courses . " v ON k.course_id = v.course_id LEFT JOIN " . $teachpress_courses . " p ON v.parent = p.course_id ) AS temp 
+                     WHERE wp_id = '$row->wp_id' AND waitinglist = '0' 
+                     ORDER BY b_id DESC";
+                     $row1 = $wpdb->get_results($row1);
+                     if ( $wpdb->num_rows != 0 ) {
+                       foreach($row1 as $row1) {
+                           $row1->parent_name = stripslashes($row1->parent_name);
+                           $row1->name = stripslashes($row1->name);
+                           if ($row1->parent_name != "") {
+                               $row1->parent_name = '' . $row1->parent_name . ' -';
+                           }
+                           $rtn = $rtn . '<tr>';
+                           if ($is_sign_out == '0') {
+                               $rtn = $rtn . '<td><input name="checkbox2[]" type="checkbox" value="' . $row1->b_id . '" title="' . $row1->name . '" id="ver_' . $row1->b_id . '"/></td>';
+                           }		
+                           $rtn = $rtn . '<td><label for="ver_' . $row1->b_id . '" style="line-height:normal;" title="' . $row1->parent_name . ' ' .  $row1->name . '">' . $row1->parent_name . ' ' .  $row1->name . '</label></td>
+                                           <td>' . stripslashes($row1->type) . '</td>
+                                           <td>' . stripslashes($row1->date) . '</td>
+                                           <td>' . stripslashes($row1->room) . '</td> 
+                                           <td>' . stripslashes($row1->semester) . '</td>
+                                           </tr>';
+                       }
+                     }
+                     else {
+                         $rtn = $rtn . '<tr><td colspan="6">' . __('No enrollments','teachpress') . '</td></tr>';
+                     }
+                     $rtn = $rtn . '</table>';
+                     // all courses where user is registered in a waiting list
+                     $row1 = "SELECT wp_id, v_id, b_id, waitinglist, name, type, room, date, semester, parent_name FROM (SELECT k.wp_id as wp_id, k.course_id as v_id, k.con_id as b_id, k.waitinglist as waitinglist, v.name as name, v.type as type, v.room as room, v.date as date, v.semester as semester, p.name as parent_name FROM " . $teachpress_signup . " k INNER JOIN " . $teachpress_courses . " v ON k.course_id = v.course_id LEFT JOIN " . $teachpress_courses . " p ON v.parent = p.course_id ) AS temp 
+                     WHERE wp_id = '$row->wp_id' AND waitinglist = '1' 
+                     ORDER BY b_id DESC";
+                     $test = $wpdb->query($row1);
+                     if ($test != 0) {
+                        $rtn = $rtn . '<p><strong>' . __('Waiting list','teachpress') . '</strong></p>
+                                      <table class="teachpress_enr_old" border="1" cellpadding="5" cellspacing="0">
+                                      <tr>';
+                        if ($is_sign_out == '0') {
+                                $rtn = $rtn . '<th width="15">&nbsp;</th>';
                         }
-                      }
-                      else {
-                          $rtn = $rtn . '<tr><td colspan="6">' . __('No enrollments','teachpress') . '</td></tr>';
-                      }
-                      $rtn = $rtn . '</table>';
-                      // all courses where user is registered in a waiting list
-                      $row1 = "SELECT wp_id, v_id, b_id, waitinglist, name, type, room, date, semester, parent_name FROM (SELECT k.wp_id as wp_id, k.course_id as v_id, k.con_id as b_id, k.waitinglist as waitinglist, v.name as name, v.type as type, v.room as room, v.date as date, v.semester as semester, p.name as parent_name FROM " . $teachpress_signup . " k INNER JOIN " . $teachpress_courses . " v ON k.course_id = v.course_id LEFT JOIN " . $teachpress_courses . " p ON v.parent = p.course_id ) AS temp 
-                      WHERE wp_id = '$row->wp_id' AND waitinglist = '1' 
-                      ORDER BY b_id DESC";
-                      $test = $wpdb->query($row1);
-                      if ($test != 0) {
-                         $rtn = $rtn . '<p><strong>' . __('Waiting list','teachpress') . '</strong></p>
-                                       <table class="teachpress_enr_old" border="1" cellpadding="5" cellspacing="0">
-                                       <tr>';
-                         if ($is_sign_out == '0') {
-                                 $rtn = $rtn . '<th width="15">&nbsp;</th>';
+                        $rtn = $rtn . '<th>' . __('Name','teachpress') . '</th>
+                                       <th>' . __('Type') . '</th>
+                                       <th>' . __('Date','teachpress') . '</th>
+                                       <th>' . __('Room','teachpress') . '</th>
+                                       <th>' . __('Term','teachpress') . '</th>
+                                      </tr>';
+                        $row1 = $wpdb->get_results($row1);
+                        foreach($row1 as $row1) {
+                                if ($row1->parent_name != "") {
+                                    $row1->parent_name = '' . $row1->parent_name . ' -';
+                                }
+                                $row1->parent_name = stripslashes($row1->parent_name);
+                                $row1->name = stripslashes($row1->name);
+                                $rtn = $rtn . '<tr>';
+                                if ($is_sign_out == '0') {
+                                    $rtn = $rtn . '<td><input name="checkbox2[]" type="checkbox" value="' . $row1->b_id . '" title="' . $row1->name . '" id="ver_' . $row1->b_id . '"/></td>';
+                                }		
+                                $rtn = $rtn . '<td><label for="ver_' . $row1->b_id . '" style="line-height:normal;" title="' . $row1->parent_name . ' ' .  $row1->name . '">' . $row1->parent_name . ' ' .  $row1->name . '</label></td>
+                                               <td>' . stripslashes($row1->type) . '</td>
+                                               <td>' . stripslashes($row1->date) . '</td>
+                                               <td>' . stripslashes($row1->room) . '</td> 
+                                               <td>' . stripslashes($row1->semester) . '</td>
+                                              </tr>';
                          }
-                         $rtn = $rtn . '<th>' . __('Name','teachpress') . '</th>
-                                        <th>' . __('Type') . '</th>
-                                        <th>' . __('Date','teachpress') . '</th>
-                                        <th>' . __('Room','teachpress') . '</th>
-                                        <th>' . __('Term','teachpress') . '</th>
+                         $rtn = $rtn . '</table>';
+                     }
+                     if ($is_sign_out == '0') {
+                        $rtn = $rtn . '<p><input name="austragen" type="submit" value="' . __('unsubscribe','teachpress') . '" id="austragen" /></p>';
+                     }
+                }	
+                /*
+                 * Edit userdata
+                */
+                if ($tab == 'data') {
+                   $rtn = $rtn . '<table class="teachpress_enr_edit">';
+                   $field1 = get_tp_option('regnum');
+                   if ($field1 == '1') {
+                       $rtn = $rtn . '<tr>
+                                       <td><label for="matriculation_number2">' . __('Matr. number','teachpress') . '</label></td>
+                                       <td><input type="text" name="matriculation_number2" id="matriculation_number2" value="' . $row->matriculation_number . '"/></td>
                                        </tr>';
-                         $row1 = $wpdb->get_results($row1);
-                         foreach($row1 as $row1) {
-                                 if ($row1->parent_name != "") {
-                                     $row1->parent_name = '' . $row1->parent_name . ' -';
-                                 }
-                                 $row1->parent_name = stripslashes($row1->parent_name);
-                                 $row1->name = stripslashes($row1->name);
-                                 $rtn = $rtn . '<tr>';
-                                 if ($is_sign_out == '0') {
-                                     $rtn = $rtn . '<td><input name="checkbox2[]" type="checkbox" value="' . $row1->b_id . '" title="' . $row1->name . '" id="ver_' . $row1->b_id . '"/></td>';
-                                 }		
-                                 $rtn = $rtn . '<td><label for="ver_' . $row1->b_id . '" style="line-height:normal;" title="' . $row1->parent_name . ' ' .  $row1->name . '">' . $row1->parent_name . ' ' .  $row1->name . '</label></td>
-                                                <td>' . stripslashes($row1->type) . '</td>
-                                                <td>' . stripslashes($row1->date) . '</td>
-                                                <td>' . stripslashes($row1->room) . '</td> 
-                                                <td>' . stripslashes($row1->semester) . '</td>
-                                               </tr>';
-                          }
-                          $rtn = $rtn . '</table>';
-                      }
-                      if ($is_sign_out == '0') {
-                         $rtn = $rtn . '<p><input name="austragen" type="submit" value="' . __('unsubscribe','teachpress') . '" id="austragen" /></p>';
-                      }
-                 }	
-                 /*
-                  * Edit userdata
-                 */
-                 if ($tab == 'data') {
-                    $rtn = $rtn . '<table class="teachpress_enr_edit">';
-                    $field1 = get_tp_option('regnum');
-                    if ($field1 == '1') {
-                        $rtn = $rtn . '<tr>
-                                        <td><label for="matriculation_number2">' . __('Matr. number','teachpress') . '</label></td>
-                                        <td><input type="text" name="matriculation_number2" id="matriculation_number2" value="' . $row->matriculation_number . '"/></td>
-                                        </tr>';
-                    }  
-                    $rtn = $rtn . '<tr>
-                                    <td><label for="firstname2">' . __('First name','teachpress') . '</label></td>
-                                    <td><input name="firstname2" type="text" id="firstname2" value="' . stripslashes($row->firstname) . '" size="30"/></td>
-                                  </tr>';
-                    $rtn = $rtn . '<tr>
-                                    <td><label for="lastname2">' . __('Last name','teachpress') . '</label></td>
-                                    <td><input name="lastname2" type="text" id="lastname2" value="' . stripslashes($row->lastname) . '" size="30"/></td>
-                                  </tr>';
-                    $field2 = get_tp_option('studies');
-                    if ($field2 == '1') { 
-                       $rtn = $rtn . '<tr>
-                                      <td><label for="course_of_studies2">' . __('Course of studies','teachpress') . '</label></td>
-                                      <td><select name="course_of_studies2" id="course_of_studies2">';
-                       $stud = "SELECT value FROM " . $teachpress_settings . " WHERE category = 'course_of_studies'";
-                       $stud = $wpdb->get_results($stud);
-                       foreach($stud as $stud) { 
-                            if ($stud->value == $row->course_of_studies) {
-                                $current = 'selected="selected"' ;
-                            }
-                            else {
-                                $current = '' ;
-                            }
-                            $rtn = $rtn . '<option value="' . stripslashes($stud->value) . '" ' . $current . '>' . stripslashes($stud->value) . '</option>';
-                       } 
-                       $rtn = $rtn . '</select>
-                                 </td>
+                   }  
+                   $rtn = $rtn . '<tr>
+                                   <td><label for="firstname2">' . __('First name','teachpress') . '</label></td>
+                                   <td><input name="firstname2" type="text" id="firstname2" value="' . stripslashes($row->firstname) . '" size="30"/></td>
                                  </tr>';
-                    }
-                    $field3 = get_tp_option('termnumber');
-                    if ($field3 == '1') {
-                       $rtn = $rtn . '<tr>
-                                      <td><label for="semesternumber2">' . __('Number of terms','teachpress') . '</label></td>
-                                      <td><select name="semesternumber2" id="semesternumber2">';
-                       for ($i=1; $i<20; $i++) {
-                          if ($i == $row->semesternumber) {
-                             $current = 'selected="selected"' ;
-                          }
-                          else {
-                             $current = '' ;
-                          }
-                             $rtn = $rtn . '<option value="' . $i . '" ' . $current . '>' . $i . '</option>';
-                       }  
-                       $rtn = $rtn . '</select>
-                                 </td>
+                   $rtn = $rtn . '<tr>
+                                   <td><label for="lastname2">' . __('Last name','teachpress') . '</label></td>
+                                   <td><input name="lastname2" type="text" id="lastname2" value="' . stripslashes($row->lastname) . '" size="30"/></td>
                                  </tr>';
-                    }
-                    $field4 = get_tp_option('birthday');
-                    if ($field4 == '1') {
-                        $rtn = $rtn . '<tr>
-                                        <td><label for="birthday2">' . __('Date of birth','teachpress') . '</label></td>
-                                        <td><input name="birthday2" type="text" value="' . $row->birthday . '" size="30"/>
-                                            <em>' . __('Format: JJJJ-MM-TT','teachpress') . '</em></td>
-                                        </tr>';
-                    }
-                    $rtn = $rtn . '<tr>
-                                   <td><label for="email2">' . __('E-Mail') . '</label></td>
-                                   <td><input name="email2" type="text" id="email2" value="' . $row->email . '" size="50" readonly="true"/></td>
-                                   </tr>
-                                   </table>';
-                    if ($field1 != '1') {
-                       $rtn = $rtn . '<input type="hidden" name="matriculation_number2" value="' . $row->matriculation_number . '" />';
-                    }
-                    if ($field2 != '1') {
-                       $rtn = $rtn . '<input type="hidden" name="course_of_studies2" value="' . $row->course_of_studies . '" />';
-                    }
-                    if ($field3 != '1') {
-                       $rtn = $rtn . '<input type="hidden" name=semesternumber2"" value="' . $row->semesternumber . '" />';
-                    }
-                    if ($field4 != '1') {
-                       $rtn = $rtn . '<input type="hidden" name="birthday2" value="' . $row->birthday . '" />';
-                    }
-                    $rtn = $rtn . '<input name="aendern" type="submit" id="aendern" onclick="teachpress_validateForm(' . $str . 'matriculation_number2' . $str . ',' . $str . $str . ',' . $str . 'RisNum' . $str . ',' . $str . 'firstname2' . $str . ',' . $str . $str . ',' . $str . 'R' . $str . ',' . $str . 'lastname2' . $str . ',' . $str . $str . ',' . $str . 'R' . $str . ',' . $str . 'email2' . $str . ',' . $str . $str . ',' . $str . 'RisEmail' . $str . ');return document.teachpress_returnValue" value="senden" />';
-           	 }
-              }
-           }
+                   $field2 = get_tp_option('studies');
+                   if ($field2 == '1') { 
+                      $rtn = $rtn . '<tr>
+                                     <td><label for="course_of_studies2">' . __('Course of studies','teachpress') . '</label></td>
+                                     <td><select name="course_of_studies2" id="course_of_studies2">';
+                      $stud = get_tp_settings('course_of_studies');
+                      foreach($stud as $stud) { 
+                           if ($stud->value == $row->course_of_studies) {
+                               $current = 'selected="selected"' ;
+                           }
+                           else {
+                               $current = '' ;
+                           }
+                           $rtn = $rtn . '<option value="' . stripslashes($stud->value) . '" ' . $current . '>' . stripslashes($stud->value) . '</option>';
+                      } 
+                      $rtn = $rtn . '</select>
+                                </td>
+                                </tr>';
+                   }
+                   $field3 = get_tp_option('termnumber');
+                   if ($field3 == '1') {
+                      $rtn = $rtn . '<tr>
+                                     <td><label for="semesternumber2">' . __('Number of terms','teachpress') . '</label></td>
+                                     <td><select name="semesternumber2" id="semesternumber2">';
+                      for ($i=1; $i<20; $i++) {
+                         if ($i == $row->semesternumber) {
+                            $current = 'selected="selected"' ;
+                         }
+                         else {
+                            $current = '' ;
+                         }
+                            $rtn = $rtn . '<option value="' . $i . '" ' . $current . '>' . $i . '</option>';
+                      }  
+                      $rtn = $rtn . '</select>
+                                </td>
+                                </tr>';
+                   }
+                   $field4 = get_tp_option('birthday');
+                   if ($field4 == '1') {
+                       $rtn = $rtn . '<tr>
+                                       <td><label for="birthday2">' . __('Date of birth','teachpress') . '</label></td>
+                                       <td><input name="birthday2" type="text" value="' . $row->birthday . '" size="30"/>
+                                           <em>' . __('Format: JJJJ-MM-TT','teachpress') . '</em></td>
+                                       </tr>';
+                   }
+                   $rtn = $rtn . '<tr>
+                                  <td><label for="email2">' . __('E-Mail') . '</label></td>
+                                  <td><input name="email2" type="text" id="email2" value="' . $row->email . '" size="50" readonly="true"/></td>
+                                  </tr>
+                                  </table>';
+                   if ($field1 != '1') {
+                      $rtn = $rtn . '<input type="hidden" name="matriculation_number2" value="' . $row->matriculation_number . '" />';
+                   }
+                   if ($field2 != '1') {
+                      $rtn = $rtn . '<input type="hidden" name="course_of_studies2" value="' . $row->course_of_studies . '" />';
+                   }
+                   if ($field3 != '1') {
+                      $rtn = $rtn . '<input type="hidden" name=semesternumber2"" value="' . $row->semesternumber . '" />';
+                   }
+                   if ($field4 != '1') {
+                      $rtn = $rtn . '<input type="hidden" name="birthday2" value="' . $row->birthday . '" />';
+                   }
+                   $rtn = $rtn . '<input name="aendern" type="submit" id="aendern" onclick="teachpress_validateForm(' . $str . 'matriculation_number2' . $str . ',' . $str . $str . ',' . $str . 'RisNum' . $str . ',' . $str . 'firstname2' . $str . ',' . $str . $str . ',' . $str . 'R' . $str . ',' . $str . 'lastname2' . $str . ',' . $str . $str . ',' . $str . 'R' . $str . ',' . $str . 'email2' . $str . ',' . $str . $str . ',' . $str . 'RisEmail' . $str . ');return document.teachpress_returnValue" value="senden" />';
+                }
+          }
    }
    /*
     * Enrollments

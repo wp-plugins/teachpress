@@ -204,7 +204,7 @@ function tp_copy_course($checkbox, $copysem) {
      $counter = 0;
      $counter2 = 0;
      for( $i = 0; $i < count( $checkbox ); $i++ ) {
-          settype($checkbox[$i], 'integer');
+          $checkbox[$i] = intval($checkbox[$i]);
           $row = "SELECT * FROM " . $teachpress_courses . " WHERE course_id = $checkbox[$i]";
           $row = $wpdb->get_results($row);
           foreach ($row as $row) {
@@ -278,7 +278,7 @@ function tp_delete_registration($checkbox) {
     global $wpdb;
     global $teachpress_signup;
     for( $i = 0; $i < count( $checkbox ); $i++ ) {
-        settype($checkbox[$i], 'integer');
+        $checkbox[$i] = intval($checkbox[$i]);
         // select the course_ID
         $row1 = "SELECT `course_id` FROM " . $teachpress_signup . " WHERE `con_id` = '$checkbox[$i]'";
         $row1 = $wpdb->get_results($row1);
@@ -303,7 +303,7 @@ function tp_add_from_waitinglist($checkbox) {
     global $wpdb;
     global $teachpress_signup;
     for( $i = 0; $i < count( $checkbox ); $i++ ) {
-        settype($checkbox[$i], 'integer');
+        $checkbox[$i] = intval($checkbox[$i]);
         $wpdb->update( $teachpress_signup, array ( 'waitinglist' => 0 ), array ( 'con_id' => $checkbox[$i] ), array ( '%d'), array ( '%d' ) );
     }
 }
