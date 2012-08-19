@@ -5,45 +5,15 @@
  * @since 3.0.0
  */
 class tp_export {
-     
-    /**
-    * Get course registrations
-    * @global CLASS $wpdb
-    * @global STRING $teachpress_courses
-    * @global STRING $teachpress_stud
-    * @global STRING $teachpress_signup
-    * @param INT $course_ID
-    * @param INT $waitinglist
-    * @return ARRAY_A 
-    */
-    function get_course_registrations($course_ID, $waitinglist = '') {
-        global $wpdb;
-        global $teachpress_courses;
-        global $teachpress_stud;
-        global $teachpress_signup;
-        $sql = "SELECT s.matriculation_number, s.firstname, s.lastname, s.course_of_studies, s.userlogin, s.email, u.date, u.con_id, u.waitinglist
-                FROM " . $teachpress_signup . " u
-                INNER JOIN " . $teachpress_courses . " c ON c.course_id=u.course_id
-                INNER JOIN " . $teachpress_stud . " s ON s.wp_id=u.wp_id
-                WHERE c.course_id = '$course_ID'";
-        if ( $waitinglist == '0' ) {
-            $sql = $sql . " AND u.waitinglist = '0'";
-        }
-        if ( $waitinglist == '1' ) {
-            $sql = $sql . " AND u.waitinglist = '1'";
-        }
-        $sql = $sql . " ORDER BY s.lastname ASC";
-        return $wpdb->get_results($sql, ARRAY_A);
-    }
 
     /**
     * Print html table with registrations
-    * @param INT $course_ID
-    * @param ARRAY $option
-    * @param INT $waitinglist 
+    * @param int $course_ID
+    * @param array $option
+    * @param int $waitinglist 
     */
     function get_course_registration_table($course_ID, $option, $waitinglist = '') {
-        $row = tp_export::get_course_registrations($course_ID, $waitinglist);
+        $row = get_tp_course_signups( array('course' => $course_ID, 'waitinglist' => $waitinglist, 'output_type' => ARRAY_A, 'order' => 'st.lastname ASC') );
         echo '<table border="1" cellpadding="5" cellspacing="0">';
         echo '<thead>';
         echo '<tr>';
@@ -86,10 +56,7 @@ class tp_export {
 
     /**
     * Export course data in xls format
-    * @global CLASS $wpdb
-    * @global STRING $teachpress_courses
-    * @global INT $tp_version
-    * @param INT $course_ID 
+    * @param int $course_ID 
     */
     function get_course_xls($course_ID) {
         global $wpdb;
@@ -151,15 +118,14 @@ class tp_export {
 
     /**
     * Export course data in csv format
-    * @global CLASS $wpdb
-    * @param INT $course_ID
-    * @param ARRAY $options 
+    * @param int $course_ID
+    * @param array $options 
     */
     function get_course_csv($course_ID) {
         // load settings
         $option['regnum'] = get_tp_option('regnum');
         $option['studies'] = get_tp_option('studies');
-        $row = $row = tp_export::get_course_registrations($course_ID, 0);
+        $row = get_tp_course_signups( array('course' => $course_ID, 'waitinglist' => 0, 'output_type' => ARRAY_A, 'order' => 'st.lastname ASC') );
 
         if ($option['regnum'] == '1') { $matr = "" . __('Matr. number','teachpress') . ";"; } else { $matr = ""; }
         if ($option['studies'] == '1') { $cos = "" . __('Course of studies','teachpress') . ";"; } else { $cos = ""; }
@@ -181,13 +147,8 @@ class tp_export {
 
     /**
     * Export publications
-    * @global CLASS $wpdb
-    * @global STRING $teachpress_pub
-    * @global STRING $teachpress_tags
-    * @global STRING $teachpress_relation
-    * @global STRING $teachpress_user
-    * @param INT $user_ID 
-    * @param STRING $format - bibtex or rtf
+    * @param int $user_ID 
+    * @param string $format - bibtex or rtf
     */
     function get_publication($user_ID, $format = 'bibtex') {
         global $wpdb;
@@ -221,8 +182,8 @@ class tp_export {
 
     /**
     * Generate rtf document format
-    * @param ARAY $row
-    * @return STRING
+    * @param array $row
+    * @return string
     */
     function rtf ($row) {
         $head = '{\rtf1';
@@ -236,8 +197,8 @@ class tp_export {
 
     /**
     * Get single line for frt file
-    * @param ARRAY $row
-    * @return STRING 
+    * @param array $row
+    * @return string 
     */
     function rtf_row ($row) {
         $settings['editor_name'] = 'initials';
@@ -252,8 +213,8 @@ class tp_export {
 
     /**
     * Decode chars
-    * @param STRING $char
-    * @return STRING 
+    * @param string $char
+    * @return string 
     */
     function decode ($char) {
         $array_1 = array('Ã¼','Ã¶', 'Ã¤', 'Ã¤', 'Ã?','Â§','Ãœ','Ã','Ã–','&Uuml;','&uuml;', '&Ouml;', '&ouml;', '&Auml;','&auml;', '&nbsp;', '&szlig;', '&sect;', '&ndash;', '&rdquo;', '&ldquo;', '&eacute;', '&egrave;', '&aacute;', '&agrave;', '&ograve;','&oacute;', '&copy;', '&reg;', '&micro;', '&pound;', '&raquo;', '&laquo;', '&yen;', '&Agrave;', '&Aacute;', '&Egrave;', '&Eacute;', '&Ograve;', '&Oacute;', '&shy;', '&amp;');

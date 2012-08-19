@@ -728,7 +728,7 @@ function tp_cloud_shortcode($atts) {
       $user = $author;
    }
    
-   $row = get_tp_publications( array('tag' => $tgid, 'year' => $yr, 'type' => $type, 'user' => $user) );
+   $row = get_tp_publications( array('tag' => $tgid, 'year' => $yr, 'type' => $type, 'user' => $user, 'output_type' => ARRAY_A) );
    $sql = "SELECT name, tag_id, pub_id FROM (
             SELECT t.name AS name, t.tag_id AS tag_id, b.pub_id AS pub_id 
             FROM " . $teachpress_tags . " t 
@@ -827,7 +827,7 @@ function tp_list_shortcode($atts){
       $colspan = ' colspan="2"';
    }
    
-   $row = get_tp_publications( array('tag' => $tag, 'year' => $year, 'type' => $type, 'user' => $user, 'order' => $order, 'exclude' => $exclude) );
+   $row = get_tp_publications( array('tag' => $tag, 'year' => $year, 'type' => $type, 'user' => $user, 'order' => $order, 'exclude' => $exclude, 'output_type' => ARRAY_A) );
    foreach ($row as $row) {
       $tparray[$tpz][0] = '' . $row['year'] . '' ;
       $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row,'', '', $settings);

@@ -166,7 +166,7 @@ function tp_add_student($wp_id, $data) {
     global $wpdb;
     global $teachpress_stud;
     $wp_id = intval($wp_id);
-    $sql = "SELECT `wp_id` FROM " . $teachpress_stud . " WHERE `wp_id` = '$wp_id'";
+    $sql = "SELECT `wp_id` FROM $teachpress_stud WHERE `wp_id` = '$wp_id'";
     $test = $wpdb->query($sql);
     if ($test == '0') {
         $data['birthday'] = $data['birth_year'] . '-' . $data['birth_month'] . '-' . $data['birth_day'];
@@ -318,8 +318,7 @@ function tp_enrollments_shortcode($atts) {
     * User status
    */ 
    if (is_user_logged_in()) {
-      $auswahl = "Select `wp_id` FROM " . $teachpress_stud . " WHERE `wp_id` = '$user_ID'";
-      $auswahl = $wpdb->get_var($auswahl);
+      $auswahl = $wpdb->get_var("Select `wp_id` FROM $teachpress_stud WHERE `wp_id` = '$user_ID'");
       // if user is not registered
       if($auswahl == '' ) {
          /*
@@ -644,7 +643,7 @@ function tp_enrollments_shortcode($atts) {
          $row2 = $wpdb->get_results($row2);
          // test if a child has an enrollment
          $test = false;
-		 $free_places = 0;
+         $free_places = 0;
          foreach ( $row2 as $childs ) {
             if ( $childs->start != '0000-00-00 00:00:00' ) {
                $test = true;
@@ -654,8 +653,10 @@ function tp_enrollments_shortcode($atts) {
             // define some course variables
             $date1 = $row->start;
             $date2 = $row->end;
-			$places = $wpdb->get_var("SELECT COUNT(`course_id`) FROM $teachpress_signup WHERE `course_id` = '$row->course_id' AND `waitinglist` = '0'");
-			$free_places = ($row->places - $places) < 0 ? 0 : ($row->places - $places);
+            $free_places = get_tp_course_free_places($row->course_id, $row->places);
+            if ( $free_places < 0 ) {
+                $free_places = 0;
+            }
             if ($row->rel_page != 0) {
                $course_name = '<a href="' . get_permalink($row->rel_page) . '">' . stripslashes($row->name) . '</a>';
             }
@@ -722,8 +723,10 @@ function tp_enrollments_shortcode($atts) {
             foreach ($row2 as $row2) {
                $date3 = $row2->start;
                $date4 = $row2->end;
-			   $places = $wpdb->get_var("SELECT COUNT(`course_id`) FROM $teachpress_signup WHERE `course_id` = '$row2->course_id' AND `waitinglist` = '0'");
-			   $free_places = ($row2->places - $places) < 0 ? 0 : ($row2->places - $places);
+               $free_places = get_tp_course_free_places($row2->course_id, $row2->places);
+               if ( $free_places < 0 ) {
+                   $free_places = 0;
+               }
                if ($row->name == $row2->name) {
                    $row2->name = $row2->type;
                }

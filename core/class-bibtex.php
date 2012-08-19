@@ -391,8 +391,20 @@ class tp_bibtex {
     * @return STRING $input
     */
     function replace_html_chars ($input) {
-        $array_1 = array('&Uuml;','&uuml;','&Ouml;','&ouml;','&Auml;','&auml;','&nbsp;','&szlig;','&sect;','&ndash;','&rdquo;','&ldquo;','&eacute;','&egrave;','&aacute;','&agrave;','&ograve;','&oacute;','&copy;','&reg;','&micro;','&pound;','&raquo;','&laquo;','&yen;','&Agrave;','&Aacute;','&Egrave;','&Eacute;','&Ograve;','&Oacute;','&shy;','&amp;');
-        $array_2 = array('Ü','ü','Ö','ö','Ä','ä',' ','ß','§','-','”','“','é','è','á','à','ò','ó','©','®','µ','£','»','«','¥','À','Á','È','É','Ò','Ó','­','&');
+        $array_1 = array('&Uuml;','&uuml;',
+                         '&Ouml;','&ouml;','&ograve;','&oacute;','&Ograve;','&Oacute;',
+                         '&Auml;','&auml;','&aacute;','&agrave;','&Agrave;','&Aacute;',
+                         '&eacute;','&egrave;','&Egrave;','&Eacute;',
+                         '&sect;','&copy;','&reg;','&pound;','&yen;',
+                         '&szlig;','&micro;','&amp;',
+                         '&nbsp;','&ndash;','&rdquo;','&ldquo;','&raquo;','&laquo;','&shy;');
+        $array_2 = array('Ü','ü',
+                         'Ö','ö','ò','ó','Ò','Ó',
+                         'Ä','ä','á','à','À','Á',
+                         'é','è','È','É',
+                         '§','©','®','£','¥',
+                         'ß','µ','&',
+                         ' ','-','”','“','»','«','­');
         $input = str_replace($array_1, $array_2, $input);
         return $input;
     }

@@ -8,7 +8,7 @@
  * Get a single publication
  * @param int $id
  * @param string $output_type (OBJECT, ARRAY_A or ARRAY_N)
- * @return object
+ * @return object or array
  * @since 3.2.0 
  */
 function get_tp_publication($id, $output_type = OBJECT) {
@@ -22,6 +22,7 @@ function get_tp_publication($id, $output_type = OBJECT) {
 /**
  * Get an array or object of publications
  * @param array $args
+ * @return object or array
  * @since 3.2.0
 */
 function get_tp_publications($args) {
@@ -36,7 +37,7 @@ function get_tp_publications($args) {
         'order' => 'date DESC',
         'limit' => '',
         'search' => '',
-        'output_type' => 'ARRAY_A'
+        'output_type' => OBJECT
     ); 
     $args = wp_parse_args( $args, $defaults );
     extract( $args, EXTR_SKIP );
@@ -84,7 +85,7 @@ function get_tp_publications($args) {
     // define global search
     if ( $search != "" ) {
         $search = esc_sql(htmlspecialchars($search));
-        $search = "p.name LIKE '`%$search%' OR p.author LIKE '%$search%' OR p.editor LIKE '%$search%' OR p.isbn LIKE '%$search%' OR p.booktitle LIKE '%$search%' OR p.journal LIKE '%$search%'";
+        $search = "p.name LIKE '%$search%' OR p.author LIKE '%$search%' OR p.editor LIKE '%$search%' OR p.isbn LIKE '%$search%' OR p.booktitle LIKE '%$search%' OR p.journal LIKE '%$search%'";
     }
 
     // define where clause
@@ -244,9 +245,8 @@ function tp_change_publication($pub_ID, $data, $bookmark, $delbox, $tags) {
 
 /**
  * Get an object or array with the years where publications are written
- * @global type $wpdb
- * @global type $teachpress_pub
  * @param string $output_type (OBJECT, ARRAY_A or ARRAY_N)
+ * @since 3.2.0
  */
 function get_tp_publication_years($output_type = OBJECT) {
     global $wpdb;
@@ -270,7 +270,7 @@ function get_tp_tags($args) {
         'pub_id' => '',
         'order' => 'ASC',
         'limit' => '',
-        'output_type' => 'ARRAY_A'
+        'output_type' => OBJECT
     ); 
     $args = wp_parse_args( $args, $defaults );
     extract( $args, EXTR_SKIP );
@@ -412,6 +412,21 @@ function get_tp_course($id, $output_type = OBJECT) {
     return $result;
 }
 
+/**
+ * Get the number of free places in a course
+ * @param int $course_id
+ * @param int $places
+ * @return int
+ * @since 3.2.0
+ */
+function get_tp_course_free_places($course_id, $places) {
+    global $wpdb;
+    global $teachpress_signup;
+    $course_id = intval($course_id);
+    $used_places = $wpdb->get_var("SELECT COUNT(`course_id`) FROM $teachpress_signup WHERE `course_id` = '$course_id' AND `waitinglist` = 0");
+    return ($places - $used_places);
+}
+
 
 function get_tp_courses ($args) {
     $defaults = array(
@@ -423,7 +438,7 @@ function get_tp_courses ($args) {
         'exclude' => '',
         'order' => 'semester DESC, name',
         'limit' => '',
-        'output_type' => 'ARRAY_A'
+        'output_type' => OBJECT
     ); 
     $args = wp_parse_args( $args, $defaults );
     extract( $args, EXTR_SKIP );
@@ -529,12 +544,17 @@ function tp_change_course($course_ID, $data){
 /* Enrollments */
 /***************/
 
+/**
+ * Get course signups or waitinglist entries
+ * @param array $args
+ * @return object or array
+ */
 function get_tp_course_signups ($args) {
     $defaults = array(
         'course' => '',
         'waitinglist' => '',
         'order' => '',
-        'output_type' => 'ARRAY_A'
+        'output_type' => OBJECT
     );
     $args = wp_parse_args( $args, $defaults );
     extract( $args, EXTR_SKIP );
@@ -544,6 +564,11 @@ function get_tp_course_signups ($args) {
     global $teachpress_signup;
     
     $course = htmlspecialchars($course);
+    $order = htmlspecialchars($order);
+    
+    if ($order != '') {
+        $order = " ORDER BY $order";
+    }
     
     $sql = "SELECT DISTINCT st.matriculation_number, st.firstname, st.lastname, st.course_of_studies, st.userlogin, st.email , s.date, s.con_id, s.waitinglist
            FROM $teachpress_signup s
@@ -551,10 +576,10 @@ function get_tp_course_signups ($args) {
            WHERE s.course_id = '$course'";
     $where = '';
     
-    if ( $waitinglist != '' ) {
+    if ( $waitinglist !== '' ) {
         $where = "  AND s.waitinglist = '$waitinglist'";
-    }		
-    $result = $wpdb->get_results($sql . $where, $output_type);
+    }
+    $result = $wpdb->get_results($sql . $where . $order, $output_type);
     return $result;
 }
 
@@ -563,7 +588,7 @@ function get_tp_course_signups ($args) {
 /************/
 
 /**
- * Get data of a registered student
+ * Get data of a student
  * @param string $id
  * @return object
  * @since 3.2.0
@@ -574,6 +599,66 @@ function get_tp_student ($id) {
     $id = intval($id);
     $result = $wpdb->get_row("Select * FROM $teachpress_stud WHERE `wp_id` = '$id'");
     return $result;
+}
+
+/**
+ * Get data of all students
+ * @param array $args
+ * @return object or array
+ * @since 3.2.0
+ */
+function get_tp_students ($args) {
+    $defaults = array(
+        'coure_of_studies' => '',
+        'search' => '',
+        'order' => '`lastname` ASC, `firstname` ASC',
+        'limit' => '',
+        'output_type' => OBJECT,
+        'count' => false
+    );
+    $args = wp_parse_args( $args, $defaults );
+    extract( $args, EXTR_SKIP );
+    
+    global $wpdb;
+    global $teachpress_stud;
+    
+    $select = "SELECT * FROM $teachpress_stud";
+    $where = "";
+    $order = htmlspecialchars($order);
+    $limit = htmlspecialchars($limit);
+    $output_type = htmlspecialchars($output_type);
+    $search = esc_sql(htmlspecialchars($search));
+    
+    // define global search
+    if ( $search != "" ) {
+        $search = "`matriculation_number` like '%$search%' OR `wp_id` like '%$search%' OR `firstname` LIKE '%$search%' OR `lastname` LIKE '%$search%'";
+    }
+    
+    // if the user needs only the number of rows
+    if ( $count == true ) {
+        $select = "SELECT COUNT(`wp_id`) AS `count` FROM $teachpress_stud";
+    }
+
+    // define where clause
+    $course_of_studies = tp_generate_where_clause($course_of_studies, "course_of_studies", "OR", "=");
+
+    if ( $course_of_studies != '') {
+        $where = $where != "" ? $where . " AND ( $course_of_studies )" : $course_of_studies;
+    }
+    if ( $search != '') {
+        $where = $where != "" ? $where . " AND ( $search )" : $search ;
+    }
+    if ( $where != '' ) {
+        $where = " WHERE $where";
+    }
+    if ( $limit != '' ) {
+        $limit = "LIMIT $limit";
+    }
+
+    // End
+    $sql = $select . $where . " ORDER BY $order $limit";
+    $sql = $count == false ? $wpdb->get_results($sql, $output_type): $wpdb->get_var($sql);
+    return $sql;
 }
 
 /** 
@@ -624,14 +709,18 @@ function get_tp_option($var) {
 /**
  * Get all settings of a category
  * @param string $category
+ * @param string $order
+ * @param string $output_type
  * @return object
  * @since 3.2.0
  */
-function get_tp_settings($category) {
+function get_tp_settings($category, $order = "`setting_id` DESC", $output_type = OBJECT) {
     global $wpdb;
     global $teachpress_settings;
     $category = htmlspecialchars($category);
-    $result = $wpdb->get_results("SELECT `value` FROM $teachpress_settings WHERE `category` = '$category' ORDER BY `setting_id` DESC");
+    $order = htmlspecialchars($order);
+    $output_type = htmlspecialchars($output_type);
+    $result = $wpdb->get_results("SELECT `value` FROM $teachpress_settings WHERE `category` = '$category' ORDER BY $order", $output_type);
     return $result;
 }
 
@@ -707,8 +796,7 @@ function tp_generate_where_clause($input, $column, $connector = "AND", $operator
     if ($input != "") {
         $array = explode(",", $input);
         foreach ( $array as $element ) {
-            $element = trim ($element);
-            $element = htmlspecialchars($element);
+            $element = htmlspecialchars( trim($element) );
             if ( $element != "" ) {
                 $end = $end == "" ? "$column $operator '$element'" : $end . " $connector $column $operator '$element'";
             }
