@@ -9,20 +9,19 @@ function teachpress_editstudent_page() {
    global $teachpress_courses; 
    global $teachpress_stud; 
    global $teachpress_signup;
-   global $teachpress_settings;  
-   $student = tp_sec_var($_GET['student_ID']);
-   $students_group = tp_sec_var($_GET['students_group']);
-   $search = tp_sec_var($_GET['search']);
-   $entry_limit = tp_sec_var($_GET['limit']);
+   $student = htmlspecialchars($_GET['student_ID']);
+   $students_group = htmlspecialchars($_GET['students_group']);
+   $search = htmlspecialchars($_GET['search']);
+   $entry_limit = intval($_GET['limit']);
    
-   $data['matriculation_number'] = isset($_GET['matriculation_number']) ? tp_sec_var($_GET['matriculation_number']) : '';
-   $data['firstname'] = isset($_GET['firstname']) ? tp_sec_var($_GET['firstname']) : '';
-   $data['lastname'] = isset($_GET['lastname']) ? tp_sec_var($_GET['lastname']) : '';
-   $data['course_of_studies'] = isset($_GET['course_of_studies']) ? tp_sec_var($_GET['course_of_studies']) : '';
-   $data['semester_number'] = isset($_GET['semester_number']) ? tp_sec_var($_GET['semester_number']) : '';
-   $data['userlogin'] = isset($_GET['userlogin']) ? tp_sec_var($_GET['userlogin']) : '';
-   $data['birthday'] = isset($_GET['birthday']) ? tp_sec_var($_GET['birthday']) : '';
-   $data['email'] = isset($_GET['email']) ? tp_sec_var($_GET['email']) : '';
+   $data['matriculation_number'] = isset($_GET['matriculation_number']) ? intval($_GET['matriculation_number']) : '';
+   $data['firstname'] = isset($_GET['firstname']) ? htmlspecialchars($_GET['firstname']) : '';
+   $data['lastname'] = isset($_GET['lastname']) ? htmlspecialchars($_GET['lastname']) : '';
+   $data['course_of_studies'] = isset($_GET['course_of_studies']) ? htmlspecialchars($_GET['course_of_studies']) : '';
+   $data['semester_number'] = isset($_GET['semester_number']) ? intval($_GET['semester_number']) : '';
+   $data['userlogin'] = isset($_GET['userlogin']) ? htmlspecialchars($_GET['userlogin']) : '';
+   $data['birthday'] = isset($_GET['birthday']) ? htmlspecialchars($_GET['birthday']) : '';
+   $data['email'] = isset($_GET['email']) ? htmlspecialchars($_GET['email']) : '';
    // WP User ID
    global $user_ID;
    get_currentuserinfo();
@@ -36,7 +35,7 @@ function teachpress_editstudent_page() {
         get_tp_message($message);
    }
    if ( isset( $_GET['save'] )) {
-        $wp_id = tp_sec_var($_GET['wp_id'], 'integer');
+        $wp_id = intval($_GET['wp_id']);
         tp_change_student($wp_id, $data, $user_ID);
         $message = __('Changes successful','teachpress');
         get_tp_message($message);
@@ -51,8 +50,7 @@ function teachpress_editstudent_page() {
    <input name="search" type="hidden" value="<?php echo $search; ?>" />
    <input name="limit" type="hidden" value="<?php echo $entry_limit; ?>" />
    <?php
-      $sql = "SELECT * FROM " . $teachpress_stud . " WHERE `wp_id` = '$student'";
-      $row3 = $wpdb->get_row($sql);
+      $row3 = get_tp_student($student);
    ?>
    <h2 style="padding-top:0px;"><?php echo stripslashes($row3->firstname); ?> <?php echo stripslashes($row3->lastname); ?> <span class="tp_break">|</span> <small><a onclick="teachpress_showhide('daten_aendern')" id="daten_aendern_2" style="cursor:pointer;"><?php _e('Edit','teachpress'); ?> </a></small></h2>
      <div id="daten_aendern" style="display:none; padding-top:5px; padding-bottom:5px; margin:5px;">
@@ -88,15 +86,9 @@ function teachpress_editstudent_page() {
                     <td>
                     <select name="course_of_studies" id="course_of_studies">
                         <?php
-                        $stud = "SELECT value FROM " . $teachpress_settings . " WHERE category = 'course_of_studies'";
-                        $stud = $wpdb->get_results($stud);
+                        $stud = get_tp_settings('course_of_studies', 'value ASC');
                         foreach ($stud as $stud) {
-                            if ($stud->value == $row3->course_of_studies) {
-                                    $current = 'selected="selected"' ;
-                            }
-                            else {
-                                    $current = '' ;
-                            }
+                            $current = $stud->value == $row3->course_of_studies ? 'selected="selected"' : '';
                             echo '<option value="' . stripslashes($stud->value) . '" ' . $current . '>' . stripslashes($stud->value) . '</option>';
                         } ?>
                     </select></td>

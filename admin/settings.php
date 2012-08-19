@@ -9,22 +9,22 @@ function teachpress_admin_settings() {
      global $teachpress_stud; 
      global $teachpress_courses;
 
-     $all_options['semester'] = isset( $_POST['semester'] ) ? tp_sec_var($_POST['semester']) : '';
-     $all_options['permalink'] = isset( $_POST['permalink'] ) ? tp_sec_var($_POST['permalink'], 'integer') : '';
-     $all_options['rel_page_courses'] = isset( $_POST['rel_page_courses'] ) ? tp_sec_var($_POST['rel_page_courses']) : '';
-     $all_options['rel_page_publications'] = isset( $_POST['rel_page_publications'] ) ? tp_sec_var($_POST['rel_page_publications']) : '';
-     $all_options['stylesheet'] = isset( $_POST['stylesheet'] ) ? tp_sec_var($_POST['stylesheet'], 'integer') : '';
-     $all_options['sign_out'] = isset( $_POST['sign_out'] ) ? tp_sec_var($_POST['sign_out'], 'integer') : '';
-     $all_options['matriculation_number'] = isset( $_POST['matriculation_number_field'] ) ? tp_sec_var($_POST['matriculation_number_field']) : '';
-     $all_options['course_of_studies'] = isset( $_POST['course_of_studies_field'] ) ? tp_sec_var($_POST['course_of_studies_field']) : '';
-     $all_options['semesternumber'] = isset( $_POST['semesternumber_field'] ) ? tp_sec_var($_POST['semesternumber_field']) : '';
-     $all_options['birthday'] = isset( $_POST['birthday_field'] ) ? tp_sec_var($_POST['birthday_field']) : '';
-     $all_options['login'] = isset( $_POST['login'] ) ? tp_sec_var($_POST['login']) : '';
+     $all_options['semester'] = isset( $_POST['semester'] ) ? htmlspecialchars($_POST['semester']) : '';
+     $all_options['permalink'] = isset( $_POST['permalink'] ) ? intval($_POST['permalink']) : '';
+     $all_options['rel_page_courses'] = isset( $_POST['rel_page_courses'] ) ? htmlspecialchars($_POST['rel_page_courses']) : '';
+     $all_options['rel_page_publications'] = isset( $_POST['rel_page_publications'] ) ? htmlspecialchars($_POST['rel_page_publications']) : '';
+     $all_options['stylesheet'] = isset( $_POST['stylesheet'] ) ? intval($_POST['stylesheet']) : '';
+     $all_options['sign_out'] = isset( $_POST['sign_out'] ) ? intval($_POST['sign_out']) : '';
+     $all_options['matriculation_number'] = isset( $_POST['matriculation_number_field'] ) ? htmlspecialchars($_POST['matriculation_number_field']) : '';
+     $all_options['course_of_studies'] = isset( $_POST['course_of_studies_field'] ) ? htmlspecialchars($_POST['course_of_studies_field']) : '';
+     $all_options['semesternumber'] = isset( $_POST['semesternumber_field'] ) ? htmlspecialchars($_POST['semesternumber_field']) : '';
+     $all_options['birthday'] = isset( $_POST['birthday_field'] ) ? htmlspecialchars($_POST['birthday_field']) : '';
+     $all_options['login'] = isset( $_POST['login'] ) ? htmlspecialchars($_POST['login']) : '';
      $all_options['userrole'] = isset( $_POST['userrole'] ) ? $_POST['userrole'] : '';
 
-     $name = isset( $_POST['name'] ) ? tp_sec_var($_POST['name']) : '';
-     $typ = isset( $_POST['typ'] ) ? tp_sec_var($_POST['typ']) : '';
-     $newsem = isset( $_POST['newsem'] ) ? tp_sec_var($_POST['newsem']) : '';
+     $name = isset( $_POST['name'] ) ? htmlspecialchars($_POST['name']) : '';
+     $typ = isset( $_POST['typ'] ) ? htmlspecialchars($_POST['typ']) : '';
+     $newsem = isset( $_POST['newsem'] ) ? htmlspecialchars($_POST['newsem']) : '';
      $site = 'options-general.php?page=teachpress/settings.php';
      $tab = isset( $_GET['tab'] ) ? $_GET['tab'] : 'general';
      ?> 
@@ -71,8 +71,7 @@ function teachpress_admin_settings() {
            tp_add_setting($newsem, 'semester');
      }
      if ( isset( $_GET['delete'] ) ) {
-           $delete = tp_sec_var($_GET[delete], 'integer');
-           tp_delete_setting($delete);
+           tp_delete_setting($_GET['delete']);
      }?>
      <h2 style="padding-bottom:0px;"><?php _e('teachPress settings','teachpress'); ?></h2>
      <?php

@@ -16,13 +16,13 @@ function tp_show_mail_page() {
     global $current_user;
     get_currentuserinfo();
 
-    $course_ID = isset( $_GET['course_ID'] ) ? tp_sec_var($_GET['course_ID'], 'integer') : '';
-    $student_ID = isset( $_GET['student_ID'] ) ? tp_sec_var($_GET['student_ID'], 'integer') : '';
-    $search = isset( $_GET['search'] ) ? tp_sec_var($_GET['search']) : '';
-    $sem = isset( $_GET['sem'] ) ? tp_sec_var($_GET['sem']) : '';
-    $single = isset( $_GET['single'] ) ? tp_sec_var($_GET['single']) : '';
-    $students_group = isset( $_GET['students_group'] ) ? tp_sec_var($_GET['students_group']) : '';
-    $limit = isset( $_GET['limit'] ) ? tp_sec_var($_GET['limit']) : '';
+    $course_ID = isset( $_GET['course_ID'] ) ? intval($_GET['course_ID']) : '';
+    $student_ID = isset( $_GET['student_ID'] ) ? intval($_GET['student_ID']) : '';
+    $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
+    $sem = isset( $_GET['sem'] ) ? htmlspecialchars($_GET['sem']) : '';
+    $single = isset( $_GET['single'] ) ? htmlspecialchars($_GET['single']) : '';
+    $students_group = isset( $_GET['students_group'] ) ? htmlspecialchars($_GET['students_group']) : '';
+    $limit = isset( $_GET['limit'] ) ? intval($_GET['limit']) : '';
 
     if( !isset( $_GET['single'] ) ) {
         $sql = "SELECT DISTINCT st.email 

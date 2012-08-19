@@ -13,8 +13,8 @@ function teachpress_tags_page(){
     global $teachpress_relation;
     global $teachpress_tags;
     // form data
-    $action = isset( $_GET['action'] ) ? $action = tp_sec_var($_GET['action']) : '';
-    $search = isset( $_GET['search'] ) ? $search = tp_sec_var($_GET['search']) : '';
+    $action = isset( $_GET['action'] ) ? $action = htmlspecialchars($_GET['action']) : '';
+    $search = isset( $_GET['search'] ) ? $search = htmlspecialchars($_GET['search']) : '';
     $checkbox = isset( $_GET['checkbox'] ) ? $checkbox = $_GET['checkbox'] : '';
     $page = 'teachpress/tags.php';
     $number_messages = 50;
@@ -46,8 +46,8 @@ function teachpress_tags_page(){
         get_tp_message( __('Removing successful','teachpress') );
     }
     if ( isset( $_POST['tp_edit_tag_submit'] )) {
-        $name = tp_sec_var($_POST['tp_edit_tag_name']);
-        $tag_id = tp_sec_var($_POST['tp_edit_tag_ID'], 'integer');
+        $name = htmlspecialchars($_POST['tp_edit_tag_name']);
+        $tag_id = intvar($_POST['tp_edit_tag_ID']);
         tp_edit_tag($tag_id, $name);
         get_tp_message( __('Tag saved','teachpress') );
     }
@@ -83,7 +83,7 @@ function teachpress_tags_page(){
     <table border="0" cellspacing="0" cellpadding="0" class="widefat">
         <thead>
         <tr>
-            <th class="check-column"><input name="tp_check_all" id="tp_check_all" type="checkbox" value="" onclick="teachpress_checkboxes();" /></th>
+            <th class="check-column"><input name="tp_check_all" id="tp_check_all" type="checkbox" value="" onclick="teachpress_checkboxes('checkbox[]','tp_check_all');" /></th>
             <th><?php _e('Name','teachpress'); ?></th>
             <th><?php _e('ID'); ?></th>
             <th><?php _e('Number','teachpress'); ?></th>

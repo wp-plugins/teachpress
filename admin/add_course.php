@@ -35,38 +35,37 @@ function tp_add_course_page_help () {
 function tp_add_course_page() { 
 
    global $wpdb;
-   global $teachpress_settings;
    global $teachpress_courses;
    global $teachpress_signup;
 
-   $data['type'] = isset( $_POST['course_type'] ) ? tp_sec_var($_POST['course_type']) : '';
-   $data['name'] = isset( $_POST['post_title'] ) ? tp_sec_var($_POST['post_title']) : '';
-   $data['room'] = isset( $_POST['room'] ) ? tp_sec_var($_POST['room']) : '';
-   $data['lecturer'] = isset( $_POST['lecturer'] ) ? tp_sec_var($_POST['lecturer']) : '';
-   $data['date'] = isset( $_POST['date'] ) ? tp_sec_var($_POST['date']) : '';
-   $data['places'] = isset( $_POST['places'] ) ? (int) $_POST['places'] : 0;
-   $data['start'] = isset( $_POST['start'] ) ? tp_sec_var($_POST['start']) : ''; 
-   $data['start_hour'] = isset( $_POST['start_hour'] ) ? tp_sec_var($_POST['start_hour']) : '';
-   $data['start_minute'] = isset( $_POST['start_minute'] ) ? tp_sec_var($_POST['start_minute']) : '';
-   $data['end'] = isset( $_POST['end'] ) ? tp_sec_var($_POST['end']) : '';
-   $data['end_hour'] = isset( $_POST['end_hour'] ) ? tp_sec_var($_POST['end_hour']) : '';
-   $data['end_minute'] = isset( $_POST['end_minute'] ) ? tp_sec_var($_POST['end_minute']) : '';
-   $data['semester'] = isset( $_POST['semester'] ) ? tp_sec_var($_POST['semester']) : '';
-   $data['comment'] = isset( $_POST['comment'] ) ? tp_sec_var($_POST['comment']) : '';
-   $data['rel_page'] = isset( $_POST['rel_page'] ) ? (int) $_POST['rel_page'] : 0;
-   $data['parent'] = isset( $_POST['parent2'] ) ? (int) $_POST['parent2'] : 0;
-   $data['visible'] = isset( $_POST['visible'] ) ? (int) $_POST['visible'] : 1;
-   $data['waitinglist'] = isset( $_POST['waitinglist'] ) ? (int) $_POST['waitinglist'] : 0;
-   $data['image_url'] = isset( $_POST['image_url'] ) ? tp_sec_var($_POST['image_url']) : '';
-   $data['strict_signup'] = isset( $_POST['strict_signup'] ) ? (int) $_POST['strict_signup'] : 0;
+   $data['type'] = isset( $_POST['course_type'] ) ? htmlspecialchars($_POST['course_type']) : '';
+   $data['name'] = isset( $_POST['post_title'] ) ? htmlspecialchars($_POST['post_title']) : '';
+   $data['room'] = isset( $_POST['room'] ) ? htmlspecialchars($_POST['room']) : '';
+   $data['lecturer'] = isset( $_POST['lecturer'] ) ? htmlspecialchars($_POST['lecturer']) : '';
+   $data['date'] = isset( $_POST['date'] ) ? htmlspecialchars($_POST['date']) : '';
+   $data['places'] = isset( $_POST['places'] ) ? intval($_POST['places']) : 0;
+   $data['start'] = isset( $_POST['start'] ) ? htmlspecialchars($_POST['start']) : ''; 
+   $data['start_hour'] = isset( $_POST['start_hour'] ) ? htmlspecialchars($_POST['start_hour']) : '';
+   $data['start_minute'] = isset( $_POST['start_minute'] ) ? htmlspecialchars($_POST['start_minute']) : '';
+   $data['end'] = isset( $_POST['end'] ) ? htmlspecialchars($_POST['end']) : '';
+   $data['end_hour'] = isset( $_POST['end_hour'] ) ? htmlspecialchars($_POST['end_hour']) : '';
+   $data['end_minute'] = isset( $_POST['end_minute'] ) ? htmlspecialchars($_POST['end_minute']) : '';
+   $data['semester'] = isset( $_POST['semester'] ) ? htmlspecialchars($_POST['semester']) : '';
+   $data['comment'] = isset( $_POST['comment'] ) ? htmlspecialchars($_POST['comment']) : '';
+   $data['rel_page'] = isset( $_POST['rel_page'] ) ? intval($_POST['rel_page']) : 0;
+   $data['parent'] = isset( $_POST['parent2'] ) ? intval($_POST['parent2']) : 0;
+   $data['visible'] = isset( $_POST['visible'] ) ? intval($_POST['visible']) : 1;
+   $data['waitinglist'] = isset( $_POST['waitinglist'] ) ? intval($_POST['waitinglist']) : 0;
+   $data['image_url'] = isset( $_POST['image_url'] ) ? htmlspecialchars($_POST['image_url']) : '';
+   $data['strict_signup'] = isset( $_POST['strict_signup'] ) ? intval($_POST['strict_signup']) : 0;
 
    // Handle that the activation of strict sign up is not possible for a child course
    if ( $data['parent'] != 0) { $data['strict_signup'] = 0; }
 
    $course_ID = isset( $_REQUEST['course_ID'] ) ? (int) $_REQUEST['course_ID'] : 0;
-   $search = isset( $_GET['search'] ) ? tp_sec_var($_GET['search']) : '';
-   $sem = isset( $_GET['sem'] ) ? tp_sec_var($_GET['sem']) : '';
-   $ref = isset( $_GET['ref'] ) ? tp_sec_var($_GET['ref']) : '';
+   $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
+   $sem = isset( $_GET['sem'] ) ? htmlspecialchars($_GET['sem']) : '';
+   $ref = isset( $_GET['ref'] ) ? htmlspecialchars($_GET['ref']) : '';
 
    // possible course parents
    $row = "SELECT `course_id`, `name`, `semester` FROM " . $teachpress_courses . " WHERE `parent` = '0' AND `course_id` != '$course_ID' ORDER BY semester DESC, name";
@@ -90,8 +89,7 @@ function tp_add_course_page() {
         get_tp_message($message, '');
    }
    if ( $course_ID != 0 ) {
-        $sql = "SELECT * FROM " . $teachpress_courses . " WHERE course_id = '$course_ID'";
-        $daten = $wpdb->get_row($sql, ARRAY_A);
+        $daten = get_tp_course($course_ID, ARRAY_A);
    }
    else {
         $daten = get_tp_var_types('course_array');
@@ -246,14 +244,13 @@ function tp_add_course_page() {
                 <p><label for="course_type" title="<?php _e('The course type','teachpress'); ?>"><strong><?php _e('Type'); ?></strong></label></p>
                 <select name="course_type" id="course_type" title="<?php _e('The course type','teachpress'); ?>" tabindex="2">
                 <?php 
-                    $row = "SELECT `value` FROM " . $teachpress_settings . " WHERE `category` = 'course_type' ORDER BY `value`";
-                    $row = $wpdb->get_results($row);
+                    $row = get_tp_settings('course_type', '`value` ASC');
                     foreach ($row as $row) {
                         if ($daten["type"] == $row->value) {
-                        $check = ' selected="selected"';
+                            $check = ' selected="selected"';
                         }
                         else {
-                        $check = '';
+                            $check = '';
                         }	
                         echo '<option value="' . stripslashes($row->value) . '"' . $check . '>' . stripslashes($row->value) . '</option>';
                     } ?>
@@ -267,8 +264,7 @@ function tp_add_course_page() {
                 else {
                     $value = 0;
                 }
-                $sql = "SELECT `value` FROM " . $teachpress_settings . " WHERE `category` = 'semester' ORDER BY `setting_id`";
-                $sem = $wpdb->get_results($sql);
+                $sem = get_tp_settings('semester', '`setting_id` ASC');
                 $x = 0;
                 // Semester in array speichern - wird spaeter fuer Parent-Menu genutzt
                 foreach ($sem as $sem) { 
@@ -342,13 +338,10 @@ function tp_add_course_page() {
      </div>
      </div>
       <script type="text/javascript" charset="utf-8">
-      jQuery(document).ready(function($) {
-              $('#start').datepicker({showWeek: true, changeMonth: true, changeYear: true, showOtherMonths: true, firstDay: 1, renderer: $.extend({}, $.datepicker.weekOfYearRenderer), onShow: $.datepicker.showStatus, dateFormat: 'yy-mm-dd', yearRange: '2008:c+5'}); 
-
-              $('#end').datepicker({showWeek: true, changeMonth: true, changeYear: true, showOtherMonths: true, firstDay: 1, renderer: $.extend({}, $.datepicker.weekOfYearRenderer), onShow: $.datepicker.showStatus, dateFormat: 'yy-mm-dd', yearRange: '2008:c+5'}); 
-              });
-      </script>
-      <script type="text/javascript" charset="utf-8">
+        jQuery(document).ready(function($) {
+            $('#start').datepicker({showWeek: true, changeMonth: true, changeYear: true, showOtherMonths: true, firstDay: 1, renderer: $.extend({}, $.datepicker.weekOfYearRenderer), onShow: $.datepicker.showStatus, dateFormat: 'yy-mm-dd', yearRange: '2008:c+5'}); 
+            $('#end').datepicker({showWeek: true, changeMonth: true, changeYear: true, showOtherMonths: true, firstDay: 1, renderer: $.extend({}, $.datepicker.weekOfYearRenderer), onShow: $.datepicker.showStatus, dateFormat: 'yy-mm-dd', yearRange: '2008:c+5'}); 
+        });
         jQuery(document).ready(function($) {
             $('#comment').resizable({handles: "se", minHeight: 55, minWidth: 400});
 	});

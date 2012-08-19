@@ -35,11 +35,11 @@ function teachpress_publications_page() {
 
      $checkbox = isset( $_GET['checkbox'] ) ? $_GET['checkbox'] : '';
      $action = isset( $_GET['action'] ) ? $_GET['action'] : '';
-     $page = isset( $_GET['page'] ) ? tp_sec_var($_GET['page']) : '';
-     $filter = isset( $_GET['filter'] ) ? tp_sec_var($_GET['filter']) : '';
-     $user = isset( $_GET['user'] ) ? tp_sec_var($_GET['user'], 'integer') : '';
-     $search = isset( $_GET['search'] ) ? tp_sec_var($_GET['search']) : '';
-     $tag_id = isset( $_GET['tag'] ) ? tp_sec_var($_GET['tag'], 'integer') : '';
+     $page = isset( $_GET['page'] ) ? htmlspecialchars($_GET['page']) : '';
+     $filter = isset( $_GET['filter'] ) ? htmlspecialchars($_GET['filter']) : '';
+     $user = isset( $_GET['user'] ) ? intval($_GET['user']) : '';
+     $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
+     $tag_id = isset( $_GET['tag'] ) ? intval($_GET['tag']) : '';
 
      // Page menu
      $number_messages = 50;
@@ -66,13 +66,11 @@ function teachpress_publications_page() {
      }
      // Add a bookmark for the publication
      if ( isset( $_GET['add_id'] ) ) {
-          $add_id = tp_sec_var($_GET['add_id'], 'integer');
-          tp_add_bookmark($add_id, $user);
+          tp_add_bookmark($_GET['add_id'], $user);
      }
      // Delete bookmark for the publication
      if ( isset( $_GET['del_id'] ) ) {
-          $del_id = tp_sec_var($_GET['del_id'], 'integer');
-          tp_delete_bookmark($del_id);
+          tp_delete_bookmark($_GET['del_id']);
      }
      ?>
      <div class="wrap">
@@ -107,7 +105,7 @@ function teachpress_publications_page() {
           echo '<h2>' . __('BibTeX','teachpress') . '</h2>';
           echo '<textarea name="bibtex_area" rows="20" style="width:90%;" >';
           for ($i=0; $i < count ($checkbox); $i++) {
-               settype($checkbox[$i], 'integer');
+               $checkbox[$i] = intval($checkbox[$i]);
                $row = $wpdb->get_results("SELECT * FROM " . $teachpress_pub . " WHERE `pub_id` = '$checkbox[$i]'", ARRAY_A);
                $tags = $wpdb->get_results("SELECT DISTINCT t.name FROM " . $teachpress_tags . " t INNER JOIN  " . $teachpress_relation . " r ON r.`tag_id` = t.`tag_id` WHERE r.pub_id = '$checkbox[$i]' ", ARRAY_A);
                foreach ($row as $row) {
@@ -222,7 +220,7 @@ function teachpress_publications_page() {
          <thead>
             <tr>
                <th>&nbsp;</th>
-               <th class="check-column"><input name="tp_check_all" id="tp_check_all" type="checkbox" value="" onclick="teachpress_checkboxes();" /></th>
+               <th class="check-column"><input name="tp_check_all" id="tp_check_all" type="checkbox" value="" onclick="teachpress_checkboxes('checkbox','tp_check_all');" /></th>
                <th><?php _e('Name','teachpress'); ?></th>
                <th><?php _e('ID'); ?></th>
                <th><?php _e('Type'); ?></th> 

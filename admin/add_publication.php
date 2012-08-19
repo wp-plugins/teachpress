@@ -26,7 +26,6 @@ function teachpress_addpublications_page() {
    global $teachpress_relation; 
    global $teachpress_tags;
    global $teachpress_user;
-   global $pagenow;
    global $current_user;
    global $wpdb;
    // WordPress current unser info
@@ -35,49 +34,49 @@ function teachpress_addpublications_page() {
 
    // form variables from add_publication.php
    $data = get_tp_var_types('publication_array');
-   $data['name'] = isset( $_POST['post_title'] ) ? tp_sec_var($_POST['post_title']) : '';
-   $data['type'] = isset( $_POST['type'] ) ? tp_sec_var($_POST['type']) : '';
-   $data['bibtex'] = isset( $_POST['bibtex'] ) ? tp_sec_var($_POST['bibtex']) : '';
-   $data['author'] = isset( $_POST['author'] ) ? tp_sec_var($_POST['author']) : '';
-   $data['editor'] = isset( $_POST['editor'] ) ? tp_sec_var($_POST['editor']) : '';
-   $data['isbn'] = isset( $_POST['isbn'] ) ? tp_sec_var($_POST['isbn']) : '';
-   $data['url'] = isset( $_POST['url'] ) ? tp_sec_var($_POST['url']) : '';
-   $data['date'] = isset( $_POST['date'] ) ? tp_sec_var($_POST['date']) : '';
-   $data['booktitle'] = isset( $_POST['booktitle'] ) ? tp_sec_var($_POST['booktitle']) : '';
-   $data['journal'] = isset( $_POST['journal'] ) ? tp_sec_var($_POST['journal']) : '';
-   $data['volume'] = isset( $_POST['volume'] ) ? tp_sec_var($_POST['volume']) : '';
-   $data['number'] = isset( $_POST['number'] ) ? tp_sec_var($_POST['number']) : '';
-   $data['pages'] = isset( $_POST['pages'] ) ? tp_sec_var($_POST['pages']) : '';
-   $data['publisher'] = isset( $_POST['publisher'] ) ? tp_sec_var($_POST['publisher']) : '';
-   $data['address'] = isset( $_POST['address'] ) ? tp_sec_var($_POST['address']) : '';
-   $data['edition'] = isset( $_POST['edition'] ) ? tp_sec_var($_POST['edition']) : '';
-   $data['chapter'] = isset( $_POST['chapter'] ) ? tp_sec_var($_POST['chapter']) : '';
-   $data['institution'] = isset( $_POST['institution'] ) ? tp_sec_var($_POST['institution']) : '';
-   $data['organization'] = isset( $_POST['organization'] ) ? tp_sec_var($_POST['organization']) : '';
-   $data['school'] = isset( $_POST['school'] ) ? tp_sec_var($_POST['school']) : '';
-   $data['series'] = isset( $_POST['series'] ) ? tp_sec_var($_POST['series']) : '';
-   $data['crossref'] = isset( $_POST['crossref'] ) ? tp_sec_var($_POST['crossref']) : '';
-   $data['abstract'] = isset( $_POST['abstract'] ) ? tp_sec_var($_POST['abstract']) : '';
-   $data['howpublished'] = isset( $_POST['howpublished'] ) ? tp_sec_var($_POST['howpublished']) : '';
-   $data['key'] = isset( $_POST['key'] ) ? tp_sec_var($_POST['key']) : '';
-   $data['techtype'] = isset( $_POST['techtype'] ) ? tp_sec_var($_POST['techtype']) : '';
-   $data['comment'] = isset( $_POST['comment'] ) ? tp_sec_var($_POST['comment']) : '';
-   $data['note'] = isset( $_POST['note'] ) ? tp_sec_var($_POST['note']) : '';
-   $data['image_url'] = isset( $_POST['image_url'] ) ? tp_sec_var($_POST['image_url']) : '';
-   $data['rel_page'] = isset( $_POST['rel_page'] ) ? tp_sec_var($_POST['rel_page'],'integer') : '';
-   $data['is_isbn'] = isset( $_POST['is_isbn'] ) ? tp_sec_var($_POST['is_isbn'],'integer') : '';
+   $data['name'] = isset( $_POST['post_title'] ) ? htmlspecialchars($_POST['post_title']) : '';
+   $data['type'] = isset( $_POST['type'] ) ? htmlspecialchars($_POST['type']) : '';
+   $data['bibtex'] = isset( $_POST['bibtex'] ) ? htmlspecialchars($_POST['bibtex']) : '';
+   $data['author'] = isset( $_POST['author'] ) ? htmlspecialchars($_POST['author']) : '';
+   $data['editor'] = isset( $_POST['editor'] ) ? htmlspecialchars($_POST['editor']) : '';
+   $data['isbn'] = isset( $_POST['isbn'] ) ? htmlspecialchars($_POST['isbn']) : '';
+   $data['url'] = isset( $_POST['url'] ) ? htmlspecialchars($_POST['url']) : '';
+   $data['date'] = isset( $_POST['date'] ) ? htmlspecialchars($_POST['date']) : '';
+   $data['booktitle'] = isset( $_POST['booktitle'] ) ? htmlspecialchars($_POST['booktitle']) : '';
+   $data['journal'] = isset( $_POST['journal'] ) ? htmlspecialchars($_POST['journal']) : '';
+   $data['volume'] = isset( $_POST['volume'] ) ? htmlspecialchars($_POST['volume']) : '';
+   $data['number'] = isset( $_POST['number'] ) ? htmlspecialchars($_POST['number']) : '';
+   $data['pages'] = isset( $_POST['pages'] ) ? htmlspecialchars($_POST['pages']) : '';
+   $data['publisher'] = isset( $_POST['publisher'] ) ? htmlspecialchars($_POST['publisher']) : '';
+   $data['address'] = isset( $_POST['address'] ) ? htmlspecialchars($_POST['address']) : '';
+   $data['edition'] = isset( $_POST['edition'] ) ? htmlspecialchars($_POST['edition']) : '';
+   $data['chapter'] = isset( $_POST['chapter'] ) ? htmlspecialchars($_POST['chapter']) : '';
+   $data['institution'] = isset( $_POST['institution'] ) ? htmlspecialchars($_POST['institution']) : '';
+   $data['organization'] = isset( $_POST['organization'] ) ? htmlspecialchars($_POST['organization']) : '';
+   $data['school'] = isset( $_POST['school'] ) ? htmlspecialchars($_POST['school']) : '';
+   $data['series'] = isset( $_POST['series'] ) ? htmlspecialchars($_POST['series']) : '';
+   $data['crossref'] = isset( $_POST['crossref'] ) ? htmlspecialchars($_POST['crossref']) : '';
+   $data['abstract'] = isset( $_POST['abstract'] ) ? htmlspecialchars($_POST['abstract']) : '';
+   $data['howpublished'] = isset( $_POST['howpublished'] ) ? htmlspecialchars($_POST['howpublished']) : '';
+   $data['key'] = isset( $_POST['key'] ) ? htmlspecialchars($_POST['key']) : '';
+   $data['techtype'] = isset( $_POST['techtype'] ) ? htmlspecialchars($_POST['techtype']) : '';
+   $data['comment'] = isset( $_POST['comment'] ) ? htmlspecialchars($_POST['comment']) : '';
+   $data['note'] = isset( $_POST['note'] ) ? htmlspecialchars($_POST['note']) : '';
+   $data['image_url'] = isset( $_POST['image_url'] ) ? htmlspecialchars($_POST['image_url']) : '';
+   $data['rel_page'] = isset( $_POST['rel_page'] ) ? htmlspecialchars($_POST['rel_page'],'integer') : '';
+   $data['is_isbn'] = isset( $_POST['is_isbn'] ) ? htmlspecialchars($_POST['is_isbn'],'integer') : '';
 
-   $tags = isset( $_POST['tags'] ) ? tp_sec_var($_POST['tags']) : '';
+   $tags = isset( $_POST['tags'] ) ? htmlspecialchars($_POST['tags']) : '';
    $delbox = isset( $_POST['delbox'] ) ? $_POST['delbox'] : '';
    $bookmark = isset( $_POST['bookmark'] ) ? $_POST['bookmark'] : '';
 
    // from show_publications.php
-   $pub_ID = isset( $_REQUEST['pub_ID'] ) ? tp_sec_var($_REQUEST['pub_ID'], 'integer') : '';
-   $search = isset( $_GET['search'] ) ? tp_sec_var($_GET['search']) : '';
-   $filter = isset( $_GET['filter'] ) ? tp_sec_var($_GET['filter']) : '';
-   $site = isset( $_GET['site'] ) ? tp_sec_var($_GET['site']) : '';
-   $tag_id = isset( $_GET['tag'] ) ? tp_sec_var($_GET['tag']) : '';
-   $entry_limit = isset( $_GET['limit'] ) ? tp_sec_var($_GET['limit']) : '';
+   $pub_ID = isset( $_REQUEST['pub_ID'] ) ? intval($_REQUEST['pub_ID']) : '';
+   $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
+   $filter = isset( $_GET['filter'] ) ? htmlspecialchars($_GET['filter']) : '';
+   $site = isset( $_GET['site'] ) ? htmlspecialchars($_GET['site']) : '';
+   $tag_id = isset( $_GET['tag'] ) ? htmlspecialchars($_GET['tag']) : '';
+   $entry_limit = isset( $_GET['limit'] ) ? htmlspecialchars($_GET['limit']) : '';
 
    $daten = get_tp_var_types('publication_array');
    ?>
@@ -103,8 +102,7 @@ function teachpress_addpublications_page() {
    <h2><?php if ($pub_ID == '') { _e('Add a new publication','teachpress'); } else { _e('Edit publication','teachpress'); } ?></h2>
      <input name="page" type="hidden" value="teachpress/addpublications.php">
      <?php if ($pub_ID != '') { 
-          $row = "SELECT * FROM " . $teachpress_pub . " WHERE `pub_id` = '$pub_ID'";
-          $daten = $wpdb->get_row($row, ARRAY_A)
+          $daten = get_tp_publication($pub_ID, ARRAY_A);
           ?>
           <input type="hidden" name="pub_ID" value="<?php echo $pub_ID; ?>" />
           <input type="hidden" name="search" value="<?php echo stripslashes($search); ?>" />
@@ -126,7 +124,7 @@ function teachpress_addpublications_page() {
              <div class="bookmarks" style="background-attachment: scroll; border:1px #DFDFDF solid; display: block; height: 100px; max-height: 205px; overflow-x: auto; overflow-y: auto; padding: 6px 11px;">
           <?php 
              if ($pub_ID != '') {
-                   $sql = "SELECT pub_id FROM " . $teachpress_user . " WHERE pub_id='$pub_ID' AND user = '$user'";
+                   $sql = "SELECT pub_id FROM " . $teachpress_user . " WHERE `pub_id`='$pub_ID' AND `user` = '$user'";
                    $test = $wpdb->query($sql);
                    if ($test != '0') {
                            echo '<p><input type="checkbox" name="bookmark[]" id="bookmark" disabled="disabled"/> <label for="bookmark">' . __('add to your own list','teachpress') . '</label></p>';

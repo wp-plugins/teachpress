@@ -7,22 +7,19 @@
 function tp_lists_page() {
    global $wpdb;
    global $teachpress_courses; 
-   global $teachpress_stud; 
-   global $teachpress_settings; 
-   global $teachpress_signup;
    
-   $course_ID = isset( $_GET['course_ID'] ) ? tp_sec_var($_GET['course_ID'], 'integer') : '';
-   $search = isset( $_GET['search'] ) ? tp_sec_var($_GET['search']) : '';
-   $sem = isset( $_GET['sem'] ) ? tp_sec_var($_GET['sem']) : '';
-   $sort = isset( $_GET['sort'] ) ? tp_sec_var($_GET['sort']) : '';
-   $matriculation_number_field = isset( $_GET['matriculation_number_field'] ) ? tp_sec_var($_GET['matriculation_number_field']) : '';
-   $nutzerkuerzel_field = isset( $_GET['nutzerkuerzel_field'] ) ? tp_sec_var($_GET['nutzerkuerzel_field']) : '';
-   $course_of_studies_field = isset( $_GET['course_of_studies_field'] ) ? tp_sec_var($_GET['course_of_studies_field']) : '';
-   $semesternumber_field = isset( $_GET['semesternumber_field'] ) ? tp_sec_var($_GET['semesternumber_field']) : '';
-   $birthday_field = isset( $_GET['birthday_field'] ) ? tp_sec_var($_GET['birthday_field']) : '';
-   $email_field = isset( $_GET['email_field'] ) ? tp_sec_var($_GET['email_field']) : '';
+   $course_ID = isset( $_GET['course_ID'] ) ? intval($_GET['course_ID']) : '';
+   $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
+   $sem = isset( $_GET['sem'] ) ? htmlspecialchars($_GET['sem']) : '';
+   $sort = isset( $_GET['sort'] ) ? htmlspecialchars($_GET['sort']) : '';
+   $matriculation_number_field = isset( $_GET['matriculation_number_field'] ) ? intval($_GET['matriculation_number_field']) : '';
+   $nutzerkuerzel_field = isset( $_GET['nutzerkuerzel_field'] ) ? htmlspecialchars($_GET['nutzerkuerzel_field']) : '';
+   $course_of_studies_field = isset( $_GET['course_of_studies_field'] ) ? htmlspecialchars($_GET['course_of_studies_field']) : '';
+   $semesternumber_field = isset( $_GET['semesternumber_field'] ) ? intval($_GET['semesternumber_field']) : '';
+   $birthday_field = isset( $_GET['birthday_field'] ) ? htmlspecialchars($_GET['birthday_field']) : '';
+   $email_field = isset( $_GET['email_field'] ) ? htmlspecialchars($_GET['email_field']) : '';
    
-   $anzahl = isset( $_GET['anzahl'] ) ? tp_sec_var($_GET['anzahl'], 'integer') : '';
+   $anzahl = isset( $_GET['anzahl'] ) ? intval($_GET['anzahl']) : '';
    $create = isset( $_GET['create'] ) ? $_GET['create'] : '';
    ?>
    <div class="wrap" style="padding-top:10px;">
@@ -103,103 +100,68 @@ function tp_lists_page() {
    <?php
    }
    if ( $create == __('Create','teachpress') ) {
-      $row = "SELECT * FROM " . $teachpress_courses . " WHERE `course_id` = '$course_ID'";
-      $row = $wpdb->get_results($row);
-      foreach($row as $row) {
-         // define course name
-         if ($row->parent != 0) {
-            $sql = "SELECT `name´ FROM " . $teachpress_courses . " WHERE `course_id` = '$row->parent'";
-            $parent_name = $wpdb->get_var($sql);
-            // if parent_name == child name
-            if ($parent_name == $row->name) {
-                $parent_name = "";
-            }
-         }
-         else {
-            $parent_name = "";
-         }
-         ?>
-         <h2><?php echo $parent_name; ?> <?php echo $row->name; ?> <?php echo $row->semester; ?></h2>
-         <div id="einschreibungen" style="padding:5px;">
-         <div style="width:700px; padding-bottom:10px;">
-            <table border="1" cellspacing="0" cellpadding="0" class="tp_print">
-                <tr>
-                    <th><?php _e('Lecturer','teachpress'); ?></th>
-                    <td><?php echo $row->lecturer; ?></td>
-                    <th><?php _e('Date','teachpress'); ?></th>
-                    <td><?php echo $row->date; ?></td>
-                    <th><?php _e('Room','teachpress'); ?></th>
-                    <td><?php echo $row->room; ?></td>
-                </tr>
-            </table>
-         </div>
-         <table border="1" cellpadding="0" cellspacing="0" class="tp_print" width="100%">
-           <tr style="border-collapse: collapse; border: 1px solid black;">
-            <th width="20" height="100">&nbsp;</th>
-            <th width="250"><?php _e('Name','teachpress'); ?></th>
-            <?php
-            if ($matriculation_number_field == '1') {
-                echo '<th>' . __('Matr. number','teachpress') . '</th>';
-            }
-            if ($nutzerkuerzel_field == '1') {
-                echo '<th width="81">' . __('User account','teachpress') . '</th>';
-            }
-            if ($course_of_studies_field == '1') {
-                echo '<th>' . __('Course of studies','teachpress') . '</th>';
-            }
-            if ($semesternumber_field == '1') {
-                echo '<th>' . __('Number of terms','teachpress') . '</th>';
-            }
-            if ($birthday_field == '1') {
-                echo '<th>' . __('Date of birth','teachpress') . '</th>';
-            }
-            if ($email_field == '1') {
-                echo '<th>' . __('E-Mail') . '</th>';
-            }
-            for ($i=1; $i<=$anzahl; $i++ ) {
-                echo '<th>&nbsp;</th>';
-            }
-            ?>
-           </tr>
-          <tbody> 
-      <?php         
-      }
+        $row = get_tp_course($course_ID);
+        // define course name
+        if ($row->parent != 0) {
+           $parent_name = $wpdb->get_var("SELECT `name` FROM " . $teachpress_courses . " WHERE `course_id` = '$row->parent'");
+           // if parent_name == child name
+           if ($parent_name == $row->name) {
+               $parent_name = "";
+           }
+        }
+        else {
+           $parent_name = "";
+        }
+        ?>
+        <h2><?php echo $parent_name; ?> <?php echo $row->name; ?> <?php echo $row->semester; ?></h2>
+        <div id="einschreibungen" style="padding:5px;">
+        <div style="width:700px; padding-bottom:10px;">
+           <table border="1" cellspacing="0" cellpadding="0" class="tp_print">
+               <tr>
+                   <th><?php _e('Lecturer','teachpress'); ?></th>
+                   <td><?php echo $row->lecturer; ?></td>
+                   <th><?php _e('Date','teachpress'); ?></th>
+                   <td><?php echo $row->date; ?></td>
+                   <th><?php _e('Room','teachpress'); ?></th>
+                   <td><?php echo $row->room; ?></td>
+               </tr>
+           </table>
+        </div>
+        <table border="1" cellpadding="0" cellspacing="0" class="tp_print" width="100%">
+          <tr style="border-collapse: collapse; border: 1px solid black;">
+           <th width="20" height="100">&nbsp;</th>
+           <th width="250"><?php _e('Name','teachpress'); ?></th>
+           <?php
+           if ($matriculation_number_field == '1') {
+               echo '<th>' . __('Matr. number','teachpress') . '</th>';
+           }
+           if ($nutzerkuerzel_field == '1') {
+               echo '<th width="81">' . __('User account','teachpress') . '</th>';
+           }
+           if ($course_of_studies_field == '1') {
+               echo '<th>' . __('Course of studies','teachpress') . '</th>';
+           }
+           if ($semesternumber_field == '1') {
+               echo '<th>' . __('Number of terms','teachpress') . '</th>';
+           }
+           if ($birthday_field == '1') {
+               echo '<th>' . __('Date of birth','teachpress') . '</th>';
+           }
+           if ($email_field == '1') {
+               echo '<th>' . __('E-Mail') . '</th>';
+           }
+           for ($i=1; $i<=$anzahl; $i++ ) {
+               echo '<th>&nbsp;</th>';
+           }
+           ?>
+          </tr>
+         <tbody> 
+      <?php
       $nummer = 1;
       // Ausgabe der Tabelle zu den in die LVS eingeschriebenen Studenten
-      $select = "SELECT s.firstname, s.lastname";
-      if ($matriculation_number_field == '1') {
-          $select = $select . ", s.matriculation_number";
-      }
-      if ($nutzerkuerzel_field == '1') {
-          $select = $select . ", s.userlogin";
-      }
-      if ($course_of_studies_field == '1') {
-          $select = $select . ", s.course_of_studies";
-      }
-      if ($semesternumber_field == '1') {
-          $select = $select . ", s.semesternumber";
-      }
-      if ($birthday_field == '1') {
-          $select = $select . ", s.birthday";
-      }
-      if ($email_field == '1') {
-          $select = $select . ", s.email";
-      }
-      if ($sort == '2') {
-          $order_by = "s.matriculation_number";
-      }
-      else {
-          $order_by = "s.lastname";
-      }
-      $row = "" . $select . "
-            FROM " . $teachpress_signup . " k
-            INNER JOIN " . $teachpress_courses . " v ON v.course_id=k.course_id
-            INNER JOIN " . $teachpress_stud . " s ON s.wp_id=k.wp_id
-            WHERE v.course_id = '$course_ID'
-            ORDER BY " . $order_by . "";	
-      $row = $wpdb->get_results($row);
-      foreach($row as $row3)
-        {
+      $order_by = $sort == '2' ? "st.matriculation_number" : "st.lastname";	
+      $row3 = get_tp_course_signups( array('course' => $course_ID, 'order' => $order_by, 'waitinglist' => 0 ) );
+      foreach($row3 as $row3) {
         ?>
         <tr>
             <td><?php echo $nummer; ?></td>

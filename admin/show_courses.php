@@ -35,12 +35,12 @@ function teachpress_show_courses_page() {
      
      // Send mail (received from mail.php)
      if( isset( $_POST['send_mail'] ) ) {
-          $from = isset ( $_POST['from'] ) ? tp_sec_var($_POST['from']) : '';
-          $to = isset ( $_POST['recipients'] ) ? tp_sec_var($_POST['recipients']) : '';
-          $subject = isset ( $_POST['subject'] ) ? tp_sec_var($_POST['subject']) : '';
-          $text = isset ( $_POST['text'] ) ? tp_sec_var($_POST['text']) : '';
-          $options['backup_mail'] = isset ( $_POST['backup_mail'] ) ? tp_sec_var($_POST['backup_mail']) : '';
-          $options['recipients'] = isset ( $_POST['recipients_option'] ) ? tp_sec_var($_POST['recipients_option']) : '';
+          $from = isset ( $_POST['from'] ) ? htmlspecialchars($_POST['from']) : '';
+          $to = isset ( $_POST['recipients'] ) ? htmlspecialchars($_POST['recipients']) : '';
+          $subject = isset ( $_POST['subject'] ) ? htmlspecialchars($_POST['subject']) : '';
+          $text = isset ( $_POST['text'] ) ? htmlspecialchars($_POST['text']) : '';
+          $options['backup_mail'] = isset ( $_POST['backup_mail'] ) ? htmlspecialchars($_POST['backup_mail']) : '';
+          $options['recipients'] = isset ( $_POST['recipients_option'] ) ? htmlspecialchars($_POST['recipients_option']) : '';
           $attachments = isset ( $_POST['attachments'] ) ? $_POST['attachments'] : '';
           $ret = tp_mail::sendMail($from, $to, $subject, $text, $options, $attachments);
           $message = $ret == true ? __('E-Mail sent','teachpress') : __('Error: E-Mail could not sent','teachpress');
@@ -48,7 +48,7 @@ function teachpress_show_courses_page() {
      }
 
      // Event Handler
-     $action = isset( $_GET['action'] ) ? tp_sec_var($_GET['action']) : '';
+     $action = isset( $_GET['action'] ) ? htmlspecialchars($_GET['action']) : '';
      
      if ($action == 'edit') {
           tp_add_course_page();
@@ -69,17 +69,17 @@ function teachpress_show_courses_page() {
      global $wpdb;
      global $teachpress_settings; 
      global $teachpress_courses;
-	 global $teachpress_signup;
+     global $teachpress_signup;
 
-     $search = isset( $_GET['search'] ) ? tp_sec_var($_GET['search']) : '';
-     $course_ID = isset( $_GET['course_ID'] ) ? (int) $_GET['course_ID'] : '';
+     $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
+     $course_ID = isset( $_GET['course_ID'] ) ? intval($_GET['course_ID']) : '';
      $checkbox = isset( $_GET['checkbox'] ) ? $_GET['checkbox'] : '';
      $bulk = isset( $_GET['bulk'] ) ? $_GET['bulk'] : '';
      $copysem = isset( $_GET['copysem'] ) ? $_GET['copysem'] : '';
      
      // if the semester is selected by user
      if (isset($_GET['sem'])) {
-       $sem = tp_sec_var($_GET['sem']);
+       $sem = htmlspecialchars($_GET['sem']);
      }
      else {
        $sem = get_tp_option('sem');
@@ -155,8 +155,7 @@ function teachpress_show_courses_page() {
           <select name="sem" id="sem">
                <option value="alle"><?php _e('All terms','teachpress'); ?></option>
                <?php    
-               $row = "SELECT `value` FROM " . $teachpress_settings . " WHERE `category` = 'semester' ORDER BY `setting_id` DESC";
-               $row = $wpdb->get_results($row);
+               $row = get_tp_settings('semester');
                foreach ($row as $row) { 
                     if ($row->value == $sem) {
                             $current = 'selected="selected"' ;
@@ -172,7 +171,7 @@ function teachpress_show_courses_page() {
      <table cellpadding="5" cellspacing="0" border="1" class="widefat">
         <thead>
         <tr>
-            <th class="check-column"><input name="tp_check_all" id="tp_check_all" type="checkbox" value="" onclick="teachpress_checkboxes();" /></th>
+            <th class="check-column"><input name="tp_check_all" id="tp_check_all" type="checkbox" value="" onclick="teachpress_checkboxes('checkbox[]','tp_check_all');" /></th>
             <th><?php _e('Name','teachpress'); ?></th>
             <th><?php _e('ID'); ?></th>
             <th><?php _e('Type'); ?></th>
@@ -207,13 +206,13 @@ function teachpress_show_courses_page() {
                echo '<tr><td colspan="13"><strong>' . __('Sorry, no entries matched your criteria.','teachpress') . '</strong></td></tr>';
            }
            else {
-			    // free places
-				$sql = "SELECT `course_id`, COUNT(`course_id`) AS used_places FROM $teachpress_signup WHERE `waitinglist` = '0' GROUP BY `course_id`";
-				$r = $wpdb->get_results($sql);
-				foreach ($r as $r) {
-					$free_places[$r->course_id] = $r->used_places;
-				}
-				// END free places
+                // free places
+                $sql = "SELECT `course_id`, COUNT(`course_id`) AS used_places FROM $teachpress_signup WHERE `waitinglist` = '0' GROUP BY `course_id`";
+                $r = $wpdb->get_results($sql);
+                foreach ($r as $r) {
+                        $free_places[$r->course_id] = $r->used_places;
+                }
+                // END free places
                 $static['bulk'] = $bulk;
                 $static['sem'] = $sem;
                 $static['search'] = $search;

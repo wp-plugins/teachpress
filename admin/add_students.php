@@ -25,17 +25,17 @@ global $teachpress_courses;
 global $teachpress_stud; 
 global $teachpress_settings;
 
-$wp_id = isset($_POST['wp_id']) ? tp_sec_var($_POST['wp_id'], 'integer') : '';
-$data['matriculation_number'] = isset( $_POST['matriculation_number'] ) ? tp_sec_var($_POST['matriculation_number'], 'integer') : '';
-$data['firstname'] = isset( $_POST['firstname'] ) ? tp_sec_var($_POST['firstname']) : '';
-$data['lastname'] = isset( $_POST['lastname'] ) ? tp_sec_var($_POST['lastname']) : '';
-$data['course_of_studies'] = isset( $_POST['course_of_studies'] ) ? tp_sec_var($_POST['course_of_studies']) : '';
-$data['semesternumber'] = isset( $_POST['semesternumber'] ) ? tp_sec_var($_POST['semesternumber'], 'integer') : '';
-$data['userlogin'] = isset( $_POST['userlogin'] ) ? tp_sec_var($_POST['userlogin']) : '';
-$data['birthday'] = isset( $_POST['birthday'] ) ? tp_sec_var($_POST['birthday']) : '';
-$data['email'] = isset( $_POST['email'] ) ? tp_sec_var($_POST['email']) : '';
-$student = isset( $_POST['student'] ) ? tp_sec_var($_POST['student']) : '';
-$veranstaltung = isset( $_POST['veranstaltung'] ) ? tp_sec_var($_POST['veranstaltung']) : '';
+$wp_id = isset($_POST['wp_id']) ? intval($_POST['wp_id']) : '';
+$data['matriculation_number'] = isset( $_POST['matriculation_number'] ) ? intval($_POST['matriculation_number']) : '';
+$data['firstname'] = isset( $_POST['firstname'] ) ? htmlspecialchars($_POST['firstname']) : '';
+$data['lastname'] = isset( $_POST['lastname'] ) ? htmlspecialchars($_POST['lastname']) : '';
+$data['course_of_studies'] = isset( $_POST['course_of_studies'] ) ? htmlspecialchars($_POST['course_of_studies']) : '';
+$data['semesternumber'] = isset( $_POST['semesternumber'] ) ? intval($_POST['semesternumber']) : '';
+$data['userlogin'] = isset( $_POST['userlogin'] ) ? htmlspecialchars($_POST['userlogin']) : '';
+$data['birthday'] = isset( $_POST['birthday'] ) ? htmlspecialchars($_POST['birthday']) : '';
+$data['email'] = isset( $_POST['email'] ) ? htmlspecialchars($_POST['email']) : '';
+$student = isset( $_POST['student'] ) ? htmlspecialchars($_POST['student']) : '';
+$veranstaltung = isset( $_POST['veranstaltung'] ) ? htmlspecialchars($_POST['veranstaltung']) : '';
 
 // actions
 if (isset( $_POST['insert'] ) && $wp_id != __('WordPress User-ID','teachpress') && $wp_id != '') {

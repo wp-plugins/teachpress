@@ -8,8 +8,8 @@ function teachpress_import_page() {
      if ( isset($_POST['tp_submit']) && isset ($_POST['bibtex_area']) ) {
         $bibtex = $_POST['bibtex_area']; // The input is checked by the function tp_bibtex::import_bibtex
         $settings = array(
-            'keyword_separator' => tp_sec_var($_POST['keyword_option']),
-            'author_format' => tp_sec_var($_POST['author_format'])
+            'keyword_separator' => htmlspecialchars($_POST['keyword_option']),
+            'author_format' => htmlspecialchars($_POST['author_format'])
         );
 	tp_bibtex::import_bibtex($bibtex, $settings);
 	echo '<p><a href="admin.php?page=teachpress/import.php" class="button-secondary">&larr; ' . __('Back','teachpress') . '</a></p>';

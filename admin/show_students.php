@@ -2,19 +2,17 @@
 /* overview for students
  *
  * from editstudent.php (GET):
- * @param $search - String
- * @param $students_group - String
+ * @param string $search
+ * @param string $students_group
 */
 function teachpress_students_page() { 
 
-    global $teachpress_stud;
-    global $wpdb;
     global $user_ID;
     get_currentuserinfo();
     $checkbox = isset ( $_GET['checkbox'] ) ? $_GET['checkbox'] : '';
     $bulk = isset ( $_GET['bulk'] ) ? $_GET['bulk'] : '';
-    $search = isset ( $_GET['search'] ) ? tp_sec_var($_GET['search']) : ''; 
-    $students_group = isset ( $_GET['students_group'] ) ? tp_sec_var($_GET['students_group']) : '';
+    $search = isset ( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : ''; 
+    $students_group = isset ( $_GET['students_group'] ) ? htmlspecialchars($_GET['students_group']) : '';
     $action = isset ($_GET['action']) ? $_GET['action'] : '';
 
     // Page menu
@@ -35,11 +33,11 @@ function teachpress_students_page() {
 
     // Send mail (received from mail.php)
     if( isset( $_POST['send_mail'] ) ) {
-        $from = isset ( $_POST['from'] ) ? tp_sec_var($_POST['from']) : '';
-        $to = isset ( $_POST['recipients'] ) ? tp_sec_var($_POST['recipients']) : '';
-        $recipients_option = isset ( $_POST['recipients_option'] ) ? tp_sec_var($_POST['recipients_option']) : '';
-        $subject = isset ( $_POST['subject'] ) ? tp_sec_var($_POST['subject']) : '';
-        $text = isset ( $_POST['text'] ) ? tp_sec_var($_POST['text']) : '';
+        $from = isset ( $_POST['from'] ) ? htmlspecialchars($_POST['from']) : '';
+        $to = isset ( $_POST['recipients'] ) ? htmlspecialchars($_POST['recipients']) : '';
+        $recipients_option = isset ( $_POST['recipients_option'] ) ? htmlspecialchars($_POST['recipients_option']) : '';
+        $subject = isset ( $_POST['subject'] ) ? htmlspecialchars($_POST['subject']) : '';
+        $text = isset ( $_POST['text'] ) ? htmlspecialchars($_POST['text']) : '';
         $attachments = isset ( $_POST['attachments'] ) ? $_POST['attachments'] : '';
         tp_mail::sendMail($from, $to, $recipients_option, $subject, $text, $attachments);
         $message = __('E-Mail sent','teachpress');
@@ -53,20 +51,8 @@ function teachpress_students_page() {
     else {
         $field1 = get_tp_option('regnum');
         $field2 = get_tp_option('studies');
-        $order = '`lastname` ASC, `firstname` ASC';
-        if ($search != "") {
-            $abfrage = "SELECT * FROM " . $teachpress_stud . " WHERE `matriculation_number` like '%$search%' OR `wp_id` like '%$search%' OR `firstname` LIKE '%$search%' OR `lastname` LIKE '%$search%' ORDER BY " . $order . "";
-        }
-        else {
-            if ($students_group == 'alle' || $students_group == '') {
-                $abfrage = "SELECT * FROM " . $teachpress_stud . " ORDER BY " . $order . "";
-            }
-            else {
-                $abfrage = "SELECT * FROM " . $teachpress_stud . " WHERE `course_of_studies` = '$students_group' ORDER BY " . $order . "";
-            }
-        }
-        $test = $wpdb->query($abfrage);
-        $abfrage = $abfrage . " LIMIT $entry_limit, $number_messages";
+        $students = get_tp_students( array('course_of_studies' => $students_group, 'search' => $search, 'limit' => $entry_limit . ',' . $number_messages, 'output_type' => OBJECT ) );
+        $test = get_tp_students( array('course_of_studies' => $students_group, 'search' => $search, 'output_type' => OBJECT, 'count' => true ) );
         ?>
         <div class="wrap">
         <form name="search" method="get" action="admin.php">
@@ -103,18 +89,12 @@ function teachpress_students_page() {
     <input type="submit" name="teachpress_submit" value="<?php _e('OK','teachpress'); ?>" id="teachpress_submit2" class="button-secondary"/>
     <?php if ($field2 == '1') { ?>
         <select name="students_group" id="students_group">
-            <option value="alle">- <?php _e('All students','teachpress'); ?> -</option>
+            <option value="">- <?php _e('All students','teachpress'); ?> -</option>
             <?php
-            $row = "SELECT DISTINCT `course_of_studies` FROM " . $teachpress_stud . " ORDER BY `course_of_studies`";
-            $row = $wpdb->get_results($row);
+            $row = get_tp_settings('course_of_studies', 'value ASC');
             foreach($row as $row){
-                if ($row->course_of_studies == $students_group) {
-                    $current = ' selected="selected"' ;
-                }
-                else {
-                    $current = '' ;
-                }
-                echo'<option value="' . $row->course_of_studies . '"' . $current . '>' . $row->course_of_studies . '</option>';
+                $current = $row->value == $students_group ? ' selected="selected"' : '';
+                echo'<option value="' . $row->value . '"' . $current . '>' . $row->value . '</option>';
             } ?>
         </select>
         <input name="anzeigen" type="submit" id="teachpress_search_senden" value="<?php _e('Show','teachpress'); ?>" class="button-secondary"/>
@@ -126,7 +106,7 @@ function teachpress_students_page() {
         <thead>
         <tr>
             <th class="check-column">
-                <input name="tp_check_all" id="tp_check_all" type="checkbox" value="" onclick="teachpress_checkboxes();" />
+                <input name="tp_check_all" id="tp_check_all" type="checkbox" value="" onclick="teachpress_checkboxes('checkbox[]','tp_check_all');" />
             </th>
             <?php
             echo '<th>' . __('Last name','teachpress') . '</th>';
@@ -153,12 +133,11 @@ function teachpress_students_page() {
         <tbody> 
     <?php
         // Show students
-        if ($test == 0) { 
+        if (count($students) == 0) { 
             echo '<tr><td colspan="9"><strong>' . __('Sorry, no entries matched your criteria.','teachpress') . '</strong></td></tr>';
         }
         else {
-            $row3 = $wpdb->get_results($abfrage);
-            foreach($row3 as $row3) { 
+            foreach($students as $row3) { 
                 echo '<tr>';
                 echo '<th class="check-column"><input type="checkbox" name="checkbox[]" id="checkbox" value="' . $row3->wp_id . '"';
                 if ( $bulk == "delete") { 
@@ -196,10 +175,10 @@ function teachpress_students_page() {
         } 
         else {
             if ($test == 1) {
-                echo '' . $test . ' ' . __('entry','teachpress') . '';
+                echo $test . ' ' . __('entry','teachpress');
             }
             else {
-                echo '' . $test . ' ' . __('entries','teachpress') . '';
+                echo $test . ' ' . __('entries','teachpress');
             }
         }?>
         </div></div>
