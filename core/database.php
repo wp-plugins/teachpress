@@ -57,10 +57,13 @@ function get_tp_publications($args) {
     $where = "";
     $order = "";
     $having ="";
+    $search = esc_sql(htmlspecialchars($search));
+    $limit = htmlspecialchars($limit);
+    $output_type = htmlspecialchars($output_type);
 
     // additional joins
     if ( $user != '' ) {
-        $join = $join . "INNER JOIN " . $teachpress_user . " u ON u.pub_id= b.pub_id";
+        $join = $join . "INNER JOIN $teachpress_user u ON u.pub_id= b.pub_id";
     }
     if ( $tag != '' ) {
         $join = $join . "INNER JOIN $teachpress_tags t ON t.tag_id = b.tag_id";
@@ -80,11 +83,12 @@ function get_tp_publications($args) {
         }
 
     }
-    $order = substr($order, 0, -2);
+    if ( $order != '' ) {
+        $order = substr($order, 0, -2);
+    }
 
     // define global search
     if ( $search != "" ) {
-        $search = esc_sql(htmlspecialchars($search));
         $search = "p.name LIKE '%$search%' OR p.author LIKE '%$search%' OR p.editor LIKE '%$search%' OR p.isbn LIKE '%$search%' OR p.booktitle LIKE '%$search%' OR p.journal LIKE '%$search%'";
     }
 
@@ -427,13 +431,16 @@ function get_tp_course_free_places($course_id, $places) {
     return ($places - $used_places);
 }
 
-
+/**
+ * Get data of courses
+ * @param type $args
+ * @since 3.2.0
+ */
 function get_tp_courses ($args) {
     $defaults = array(
         'semester' => '',
         'visibility' => '',
-        'parent' => 0,
-        'where' => '',
+        'parent' => '',
         'search' => '',
         'exclude' => '',
         'order' => 'semester DESC, name',
@@ -445,17 +452,56 @@ function get_tp_courses ($args) {
     
     global $wpdb;
     global $teachpress_courses;
-    global $teachpress_signup;
-    
-    $order_all = $order;
     
     // Define basics
-    $select = "SELECT DISTINCT c.course_id, c.name, c.type, c.lecturer, c.date, c.room, c.places, c.start, c.end, c.semester, c.parent, c.visible
-               FROM $teachpress_courses c";
-    $join = "INNER JOIN $teachpress_signup r ON r.course_id = c.course_id";
-    $where = htmlspecialchars($where);
-    $limit = '';
-    $order = '';
+    $sql = "SELECT `course_id`, `name`, `type`, `lecturer`, `date`, `room`, `places`, `start`, `end`, `semester`, `parent`, `visible`, `parent_name` 
+            FROM ( SELECT t.course_id AS course_id, t.name AS name, t.type AS type, t.lecturer AS lecturer, t.date AS date, t.room As room, t.places AS places, t.start AS start, t.end As end, t.semester AS semester, t.parent As parent, t.visible AS visible, p.name AS parent_name 
+                   FROM $teachpress_courses t 
+                   LEFT JOIN " . $teachpress_courses . " p ON t.parent = p.course_id ) AS temp";
+    $where = "";
+    $order = htmlspecialchars($order);
+    $limit = htmlspecialchars($limit);
+    $output_type = htmlspecialchars($output_type);
+    $search = esc_sql(htmlspecialchars($search));
+    $parent = htmlspecialchars($parent);
+    $exclude = tp_generate_where_clause($exclude, "p.pub_id", "AND", "!=");
+    $semester = tp_generate_where_clause($semester, "semester", "OR", "=");
+    $visibility = tp_generate_where_clause($visibility, "semester", "OR", "=");
+
+    if ( $exclude != '' ) {
+        $where = $where != "" ? $where . " AND $exclude " : $exclude;
+    }
+    if ( $semester != '') {
+        $where = $where != "" ? $where . " AND ( $semester )" : $semester;
+    }
+    if ( $visibility != '') {
+        $where = $where != "" ? $where . " AND ( $visibility )" : $visibility;
+    }
+    if ( $search != '') {
+        $where = $where != "" ? $where . " AND ( $search )" : $search ;
+    }
+    if ( $parent !== '' ) {
+        $where = $where != "" ? $where . " AND ( `parent` = '$parent' )" : "`parent` = '$parent'" ;
+    }
+    if ( $where != '' ) {
+        $where = " WHERE $where";
+    }
+    if ( $limit != '' ) {
+        $limit = "LIMIT $limit";
+    }
+    
+    // define global search
+    if ( $search != "" ) {
+        $search = "`name` like '%$search%' OR `parent_name` like '%$search%' OR `lecturer` like '%$search%' OR `date` like '%$search%' OR `room` like '%$search%' OR `course_id` = '$search'";
+    }
+    
+    // define order
+    if ($order != '') {
+        $order = " ORDER BY $order";
+    }
+    
+    $result = $wpdb->get_results($sql . $where . $order, $output_type);
+    return $result;
 }
 
 /** 
@@ -548,6 +594,7 @@ function tp_change_course($course_ID, $data){
  * Get course signups or waitinglist entries
  * @param array $args
  * @return object or array
+ * @since 3.2.0
  */
 function get_tp_course_signups ($args) {
     $defaults = array(
@@ -565,6 +612,8 @@ function get_tp_course_signups ($args) {
     
     $course = htmlspecialchars($course);
     $order = htmlspecialchars($order);
+    $output_type = htmlspecialchars($output_type);
+    $waitinglist = htmlspecialchars($waitinglist);
     
     if ($order != '') {
         $order = " ORDER BY $order";
@@ -687,6 +736,47 @@ function tp_delete_student($checkbox, $user_ID){
         $wpdb->query( "DELETE FROM $teachpress_stud WHERE `wp_id` = $checkbox[$i]" );
         $wpdb->query( "DELETE FROM $teachpress_signup WHERE `wp_id` = $checkbox[$i]" );
     }
+}
+
+/**
+ * Return true if the user is subscribed in the course or false of not
+ * @param integer course_id
+ * @param boolean consider_subcourses   --> 
+ * @return boolean
+ * @since 3.2.0
+ */
+function tp_is_user_subscribed ($course_id, $consider_subcourses = false) {
+    global $wpdb;
+    global $teachpress_signup;
+    global $teachpress_courses;
+    global $user_ID;
+    get_currentuserinfo();
+    $course_id = intval($course_id);
+    // simple case
+    if ( $consider_subcourses == false ) {
+        $test = $wpdb->query("SELECT `con_id` FROM $teachpress_signup WHERE `course_id` = '$course_id' AND `wp_id` = '$user_ID' AND `waitinglist` = '0'");
+    }
+    // consider subcourses
+    if ( $consider_subcourses == true ) {
+        $where = "";
+        $courses = $wpdb->get_results("SELECT `course_id` FROM $teachpress_courses WHERE `parent` = '$course_id'");
+        foreach ( $courses as $row ) {
+            $where = $where == "" ? "`course_id` = '$row->course_id'" : $where . " OR `course_id` = '$row->course_id'";
+        }
+        if ( $where != "" ) {
+            $where = " WHERE `wp_id` = '$user_ID' AND `waitinglist` = '0' AND ( $where OR `course_id` = '$course_id' )";
+            $test = $wpdb->query("SELECT `con_id` FROM $teachpress_signup $where");
+        }
+        // Fallback if there are no subcourses
+        else {
+            $test = $wpdb->query("SELECT `con_id` FROM $teachpress_signup WHERE `course_id` = '$course_id' AND `wp_id` = '$user_ID' AND `waitinglist` = '0'");
+        }
+    }
+
+    if ( $test >= 1 ) {
+        return true;
+    }
+    return false;
 }
 
 /************/

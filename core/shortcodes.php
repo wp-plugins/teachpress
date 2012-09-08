@@ -279,7 +279,7 @@ function tp_generate_pub_table($tparray, $tpz, $headline, $row_year, $colspan) {
     $pubs = '';
     if ( $headline == 1 ) {
         foreach($row_year as $row) {
-            $pubs = $pubs . tp_sort_pub_table($tparray, $tpz, $headline, $colspan, $row->jahr);
+            $pubs = $pubs . tp_sort_pub_table($tparray, $tpz, $headline, $colspan, $row->year);
         }
     }
     if ( $headline == 2 ) {
@@ -850,15 +850,10 @@ function tp_list_shortcode($atts){
  * @return STRING
 */
 function tp_post_shortcode ($atts, $content) {
-    global $wpdb;
-    global $teachpress_signup;
-    global $user_ID;
-    get_currentuserinfo();
     extract(shortcode_atts(array('id' => 0), $atts));
     $id = intval($id);
-    $sql = "SELECT con_id FROM " . $teachpress_signup . " WHERE `course_id` = '$id' AND `wp_id` = '$user_ID'";
-    $test = $wpdb->query($sql);
-    if ($test == 1) {
+    $test = tp_is_user_subscribed($id, true);
+    if ($test == true) {
         return $content;
     }
 }
