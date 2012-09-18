@@ -3,11 +3,11 @@
 Plugin Name: teachPress
 Plugin URI: http://mtrv.wordpress.com/teachpress/
 Description: With teachPress you can easy manage courses, enrollments and publications.
-Version: 3.1.6
+Version: 3.1.7
 Author: Michael Winkler
 Author URI: http://mtrv.wordpress.com/
 Min WP Version: 3.3
-Max WP Version: 3.4.1
+Max WP Version: 3.4.2
 */
 
 /*
@@ -80,26 +80,29 @@ function tp_add_menu_settings() {
 /* Includes */
 /************/
 // Admin menus
-include_once("admin/show_courses.php");
-include_once("admin/add_course.php");
-include_once("admin/show_single_course.php");
-include_once("admin/create_lists.php");
-include_once("admin/mail.php");
-include_once("admin/show_students.php");
-include_once("admin/add_students.php");
-include_once("admin/edit_student.php");
-include_once("admin/settings.php");
-include_once("admin/show_publications.php");
-include_once("admin/add_publication.php");
-include_once("admin/edit_tags.php");
-include_once("admin/import_publications.php");
+if ( is_admin() ) {
+    include_once("admin/show_courses.php");
+    include_once("admin/add_course.php");
+    include_once("admin/show_single_course.php");
+    include_once("admin/create_lists.php");
+    include_once("admin/mail.php");
+    include_once("admin/show_students.php");
+    include_once("admin/add_students.php");
+    include_once("admin/edit_student.php");
+    include_once("admin/settings.php");
+    include_once("admin/show_publications.php");
+    include_once("admin/add_publication.php");
+    include_once("admin/edit_tags.php");
+    include_once("admin/import_publications.php");
+}
 // Core functions
-include_once("core/admin.php");
-include_once("core/shortcodes.php");
-include_once("core/enrollments.php");
 include_once("core/class-bibtex.php");
 include_once("core/class-mail.php");
 include_once("core/class-export.php");
+include_once("core/admin.php");
+include_once("core/database.php");
+include_once("core/shortcodes.php");
+include_once("core/enrollments.php");
 // BibTeX Parse
 if ( !class_exists( 'PARSEENTRIES' ) ) {
     include_once("includes/bibtexParse/PARSEENTRIES.php");
@@ -616,7 +619,7 @@ function tp_install() {
         dbDelta($sql);
         // Default settings		
         $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('sem', 'Example term', 'system')");
-        $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('db-version', '3.1.6', 'system')");
+        $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('db-version', '3.1.7', 'system')");
         $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('permalink', '1', 'system')");
         $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('sign_out', '0', 'system')");
         $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('login', 'std', 'system')");

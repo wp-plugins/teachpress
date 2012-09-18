@@ -189,14 +189,15 @@ function teachpress_admin_settings() {
               	<th><?php _e('Related pages (Post type)','teachpress'); ?></th>
                 <td style="vertical-align:middle;">
                    <p><select name="rel_page_courses" id="rel_page_courses" title="<?php _e('for courses','teachpress');?>">
-                   <option value="page"><?php _e('Pages');?></option>
+                   <?php $value = get_tp_option('rel_page_courses'); ?>
+                   <option value="page" <?php if ($value == 'page') { echo 'selected="selected"'; } ?>><?php _e('Pages');?></option>
+                   <option value="post" <?php if ($value == 'post') { echo 'selected="selected"'; } ?>><?php _e('Posts'); ?></option>
                    <?php
-                   $value = get_tp_option('rel_page_courses');
-                   $args=array(
+                   $args = array(
                      'public'   => true,
                      '_builtin' => false
                    ); 
-                   $post_types=get_post_types($args,'objects'); 
+                   $post_types = get_post_types($args,'objects'); 
                    foreach ($post_types as $post_type ) {
                        if ($post_type->name == $value) {
                                $current = 'selected="selected"' ;
@@ -210,14 +211,15 @@ function teachpress_admin_settings() {
                     </select>
                     <label for="rel_page_courses" title="<?php _e('for courses','teachpress');?>"><?php _e('for courses','teachpress');?></label></p>
                     <p><select name="rel_page_publications" id="rel_page_publications" title="<?php _e('for publications','teachpress');?>">
-                        <option value="page"><?php _e('Pages');?></option>
+                        <?php $value = get_tp_option('rel_page_publications'); ?>
+                        <option value="page" <?php if ($value == 'page') { echo 'selected="selected"'; } ?>><?php _e('Pages');?></option>
+                        <option value="post" <?php if ($value == 'post') { echo 'selected="selected"'; } ?>><?php _e('Posts'); ?></option>
                         <?php
-                        $value = get_tp_option('rel_page_publications');
-                        $args=array(
+                        $args = array(
                           'public'   => true,
                           '_builtin' => false
                         ); 
-                        $post_types=get_post_types($args,'objects'); 
+                        $post_types = get_post_types($args,'objects'); 
                         foreach ($post_types as $post_type ) {
                             if ($post_type->name == $value) {
                                     $current = 'selected="selected"' ;
