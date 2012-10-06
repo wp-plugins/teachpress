@@ -208,6 +208,7 @@ function teachpress_show_courses_page() {
            }
            else {
 			    // free places
+				$free_places = array();
 				$sql = "SELECT `course_id`, COUNT(`course_id`) AS used_places FROM $teachpress_signup WHERE `waitinglist` = '0' GROUP BY `course_id`";
 				$r = $wpdb->get_results($sql);
 				foreach ($r as $r) {
