@@ -902,6 +902,9 @@ function tp_list_shortcode($atts){
    
    // define where clause
    $where = "";
+   if ( $yr != 0 && $yr != '' ) {
+       $where = "(p.date BETWEEN '$yr-01-01' AND '$yr-12-31')";
+   }
    if ( $exclude != '' ) {
         $array = explode(',', $exclude);
         foreach ( $array as $element ) {

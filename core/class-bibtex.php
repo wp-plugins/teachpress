@@ -52,6 +52,10 @@ class tp_bibtex {
                     if ($row[$pub_fields[$i]] == 'presentation') {$row[$pub_fields[$i]] = 'misc';}
                     $string = $string . tp_bibtex::prepare_bibtex_line($row[$pub_fields[$i]],$pub_fields[$i]);
                 }
+				// Name | Title fix
+                elseif ( $pub_fields[$i] == 'name' ) {
+                    $string = $string . tp_bibtex::prepare_bibtex_line($row[$pub_fields[$i]],'title');
+                }
                 // normal case
                 else {
                     $string = $string . tp_bibtex::prepare_bibtex_line($row[$pub_fields[$i]],$pub_fields[$i]);
