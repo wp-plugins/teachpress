@@ -234,11 +234,11 @@ function tp_single_shortcode ($atts) {
    $settings['editor_name'] = tp_sec_var($editor_name);
    // Select from database
    $id = tp_sec_var($id, 'integer');
-   $row = "SELECT * FROM " . $teachpress_pub . " WHERE `pub_id` = '$id'";
+   $row = "SELECT *, DATE_FORMAT(date, '%Y') AS jahr FROM " . $teachpress_pub . " WHERE `pub_id` = '$id'";
    $daten = $wpdb->get_row($row, ARRAY_A);
    $author = tp_bibtex::parse_author($daten['author'], $settings['author_name']);
    // Return
-   $asg = '<div class="tp_single_publication"><span class="tp_single_author">' . stripslashes($author) . '</span>: "<span class="tp_single_title">' . stripslashes($daten['name']) . '</span>", <span class="tp_single_additional">' . tp_bibtex::single_publication_meta_row($daten, $settings['editor_name']) . '</span></div>';
+   $asg = '<div class="tp_single_publication"><span class="tp_single_author">' . stripslashes($author) . '</span> (<span class="tp_single_year">' . $daten['jahr'] . '</span>): <span class="tp_single_title">' . stripslashes($daten['name']) . '</span>, <span class="tp_single_additional">' . tp_bibtex::single_publication_meta_row($daten, $settings['editor_name']) . '</span></div>';
    return $asg;
 }
 
