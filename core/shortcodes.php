@@ -228,7 +228,7 @@ function tp_single_shortcode ($atts) {
    $publication = get_tp_publication($id, ARRAY_A);
    $author = tp_bibtex::parse_author($publication['author'], $author_name);
    
-   $asg = '<div class="tp_single_publication"><span class="tp_single_author">' . stripslashes($author) . '</span>: "<span class="tp_single_title">' . stripslashes($publication['name']) . '</span>", <span class="tp_single_additional">' . tp_bibtex::single_publication_meta_row($publication, $editor_name) . '</span></div>';
+   $asg = '<div class="tp_single_publication"><span class="tp_single_author">' . stripslashes($author) . '</span> (<span class="tp_single_year">' . $publication['year'] . '</span>): <span class="tp_single_title">' . stripslashes($publication['title']) . '</span>, <span class="tp_single_additional">' . tp_bibtex::single_publication_meta_row($publication, $editor_name) . '</span></div>';
    return $asg;
 }
 
@@ -379,9 +379,9 @@ function tp_cloud_shortcode($atts) {
    }
    
    // secure parameters
-   $image_size = intval($image_size, 'integer');
-   $anchor = intval($anchor, 'integer');
-   $headline = intval($headline, 'integer');
+   $image_size = intval($image_size);
+   $anchor = intval($anchor);
+   $headline = intval($headline);
    $order_all = htmlspecialchars($order);
    $limit = intval($limit);
    $maxsize = intval($maxsize);
@@ -427,8 +427,7 @@ function tp_cloud_shortcode($atts) {
    if ( $exclude != '' ) {
         $array = explode(',', $exclude);
         foreach ( $array as $element ) {
-            $element = trim ( $element );
-            $element = intval($element);
+            $element = trim ( intval($element) );
             if ( $element != 0 ) {
                 $ex = $ex == '' ? "p.pub_id != '$element'" : $ex . " AND p.pub_id != '$element'";
             }
@@ -599,25 +598,25 @@ function tp_cloud_shortcode($atts) {
    // Filter year
    if ($user == 0) {
       $where = $ex != '' ? "WHERE " . $ex . "" : ''; 
-      $row_year = $wpdb->get_results("SELECT DISTINCT DATE_FORMAT(p.date, '%Y') AS jahr FROM " . $teachpress_pub . " p $where ORDER BY jahr DESC");
+      $row_year = $wpdb->get_results("SELECT DISTINCT DATE_FORMAT(p.date, '%Y') AS year FROM " . $teachpress_pub . " p $where ORDER BY year DESC");
    }
    else {
       $where = $ex != '' ? "AND " . $ex . "" : '';  
-      $row_year = $wpdb->get_results("SELECT DISTINCT DATE_FORMAT(p.date, '%Y') AS jahr FROM " . $teachpress_pub . "  p
-                                     INNER JOIN " . $teachpress_user . " u ON u.pub_id=p.pub_id
+      $row_year = $wpdb->get_results("SELECT DISTINCT DATE_FORMAT(p.date, '%Y') AS year FROM $teachpress_pub  p
+                                     INNER JOIN $teachpress_user u ON u.pub_id=p.pub_id
                                      WHERE u.user = '$user' $where
-                                     ORDER BY jahr DESC");
+                                     ORDER BY year DESC");
    }
    $options = '';
    foreach ($row_year as $row) {
-      if ($row->jahr != '0000') {
-         if ($row->jahr == $yr) {
+      if ($row->year != '0000') {
+         if ($row->year == $yr) {
             $current = 'selected="selected"';
          }
          else {
             $current = '';
          }
-         $options = $options . '<option value = "' . $tpurl . 'tgid=' . $tgid . '&amp;yr=' . $row->jahr . '&amp;type=' . $type . '&amp;autor=' . $author . $settings['html_anchor'] . '" ' . $current . '>' . $row->jahr . '</option>';
+         $options = $options . '<option value = "' . $tpurl . 'tgid=' . $tgid . '&amp;yr=' . $row->year . '&amp;type=' . $type . '&amp;autor=' . $author . $settings['html_anchor'] . '" ' . $current . '>' . $row->year . '</option>';
       }
    }
    $filter1 ='<select name="yr" id="yr" onchange="teachpress_jumpMenu(' . $str . 'parent' . $str . ',this,0)">
@@ -629,13 +628,13 @@ function tp_cloud_shortcode($atts) {
    // Filter type
    if ($sort_type == 'all') {
       if ($user == 0) {
-         $where = $ex != '' ? "WHERE " . $ex . "" : ''; 
-         $row = $wpdb->get_results("SELECT DISTINCT p.type FROM " . $teachpress_pub . " p $where ORDER BY p.type ASC");
+         $where = $ex != '' ? "WHERE $ex " : ''; 
+         $row = $wpdb->get_results("SELECT DISTINCT p.type FROM $teachpress_pub p $where ORDER BY p.type ASC");
       }
       else {
-         $where = $ex != '' ? "AND " . $ex . "" : ''; 
-         $row = $wpdb->get_results("SELECT DISTINCT p.type from " . $teachpress_pub . "  p
-                                        INNER JOIN " . $teachpress_user . " u ON u.pub_id=p.pub_id
+         $where = $ex != '' ? "AND $ex " : '';
+         $row = $wpdb->get_results("SELECT DISTINCT p.type from $teachpress_pub  p
+                                        INNER JOIN $teachpress_user u ON u.pub_id=p.pub_id
                                         WHERE u.user = '$user' $where
                                         ORDER BY p.type ASC");
       }

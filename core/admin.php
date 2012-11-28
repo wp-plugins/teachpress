@@ -3,10 +3,6 @@
 /* teachPress Admin Interface functions */
 /****************************************/ 
 
-/*********************/
-/* General functions */
-/*********************/
-
 /** 
  * teachPress Admin Page Menu
  * @access public
@@ -129,10 +125,10 @@ function get_tp_single_table_row_course ($course, $checkbox, $static, $parent_co
     $check = '';
     $style = '';
     // Check if checkbox must be activated or not
-    if ( $static['bulk'] == "copy" || $static['bulk'] == "delete") { 
+    if ( ( $static['bulk'] == "copy" || $static['bulk'] == "delete") && $checkbox != "" ) {
         for( $k = 0; $k < count( $checkbox ); $k++ ) { 
             if ( $course['course_id'] == $checkbox[$k] ) { $check = 'checked="checked"';} 
-        } 
+        }
     }
     // Change the style for an important information
     if ( $course['places'] > 0 && $course['fplaces'] <= 0 ) {
@@ -205,8 +201,7 @@ function tp_copy_course($checkbox, $copysem) {
      $counter2 = 0;
      for( $i = 0; $i < count( $checkbox ); $i++ ) {
           $checkbox[$i] = intval($checkbox[$i]);
-          $row = "SELECT * FROM " . $teachpress_courses . " WHERE course_id = $checkbox[$i]";
-          $row = $wpdb->get_results($row);
+          $row = get_tp_course($checkbox[$i]);
           foreach ($row as $row) {
                $daten[$counter]['id'] = $row->course_id;
                $daten[$counter]['name'] = $row->name;
@@ -249,7 +244,7 @@ function tp_copy_course($checkbox, $copysem) {
                     // search the parent
                     for( $k = 0; $k < $counter ; $k++ ) {
                          if ( $daten[$k]['id'] == $test) {
-                              $suche = "SELECT course_id FROM " . $teachpress_courses . " WHERE name = '" . $daten[$k]['name'] . "' AND type = '" . $daten[$k]['type'] . "' AND room = '" . $daten[$k]['room'] . "' AND lecturer = '" . $daten[$k]['lecturer'] . "' AND date = '" . $daten[$k]['date'] . "' AND semester = '$copysem' AND parent = 0";
+                              $suche = "SELECT `course_id` FROM $teachpress_courses WHERE `name` = '" . $daten[$k]['name'] . "' AND `type` = '" . $daten[$k]['type'] . "' AND `room` = '" . $daten[$k]['room'] . "' AND `lecturer` = '" . $daten[$k]['lecturer'] . "' AND `date` = '" . $daten[$k]['date'] . "' AND `semester` = '$copysem' AND `parent` = 0";
                               $suche = $wpdb->get_var($suche);
                               $daten[$i]['parent'] = $suche;
                               $daten[$i]['semester'] = $copysem;
@@ -265,58 +260,5 @@ function tp_copy_course($checkbox, $copysem) {
           }
      }
 }
-
-/*****************/
-/* Registrations */
-/*****************/
-
-/** 
- * Delete registration
- * @param ARRAY $checkbox - An array with course IDs
-*/
-function tp_delete_registration($checkbox) {
-    global $wpdb;
-    global $teachpress_signup;
-    for( $i = 0; $i < count( $checkbox ); $i++ ) {
-        $checkbox[$i] = intval($checkbox[$i]);
-        // select the course_ID
-        $row1 = "SELECT `course_id` FROM " . $teachpress_signup . " WHERE `con_id` = '$checkbox[$i]'";
-        $row1 = $wpdb->get_results($row1);
-        foreach ($row1 as $row1) {
-            // check if there are users in the waiting list
-            $sql = "SELECT `con_id` FROM $teachpress_signup WHERE `course_id` = '" . $row1->course_id . "' AND `waitinglist` = '1' ORDER BY `con_id` ASC LIMIT 0, 1";
-            $con_id = $wpdb->get_var($sql);
-            // if is true subscribe the first one in the waiting list for the course
-            if ($con_id != 0 && $con_id != "") {
-                $wpdb->query( "UPDATE $teachpress_signup SET `waitinglist` = '0' WHERE `con_id` = '$con_id'" );
-            }	
-        }
-        $wpdb->query( "DELETE FROM $teachpress_signup WHERE `con_id` = '$checkbox[$i]'" );
-    }
-}
-
-/** 
- * Subscribe a student from a wating list manually
- * @param ARRAY $checkbox - ID of the registration
-*/
-function tp_add_from_waitinglist($checkbox) {
-    global $wpdb;
-    global $teachpress_signup;
-    for( $i = 0; $i < count( $checkbox ); $i++ ) {
-        $checkbox[$i] = intval($checkbox[$i]);
-        $wpdb->update( $teachpress_signup, array ( 'waitinglist' => 0 ), array ( 'con_id' => $checkbox[$i] ), array ( '%d'), array ( '%d' ) );
-    }
-}
-
-/** 
- * Subscribe a student manually
- * @param INT $student
- * @param INT $veranstaltung
-*/	
-function tp_subscribe_student_manually($student, $veranstaltung) {
-    global $wpdb;
-    global $teachpress_signup;
-    $wpdb->query( "INSERT INTO " . $teachpress_signup . " (`course_id`, `wp_id`, `waitinglist`, `date`) VALUES ('$veranstaltung', '$student', '0', NOW() )" );
-}	
 
 ?>

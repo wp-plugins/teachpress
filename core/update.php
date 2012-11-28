@@ -62,13 +62,11 @@ function tp_db_update_function() {
         /*
         * teachpress courses
         */ 
-        $sql = "SHOW COLUMNS FROM " . $teachpress_ver . " LIKE 'veranstaltungs_id'";
-        $test = $wpdb->query($sql);
-        if ($test == '1') {
+        if ($wpdb->query("SHOW COLUMNS FROM $teachpress_ver LIKE 'veranstaltungs_id'") == '1') {
             $table_name = $teachpress_courses;
             // create new table teachpress_courses
             if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
-                    $sql = "CREATE TABLE " . $teachpress_courses. " (
+                    $sql = "CREATE TABLE $teachpress_courses (
                                 `course_id` INT UNSIGNED AUTO_INCREMENT ,
                                 `name` VARCHAR(100) ,
                                 `type` VARCHAR (100) ,
@@ -92,80 +90,76 @@ function tp_db_update_function() {
                     $wpdb->query($sql);
             }
             // copy all data
-            $sql = "SELECT * FROM " . $teachpress_ver . "";
+            $sql = "SELECT * FROM $teachpress_ver";
             $row = $wpdb->get_results($sql);
             foreach ($row as $row) {
-                $eintragen = "INSERT INTO " . $teachpress_courses . " (`course_id`, `name`, `type`, `room`, `lecturer`, `date`, `places`, `fplaces`, `start`, `end`, `semester`, `comment`, `rel_page`, `parent`, `visible`, `waitinglist`) VALUES('$row->veranstaltungs_id', '$row->name', '$row->vtyp', '$row->raum', '$row->dozent', '$row->termin', '$row->plaetze', '$row->fplaetze', '$row->startein', '$row->endein', '$row->semester', '$row->bemerkungen', '$row->rel_page', '$row->parent', '$row->sichtbar', '$row->warteliste')";
+                $eintragen = "INSERT INTO $teachpress_courses (`course_id`, `name`, `type`, `room`, `lecturer`, `date`, `places`, `fplaces`, `start`, `end`, `semester`, `comment`, `rel_page`, `parent`, `visible`, `waitinglist`) VALUES('$row->veranstaltungs_id', '$row->name', '$row->vtyp', '$row->raum', '$row->dozent', '$row->termin', '$row->plaetze', '$row->fplaetze', '$row->startein', '$row->endein', '$row->semester', '$row->bemerkungen', '$row->rel_page', '$row->parent', '$row->sichtbar', '$row->warteliste')";
                 $wpdb->query($eintragen);
             }
             // delete old table
-            $wpdb->query("DROP TABLE " . $teachpress_ver . "");
+            $wpdb->query("DROP TABLE $teachpress_ver");
             // get message
             echo '<p>Table for courses updated.</p>';
         }
 
         /*
-            * teachpress_relation
+         * teachpress_relation
         */ 
-        $sql = "SHOW COLUMNS FROM " . $teachpress_beziehung . " LIKE 'belegungs_id'";
-        $test = $wpdb->query($sql);
-        if ($test == '1') {
+        if ($wpdb->query("SHOW COLUMNS FROM $teachpress_beziehung LIKE 'belegungs_id'") == '1') {
             // create new table teachpress_relation
             $table_name = $teachpress_relation;
             if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
-                $sql = "CREATE TABLE " . $teachpress_relation . " (
+                $sql = "CREATE TABLE $teachpress_relation (
                                 `con_id` INT UNSIGNED AUTO_INCREMENT ,
                                 `pub_id` INT ,
                                 `tag_id` INT ,
-                                FOREIGN KEY (pub_id) REFERENCES " . $teachpress_pub. "(pub_id) ,
-                                FOREIGN KEY (tag_id) REFERENCES " . $teachpress_tags . "(tag_id) ,
+                                FOREIGN KEY (pub_id) REFERENCES $teachpress_pub (pub_id) ,
+                                FOREIGN KEY (tag_id) REFERENCES $teachpress_tags (tag_id) ,
                                 PRIMARY KEY (con_id)
                         ) $charset_collate;";		   		   
                 $wpdb->query($sql);
             }
             // copy all data
-            $sql = "SELECT * FROM " . $teachpress_beziehung . "";
+            $sql = "SELECT * FROM $teachpress_beziehung";
             $row = $wpdb->get_results($sql);
             foreach ($row as $row) {
-                $eintragen = "INSERT INTO " . $teachpress_relation . " (`con_id`, `pub_id`, `tag_id`) VALUES('$row->belegungs_id', '$row->pub_id', '$row->tag_id')";
+                $eintragen = "INSERT INTO $teachpress_relation (`con_id`, `pub_id`, `tag_id`) VALUES('$row->belegungs_id', '$row->pub_id', '$row->tag_id')";
                 $wpdb->query($eintragen);
             }
             // delete old table
-            $wpdb->query("DROP TABLE " . $teachpress_beziehung . "");
+            $wpdb->query("DROP TABLE $teachpress_beziehung");
             // get message
             echo '<p>Table for relations updated.</p>';
         }
 
         /*
-            * teachpress_signup
+         * teachpress_signup
         */
-        $sql = "SHOW COLUMNS FROM " . $teachpress_kursbelegung . " LIKE 'belegungs_id'";
-        $test = $wpdb->query($sql);
-        if ($test == '1') {
+        if ($wpdb->query("SHOW COLUMNS FROM $teachpress_kursbelegung LIKE 'belegungs_id'") == '1') {
             // create new table teachpress_signup
             $table_name = $teachpress_signup;
             if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
-                    $sql = "CREATE TABLE " . $teachpress_signup . " (
+                    $sql = "CREATE TABLE $teachpress_signup (
                                 `con_id` INT UNSIGNED AUTO_INCREMENT ,
                                 `course_id` INT ,
                                 `wp_id` INT ,
                                 `waitinglist` INT(1) ,
                                 `date` DATE ,
-                                FOREIGN KEY (course_id) REFERENCES " . $teachpress_courses. "(course_id) ,
-                                FOREIGN KEY (wp_id) REFERENCES " . $teachpress_stud . "(wp_id) ,
+                                FOREIGN KEY (course_id) REFERENCES $teachpress_courses (course_id) ,
+                                FOREIGN KEY (wp_id) REFERENCES $teachpress_stud (wp_id) ,
                                 PRIMARY KEY (con_id)
-                                                ) $charset_collate;";
+                            ) $charset_collate;";
                     $wpdb->query($sql);
                 }
             // copy all data
-            $sql = "SELECT * FROM " . $teachpress_kursbelegung . "";
+            $sql = "SELECT * FROM $teachpress_kursbelegung";
             $row = $wpdb->get_results($sql);
             foreach ($row as $row) {
-                $eintragen = "INSERT INTO " . $teachpress_signup . " (`con_id`, `course_id`, `wp_id`, `waitinglist`, `date`) VALUES('$row->belegungs_id', '$row->veranstaltungs_id', '$row->wp_id', '$row->warteliste', '$row->datum')";
+                $eintragen = "INSERT INTO $teachpress_signup (`con_id`, `course_id`, `wp_id`, `waitinglist`, `date`) VALUES('$row->belegungs_id', '$row->veranstaltungs_id', '$row->wp_id', '$row->warteliste', '$row->datum')";
                 $wpdb->query($eintragen);
             }
             // delete old table
-            $wpdb->query("DROP TABLE " . $teachpress_kursbelegung . "");
+            $wpdb->query("DROP TABLE $teachpress_kursbelegung");
             // get message
             echo '<p>Table for enrollments updated.</p>';
         }
@@ -173,13 +167,11 @@ function tp_db_update_function() {
         /*
          * teachpress_settings
         */
-        $sql = "SHOW COLUMNS FROM " . $teachpress_einstellungen . " LIKE 'einstellungs_id'";
-        $test = $wpdb->query($sql);
-        if ($test == '1') {
+        if ($wpdb->query("SHOW COLUMNS FROM $teachpress_einstellungen LIKE 'einstellungs_id'") == '1') {
             // create new table teachpress_settings
             $table_name = $teachpress_settings;
             if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
-                    $sql = "CREATE TABLE " . $teachpress_settings . " (
+                    $sql = "CREATE TABLE $teachpress_settings (
                                 `setting_id` INT UNSIGNED AUTO_INCREMENT ,
                                 `variable` VARCHAR (100) ,
                                 `value` VARCHAR (100) ,
@@ -189,7 +181,7 @@ function tp_db_update_function() {
                     $wpdb->query($sql);
             }
             // copy all data
-            $sql = "SELECT * FROM " . $teachpress_einstellungen . "";
+            $sql = "SELECT * FROM $teachpress_einstellungen";
             $row = $wpdb->get_results($sql);
             foreach ($row as $row) {
                 if ($row->category == 'studiengang') {
@@ -198,11 +190,11 @@ function tp_db_update_function() {
                 if ($row->category == 'veranstaltungstyp') {
                     $row->category = 'course_type';
                 }
-                $eintragen = "INSERT INTO " . $teachpress_settings . " (`setting_id`, `variable`, `value`, `category`) VALUES('$row->einstellungs_id', '$row->variable', '$row->wert', '$row->category')";
+                $eintragen = "INSERT INTO $teachpress_settings (`setting_id`, `variable`, `value`, `category`) VALUES('$row->einstellungs_id', '$row->variable', '$row->wert', '$row->category')";
                 $wpdb->query($eintragen);
             }
             // delete old table
-            $wpdb->query("DROP TABLE " . $teachpress_einstellungen . "");
+            $wpdb->query("DROP TABLE $teachpress_einstellungen");
             // get message
             echo '<p>Table for settings updated.</p>';
         }
@@ -210,46 +202,32 @@ function tp_db_update_function() {
         * teachpress_students
         */
         // rename column vorname to firstname
-        $sql = "SHOW COLUMNS FROM " . $teachpress_stud . " LIKE 'vorname'";
-        $test = $wpdb->query($sql);
-        if ($test == '1') {
-            $wpdb->query("ALTER TABLE " . $teachpress_stud . " CHANGE `vorname` `firstname` VARCHAR( 100 ) " . $charset_collate . " NULL DEFAULT NULL");
+        if ($wpdb->query("SHOW COLUMNS FROM $teachpress_stud LIKE 'vorname'") == '1') {
+            $wpdb->query("ALTER TABLE $teachpress_stud CHANGE `vorname` `firstname` VARCHAR( 100 ) $charset_collate NULL DEFAULT NULL");
         }
         // rename column nachname to lastname
-        $sql = "SHOW COLUMNS FROM " . $teachpress_stud . " LIKE 'nachname'";
-        $test = $wpdb->query($sql);
-        if ($test == '1') {
-            $wpdb->query("ALTER TABLE " . $teachpress_stud . " CHANGE `nachname` `lastname` VARCHAR( 100 ) " . $charset_collate . " NULL DEFAULT NULL");
+        if ($wpdb->query("SHOW COLUMNS FROM $teachpress_stud LIKE 'nachname'") == '1') {
+            $wpdb->query("ALTER TABLE $teachpress_stud CHANGE `nachname` `lastname` VARCHAR( 100 ) $charset_collate NULL DEFAULT NULL");
         }
         // rename column studiengang to course_of_studies
-        $sql = "SHOW COLUMNS FROM " . $teachpress_stud . " LIKE 'studiengang'";
-        $test = $wpdb->query($sql);
-        if ($test == '1') {
-            $wpdb->query("ALTER TABLE " . $teachpress_stud . " CHANGE `studiengang` `course_of_studies` VARCHAR( 100 ) " . $charset_collate . " NULL DEFAULT NULL");
+        if ($wpdb->query("SHOW COLUMNS FROM $teachpress_stud LIKE 'studiengang'") == '1') {
+            $wpdb->query("ALTER TABLE $teachpress_stud CHANGE `studiengang` `course_of_studies` VARCHAR( 100 ) $charset_collate NULL DEFAULT NULL");
         }
         // rename column urzkurz to userlogin
-        $sql = "SHOW COLUMNS FROM " . $teachpress_stud . " LIKE 'urzkurz'";
-        $test = $wpdb->query($sql);
-        if ($test == '1') {
-            $wpdb->query("ALTER TABLE " . $teachpress_stud . " CHANGE `urzkurz` `userlogin` VARCHAR( 100 ) " . $charset_collate . " NULL DEFAULT NULL");
+        if ($wpdb->query("SHOW COLUMNS FROM $teachpress_stud LIKE 'urzkurz'") == '1') {
+            $wpdb->query("ALTER TABLE $teachpress_stud CHANGE `urzkurz` `userlogin` VARCHAR( 100 ) $charset_collate NULL DEFAULT NULL");
         }
         // rename column gebdat to birthday
-        $sql = "SHOW COLUMNS FROM " . $teachpress_stud . " LIKE 'gebdat'";
-        $test = $wpdb->query($sql);
-        if ($test == '1') {
-            $wpdb->query("ALTER TABLE " . $teachpress_stud . " CHANGE `gebdat` `birthday` DATE " . $charset_collate . " NULL DEFAULT NULL");
+        if ($wpdb->query("SHOW COLUMNS FROM $teachpress_stud LIKE 'gebdat'") == '1') {
+            $wpdb->query("ALTER TABLE $teachpress_stud CHANGE `gebdat` `birthday` DATE $charset_collate NULL DEFAULT NULL");
         }
         // rename column fachsemester to semesternumber
-        $sql = "SHOW COLUMNS FROM " . $teachpress_stud . " LIKE 'fachsemester'";
-        $test = $wpdb->query($sql);
-        if ($test == '1') {
-            $wpdb->query("ALTER TABLE " . $teachpress_stud . " CHANGE `fachsemester` `semesternumber` INT(2) NULL DEFAULT NULL");
+        if ($wpdb->query("SHOW COLUMNS FROM $teachpress_stud LIKE 'fachsemester'") == '1') {
+            $wpdb->query("ALTER TABLE $teachpress_stud CHANGE `fachsemester` `semesternumber` INT(2) NULL DEFAULT NULL");
         }
         // rename column matrikel to matriculation_number
-        $sql = "SHOW COLUMNS FROM " . $teachpress_stud . " LIKE 'matrikel'";
-        $test = $wpdb->query($sql);
-        if ($test == '1') {
-            $wpdb->query("ALTER TABLE " . $teachpress_stud . " CHANGE `matrikel` `matriculation_number` INT NULL DEFAULT NULL");
+        if ($wpdb->query("SHOW COLUMNS FROM $teachpress_stud LIKE 'matrikel'") == '1') {
+            $wpdb->query("ALTER TABLE $teachpress_stud CHANGE `matrikel` `matriculation_number` INT NULL DEFAULT NULL");
             // get message
             echo '<p>Table for students updated.</p>';
         }
@@ -259,234 +237,234 @@ function tp_db_update_function() {
         */ 
         // add column image_url
         // since version 0.40
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'image_url'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'image_url'";
         $test = $wpdb->query($sql);
         if ($test == '0') { 
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " ADD `image_url` VARCHAR(200) " . $charset_collate . " NULL DEFAULT NULL AFTER `comment`");
+            $wpdb->query("ALTER TABLE $teachpress_pub ADD `image_url` VARCHAR(200) $charset_collate NULL DEFAULT NULL AFTER `comment`");
         }
         // add colum rel_page
         // since version 0.40
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'rel_page'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'rel_page'";
         $test = $wpdb->query($sql);
         if ($test == '0') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " ADD `rel_page` INT NULL AFTER `image_url`");
+            $wpdb->query("ALTER TABLE $teachpress_pub ADD `rel_page` INT NULL AFTER `image_url`");
         }
         // add column is_isbn
         // since version 0.40
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'is_isbn'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'is_isbn'";
         $test = $wpdb->query($sql);
         if ($test == '0') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " ADD `is_isbn` INT(1) NULL DEFAULT NULL AFTER `rel_page`");
+            $wpdb->query("ALTER TABLE $teachpress_pub ADD `is_isbn` INT(1) NULL DEFAULT NULL AFTER `rel_page`");
         }
         // Rename sort to date
         // since version 2.0
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'sort'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'sort'";
         $test = $wpdb->query($sql);
         if ($test == '1') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " CHANGE  `sort`  `date` DATE NULL DEFAULT NULL");
+            $wpdb->query("ALTER TABLE $teachpress_pub CHANGE  `sort`  `date` DATE NULL DEFAULT NULL");
         }
         // Rename typ to type
         // since version 2.0
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'typ'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'typ'";
         $test = $wpdb->query($sql);
         if ($test == '1') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " CHANGE `typ`  `type` VARCHAR( 50 ) " . $charset_collate . " NULL DEFAULT NULL");
+            $wpdb->query("ALTER TABLE $teachpress_pub CHANGE `typ`  `type` VARCHAR( 50 ) $charset_collate NULL DEFAULT NULL");
             // remane publication types
-            $row = $wpdb->get_results("SELECT pub_id, type  FROM " . $teachpress_pub . "");
+            $row = $wpdb->get_results("SELECT pub_id, type  FROM $teachpress_pub");
             foreach ($row as $row) {
                 if ($row->type == 'Buch') {
-                    $wpdb->query("UPDATE " . $teachpress_pub . " SET type = 'book' WHERE pub_id = '$row->pub_id'");
+                    $wpdb->query("UPDATE $teachpress_pub SET type = 'book' WHERE pub_id = '$row->pub_id'");
                 }
                 if ($row->type == 'Chapter in book') {
-                    $wpdb->query("UPDATE " . $teachpress_pub . " SET type = 'inbook' WHERE pub_id = '$row->pub_id'");
+                    $wpdb->query("UPDATE $teachpress_pub SET type = 'inbook' WHERE pub_id = '$row->pub_id'");
                 }
                 if ($row->type == 'Conference paper') {
-                    $wpdb->query("UPDATE " . $teachpress_pub . " SET type = 'proceedings' WHERE pub_id = '$row->pub_id'");
+                    $wpdb->query("UPDATE $teachpress_pub SET type = 'proceedings' WHERE pub_id = '$row->pub_id'");
                 }
                 if ($row->type == 'Journal article') {
-                    $wpdb->query("UPDATE " . $teachpress_pub . " SET type = 'article' WHERE pub_id = '$row->pub_id'");
+                    $wpdb->query("UPDATE $teachpress_pub SET type = 'article' WHERE pub_id = '$row->pub_id'");
                 }
                 if ($row->type == 'Vortrag') {
-                    $wpdb->query("UPDATE " . $teachpress_pub . " SET type = 'presentation' WHERE pub_id = '$row->pub_id'");
+                    $wpdb->query("UPDATE $teachpress_pub SET type = 'presentation' WHERE pub_id = '$row->pub_id'");
                 }
                 if ($row->type == 'Bericht') {
-                    $wpdb->query("UPDATE " . $teachpress_pub . " SET type = 'techreport' WHERE pub_id = '$row->pub_id'");
+                    $wpdb->query("UPDATE $teachpress_pub SET type = 'techreport' WHERE pub_id = '$row->pub_id'");
                 }
                 if ($row->type == 'Sonstiges') {
-                    $wpdb->query("UPDATE " . $teachpress_pub . " SET type = 'misc' WHERE pub_id = '$row->pub_id'");
+                    $wpdb->query("UPDATE $teachpress_pub SET type = 'misc' WHERE pub_id = '$row->pub_id'");
                 }
             }
         }
         // Rename autor to author
         // since version 2.0
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'autor'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'autor'";
         $test = $wpdb->query($sql);
         if ($test == '1') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " CHANGE `autor` `author` VARCHAR( 500 ) " . $charset_collate . " NULL DEFAULT NULL");
+            $wpdb->query("ALTER TABLE $teachpress_pub CHANGE `autor` `author` VARCHAR( 500 ) $charset_collate NULL DEFAULT NULL");
         }
         // Drop column jahr
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'jahr'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'jahr'";
         $test = $wpdb->query($sql);
         if ($test == '1') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " DROP `jahr`");
+            $wpdb->query("ALTER TABLE $teachpress_pub DROP `jahr`");
         }
         // insert column bibtex
         // since version 2.0
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'bibtex'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'bibtex'";
         $test = $wpdb->query($sql);
         if ($test == '0') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " ADD `bibtex` VARCHAR(50) " . $charset_collate . " NULL DEFAULT NULL AFTER `type`");
+            $wpdb->query("ALTER TABLE $teachpress_pub ADD `bibtex` VARCHAR(50) $charset_collate NULL DEFAULT NULL AFTER `type`");
         }
         // insert column editor
         // since version 2.0
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'editor'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'editor'";
         $test = $wpdb->query($sql);
         if ($test == '0') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " ADD `editor` VARCHAR(500) " . $charset_collate . " NULL DEFAULT NULL AFTER `author`");
+            $wpdb->query("ALTER TABLE $teachpress_pub ADD `editor` VARCHAR(500) $charset_collate NULL DEFAULT NULL AFTER `author`");
         }
         // insert column booktitle
         // since version 2.0
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'booktitle'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'booktitle'";
         $test = $wpdb->query($sql);
         if ($test == '0') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " ADD `booktitle` VARCHAR(200) " . $charset_collate . " NULL DEFAULT NULL AFTER `date`");
+            $wpdb->query("ALTER TABLE $teachpress_pub ADD `booktitle` VARCHAR(200) $charset_collate NULL DEFAULT NULL AFTER `date`");
         }
         // insert column journal
         // since version 2.0
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'journal'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'journal'";
         $test = $wpdb->query($sql);
         if ($test == '0') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " ADD `journal` VARCHAR(200) " . $charset_collate . " NULL DEFAULT NULL AFTER `booktitle`");
+            $wpdb->query("ALTER TABLE $teachpress_pub ADD `journal` VARCHAR(200) $charset_collate NULL DEFAULT NULL AFTER `booktitle`");
         }
         // insert column volume
         // since version 2.0
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'volume'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'volume'";
         $test = $wpdb->query($sql);
         if ($test == '0') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " ADD `volume` VARCHAR(20) " . $charset_collate . " NULL DEFAULT NULL AFTER `journal`");
+            $wpdb->query("ALTER TABLE $teachpress_pub ADD `volume` VARCHAR(20) $charset_collate NULL DEFAULT NULL AFTER `journal`");
         }
         // insert column number
         // since version 2.0
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'number'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'number'";
         $test = $wpdb->query($sql);
         if ($test == '0') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " ADD `number` VARCHAR(20) " . $charset_collate . " NULL DEFAULT NULL AFTER `volume`");
+            $wpdb->query("ALTER TABLE $teachpress_pub ADD `number` VARCHAR(20) $charset_collate NULL DEFAULT NULL AFTER `volume`");
         }
         // insert column pages
         // since version 2.0
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'pages'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'pages'";
         $test = $wpdb->query($sql);
         if ($test == '0') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " ADD `pages` VARCHAR(20) " . $charset_collate . " NULL DEFAULT NULL AFTER `number`");
+            $wpdb->query("ALTER TABLE $teachpress_pub ADD `pages` VARCHAR(20) $charset_collate NULL DEFAULT NULL AFTER `number`");
         }
         // insert column publisher
         // since version 2.0
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'publisher'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'publisher'";
         $test = $wpdb->query($sql);
         if ($test == '0') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " ADD `publisher` VARCHAR(200) " . $charset_collate . " NULL DEFAULT NULL AFTER `pages`");
+            $wpdb->query("ALTER TABLE $teachpress_pub ADD `publisher` VARCHAR(200) $charset_collate NULL DEFAULT NULL AFTER `pages`");
         }
         // insert column address
         // since version 2.0
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'address'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'address'";
         $test = $wpdb->query($sql);
         if ($test == '0') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " ADD `address` VARCHAR(300) " . $charset_collate . " NULL DEFAULT NULL AFTER `publisher`");
+            $wpdb->query("ALTER TABLE $teachpress_pub ADD `address` VARCHAR(300) $charset_collate NULL DEFAULT NULL AFTER `publisher`");
         }
         // insert column edition
         // since version 2.0
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'edition'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'edition'";
         $test = $wpdb->query($sql);
         if ($test == '0') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " ADD `edition` VARCHAR(100) " . $charset_collate . " NULL DEFAULT NULL AFTER `address`");
+            $wpdb->query("ALTER TABLE $teachpress_pub ADD `edition` VARCHAR(100) $charset_collate NULL DEFAULT NULL AFTER `address`");
         }
         // insert column chapter
         // since version 2.0
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'chapter'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'chapter'";
         $test = $wpdb->query($sql);
         if ($test == '0') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " ADD `chapter` VARCHAR(20) " . $charset_collate . " NULL DEFAULT NULL AFTER `edition`");
+            $wpdb->query("ALTER TABLE $teachpress_pub ADD `chapter` VARCHAR(20) $charset_collate NULL DEFAULT NULL AFTER `edition`");
         }
         // insert column institution
         // since version 2.0
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'institution'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'institution'";
         $test = $wpdb->query($sql);
         if ($test == '0') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " ADD `institution` VARCHAR(200) " . $charset_collate . " NULL DEFAULT NULL AFTER `chapter`");
+            $wpdb->query("ALTER TABLE $teachpress_pub ADD `institution` VARCHAR(200) $charset_collate NULL DEFAULT NULL AFTER `chapter`");
         }
         // insert column organization
         // since version 2.0
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'organization'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'organization'";
         $test = $wpdb->query($sql);
         if ($test == '0') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " ADD `organization` VARCHAR(200) " . $charset_collate . " NULL DEFAULT NULL AFTER `institution`");
+            $wpdb->query("ALTER TABLE $teachpress_pub ADD `organization` VARCHAR(200) $charset_collate NULL DEFAULT NULL AFTER `institution`");
         }
         // insert column school
         // since version 2.0
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'school'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'school'";
         $test = $wpdb->query($sql);
         if ($test == '0') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " ADD `school` VARCHAR(200) " . $charset_collate . " NULL DEFAULT NULL AFTER `organization`");
+            $wpdb->query("ALTER TABLE $teachpress_pub ADD `school` VARCHAR(200) $charset_collate NULL DEFAULT NULL AFTER `organization`");
         }
         // insert column series
         // since version 2.0
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'series'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'series'";
         $test = $wpdb->query($sql);
         if ($test == '0') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " ADD `series` VARCHAR(200) " . $charset_collate . " NULL DEFAULT NULL AFTER `school`");
+            $wpdb->query("ALTER TABLE $teachpress_pub ADD `series` VARCHAR(200) $charset_collate NULL DEFAULT NULL AFTER `school`");
         }
         // insert column crossref
         // since version 2.0
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'crossref'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'crossref'";
         $test = $wpdb->query($sql);
         if ($test == '0') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " ADD `crossref` VARCHAR(100) " . $charset_collate . " NULL DEFAULT NULL AFTER `series`");
+            $wpdb->query("ALTER TABLE $teachpress_pub ADD `crossref` VARCHAR(100) $charset_collate NULL DEFAULT NULL AFTER `series`");
         }
         // insert column abstract
         // since version 2.0
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'abstract'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'abstract'";
         $test = $wpdb->query($sql);
         if ($test == '0') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " ADD `abstract` TEXT " . $charset_collate . " NULL DEFAULT NULL AFTER `crossref`");
+            $wpdb->query("ALTER TABLE $teachpress_pub ADD `abstract` TEXT $charset_collate NULL DEFAULT NULL AFTER `crossref`");
         }
         // insert column howpublished
         // since version 2.0
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'howpublished'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'howpublished'";
         $test = $wpdb->query($sql);
         if ($test == '0') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " ADD `howpublished` VARCHAR(200) " . $charset_collate . " NULL DEFAULT NULL AFTER `abstract`");
+            $wpdb->query("ALTER TABLE $teachpress_pub ADD `howpublished` VARCHAR(200) $charset_collate NULL DEFAULT NULL AFTER `abstract`");
         }
         // insert column key
         // since version 2.0
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'key'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'key'";
         $test = $wpdb->query($sql);
         if ($test == '0') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " ADD `key` VARCHAR(100) " . $charset_collate . " NULL DEFAULT NULL AFTER `howpublished`");
+            $wpdb->query("ALTER TABLE $teachpress_pub ADD `key` VARCHAR(100) $charset_collate NULL DEFAULT NULL AFTER `howpublished`");
         }
         // insert column techtype
         // since version 2.0
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'techtype'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'techtype'";
         $test = $wpdb->query($sql);
         if ($test == '0') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " ADD `techtype` VARCHAR(200) " . $charset_collate . " NULL DEFAULT NULL AFTER `key`");
+            $wpdb->query("ALTER TABLE $teachpress_pub ADD `techtype` VARCHAR(200) $charset_collate NULL DEFAULT NULL AFTER `key`");
         }
         // insert column note
         // since version 2.0
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'note'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'note'";
         $test = $wpdb->query($sql);
         if ($test == '0') {
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " ADD `note` TEXT " . $charset_collate . " NULL DEFAULT NULL AFTER `comment`");
+            $wpdb->query("ALTER TABLE $teachpress_pub ADD `note` TEXT $charset_collate NULL DEFAULT NULL AFTER `comment`");
         }
         // drop column verlag
         // since version 2.0
-        $sql = "SHOW COLUMNS FROM " . $teachpress_pub . " LIKE 'verlag'";
+        $sql = "SHOW COLUMNS FROM $teachpress_pub LIKE 'verlag'";
         $test = $wpdb->query($sql);
         if ($test == '1') {
-            $row = $wpdb->get_results("SELECT pub_id, verlag  FROM " . $teachpress_pub . "");
+            $row = $wpdb->get_results("SELECT pub_id, verlag  FROM $teachpress_pub");
             foreach ($row as $row) {
-                $wpdb->query("UPDATE " . $teachpress_pub . " SET editor = '$row->verlag' WHERE pub_id = '$row->pub_id'");
+                $wpdb->query("UPDATE $teachpress_pub SET editor = '$row->verlag' WHERE pub_id = '$row->pub_id'");
             }
-            $wpdb->query("ALTER TABLE " . $teachpress_pub . " DROP `verlag`");
+            $wpdb->query("ALTER TABLE $teachpress_pub DROP `verlag`");
             echo '<p>Table for publications updated.</p>';
         }
         
@@ -498,105 +476,77 @@ function tp_db_update_function() {
         * teachpress_courses
         */
         // change type in column start
-        $sql = "SELECT start FROM " . $teachpress_courses . "";
-        $wpdb->get_results($sql);
-        $test = $wpdb->get_col_info('type', 0);
-        if ($test == 'date') {
-            $wpdb->query("ALTER TABLE `" . $teachpress_courses . "` CHANGE  `start`  `start` DATETIME NULL DEFAULT NULL");
+        $wpdb->get_results("SELECT `start` FROM $teachpress_courses");
+        if ($wpdb->get_col_info('type', 0) == 'date') {
+            $wpdb->query("ALTER TABLE `$teachpress_courses` CHANGE  `start`  `start` DATETIME NULL DEFAULT NULL");
         }
         // change type in column end
-        $sql = "SELECT end FROM " . $teachpress_courses . "";
-        $wpdb->get_results($sql);
-        $test = $wpdb->get_col_info('type', 0);
-        if ($test == 'date') {
-            $wpdb->query("ALTER TABLE `" . $teachpress_courses . "` CHANGE  `end`  `end` DATETIME NULL DEFAULT NULL");
+        $wpdb->get_results("SELECT `end` FROM $teachpress_courses");
+        if ($wpdb->get_col_info('type', 0) == 'date') {
+            $wpdb->query("ALTER TABLE `$teachpress_courses` CHANGE  `end`  `end` DATETIME NULL DEFAULT NULL");
         }
         // insert column strict_signup
         // since version 2.1
-        $sql = "SHOW COLUMNS FROM " . $teachpress_courses . " LIKE 'strict_signup'";
-        $test = $wpdb->query($sql);
-        if ($test == '0') {
-            $wpdb->query("ALTER TABLE " . $teachpress_courses . " ADD `strict_signup` INT( 1 ) NULL DEFAULT NULL");
+        if ($wpdb->query("SHOW COLUMNS FROM $teachpress_courses LIKE 'strict_signup'") == '0') {
+            $wpdb->query("ALTER TABLE $teachpress_courses ADD `strict_signup` INT( 1 ) NULL DEFAULT NULL");
         }
 
         /*
         * teachpress_signup
         */
         // Change type in column date
-        $sql = "SELECT date FROM " . $teachpress_signup . "";
-        $wpdb->get_results($sql);
-        $test = $wpdb->get_col_info('type', 0);
-        if ($test == 'date') {
-            $wpdb->query("ALTER TABLE `" . $teachpress_signup . "` CHANGE `date` `date` DATETIME NULL DEFAULT NULL");
+        $wpdb->get_results("SELECT `date` FROM $teachpress_signup");
+        if ($wpdb->get_col_info('type', 0) == 'date') {
+            $wpdb->query("ALTER TABLE `$teachpress_signup` CHANGE `date` `date` DATETIME NULL DEFAULT NULL");
         }
 
         /*
         * teachpress_settings
         */
         // Stylesheet
-        $sql = "SELECT value FROM " . $teachpress_settings . " WHERE variable = 'stylesheet'";
-        $test = $wpdb->query($sql);
-        if ($test == '0') {
-            $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('stylesheet', '1', 'system')"); 
+        if ($wpdb->query("SELECT value FROM $teachpress_settings WHERE variable = 'stylesheet'") == '0') {
+            $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('stylesheet', '1', 'system')"); 
         }
         // Sign out
-        $sql = "SELECT value FROM " . $teachpress_settings . " WHERE variable = 'sign_out'";
-        $test = $wpdb->query($sql);
-        if ($test == '0') {
-            $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('sign_out', '0', 'system')"); 
+        if ($wpdb->query("SELECT value FROM $teachpress_settings WHERE variable = 'sign_out'") == '0') {
+            $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('sign_out', '0', 'system')"); 
         }
         // Login
-        $sql = "SELECT value FROM " . $teachpress_settings . " WHERE variable = 'login'";
-        $test = $wpdb->query($sql);
-        if ($test == '0') {
-            $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('login', 'std', 'system')"); 
+        if ($wpdb->query("SELECT value FROM $teachpress_settings WHERE variable = 'login'") == '0') {
+            $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('login', 'std', 'system')"); 
         }
         // Registration number
-        $sql = "SELECT value FROM " . $teachpress_settings . " WHERE variable = 'regnum'";
-        $test = $wpdb->query($sql);
-        if ($test == '0') {
-            $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('regnum', '1', 'system')"); 
+        if ($wpdb->query("SELECT value FROM $teachpress_settings WHERE variable = 'regnum'") == '0') {
+            $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('regnum', '1', 'system')"); 
         }
         // Studies
-        $sql = "SELECT value FROM " . $teachpress_settings . " WHERE variable = 'studies'";
-        $test = $wpdb->query($sql);
-        if ($test == '0') {
-            $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('studies', '1', 'system')"); 
+        if ($wpdb->query("SELECT value FROM $teachpress_settings WHERE variable = 'studies'") == '0') {
+            $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('studies', '1', 'system')"); 
         }
         // Termnumber
-        $sql = "SELECT value FROM " . $teachpress_settings . " WHERE variable = 'termnumber'";
-        $test = $wpdb->query($sql);
-        if ($test == '0') {
-            $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('termnumber', '1', 'system')");
+        if ($wpdb->query("SELECT value FROM $teachpress_settings WHERE variable = 'termnumber'") == '0') {
+            $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('termnumber', '1', 'system')");
         }
         // Birthday
-        $sql = "SELECT value FROM " . $teachpress_settings . " WHERE variable = 'birthday'";
-        $test = $wpdb->query($sql);
-        if ($test == '0') {
-            $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('birthday', '1', 'system')"); 
+        if ($wpdb->query("SELECT value FROM $teachpress_settings WHERE variable = 'birthday'") == '0') {
+            $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('birthday', '1', 'system')"); 
         }
         // rel_page_courses
-        $sql = "SELECT value FROM " . $teachpress_settings . " WHERE variable = 'rel_page_courses'";
-        $test = $wpdb->query($sql);
-        if ($test == '0') {
-            $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('rel_page_courses', 'page', 'system')"); 
+        if ($wpdb->query("SELECT value FROM $teachpress_settings WHERE variable = 'rel_page_courses'") == '0') {
+            $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('rel_page_courses', 'page', 'system')"); 
         }
         // rel_page_publications
-        $sql = "SELECT value FROM " . $teachpress_settings . " WHERE variable = 'rel_page_publications'";
-        $test = $wpdb->query($sql);
-        if ($test == '0') {
-            $wpdb->query("INSERT INTO " . $teachpress_settings . " (variable, value, category) VALUES ('rel_page_publications', 'page', 'system')"); 
+        if ($wpdb->query("SELECT value FROM $teachpress_settings WHERE variable = 'rel_page_publications'") == '0') {
+            $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('rel_page_publications', 'page', 'system')"); 
         }
         
         /**************************/
         /* teachPress 3.1 upgrade */ 
         /**************************/
         // change type in column url
-        $sql = "SELECT `url` FROM " . $teachpress_pub . "";
-        $wpdb->get_results($sql);
-        $test = $wpdb->get_col_info('type', 0);
-        if ($test == 'string') {
-            $wpdb->query("ALTER TABLE `" . $teachpress_pub . "` CHANGE `url` `url` TEXT " . $charset_collate . " NULL DEFAULT NULL");
+        $wpdb->get_results("SELECT `url` FROM $teachpress_pub");
+        if ($wpdb->get_col_info('type', 0) == 'string') {
+            $wpdb->query("ALTER TABLE `$teachpress_pub` CHANGE `url` `url` TEXT $charset_collate NULL DEFAULT NULL");
         }
         // drop table teachpress_log
         $table_name = $wpdb->prefix . 'teachpress_log';
@@ -617,10 +567,8 @@ function tp_db_update_function() {
         /* teachPress 3.1.3 upgrade */
         /****************************/
         // Drop column fplaces
-        $sql = "SHOW COLUMNS FROM " . $teachpress_courses . " LIKE 'fplaces'";
-        $test = $wpdb->query($sql);
-        if ($test == '1') {
-            $wpdb->query("ALTER TABLE " . $teachpress_courses . " DROP `fplaces`");
+        if ($wpdb->query("SHOW COLUMNS FROM $teachpress_courses LIKE 'fplaces'") == '1') {
+            $wpdb->query("ALTER TABLE $teachpress_courses DROP `fplaces`");
         }
         
         /*********/
@@ -628,18 +576,30 @@ function tp_db_update_function() {
         /*********/
         // Change type in column birthday
         // Fixed a bug with the installer in teachpress versions 2.0.0 to 2.1.0
-        $sql = "SELECT `birthday` FROM " . $teachpress_stud . "";
-        $wpdb->get_results($sql);
-        $test = $wpdb->get_col_info('type', 0);
-        if ($test != 'date') {
-            $wpdb->query("ALTER TABLE `" . $teachpress_stud . "` CHANGE `birthday` `birthday` DATE NULL DEFAULT NULL");
+        $wpdb->get_results("SELECT `birthday` FROM $teachpress_stud");
+        if ($wpdb->get_col_info('type', 0) != 'date') {
+            $wpdb->query("ALTER TABLE `$teachpress_stud` CHANGE `birthday` `birthday` DATE NULL DEFAULT NULL");
         }
-
+        
+        /****************************/
+        /* teachPress 4 upgrade */
+        /****************************/
+        // rename column name to title
+        if ($wpdb->query("SHOW COLUMNS FROM $teachpress_pub LIKE 'name'") == '1') {
+            $wpdb->query("ALTER TABLE $teachpress_pub CHANGE `name` `title` VARCHAR( 500 ) $charset_collate NULL DEFAULT NULL");
+        }
+        
+        // add column urldate
+        // since version 4.0.0
+        if ($wpdb->query("SHOW COLUMNS FROM $teachpress_pub LIKE 'urldate'") == '0') { 
+            $wpdb->query("ALTER TABLE $teachpress_pub ADD `urldate` DATE NULL DEFAULT NULL AFTER `date`");
+        }
+        
         /********/
         /* Last */
         /********/
         // Update version information in the database
-        $wpdb->query("UPDATE " . $teachpress_settings . " SET  value = '$version' WHERE variable = 'db-version'");
+        $wpdb->query("UPDATE $teachpress_settings SET  value = '$version' WHERE variable = 'db-version'");
         // Finalize
         $message = __('Update successful','teachpress');
         get_tp_message($message);
