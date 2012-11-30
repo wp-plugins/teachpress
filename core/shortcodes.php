@@ -5,189 +5,181 @@
 /**********************************/
 
 /** 
- * Show the course overview
- * @param ARRAY $atts
- *    image (STRING) - left, right, bottom or none, default: none
- *    image_size (INT) - default: 0
- *    headline (INT) - 0 for hide headline, 1 for show headline (default:1)
- *    text (STRING) - shows a custom text under the headline
- *    term (STRING) - the term you want to show
- * @param STRING $semester (GET)
- * @return STRING
+ * Show an overview of courses
+ * 
+ * possible values for $atts:
+ *      image      - left, right, bottom or none, default: none
+ *      image_size - default: 0
+ *      headline   - 0 for hide headline, 1 for show headline (default:1)
+ *      text       - a custom text under the headline
+ *      term       - the term/semester you want to show
+ * 
+ * @param array $atts
+ * @param string $semester (GET)
+ * @return string
 */
 function tp_courselist_shortcode($atts) {	
-   global $wpdb;
-   global $teachpress_courses; 
-   global $teachpress_settings; 
-   // Shortcode options
-   extract(shortcode_atts(array(
-      'image' => 'none',
-      'image_size' => 0,
-      'headline' => 1,
-      'text' => '',
-      'term' => ''
-   ), $atts));
-   $image = htmlspecialchars($image);
-   $text = htmlspecialchars($text);
-   $term = htmlspecialchars($term);
-   $image_size = intval($image_size);
-   $headline = intval($headline);
+    extract(shortcode_atts(array(
+       'image' => 'none',
+       'image_size' => 0,
+       'headline' => 1,
+       'text' => '',
+       'term' => ''
+    ), $atts));
+    $image = htmlspecialchars($image);
+    $text = htmlspecialchars($text);
+    $term = htmlspecialchars($term);
+    $image_size = intval($image_size);
+    $headline = intval($headline);
 
-   $url = array(
-        "permalink" => get_tp_option('permalink'),
-        "post_id" => get_the_ID()
-   );    
+    $url = array(
+         "permalink" => get_tp_option('permalink'),
+         "post_id" => get_the_ID()
+    );    
+
+    if ( $url["permalink"] == 0 ) {
+       if (is_page()) {
+          $page = "page_id";
+       }
+       else {
+          $page = "p";
+       }
+       $page = '<input type="hidden" name="' . $page . '" id="' . $page . '" value="' . $url["post_id"] . '"/>';
+    }
+    else {
+       $page = "";
+    }
+    // define term
+    if ( isset( $_GET['semester'] ) ) {
+         $sem = htmlspecialchars($_GET['semester']);
+    }
+    elseif ( $term != '' ) {
+         $sem = $term;
+    }
+    else {
+         $sem = get_tp_option('sem');
+    }
    
-   if ( $url["permalink"] == 0 ) {
-      if (is_page()) {
-         $page = "page_id";
-      }
-      else {
-         $page = "p";
-      }
-      $page = '<input type="hidden" name="' . $page . '" id="' . $page . '" value="' . $url["post_id"] . '"/>';
-   }
-   else {
-      $page = "";
-   }
-   // define term
-   if ( isset( $_GET['semester'] ) ) {
-        $sem = htmlspecialchars($_GET['semester']);
-   }
-   elseif ( $term != '' ) {
-        $sem = $term;
-   }
-   else {
-        $sem = get_tp_option('sem');
-   }
-   
-   $rtn = '<div id="tpcourselist">';
-   if ($headline == 1) {
-      $rtn = $rtn . '<h2>' . __('Courses for the','teachpress') . ' ' . stripslashes($sem) . '</h2>';
-   }
-   $rtn = $rtn . '' . $text . '
-              <form name="lvs" method="get" action="' . $_SERVER['REQUEST_URI'] . '">
-              ' . $page . '		
-              <div class="tp_auswahl"><label for="semester">' . __('Select the term','teachpress') . '</label> <select name="semester" id="semester" title="' . __('Select the term','teachpress') . '">';
-   $rowsem = "SELECT value FROM " . $teachpress_settings . " WHERE category = 'semester' ORDER BY setting_id DESC";
-   $rowsem = $wpdb->get_results($rowsem);
-   foreach($rowsem as $rowsem) { 
-      if ($rowsem->value == $sem) {
-         $current = 'selected="selected"' ;
-      }
-      else {
-         $current = '';
-      }
-      $rtn = $rtn . '<option value="' . $rowsem->value . '" ' . $current . '>' . stripslashes($rowsem->value) . '</option>';
-   }
-   $rtn = $rtn . '</select>
-          <input type="submit" name="start" value="' . __('Show','teachpress') . '" id="teachpress_submit" class="button-secondary"/>
-   </div>';
-   $rtn2 = '';
-   $row = "Select `course_id`, `name`, `comment`, `rel_page`, `image_url`, `visible` FROM " . $teachpress_courses . " WHERE `semester` = '$sem' AND `parent` = '0' AND (`visible` = '1' OR `visible` = '2') ORDER BY `name`";
-   $test = $wpdb->query($row);
-   if ($test != 0){
-      $row = $wpdb->get_results($row);
-      foreach($row as $row) {
-         $row->name = stripslashes($row->name);
-         $row->comment = stripslashes($row->comment);
-         $childs = "";
-         $div_cl_com = "";
-         // handle images	
-         $td_left = '';
-         $td_right = '';
-         if ($image == 'left' || $image == 'right') {
-            $settings['pad_size'] = $image_size + 5;
-         }
-         $image_marginally = '';
-         $image_bottom = '';
-         if ($image == 'left' || $image == 'right') {
-            if ($row->image_url != '') {
-               $image_marginally = '<img name="' . $row->name . '" src="' . $row->image_url . '" width="' . $image_size .'" alt="' . $row->name . '" />';
+    $rtn = '<div id="tpcourselist">';
+    if ($headline == 1) {
+       $rtn = $rtn . '<h2>' . __('Courses for the','teachpress') . ' ' . stripslashes($sem) . '</h2>';
+    }
+    $rtn = $rtn . '' . $text . '
+               <form name="lvs" method="get" action="' . $_SERVER['REQUEST_URI'] . '">
+               ' . $page . '		
+               <div class="tp_auswahl"><label for="semester">' . __('Select the term','teachpress') . '</label> <select name="semester" id="semester" title="' . __('Select the term','teachpress') . '">';
+    $rowsem = get_tp_settings('semester');
+    foreach($rowsem as $rowsem) { 
+       if ($rowsem->value == $sem) {
+          $current = 'selected="selected"' ;
+       }
+       else {
+          $current = '';
+       }
+       $rtn = $rtn . '<option value="' . $rowsem->value . '" ' . $current . '>' . stripslashes($rowsem->value) . '</option>';
+    }
+    $rtn = $rtn . '</select>
+           <input type="submit" name="start" value="' . __('Show','teachpress') . '" id="teachpress_submit" class="button-secondary"/>
+    </div>';
+    $rtn2 = '';
+    $row = get_tp_courses( array('semester' => $sem, 'parent' => 0, 'visibility' => '1,2') );
+    if ( count($row) != 0 ){
+        foreach($row as $row) {
+            $row->name = stripslashes($row->name);
+            $row->comment = stripslashes($row->comment);
+            $childs = "";
+            $div_cl_com = "";
+            // handle images	
+            $td_left = '';
+            $td_right = '';
+            if ($image == 'left' || $image == 'right') {
+               $settings['pad_size'] = $image_size + 5;
             }
-         }
-         if ($image == 'left') {
-            $td_left = '<td width="' . $settings['pad_size'] . '">' . $image_marginally . '</td>';
-         }
-         if ($image == 'right') {
-            $td_right = '<td width="' . $settings['pad_size'] . '">' . $image_marginally . '</td>';
-         }
-         if ($image == 'bottom') {
-            if ($row->image_url != '') {
-               $image_bottom = '<div class="tp_pub_image_bottom"><img name="' . $row->name . '" src="' . $row->image_url . '" style="max-width:' . $image_size .'px;" alt="' . $row->name . '" /></div>';
+            $image_marginally = '';
+            $image_bottom = '';
+            if ($image == 'left' || $image == 'right') {
+               if ($row->image_url != '') {
+                  $image_marginally = '<img name="' . $row->name . '" src="' . $row->image_url . '" width="' . $image_size .'" alt="' . $row->name . '" />';
+               }
             }
-         }
+            if ($image == 'left') {
+               $td_left = '<td width="' . $settings['pad_size'] . '">' . $image_marginally . '</td>';
+            }
+            if ($image == 'right') {
+               $td_right = '<td width="' . $settings['pad_size'] . '">' . $image_marginally . '</td>';
+            }
+            if ($image == 'bottom') {
+               if ($row->image_url != '') {
+                  $image_bottom = '<div class="tp_pub_image_bottom"><img name="' . $row->name . '" src="' . $row->image_url . '" style="max-width:' . $image_size .'px;" alt="' . $row->name . '" /></div>';
+               }
+            }
 
-         // handle childs
-         if ($row->visible == 2) {
-            $div_cl_com = "_c";
-            $sql = "Select `name`, `comment`, `rel_page`, `image_url` FROM " . $teachpress_courses . " WHERE `semester` = '$sem' AND `parent` = '$row->course_id' AND (`visible` = '1' OR `visible` = '2') ORDER BY `name`";
-            $row2 = $wpdb->get_results($sql);
-            foreach ($row2 as $row2) {
-               $childs = $childs . '<div>
-                                      <p><a href="' . get_permalink($row2->rel_page) . '" title="' . $row2->name . '">' . $row2->name . '</a></p>
-                                   </div>'; 
+            // handle childs
+            if ($row->visible == 2) {
+               $div_cl_com = "_c";
+               $row2 = get_tp_courses( array('semester' => $sem, 'parent' => $row->course_id, 'visibility' => '1,2') );
+               foreach ($row2 as $row2) {
+                  $childs .= '<p><a href="' . get_permalink($row2->rel_page) . '" title="' . $row2->name . '">' . $row2->name . '</a></p>'; 
+               }
+               if ( $childs != "") {
+                  $childs = '<div class="tp_lvs_childs" style="padding-left:10px;">' . $childs . '</div>';
+               }
             }
-            if ( $childs != "") {
-               $childs = '<div class="tp_lvs_childs" style="padding-left:10px;">' . $childs . '</div>';
-            }
-         }
 
-         // handle page link
-         if ($row->rel_page == 0) {
-            $direct_to = '<strong>' . $row->name . '</strong>';
-         }
-         else {
-            $direct_to = '<a href="' . get_permalink($row->rel_page) . '" title ="' . $row->name . '"><strong>' . $row->name . '</strong></a>';
-         }
-         $rtn2 = $rtn2 . '<tr>
-                        ' . $td_left . '
-                        <td class="tp_lvs_container">
-                          <div class="tp_lvs_name">' . $direct_to . '</div>
-                          <div class="tp_lvs_comments' . $div_cl_com . '">' . nl2br($row->comment) . '</div>
-                          ' . $childs . '
-                          ' . $image_bottom . '
-                        </td>
-                        ' . $td_right . '  
-                      </tr>';
-      } 
-   }
-   else {
-      $rtn2 = '<tr><td class="teachpress_message">' . __('Sorry, no entries matched your criteria.','teachpress') . '</td></tr>';
-   }
-   $rtn2 = '<table class="teachpress_course_list">' . $rtn2 . '</table>';
-   $rtn3 = '</form></div>';
-   return $rtn . $rtn2 . $rtn3;
+            // handle page link
+            if ($row->rel_page == 0) {
+               $direct_to = '<strong>' . $row->name . '</strong>';
+            }
+            else {
+               $direct_to = '<a href="' . get_permalink($row->rel_page) . '" title ="' . $row->name . '"><strong>' . $row->name . '</strong></a>';
+            }
+            $rtn2 .= '<tr>
+                       ' . $td_left . '
+                       <td class="tp_lvs_container">
+                           <div class="tp_lvs_name">' . $direct_to . '</div>
+                           <div class="tp_lvs_comments' . $div_cl_com . '">' . nl2br($row->comment) . '</div>
+                           ' . $childs . '
+                           ' . $image_bottom . '
+                       </td>
+                       ' . $td_right . '  
+                     </tr>';
+        } 
+    }
+    else {
+        $rtn2 = '<tr><td class="teachpress_message">' . __('Sorry, no entries matched your criteria.','teachpress') . '</td></tr>';
+    }
+    $rtn2 = '<table class="teachpress_course_list">' . $rtn2 . '</table>';
+    $rtn3 = '</form></div>';
+    return $rtn . $rtn2 . $rtn3;
 }
 
 /** 
- * Date-Shortcode
- * @param ARRAY 
- *   id (integer)
- * Return STRING
+ * Display information about a single course and his childs
+ * 
+ * possible values of $attr:
+ *  id      --> id of the course 
+ * 
+ * @param array $attr
+ * @return string
 */
 function tp_date_shortcode($attr) {
     $a1 = '<div class="untertitel">' . __('Date(s)','teachpress') . '</div>
             <table class="tpdate">';
-    global $wpdb;	
-    global $teachpress_courses;
     $id = intval($attr["id"]);
     
     $course = get_tp_course($id);
     $v_test = $course->name;
-    $a2 = $a2 . ' 
-        <tr>
-            <td class="tp_date_type"><strong>' . stripslashes($course->type) . '</strong></td>
-            <td class="tp_date_info">
-            <p>' . stripslashes($course->date) . ' ' . stripslashes($course->room) . '</p>
-            <p>' . stripslashes(nl2br($course->comment)) . '</p>
-            </td>
-            <td clas="tp_date_lecturer">' . stripslashes($course->lecturer) . '</td>
-        </tr>';
+    $a2 .= '<tr>
+                <td class="tp_date_type"><strong>' . stripslashes($course->type) . '</strong></td>
+                <td class="tp_date_info">
+                <p>' . stripslashes($course->date) . ' ' . stripslashes($course->room) . '</p>
+                <p>' . stripslashes(nl2br($course->comment)) . '</p>
+                </td>
+                <td clas="tp_date_lecturer">' . stripslashes($course->lecturer) . '</td>
+            </tr>';
     
     // Search the child courses
-    $row = "SELECT name, type, room, lecturer, date, comment FROM " . $teachpress_courses . " WHERE parent= ". $attr["id"] . " AND (`visible` = '1' OR `visible` = '2') ORDER BY name";
-    $row = $wpdb->get_results($row);
+    $row = get_tp_courses( array('parent' => $id, 'visible' => '1,2') );
     foreach($row as $row) {
         // if parent name = child name
         if ($v_test == $row->name) {
@@ -210,26 +202,29 @@ function tp_date_shortcode($attr) {
 
 /** 
  * Shorcode for a single publication
- * @param array $atts with:
- *  id (INT)
- *  author_name (STRING)    --> last, initials or old, default: old
+ * 
+ * possible values of $atts:
+ *  id              --> id of the publication
+ *  author_name     --> last, initials or old, default: old
+ * 
+ * @param array $atts
  * @return string
 */ 
 function tp_single_shortcode ($atts) {
-   extract(shortcode_atts(array(
-      'id' => 0,
-      'author_name' => 'simple',
-      'editor_name' => 'last'
-   ), $atts));
-   
-   $author_name = htmlspecialchars($author_name);
-   $editor_name = htmlspecialchars($editor_name);
-   
-   $publication = get_tp_publication($id, ARRAY_A);
-   $author = tp_bibtex::parse_author($publication['author'], $author_name);
-   
-   $asg = '<div class="tp_single_publication"><span class="tp_single_author">' . stripslashes($author) . '</span> (<span class="tp_single_year">' . $publication['year'] . '</span>): <span class="tp_single_title">' . stripslashes($publication['title']) . '</span>, <span class="tp_single_additional">' . tp_bibtex::single_publication_meta_row($publication, $editor_name) . '</span></div>';
-   return $asg;
+    extract(shortcode_atts(array(
+       'id' => 0,
+       'author_name' => 'simple',
+       'editor_name' => 'last'
+    ), $atts));
+
+    $settings['$author_name'] = htmlspecialchars($author_name);
+    $settings['editor_name'] = htmlspecialchars($editor_name);
+
+    $publication = get_tp_publication($id, ARRAY_A);
+    $author = tp_bibtex::parse_author($publication['author'], $settings['$author_name']);
+
+    $asg = '<div class="tp_single_publication"><span class="tp_single_author">' . stripslashes($author) . '</span> (<span class="tp_single_year">' . $publication['year'] . '</span>): <span class="tp_single_title">' . stripslashes($publication['title']) . '</span>, <span class="tp_single_additional">' . tp_bibtex::single_publication_meta_row($publication, $settings) . '</span></div>';
+    return $asg;
 }
 
 /**
@@ -839,6 +834,10 @@ function tp_list_shortcode($atts){
    $row_year = $headline == 1 ? get_tp_publication_years() : '';
    $result = tp_generate_pub_table($tparray, $tpz, $headline, $row_year, $colspan);
    return $result;
+}
+
+function tp_search_shortcode () {
+    
 }
 
 /** 

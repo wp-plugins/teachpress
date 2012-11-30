@@ -6,8 +6,8 @@
 // include wp-load.php
 require_once( '../../../wp-load.php' );
 if ( is_user_logged_in() && current_user_can('use_teachpress') ) {
-    $course_ID = isset ( $_GET['course_ID'] ) ? (int) $_GET['course_ID'] : 0;
-    $user_ID = isset ( $_POST['tp_user'] ) ? (int) $_POST['tp_user'] : 0;
+    $course_ID = isset ( $_GET['course_ID'] ) ? intval($_GET['course_ID']) : 0;
+    $user_ID = isset ( $_POST['tp_user'] ) ? intval($_POST['tp_user']) : 0;
     $format = isset ( $_POST['tp_format'] ) ?  htmlspecialchars($_POST['tp_format']) : '';
     $type = isset ( $_GET['type'] ) ? htmlspecialchars($_GET['type']) : '';
     $filename = 'teachpress_' . date('dmY');

@@ -152,23 +152,11 @@ class tp_export {
     */
     function get_publication($user_ID, $format = 'bibtex') {
         global $wpdb;
-        global $teachpress_pub;
         global $teachpress_tags;
         global $teachpress_relation;
-        global $teachpress_user;
-        $select = "p.pub_id, p.name, p.type, p.bibtex, p.author, p.editor, p.isbn, p.url, p.date, p.booktitle, p.journal, p.volume, p.number, p.pages, p.publisher, p.address, p.edition, p.chapter, p.institution, p.organization, p.school, p.series, p.crossref, p.abstract, p.howpublished, p.key, p.techtype, p.comment, p.note, p.is_isbn, p.rel_page, DATE_FORMAT(p.date, '%Y') AS jahr";
-        if ( $user_ID != 0 ) {
-            $sql = "SELECT DISTINCT " . $select . " 
-                    FROM " . $teachpress_relation . " b
-                    INNER JOIN " . $teachpress_pub . " p ON p.pub_id=b.pub_id
-                    INNER JOIN " . $teachpress_user . " u ON u.pub_id=p.pub_id
-                    WHERE u.user = '$user_ID'
-                    ORDER BY p.date DESC";
-            $row = $wpdb->get_results($sql, ARRAY_A);
-        }
-        else {
-            $row = $wpdb->get_results("SELECT " . $select . " FROM " . $teachpress_pub . " p ORDER BY `date` DESC", ARRAY_A);
-        }
+        
+        $user_ID = intval($user_ID);
+        $row = get_tp_publications( array('user' => $user_ID, 'output_type' => ARRAY_A) );
         if ( $format == 'bibtex' ) {
             foreach ($row as $row) {
                 $tags = $wpdb->get_results("SELECT DISTINCT t.name FROM " . $teachpress_tags . " t INNER JOIN  " . $teachpress_relation . " r ON r.`tag_id` = t.`tag_id` WHERE r.pub_id = '" . $row['pub_id'] . "' ", ARRAY_A);
@@ -196,16 +184,22 @@ class tp_export {
     }
 
     /**
-    * Get single line for frt file
+    * Get single line for rtf file
     * @param array $row
     * @return string 
     */
     function rtf_row ($row) {
         $settings['editor_name'] = 'initials';
-        $all_authors = tp_bibtex::parse_author($row['author'], $settings['editor_name'] );
+        if ( $row['type'] == 'collection' ) {
+            $all_authors = tp_bibtex::parse_author($row['editor'], $settings['editor_name'] );
+            $in = '';
+        }
+        else {
+            $all_authors = tp_bibtex::parse_author($row['author'], $settings['editor_name'] );
+            $in = $row['editor'] != '' ? '' . __('In','teachpress') . ':' : '';
+        }
         $meta = tp_bibtex::single_publication_meta_row($row, $settings);
-        $in = $row['editor'] != '' ? '' . __('In','teachpress') . ':' : '';
-        $line = $all_authors . ' (' . $row['jahr'] . ')' . ': ' . stripslashes($row['name']) . ', ' . $in . $meta;
+        $line = $all_authors . ' (' . $row['year'] . ')' . ': ' . stripslashes($row['title']) . ', ' . $in . $meta;
         $line = str_replace('  ', ' ', $line);
         $line = utf8_decode($line);
         return $line;
