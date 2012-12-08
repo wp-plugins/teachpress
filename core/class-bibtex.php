@@ -84,22 +84,16 @@ class tp_bibtex {
     * @param ARRAY $settings
     * @return STRING
     */
-    function get_single_publication_html ($row, $all_tags, $url, $settings) {
+    function get_single_publication_html ($row, $all_tags, $permalink, $settings) {
         $tag_string = '';
         $str = "'";
         $keywords = '';
         // show tags
         if ( $settings['with_tags'] == 1 ) {
-            if ( $url["permalink"] == 1 ) {
-                $href = $url["link"] . '?';
-            }
-            else {
-                $href = $url["link"] . '?p=' . $url["post_id"] . '&amp;';
-            }
             foreach ($all_tags as $tag) {
                 if ($tag["pub_id"] == $row['pub_id']) {
                     $keywords[] = array('name' => stripslashes($tag["name"]));
-                    $tag_string = $tag_string . '<a href="' . $href . 'tgid=' . $tag["tag_id"] . $settings['html_anchor'] . '" title="' . __('Show all publications which have a relationship to this tag','teachpress') . '">' . stripslashes($tag["name"]) . '</a>, ';
+                    $tag_string = $tag_string . '<a href="' . $permalink . 'tgid=' . $tag["tag_id"] . $settings['html_anchor'] . '" title="' . __('Show all publications which have a relationship to this tag','teachpress') . '">' . stripslashes($tag["name"]) . '</a>, ';
                 }
             }
             $tag_string = substr($tag_string, 0, -2);

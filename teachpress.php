@@ -732,7 +732,7 @@ function tp_backend_scripts() {
     }
     wp_enqueue_style('teachpress-print-css', WP_PLUGIN_URL . '/teachpress/styles/print.css', false, false, 'print');
     // Load scripts only, when it's teachpress page
-    if ( eregi('teachpress', $page) || eregi('publications', $page) ) {
+    if ( strpos($page, 'teachpress') !== false || strpos($page, 'publications') !== false ) {
         wp_enqueue_script('teachpress-standard', WP_PLUGIN_URL . '/teachpress/js/backend.js');
         wp_enqueue_style('teachpress.css', WP_PLUGIN_URL . '/teachpress/styles/teachpress.css');
         wp_enqueue_script('media-upload');

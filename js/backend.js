@@ -1,27 +1,26 @@
 // teachPress javascript for the admin menu
 
 // for selecting all checkboxes on an admin page
-function teachpress_checkboxes() {
-    if (document.getElementById("tp_check_all").checked == true) {
-        for(i=0;i<document.forms[0].elements.length;i++) {
-            if(document.forms[0].elements[i].type=="checkbox") {
-                document.forms[0].elements[i].checked=true; 
-            }
+function teachpress_checkboxes(element_names, checkbox_id) {
+    var switch_box = document.getElementById(checkbox_id);
+    var checkbox = document.getElementsByName(element_names);
+    var i;
+    if (switch_box.checked == true) {
+        for ( i = 0; i < checkbox.length; i++ ) {
+            checkbox[i].checked = true;
         }
     }
     else {
-        for(i=0;i<document.forms[0].elements.length;i++) {
-            if(document.forms[0].elements[i].type=="checkbox") {
-                document.forms[0].elements[i].checked=false; 
-            }
+        for ( i = 0; i < checkbox.length; i++ ) {
+            checkbox[i].checked = false;
         }
     }
 }
 
 // for jumpmenu
 function teachpress_jumpMenu(targ,selObj,restore){
-  eval(targ+".location='"+selObj.options[selObj.selectedIndex].value+"'");
-  if (restore) selObj.selectedIndex=0;
+    eval(targ+".location='"+selObj.options[selObj.selectedIndex].value+"'");
+    if (restore) selObj.selectedIndex=0;
 }
 
 // for adding new tags
@@ -142,14 +141,14 @@ function teachpress_publicationFields(mode) {
             document.getElementById("div_journal").style.display = "none";
         }
         // volume field
-        if (test == "article" || test == "book" || test == "booklet" || test == "conference" || test == "inbook" || test =="incollection" || test == "inproceedings" || test == "proceedings") {
+        if (test == "article" || test == "book" || test == "booklet" || test == "collection" || test == "conference" || test == "inbook" || test =="incollection" || test == "inproceedings" || test == "proceedings") {
             document.getElementById("div_volume").style.display = "block";
         }
         else {
             document.getElementById("div_volume").style.display = "none";
         }
         // number field
-        if (test == "article" || test == "book" || test == "conference" || test == "inbook" || test =="incollection" || test == "inproceedings" || test == "proceedings" || test == "techreport") {
+        if (test == "article" || test == "book" || test == "collection" || test == "conference" || test == "inbook" || test =="incollection" || test == "inproceedings" || test == "proceedings" || test == "techreport") {
             document.getElementById("div_number").style.display = "block";
         }
         else {
@@ -163,7 +162,7 @@ function teachpress_publicationFields(mode) {
             document.getElementById("div_pages").style.display = "none";
         }
         // address field
-        if (test == "book" || test == "booklet" || test == "conference" || test == "inbook" || test =="incollection" || test == "inproceedings" || test == "manual" || test == "masterthesis" || test == "phdthesis" || test == "proceedings" || test == "techreport") {
+        if (test == "book" || test == "booklet" || test == "collection" || test == "conference" || test == "inbook" || test =="incollection" || test == "inproceedings" || test == "manual" || test == "masterthesis" || test == "phdthesis" || test == "proceedings" || test == "techreport") {
             document.getElementById("div_address").style.display = "block";
         }
         else {
@@ -191,7 +190,7 @@ function teachpress_publicationFields(mode) {
             document.getElementById("div_school").style.display = "none";
         }
         // series field
-        if (test == "book" || test == "conference" || test == "inbook" || test =="incollection" || test == "inproceedings" || test == "proceedings") {
+        if (test == "book" || test == "collection" || test == "conference" || test == "inbook" || test =="incollection" || test == "inproceedings" || test == "proceedings") {
             document.getElementById("div_series").style.display = "block";
         }
         else {
@@ -205,14 +204,14 @@ function teachpress_publicationFields(mode) {
             document.getElementById("div_howpublished").style.display = "none";
         }
         // edition field
-        if (test == "book" || test == "inbook" || test =="incollection" || test == "manual") {
+        if (test == "book" || test == "collection" || test == "inbook" || test =="incollection" || test == "manual") {
             document.getElementById("div_edition").style.display = "block";
         }
         else {
             document.getElementById("div_edition").style.display = "none";
         }
         // organization field
-        if (test == "conference" || test == "inproceedings" || test == "manual" || test == "proceedings") {
+        if (test == "conference" || test == "inproceedings" || test == "manual" || test == "proceedings" || test == "online") {
             document.getElementById("div_organization").style.display = "block";
         }
         else {
@@ -233,11 +232,18 @@ function teachpress_publicationFields(mode) {
             document.getElementById("div_booktitle").style.display = "none";
         }
         // publisher field
-        if (test == "book" || test == "conference" || test == "inbook" || test =="incollection" || test == "inproceedings" || test == "proceedings") {
+        if (test == "book" || test == "collection" || test == "conference" || test == "inbook" || test =="incollection" || test == "inproceedings" || test == "proceedings") {
             document.getElementById("div_publisher").style.display = "block";
         }
         else {
             document.getElementById("div_publisher").style.display = "none";
+        }
+        // urldate field
+        if (test == "online") {
+            document.getElementById("div_urldate").style.display = "block";
+        }
+        else {
+            document.getElementById("div_urldate").style.display = "none";
         }
         // key field
         document.getElementById("div_key").style.display = "none";
@@ -262,6 +268,7 @@ function teachpress_publicationFields(mode) {
         document.getElementById("div_techtype").style.display = "block";
         document.getElementById("div_booktitle").style.display = "block";
         document.getElementById("div_publisher").style.display = "block";
+        document.getElementById("div_urldate").style.display = "block";
         document.getElementById("div_crossref").style.display = "block";
         document.getElementById("div_key").style.display = "block";
     }

@@ -308,19 +308,44 @@ function tp_change_publication($pub_ID, $data, $bookmark, $delbox, $tags) {
     }
 }
 
-/*********/
-/* Years */
-/*********/
-
 /**
  * Get an object or array with the years where publications are written
- * @param string $output_type (OBJECT, ARRAY_A or ARRAY_N)
- * @since 3.1.7
+ * @param array $args
+ * @return object|array
+ * @since 4.0.0
+ * @version 2
  */
-function get_tp_publication_years($output_type = OBJECT) {
+function get_tp_publication_years( $args = array() ) {
+    $defaults = array(
+        'type' => '',
+        'user' => '',
+        'order' => 'ASC',
+        'output_type' => OBJECT
+    ); 
+    $args = wp_parse_args( $args, $defaults );
+    extract( $args, EXTR_SKIP );
+    
     global $wpdb;
     global $teachpress_pub;
-    $result = $wpdb->get_results("SELECT DISTINCT DATE_FORMAT(p.date, '%Y') AS year FROM $teachpress_pub p ORDER BY year DESC", $output_type);
+    global $teachpress_user;
+    
+    $join = "";
+    $where = "";
+    $types = tp_generate_where_clause($type, "p.type", "OR", "=");
+    $users = tp_generate_where_clause($user, "u.user", "OR", "=");
+    
+    if ( $types != '') {
+        $where = $where != "" ? $where . " AND ( $types )" : $types;
+    }
+    if ( $users != '') {
+        $where = $where != "" ? $where . " AND ( $users )" : $users;
+        $join = "INNER JOIN $teachpress_user u ON u.pub_id=p.pub_id";
+    }
+    if ( $where != '' ) {
+        $where = " WHERE $where";
+    }
+    
+    $result = $wpdb->get_results("SELECT DISTINCT DATE_FORMAT(p.date, '%Y') AS year FROM $teachpress_pub p $join $where ORDER BY year DESC", $output_type);
     return $result;
 }
 
@@ -347,10 +372,10 @@ function get_tp_tags($args) {
     global $teachpress_relation;
     $limit = htmlspecialchars($limit);
     $order = htmlspecialchars($order);
-    $publications = tp_generate_where_clause($pub_id, "b.pub_id", "OR", "=");
+    $publications = tp_generate_where_clause($pub_id, "r.pub_id", "OR", "=");
     
     // Define basics
-    $select = "SELECT DISTINCT t.name, b.tag_id, b.pub_id FROM " . $teachpress_relation . " b INNER JOIN " . $teachpress_tags . " t ON t.tag_id = b.tag_id";
+    $select = "SELECT DISTINCT t.name, r.tag_id, r.pub_id FROM $teachpress_relation r INNER JOIN $teachpress_tags t ON t.tag_id = r.tag_id";
     $join = "";
     $where = "";
     
@@ -372,6 +397,85 @@ function get_tp_tags($args) {
     //echo $sql;
     $sql = $wpdb->get_results($sql, $output_type);
     return $sql;
+}
+
+/**
+ * 
+ * @global type $wpdb
+ * @global type $teachpress_tags
+ * @global type $teachpress_relation
+ * @global type $teachpress_user
+ * @global type $teachpress_pub
+ * @param type $args
+ */
+function get_tp_tag_cloud ($args) {
+    $defaults = array(
+        'user' => '',
+        'type' => '',
+        'number_tags' => '',
+        'output_type' => OBJECT
+    ); 
+    $args = wp_parse_args( $args, $defaults );
+    extract( $args, EXTR_SKIP );
+
+    global $wpdb;
+    global $teachpress_tags;
+    global $teachpress_relation;
+    global $teachpress_user;
+    global $teachpress_pub;
+
+    $where = "";
+    $number_tags = intval($number_tags);
+    $types = tp_generate_where_clause($type, "p.type", "OR", "=");
+    $users = tp_generate_where_clause($user, "u.user", "OR", "=");
+    $join1 = "LEFT JOIN $teachpress_tags t ON r.tag_id = t.tag_id";
+    $join2 = "INNER JOIN $teachpress_pub p ON p.pub_id = r.pub_id";
+    $join3 = "INNER JOIN $teachpress_user u ON u.pub_id = p.pub_id";
+
+    if ( $users == '' && $types == '' ) {
+        $join1 = "";
+        $join2 = "";
+        $join3 = "";
+
+    }
+    if ( $users == '' && $types != '' ) {
+        $join3 = "";
+    }
+
+    // WHERE clause
+    if ( $types != '') {
+        $where = $where != "" ? $where . " AND ( $types )" : $types;
+    }
+    if ( $types != '') {
+        $users = $where != "" ? $where . " AND ( $users )" : $users;
+    }
+    if ( $where != '' ) {
+        $where = " WHERE $where";
+    }
+
+    $sql = "SELECT anzahlTags FROM ( 
+                SELECT COUNT(*) AS anzahlTags 
+                FROM $teachpress_relation r
+                $join1 $join2 $join3 $where
+                GROUP BY r.tag_id 
+                ORDER BY anzahlTags DESC ) as temp1 
+            GROUP BY anzahlTags 
+            ORDER BY anzahlTags DESC";
+    $cloud_info = $wpdb->get_row("SELECT MAX(anzahlTags) AS max, min(anzahlTags) AS min FROM ( $sql ) AS temp", OBJECT);
+    
+    $sql = "SELECT tagPeak, name, tag_id FROM ( 
+              SELECT COUNT(r.tag_id) as tagPeak, t.name AS name, t.tag_id as tag_id 
+              FROM $teachpress_relation r 
+              LEFT JOIN $teachpress_tags t ON r.tag_id = t.tag_id 
+              INNER JOIN $teachpress_pub p ON p.pub_id = r.pub_id 
+              $join3 $where
+              GROUP BY r.tag_id ORDER BY tagPeak DESC 
+              LIMIT $number_tags ) AS temp 
+            WHERE tagPeak>=".$cloud_info->min." 
+            ORDER BY name";
+    $result["tags"] = $wpdb->get_results($sql, $output_type);
+    $result["info"] = $cloud_info;
+    return $result;
 }
 
 /**
@@ -1136,11 +1240,11 @@ function tp_change_settings($options) {
     
 /**
  * Generate a where clause
- * @param string $input
- * @param string $column
- * @param string $connector
- * @param string $operator
- * @param string $pattern
+ * @param string $input         --> an array with values
+ * @param string $column        --> name of the table column
+ * @param string $connector     --> the connector: AND, OR
+ * @param string $operator      --> the operator: = !=
+ * @param string $pattern       --> things like %
  * @return string
  * @since 3.1.8
  */
