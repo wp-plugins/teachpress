@@ -5,7 +5,7 @@
 /**********************************/
 
 /** 
- * Show an overview of courses
+ * Shows an overview of courses
  * 
  * possible values for $atts:
  *      image      - left, right, bottom or none, default: none
@@ -17,6 +17,7 @@
  * @param array $atts
  * @param string $semester (GET)
  * @return string
+ * @since 2.0.0
 */
 function tp_courselist_shortcode($atts) {	
     extract(shortcode_atts(array(
@@ -33,8 +34,7 @@ function tp_courselist_shortcode($atts) {
     $headline = intval($headline);
 
     $url = array(
-         "permalink" => get_tp_option('permalink'),
-         "post_id" => get_the_ID()
+          "post_id" => get_the_ID()
     );    
 
     if ( $url["permalink"] == 0 ) {
@@ -209,6 +209,7 @@ function tp_date_shortcode($attr) {
  * 
  * @param array $atts
  * @return string
+ * @since 2.0.0
 */ 
 function tp_single_shortcode ($atts) {
     extract(shortcode_atts(array(
@@ -229,31 +230,32 @@ function tp_single_shortcode ($atts) {
 
 /**
  * Sort the table lines of a publication table
- * @param ARRAY $tparray
- * @param INT $tpz
- * @param INT $headline
- * @param STRING $colspan
+ * @param array $tparray
+ * @param array $args
  * @param STRING $line_title
  * @param STRING $line_name
  * @return STRING 
+ * @since 4.0.0
+ * @version 2
  */
-function tp_sort_pub_table($tparray, $tpz, $headline, $colspan, $line_title, $line_name = '') {
+function tp_sort_pub_table($tparray, $args, $line_title, $line_name = '') {
     $save = '';
     $publications = '';
-    $field = $headline == 2 ? 2 : 0;
+    $field = $args['headline'] == 2 ? 2 : 0;
+    $tpz = $args['number_publications'];
     $line_name = $line_name == '' ? $line_title : $line_name;
-    for ($i=0; $i < $tpz; $i++) {
+    for ($i = 0; $i < $tpz; $i++) {
         // without headlines
-        if ( $headline == 0 ) {
+        if ( $args['headline'] == 0 ) {
             $publications = $publications . $tparray[$i][1];
         }
         // with headlines
-        if ( $headline == 1 || $headline == 2 ) {
+        else {
             if ($tparray[$i][$field] == $line_name) {
-                $save = $save . $tparray[$i][1];
+                $save = $save. $tparray[$i][1];
             }
             if ( ( $tparray[$i][$field] != $line_name || $i == $tpz - 1 ) && $save != '' ) {
-                $publications = $publications . '<tr><td' . $colspan . '><h3 class="tp_h3">' . $line_title . '</h3></td></tr>' . $save;
+                $publications = $publications . '<tr><td' . $args['colspan'] . '><h3 class="tp_h3">' . $line_title . '</h3></td></tr>' . $save;
                 $save = '';
             }
         }
@@ -263,28 +265,27 @@ function tp_sort_pub_table($tparray, $tpz, $headline, $colspan, $line_title, $li
 
 /**
  * Generate list of publications for [tplist], [tpcloud]
- * @param ARRAY $tparray
- * @param INT $tpz
- * @param INT $headline
- * @param ARRAY $row_year
- * @param STRING $colspan
- * @return STRING
+ * @param array $tparray    --> the array of publications
+ * @param array $args       --> an array with all options
+ * @return string
+ * @since 4.0.0
+ * @version 2
  */
-function tp_generate_pub_table($tparray, $tpz, $headline, $row_year, $colspan) {
+function tp_generate_pub_table($tparray, $args ) {
     $pubs = '';
-    if ( $headline == 1 ) {
-        foreach($row_year as $row) {
-            $pubs = $pubs . tp_sort_pub_table($tparray, $tpz, $headline, $colspan, $row->year);
+    if ( $args['headline'] == 1 ) {
+        foreach($args['years'] as $row) {
+            $pubs = $pubs . tp_sort_pub_table($tparray, $args, $row->year);
         }
     }
-    if ( $headline == 2 ) {
+    if ( $args['headline'] == 2 ) {
         $pub_types = get_tp_publication_types();
-        for ( $j=1; $j<count($pub_types); $j++ ) {
-            $pubs = $pubs . tp_sort_pub_table($tparray, $tpz, $headline, $colspan, $pub_types[$j][2], $pub_types[$j][0]);
+        for ( $j = 1; $j < count($pub_types); $j++ ) {
+            $pubs = $pubs . tp_sort_pub_table($tparray, $args, $pub_types[$j][2], $pub_types[$j][0]);
         }
     }
     else {
-        $pubs = $pubs . tp_sort_pub_table($tparray, $tpz, $headline, $colspan, '', '');
+        $pubs = $pubs . tp_sort_pub_table($tparray, $args, '', '');
     }
     return '<table class="teachpress_publication_list">' . $pubs . '</table>';
 }
@@ -309,17 +310,13 @@ function tp_generate_pub_table($tparray, $tpz, $headline, $row_year, $colspan) {
  *   style (STRING)         => simple or std, default: std
  *   link_style (STRING)    => inline or images, default: inline
  * 
- * GET-Parameter: $yr (Year, INT), $type (Type, STRING), $author (Author, INT)
+ *   WARNING: id has been removed with teachPress 4.0.0, please use user instead!
  * 
+ * GET-Parameter: $yr (Year, int), $type (Type, string), $author (Author, int)
  * @param array atts
  * @return string
 */
 function tp_cloud_shortcode($atts) {
-   global $teachpress_pub;
-   global $teachpress_user;
-   global $wpdb;
-   // Shortcode options
-   // Note: "id" is deprecated, please use "user" instead
    extract(shortcode_atts(array(
       'user' => '',
       'type' => '',
@@ -372,8 +369,7 @@ function tp_cloud_shortcode($atts) {
    // Permalinks
    // Link structure
 
-   echo get_permalink();
-   if ( get_tp_option('permalink') == 1 ) {
+   if ( get_option('permalink_structure') ) {
       $permalink = get_permalink() . "?";
    }
    else {
@@ -449,15 +445,7 @@ function tp_cloud_shortcode($atts) {
    // Filter type
    $filter2 = "";
    if ($sort_type == '') {
-      if ($user == "") {
-         $row = $wpdb->get_results("SELECT DISTINCT p.type FROM $teachpress_pub p ORDER BY p.type ASC");
-      }
-      else {
-         $row = $wpdb->get_results("SELECT DISTINCT p.type from $teachpress_pub  p
-                                        INNER JOIN $teachpress_user u ON u.pub_id=p.pub_id
-                                        WHERE u.user = '$user' 
-                                        ORDER BY p.type ASC");
-      }
+      $row = get_tp_publication_used_types( array('user' => $user) );
       $current = '';	
       $options = '';
       foreach ($row as $row) {
@@ -477,7 +465,7 @@ function tp_cloud_shortcode($atts) {
    $filter3 = '';
    
    if ($user == '') {	
-      $row = $wpdb->get_results("SELECT DISTINCT user FROM $teachpress_user", ARRAY_A);	 
+      $row = get_tp_publication_user( array('output_type' => ARRAY_A) );	 
       foreach ($row as $row) {
          if ($row['user'] == $author) {
             $current = 'selected="selected"';
@@ -528,7 +516,7 @@ function tp_cloud_shortcode($atts) {
    // Create array of publications
    foreach ($row as $row) {
       $tparray[$tpz][0] = $row['year'] ;
-      $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row, $all_tags, $permalink, $settings);
+      $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row, $all_tags, $permalink, $settings, $tpz);
       if ( $headline == 2 ) {
           $tparray[$tpz][2] = '' . $row['type'] . '' ;
       }
@@ -537,7 +525,10 @@ function tp_cloud_shortcode($atts) {
    // Sort the array
    // If there are publications
    if ( $tpz != 0 ) {  
-      $asg2 = tp_generate_pub_table($tparray, $tpz, $headline, $row_year, $colspan);  
+      $asg2 = tp_generate_pub_table($tparray, array('number_publications' => $tpz, 
+                                                   'headline' => $headline,
+                                                   'years' => $row_year,
+                                                   'colspan' => $colspan));  
    }
    // If there are no publications founded
    else {
@@ -549,7 +540,8 @@ function tp_cloud_shortcode($atts) {
 
 /** 
  * Publication list without tag cloud
- * @param ARRAY $atts
+ * 
+ * possible values for $atts:
  *   user (INT)             => 0 for all publications of all users, default: 0
  *   tag (INT)              => tag-ID, default: 0
  *   type (STRING)          => publication types (separated by comma)
@@ -561,9 +553,11 @@ function tp_cloud_shortcode($atts) {
  *   image_size (INT)       => max. Image size, default: 0
  *   author_name (STRING)   => last, initials or old, default: last
  *   editor_name (STRING)   => last, initials or old, default: last
- *   style (STRING)         => simple or std, default: std
+ *   style (STRING)         => simple, numbered or std, default: std
  *   link_style (STRING)    => inline or images, default: inline
- * @return STRING
+ * 
+ * @param array $atts
+ * @return string
 */
 function tp_list_shortcode($atts){
    extract(shortcode_atts(array(
@@ -612,7 +606,7 @@ function tp_list_shortcode($atts){
    $row = get_tp_publications( array('tag' => $tag, 'year' => $year, 'type' => $type, 'user' => $user, 'order' => $order, 'exclude' => $exclude, 'output_type' => ARRAY_A) );
    foreach ($row as $row) {
       $tparray[$tpz][0] = '' . $row['year'] . '' ;
-      $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row,'', '', $settings);
+      $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row,'', '', $settings, $tpz + 1);
       if ( $headline == 2 ) {
           $tparray[$tpz][2] = '' . $row['type'] . '' ;
       }
@@ -620,7 +614,10 @@ function tp_list_shortcode($atts){
    }
    
    $row_year = $headline == 1 ? get_tp_publication_years() : '';
-   $result = tp_generate_pub_table($tparray, $tpz, $headline, $row_year, $colspan);
+   $result = tp_generate_pub_table($tparray, array('number_publications' => $tpz, 
+                                                   'headline' => $headline,
+                                                   'years' => $row_year,
+                                                   'colspan' => $colspan));
    return $result;
 }
 
@@ -634,6 +631,7 @@ function tp_search_shortcode () {
  *   $atts['id'] INT
  * @param STRING $content
  * @return STRING
+ * @since 2.0.0
 */
 function tp_post_shortcode ($atts, $content) {
     extract(shortcode_atts(array('id' => 0), $atts));

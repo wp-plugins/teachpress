@@ -310,7 +310,6 @@ function tp_enrollments_shortcode($atts) {
    global $teachpress_courses; 
    global $teachpress_stud;
    $is_sign_out = get_tp_option('sign_out');
-   $url["permalink"] = get_tp_option('permalink');
    // term
    if ( $term != '' ) {
        $sem = $term;
@@ -428,7 +427,7 @@ function tp_enrollments_shortcode($atts) {
                     $page = "p";
                 }
                 // Define permalinks
-                if ($url["permalink"] == '1') {
+                if ( get_option('permalink_structure') ) {
                    $url["link"] = $pagenow;
                    $url["link"] = str_replace("index.php", "", $url["link"]);
                    $url["link"] = $url["link"] . '?tab=';

@@ -349,6 +349,61 @@ function get_tp_publication_years( $args = array() ) {
     return $result;
 }
 
+/**
+ * Get users who has publication lists
+ * @param array $args
+ * @return object|array
+ * @since 4.0.0
+ */
+function get_tp_publication_user( $args = array() ) {
+    $defaults = array(
+        'order' => 'ASC',
+        'output_type' => OBJECT
+    ); 
+    $args = wp_parse_args( $args, $defaults );
+    extract( $args, EXTR_SKIP );
+    
+    global $wpdb;
+    global $teachpress_user;
+    
+    $result = $wpdb->get_results("SELECT DISTINCT user FROM $teachpress_user", $output_type);
+    
+    return $result;
+}
+
+/**
+ * Get publication types which are used for existing publication entries
+ * @param array $args
+ * @return object|array
+ * @since 4.0.0
+ */
+function get_tp_publication_used_types( $args = array() ) {
+    $defaults = array(
+        'user' => '',
+        'order' => 'ASC',
+        'output_type' => OBJECT
+    ); 
+    $args = wp_parse_args( $args, $defaults );
+    extract( $args, EXTR_SKIP );
+    
+    global $wpdb;
+    global $teachpress_pub;
+    global $teachpress_user;
+    
+    $users = tp_generate_where_clause($user, "u.user", "OR", "=");
+    
+    if ( $user == '' ) {
+        $result = $wpdb->get_results("SELECT DISTINCT p.type FROM $teachpress_pub p ORDER BY p.type ASC");
+    }    
+    else {
+        $result = $wpdb->get_results("SELECT DISTINCT p.type from $teachpress_pub p 
+                                      INNER JOIN $teachpress_user u ON u.pub_id=p.pub_id 
+                                      WHERE $user 
+                                      ORDER BY p.type ASC");
+    }
+    return $result;
+}
+
 /********/
 /* Tags */
 /********/
@@ -671,6 +726,17 @@ function get_tp_courses_used_places() {
 
 /**
  * Returns all data of one or more courses
+ * 
+ * possible values for $args:
+ *      semester    --> the semester/term of the courses
+ *      visibility  --> the visibility of the coures (1,2,3) separated by comma
+ *      parent      --> the course_id of the parent
+ *      search      --> a general search string
+ *      exclude     --> the course_ids you want to exclude
+ *      order       --> default: semester DESC, name
+ *      limit       --> the sql search limit, ie: 0,30
+ *      output_type --> ARRAY_A, ARRAY_N or OBJECT
+ * 
  * @param type $args
  * @return object|array
  * @since 4.0.0
@@ -706,6 +772,11 @@ function get_tp_courses ($args) {
     $exclude = tp_generate_where_clause($exclude, "p.pub_id", "AND", "!=");
     $semester = tp_generate_where_clause($semester, "semester", "OR", "=");
     $visibility = tp_generate_where_clause($visibility, "visible", "OR", "=");
+    
+    // define global search
+    if ( $search != '' ) {
+        $search = "`name` like '%$search%' OR `parent_name` like '%$search%' OR `lecturer` like '%$search%' OR `date` like '%$search%' OR `room` like '%$search%' OR `course_id` = '$search'";
+    }
 
     if ( $exclude != '' ) {
         $where = $where != "" ? $where . " AND $exclude " : $exclude;
@@ -727,11 +798,6 @@ function get_tp_courses ($args) {
     }
     if ( $limit != '' ) {
         $limit = "LIMIT $limit";
-    }
-    
-    // define global search
-    if ( $search != "" ) {
-        $search = "`name` like '%$search%' OR `parent_name` like '%$search%' OR `lecturer` like '%$search%' OR `date` like '%$search%' OR `room` like '%$search%' OR `course_id` = '$search'";
     }
     
     // define order
@@ -1209,28 +1275,16 @@ function tp_add_setting($name, $typ) {
 function tp_change_settings($options) {
     global $wpdb;
     global $teachpress_settings;
-    $eintragen = "UPDATE $teachpress_settings SET `value` = '" . $options['semester'] . "' WHERE `variable` = 'sem'";
-    $wpdb->query( $eintragen );
-    $eintragen = "UPDATE $teachpress_settings SET `value` = '" . $options['permalink'] . "' WHERE `variable` = 'permalink'";
-    $wpdb->query( $eintragen );
-    $eintragen = "UPDATE $teachpress_settings SET `value` = '" . $options['rel_page_courses'] . "' WHERE `variable` = 'rel_page_courses'";
-    $wpdb->query( $eintragen );
-    $eintragen = "UPDATE $teachpress_settings SET `value` = '" . $options['rel_page_publications'] . "' WHERE `variable` = 'rel_page_publications'";
-    $wpdb->query( $eintragen );
-    $eintragen = "UPDATE $teachpress_settings SET `value` = '" . $options['stylesheet'] . "' WHERE `variable` = 'stylesheet'";
-    $wpdb->query( $eintragen );
-    $eintragen = "UPDATE $teachpress_settings SET `value` = '" . $options['sign_out'] . "' WHERE `variable` = 'sign_out'";
-    $wpdb->query( $eintragen );
-    $eintragen = "UPDATE $teachpress_settings SET `value` = '" . $options['matriculation_number'] . "' WHERE `variable` = 'regnum'";
-    $wpdb->query( $eintragen );
-    $eintragen = "UPDATE $teachpress_settings SET `value` = '" . $options['course_of_studies'] . "' WHERE `variable` = 'studies'";
-    $wpdb->query( $eintragen );
-    $eintragen = "UPDATE $teachpress_settings SET `value` = '" . $options['semesternumber'] . "' WHERE `variable` = 'termnumber'";
-    $wpdb->query( $eintragen );
-    $eintragen = "UPDATE $teachpress_settings SET `value` = '" . $options['birthday'] . "' WHERE `variable` = 'birthday'";
-    $wpdb->query( $eintragen );
-    $eintragen = "UPDATE $teachpress_settings SET `value` = '" . $options['login'] . "' WHERE `variable` = 'login'";
-    $wpdb->query( $eintragen );
+    $wpdb->query( "UPDATE $teachpress_settings SET `value` = '" . $options['semester'] . "' WHERE `variable` = 'sem'" );
+    $wpdb->query( "UPDATE $teachpress_settings SET `value` = '" . $options['rel_page_courses'] . "' WHERE `variable` = 'rel_page_courses'" );
+    $wpdb->query( "UPDATE $teachpress_settings SET `value` = '" . $options['rel_page_publications'] . "' WHERE `variable` = 'rel_page_publications'" );
+    $wpdb->query( "UPDATE $teachpress_settings SET `value` = '" . $options['stylesheet'] . "' WHERE `variable` = 'stylesheet'");
+    $wpdb->query( "UPDATE $teachpress_settings SET `value` = '" . $options['sign_out'] . "' WHERE `variable` = 'sign_out'" );
+    $wpdb->query( "UPDATE $teachpress_settings SET `value` = '" . $options['matriculation_number'] . "' WHERE `variable` = 'regnum'" );
+    $wpdb->query( "UPDATE $teachpress_settings SET `value` = '" . $options['course_of_studies'] . "' WHERE `variable` = 'studies'" );
+    $wpdb->query( "UPDATE $teachpress_settings SET `value` = '" . $options['semesternumber'] . "' WHERE `variable` = 'termnumber'" );
+    $wpdb->query( "UPDATE $teachpress_settings SET `value` = '" . $options['birthday'] . "' WHERE `variable` = 'birthday'" );
+    $wpdb->query( "UPDATE $teachpress_settings SET `value` = '" . $options['login'] . "' WHERE `variable` = 'login'" );
     tp_update_userrole($options['userrole']);
 }
 

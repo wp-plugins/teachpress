@@ -10,7 +10,6 @@ function teachpress_admin_settings() {
      global $teachpress_courses;
 
      $all_options['semester'] = isset( $_POST['semester'] ) ? htmlspecialchars($_POST['semester']) : '';
-     $all_options['permalink'] = isset( $_POST['permalink'] ) ? intval($_POST['permalink']) : '';
      $all_options['rel_page_courses'] = isset( $_POST['rel_page_courses'] ) ? htmlspecialchars($_POST['rel_page_courses']) : '';
      $all_options['rel_page_publications'] = isset( $_POST['rel_page_publications'] ) ? htmlspecialchars($_POST['rel_page_publications']) : '';
      $all_options['stylesheet'] = isset( $_POST['stylesheet'] ) ? intval($_POST['stylesheet']) : '';
@@ -76,35 +75,17 @@ function teachpress_admin_settings() {
      <h2 style="padding-bottom:0px;"><?php _e('teachPress settings','teachpress'); ?></h2>
      <?php
      // Site menu
-     if ($tab == '' || $tab == 'general') { 
-      $set_menu_1 = __('General','teachpress'); 
-     }
-     else { 
-      $set_menu_1 =  '<a href="' . $site . '&amp;tab=general" title="' . __('General','teachpress') . '" >' . __('General','teachpress') . '</a>'; 
-     }
-
-     if ($tab == 'courses') {
-      $set_menu_2 = __('Courses','teachpress'); 
-     }
-     else {
-      $set_menu_2 = '<a href="' . $site . '&amp;tab=courses" title="' . __('Courses','teachpress') . '">' . __('Courses','teachpress') . '</a>'; 
-     }
-
-     if ($tab == 'publications') { 
-      $set_menu_3 = __('Publications','teachpress'); 
-     }
-     else { 
-      $set_menu_3 = '<a href="' . $site . '&amp;tab=publications" title="' . __('Publications','teachpress') . '">' . __('Publications','teachpress') . '</a>'; 
-     }
-     // End Site Menu
+     $set_menu_1 = ( $tab == "general" || $tab == "" ) ? "nav-tab nav-tab-active" : "nav-tab";
+     $set_menu_2 = $tab == "courses" ? "nav-tab nav-tab-active" : "nav-tab";
+     $set_menu_3 = $tab == "publications" ? "nav-tab nav-tab-active" : "nav-tab";
      ?>
-     <h3><?php 
-	echo $set_menu_1;
+     <h3 class="nav-tab-wrapper"><?php 
+	echo '<a href="' . $site . '&amp;tab=general" class="' . $set_menu_1 . '" title="' . __('General','teachpress') . '" >' . __('General','teachpress') . '</a>';
 	if ( !defined('TP_COURSE_SYSTEM') ) {
-           echo ' | ' . $set_menu_2;
+           echo '<a href="' . $site . '&amp;tab=courses" class="' . $set_menu_2 . '" title="' . __('Courses','teachpress') . '">' . __('Courses','teachpress') . '</a>';
 	}
 	if ( !defined('TP_PUBLICATION_SYSTEM') ) {	
-           echo ' | ' . $set_menu_3; 
+           echo '<a href="' . $site . '&amp;tab=publications" class="' . $set_menu_3 . '" title="' . __('Publications','teachpress') . '">' . __('Publications','teachpress') . '</a>'; 
 	}
 	?></h3>
     <div id="einstellungen" style="float:left; width:97%;">
@@ -116,7 +97,7 @@ function teachpress_admin_settings() {
      /* General */
      /***********/
      if ($tab == '' || $tab == 'general') {?>
-     <table class="widefat">
+     <table class="form-table">
           <thead>
                <tr>
                  <th width="160"><label title="<?php _e('teachPress version','teachpress'); ?>"><?php _e('teachPress version','teachpress'); ?></label></th>
@@ -134,7 +115,7 @@ function teachpress_admin_settings() {
                        }
                     }
                     else {
-                       $sql = "SHOW COLUMNS FROM " . $teachpress_stud . " LIKE 'wp_id'";
+                       $sql = "SHOW COLUMNS FROM $teachpress_stud LIKE 'wp_id'";
                        $test2 = $wpdb->query($sql);
                        if ($test2 != 0) {
                           echo '<a href="options-general.php?page=teachpress/settings.php&up=1"><strong>' . __('Update','teachpress') . '</strong></a>';
@@ -151,8 +132,7 @@ function teachpress_admin_settings() {
                     <td style="vertical-align:middle;"><select name="semester" id="semester" title="<?php _e('Current term','teachpress'); ?>">
                     <?php
                     $value = get_tp_option('sem');   
-                    $sem = "SELECT setting_id, value FROM " . $teachpress_settings . " WHERE category = 'semester' ORDER BY setting_id DESC";
-                    $sem = $wpdb->get_results($sem);
+                    $sem = $wpdb->get_results("SELECT setting_id, value FROM $teachpress_settings WHERE category = 'semester' ORDER BY setting_id DESC");
                     foreach ($sem as $sem) { 
                         if ($sem->value == $value) {
                             $current = 'selected="selected"' ;
@@ -165,37 +145,19 @@ function teachpress_admin_settings() {
 					</select></td>
                     <td style="vertical-align: middle;"><?php _e('Here you can change the current term. This value is used for the default settings for all menus.','teachpress'); ?></td>
                </tr>
-               <tr>
-                 <th><label for="permalink" title="<?php _e('Permalinks','teachpress'); ?>"><?php _e('Permalinks','teachpress'); ?></label></th>
-                 <td style="vertical-align:middle;">
-                      <select name="permalink" id="permalink" title="<?php _e('Permalinks','teachpress'); ?>">
-                      <?php
-                      $value = get_tp_option('permalink');
-                      if ($value == '1') {
-                            echo '<option value="1" selected="selected">' . __('yes','teachpress') . '</option>';
-                            echo '<option value="0">' . __('no','teachpress') . '</option>';
-                      }
-                      else {
-    echo '<option value="1">' . __('yes','teachpress') . '</option>';
-                            echo '<option value="0" selected="selected">' . __('no','teachpress') . '</option>';
-                      } 
-                      ?>
-                      </select>
-                 </td>
-                 <td style="vertical-align: middle;"><?php _e('Here you can specify, if your WordPress installation using permalinks or not.','teachpress'); ?></td>   
-               </tr>
               <tr>
               	<th><?php _e('Related pages (Post type)','teachpress'); ?></th>
                 <td style="vertical-align:middle;">
+                   <?php $value = get_tp_option('rel_page_courses'); ?>
                    <p><select name="rel_page_courses" id="rel_page_courses" title="<?php _e('for courses','teachpress');?>">
-                   <option value="page"><?php _e('Pages');?></option>
+                   <option value="page" <?php if ($value == 'page') { echo 'selected="selected"'; } ?>><?php _e('Pages');?></option>
+                   <option value="post" <?php if ($value == 'post') { echo 'selected="selected"'; } ?>><?php _e('Posts'); ?></option>
                    <?php
-                   $value = get_tp_option('rel_page_courses');
-                   $args=array(
+                   $args = array(
                      'public'   => true,
                      '_builtin' => false
                    ); 
-                   $post_types=get_post_types($args,'objects'); 
+                   $post_types = get_post_types($args,'objects'); 
                    foreach ($post_types as $post_type ) {
                        if ($post_type->name == $value) {
                                $current = 'selected="selected"' ;
@@ -209,14 +171,15 @@ function teachpress_admin_settings() {
                     </select>
                     <label for="rel_page_courses" title="<?php _e('for courses','teachpress');?>"><?php _e('for courses','teachpress');?></label></p>
                     <p><select name="rel_page_publications" id="rel_page_publications" title="<?php _e('for publications','teachpress');?>">
-                        <option value="page"><?php _e('Pages');?></option>
+                        <?php $value = get_tp_option('rel_page_publications'); ?>
+                        <option value="page" <?php if ($value == 'page') { echo 'selected="selected"'; } ?>><?php _e('Pages');?></option>
+                        <option value="post" <?php if ($value == 'post') { echo 'selected="selected"'; } ?>><?php _e('Posts'); ?></option>
                         <?php
-                        $value = get_tp_option('rel_page_publications');
-                        $args=array(
+                        $args = array(
                           'public'   => true,
                           '_builtin' => false
                         ); 
-                        $post_types=get_post_types($args,'objects'); 
+                        $post_types = get_post_types($args,'objects'); 
                         foreach ($post_types as $post_type ) {
                             if ($post_type->name == $value) {
                                     $current = 'selected="selected"' ;
@@ -269,8 +232,8 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
               </tr>
              </thead>
              </table>
-             <h4><?php _e('Enrollment system','teachpress'); ?></h4>
-             <table class="widefat">
+             <h3><?php _e('Enrollment system','teachpress'); ?></h3>
+             <table class="form-table">
              <thead>
               <tr>
               	<th width="160"><label for="login_mode"><?php _e('Mode','teachpress'); ?></label></th>
@@ -312,46 +275,22 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
               	<th><?php _e('User data fields','teachpress'); ?></th>
                 <td>
                  <?php
-                 $val = get_tp_option('regnum');
-                 if ($val == '1') {
-                         $check = ' checked="checked"';
-                 }
-                 else {
-                         $check = '';
-                 }
+                 $val = get_tp_option('regnum') == '1' ? ' checked="checked"' : '';
                  ?>
                 <input name="matriculation_number_field" id="matriculation_number_field" type="checkbox"<?php echo $check; ?> value="1" /> <label for="matriculation_number_field"><?php _e('Matr. number','teachpress'); ?></label><br />
                 <input name="firstname_field" type="checkbox" checked="checked" disabled="disabled" /> <?php _e('First name','teachpress'); ?><br />
                 <input name="lastname_field" type="checkbox" checked="checked" disabled="disabled" /> <?php _e('Last name','teachpress'); ?><br />
                 <?php
-                 $val = get_tp_option('studies');
-                 if ($val == '1') {
-                         $check = ' checked="checked"';
-                 }
-                 else {
-                         $check = '';
-                 }
+                 $val = get_tp_option('studies') == '1' ? ' checked="checked"' : '';
                  ?>
                 <input name="course_of_studies_field" id="course_of_studies_field" type="checkbox"<?php echo $check; ?> value="1" /> <label for="course_of_studies_field"><?php _e('Course of studies','teachpress'); ?></label><br />
                 <?php
-                 $val = get_tp_option('termnumber');
-                 if ($val == '1') {
-                         $check = ' checked="checked"';
-                 }
-                 else {
-                         $check = '';
-                 }
+                 $val = get_tp_option('termnumber') == '1' ? ' checked="checked"' : '';
                  ?>
                 <input name="semesternumber_field" id="semesternumber_field" type="checkbox"<?php echo $check; ?> value="1" /> <label for="semesternumber_field"><?php _e('Number of terms','teachpress'); ?></label><br />
                 <input name="nutzerkuerzel_field" type="checkbox" checked="checked" disabled="disabled" /> <?php _e('User account','teachpress'); ?><br />
                 <?php
-                 $val = get_tp_option('birthday');
-                 if ($val == '1') {
-                         $check = ' checked="checked"';
-                 }
-                 else {
-                         $check = '';
-                 }
+                 $val = get_tp_option('birthday') == '1' ? ' checked="checked"' : '';
                  ?>
                 <input name="birthday_field" id="birthday_field" type="checkbox"<?php echo $check; ?> value="1" /> <label for="birthday_field"><?php _e('Date of birth','teachpress'); ?></label><br />
                 <input name="email_field" type="checkbox" checked="checked" disabled="disabled" /> <?php _e('E-Mail'); ?><br />
@@ -360,13 +299,12 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
               </tr>
              </thead> 
 			</table>
-            <h4><?php _e('Uninstalling','teachpress'); ?></h4> 
-            <table class="widefat">
+            <h3><?php _e('Uninstalling','teachpress'); ?></h3> 
+            <table class="form-table">
             	<thead>
                     <tr>
-                      <th width="160"><?php _e('Database','teachpress'); ?></th>
                       <td>
-			<?php _e('Remove teachPress from the database:','teachpress'); ?>
+			<span style="margin-right: 8px;"><?php _e('Remove teachPress from the database:','teachpress'); ?></span>
                         <input type="radio" name="drop_tp" value="1" id="drop_tp_0" />
                         <label for="drop_tp_0"><?php _e('yes','teachpress'); ?></label>
                         <input type="radio" name="drop_tp" value="0" id="drop_tp_1" checked="checked" />
@@ -395,7 +333,7 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
                     </tr>
                </thead>
                <?php
-		$row = "SELECT number, value, setting_id FROM ( SELECT COUNT(s.course_of_studies) as number, e.value AS value,  e.setting_id as setting_id, e.category as category FROM " . $teachpress_settings . " e LEFT JOIN " . $teachpress_stud . " s ON e.value = s.course_of_studies GROUP BY e.value ORDER BY number DESC ) AS temp WHERE category = 'course_of_studies' ORDER BY value";
+		$row = "SELECT number, value, setting_id FROM ( SELECT COUNT(s.course_of_studies) as number, e.value AS value,  e.setting_id as setting_id, e.category as category FROM $teachpress_settings e LEFT JOIN $teachpress_stud s ON e.value = s.course_of_studies GROUP BY e.value ORDER BY number DESC ) AS temp WHERE category = 'course_of_studies' ORDER BY value";
 		$row = $wpdb->get_results($row);
 		foreach ($row as $row) { ?>
                     <tr>
@@ -424,7 +362,7 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
                          <th><?php _e('Number of courses','teachpress'); ?></th>
                     </tr>
                     <?php
-                    $row = "SELECT number, value, setting_id FROM ( SELECT COUNT(v.semester) as number, e.variable AS value,  e.setting_id as setting_id, e.category as category FROM " . $teachpress_settings . " e LEFT JOIN " . $teachpress_courses . " v ON e.variable = v.semester GROUP BY e.variable ORDER BY number DESC ) AS temp WHERE category = 'semester' ORDER BY setting_id";
+                    $row = "SELECT number, value, setting_id FROM ( SELECT COUNT(v.semester) as number, e.variable AS value,  e.setting_id as setting_id, e.category as category FROM $teachpress_settings e LEFT JOIN $teachpress_courses v ON e.variable = v.semester GROUP BY e.variable ORDER BY number DESC ) AS temp WHERE category = 'semester' ORDER BY setting_id";
                     $row = $wpdb->get_results($row);
                     foreach ($row as $row) { ?> 
                          <tr>
@@ -453,7 +391,7 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
               </tr>
             </thead>
           <?php    
-            $row = "SELECT number, value, setting_id FROM ( SELECT COUNT(v.type) as number, e.value AS value,  e.setting_id as setting_id, e.category as category FROM " . $teachpress_settings . " e LEFT JOIN " . $teachpress_courses . " v ON e.value = v.type GROUP BY e.value ORDER BY number DESC ) AS temp WHERE category = 'course_type' ORDER BY value";
+            $row = "SELECT number, value, setting_id FROM ( SELECT COUNT(v.type) as number, e.value AS value,  e.setting_id as setting_id, e.category as category FROM $teachpress_settings e LEFT JOIN $teachpress_courses v ON e.value = v.type GROUP BY e.value ORDER BY number DESC ) AS temp WHERE category = 'course_type' ORDER BY value";
             $row = $wpdb->get_results($row);
             foreach ($row as $row) { ?>  
                     <tr>
@@ -480,7 +418,7 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
      /* Publications */
      /****************/
      if ($tab == 'publications') {?>
-    <table class="widefat">
+    <table class="form-table">
     	<thead>
     	<tr>
           <th width="160"><?php _e('RSS feed addresses','teachpress'); ?></th>

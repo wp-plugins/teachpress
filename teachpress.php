@@ -151,7 +151,7 @@ function tp_datesplit($datum) {
  *      $pub_types[x][0] ==> BibTeX key
  *      $pub_types[x][1] ==> i18n string (singular)
  *      $pub_types[x][2] ==> i18n string (plural)
- * @return ARRAY
+ * @return array
 */ 
 function get_tp_publication_types() {
     $pub_types[0] = array (0 => '0', 1 => __('All types','teachpress'), 2 => __('All types','teachpress'));
@@ -612,7 +612,6 @@ function tp_install() {
         // Default settings		
         $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('sem', 'Example term', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('db-version', '3.1.6', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('permalink', '1', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('sign_out', '0', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('login', 'std', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('stylesheet', '1', 'system')");

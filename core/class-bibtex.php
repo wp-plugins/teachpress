@@ -77,14 +77,15 @@ class tp_bibtex {
     }
 
     /**
-    * Get a single publication in html format
-    * @param ARRAY $row
-    * @param ARRAY $all_tags
-    * @param ARRAY $url
-    * @param ARRAY $settings
-    * @return STRING
+     * Get a single publication in html format
+     * @param array $row
+     * @param array $all_tags
+     * @param array $url
+     * @param array $settings
+     * @param int $tpz
+     * @return string
     */
-    function get_single_publication_html ($row, $all_tags, $permalink, $settings) {
+    function get_single_publication_html ($row, $all_tags, $permalink, $settings, $tpz = 0) {
         $tag_string = '';
         $str = "'";
         $keywords = '';
@@ -172,13 +173,16 @@ class tp_bibtex {
             $a2 = $abstract . '<a onclick="teachpress_pub_showhide(' . $str . $row['pub_id'] . $str . ',' . $str . 'tp_bibtex' . $str . ')" style="cursor:pointer;" title="' . __('Show BibTeX entry','teachpress') . '">' . __('BibTeX','teachpress') . '</a>' . $tag_string . $url;
         }
         // different styles: simple and normal
-        if ($settings['style'] == 'simple') {
+        if ($settings['style'] == 'simple' || $settings['style'] == 'numbered') {
             $in = $row['editor'] != '' ? '' . __('In','teachpress') . ': ' : '';
             $a1 = '<tr class="tp_publication_simple">';
+            if ( $settings['style'] == 'numbered' ) {
+                $a1 = $a1 . '<td class="tp_pub_number">' . $tpz . '.</td>';
+            }
             $a1 = $a1 . $td_left;
             $a1 = $a1 . '<td class="tp_pub_info_simple">';
             $a1 = $a1 . '<span class="tp_pub_author_simple">' . stripslashes($all_authors) . '</span> ';
-            $a1 = $a1 . '<span class="tp_pub_year_simple">(' . $row['jahr'] . ')</span>: ';
+            $a1 = $a1 . '<span class="tp_pub_year_simple">(' . $row['year'] . ')</span>: ';
             $a1 = $a1 . '<span class="tp_pub_title_simple">' . stripslashes($name) . '.</span>';
             $a1 = $a1 . '<span class="tp_pub_additional_simple">' . $in . tp_bibtex::single_publication_meta_row($row, $settings) . '</span>';
             $a2 = ' <span class="tp_pub_tags_simple">(' . __('Type') . ': <span class="tp_pub_typ_simple">' . stripslashes($type) . '</span> | ' . $a2 . '</span>';
