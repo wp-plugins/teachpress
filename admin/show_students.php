@@ -17,14 +17,14 @@ function teachpress_students_page() {
 
     // Page menu
     $page = 'teachpress/students.php';
-    $number_messages = 50;
+    $entries_per_page = 50;
     // Handle limits
     if (isset($_GET['limit'])) {
         $curr_page = (int)$_GET['limit'] ;
         if ( $curr_page <= 0 ) {
             $curr_page = 1;
         }
-        $entry_limit = ( $curr_page - 1 ) * $number_messages;
+        $entry_limit = ( $curr_page - 1 ) * $entries_per_page;
     }
     else {
         $entry_limit = 0;
@@ -45,14 +45,20 @@ function teachpress_students_page() {
     }
 
     // Event handler
-    if ($action == 'show') {
-        teachpress_editstudent_page();
+    if ( $action == 'show' ) {
+        teachpress_show_student_page();
+    }
+    elseif ( $action == 'edit' ) {
+        teachpress_edit_student_page();
+    }
+    elseif ( $action == 'add' ) {
+        teachpress_students_new_page();
     }
     else {
         $field1 = get_tp_option('regnum');
         $field2 = get_tp_option('studies');
-        $students = get_tp_students( array('course_of_studies' => $students_group, 'search' => $search, 'limit' => $entry_limit . ',' . $number_messages, 'output_type' => OBJECT ) );
-        $test = get_tp_students( array('course_of_studies' => $students_group, 'search' => $search, 'output_type' => OBJECT, 'count' => true ) );
+        $students = get_tp_students( array('course_of_studies' => $students_group, 'search' => $search, 'limit' => $entry_limit . ',' . $entries_per_page, 'output_type' => OBJECT ) );
+        $number_entries = get_tp_students( array('course_of_studies' => $students_group, 'search' => $search, 'output_type' => OBJECT, 'count' => true ) );
         ?>
         <div class="wrap">
         <form name="search" method="get" action="admin.php">
@@ -61,9 +67,9 @@ function teachpress_students_page() {
         // Delete students part 1
         if ( $bulk == "delete" ) {
             echo '<div class="teachpress_message">
-            <p class="hilfe_headline">' . __('Are you sure to delete the selected elements?','teachpress') . '</p>
-            <p><input name="delete_ok" type="submit" class="button-secondary" value="' . __('Delete','teachpress') . '"/>
-            <a href="admin.php?page=teachpress/students.php&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $curr_page . '"> ' . __('Cancel','teachpress') . '</a></p>
+            <p class="teachpress_message_headline">' . __('Are you sure to delete the selected elements?','teachpress') . '</p>
+            <p><input name="delete_ok" type="submit" class="button-primary" value="' . __('Delete','teachpress') . '"/>
+            <a href="admin.php?page=teachpress/students.php&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $curr_page . '" class="button-secondary"> ' . __('Cancel','teachpress') . '</a></p>
             </div>';
         }
         // Delete students part 2
@@ -73,7 +79,7 @@ function teachpress_students_page() {
             get_tp_message($message);
         }
         ?>
-    <h2><?php _e('Students','teachpress'); ?></h2>
+        <h2><?php _e('Students','teachpress'); ?> <a class="add-new-h2" href="admin.php?page=teachpress/students.php&amp;action=add"><?php _e('Add student','teachpress'); ?></a></h2>
         <div id="searchbox" style="float:right; padding-bottom:5px;">  
         <?php if ($search != "") { ?>
         <a href="admin.php?page=teachpress/students.php" style="font-size:14px; font-weight:bold; text-decoration:none; padding-right:3px;" title="<?php _e('Cancel the search','teachpress'); ?>">X</a>
@@ -100,7 +106,7 @@ function teachpress_students_page() {
         <input name="anzeigen" type="submit" id="teachpress_search_senden" value="<?php _e('Show','teachpress'); ?>" class="button-secondary"/>
         <?php }
         // Page Menu
-        echo tp_admin_page_menu ($test, $number_messages, $curr_page, $entry_limit, 'admin.php?page=' . $page . '', 'search=' . $search . '&amp;students_group=' . $students_group . ''); ?>
+        echo tp_admin_page_menu ($number_entries, $entries_per_page, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search&amp;students_group=$students_group"); ?>
     </div>
     <table border="1" cellpadding="5" cellspacing="0" class="widefat">
         <thead>
@@ -170,15 +176,15 @@ function teachpress_students_page() {
         </table>
     <div class="tablenav"><div class="tablenav-pages" style="float:right;">
         <?php 
-        if ($test > $number_messages) {
-            echo tp_admin_page_menu ($test, $number_messages, $curr_page, $entry_limit, 'admin.php?page=' . $page . '', 'search=' . $search . '&amp;students_group=' . $students_group . '', 'bottom');
+        if ($number_entries > $entries_per_page) {
+            echo tp_admin_page_menu ($number_entries, $entries_per_page, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search&amp;students_group=$students_group", 'bottom');
         } 
         else {
-            if ($test == 1) {
-                echo $test . ' ' . __('entry','teachpress');
+            if ($number_entries == 1) {
+                echo $number_entries . ' ' . __('entry','teachpress');
             }
             else {
-                echo $test . ' ' . __('entries','teachpress');
+                echo $number_entries . ' ' . __('entries','teachpress');
             }
         }?>
         </div></div>

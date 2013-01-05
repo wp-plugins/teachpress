@@ -68,8 +68,7 @@ function tp_add_course_page() {
    $ref = isset( $_GET['ref'] ) ? htmlspecialchars($_GET['ref']) : '';
 
    // possible course parents
-   $row = "SELECT `course_id`, `name`, `semester` FROM " . $teachpress_courses . " WHERE `parent` = '0' AND `course_id` != '$course_ID' ORDER BY semester DESC, name";
-   $row = $wpdb->get_results($row);
+   $row = $wpdb->get_results("SELECT `course_id`, `name`, `semester` FROM $teachpress_courses WHERE `parent` = '0' AND `course_id` != '$course_ID' ORDER BY semester DESC, name");
    $counter3 = 0;
    foreach($row as $row){
         $par[$counter3]["id"] = $row->course_id;
@@ -190,32 +189,19 @@ function tp_add_course_page() {
            <input name="end" type="text" id="end" title="<?php _e('Date','teachpress'); ?>" tabindex="17" size="15" <?php echo $meta; ?>/> <input name="end_hour" type="text" title="<?php _e('Hours','teachpress'); ?>" value="<?php echo $hour; ?>" size="2" tabindex="18" /> : <input name="end_minute" type="text" title="<?php _e('Minutes','teachpress'); ?>" value="<?php echo $minute; ?>" size="2" tabindex="19" />
         <p><strong><?php _e('Options','teachpress'); ?></strong></p>
          <?php
-           if ( $daten["waitinglist"] == 1 ) {
-              $check = 'checked="checked"';
-           }
-           else {
-              $check = "";
-           }
+           $check = $daten["waitinglist"] == 1 ? 'checked="checked"' : '';
            ?>
             <p><input name="waitinglist" id="waitinglist" type="checkbox" value="1" tabindex="26" <?php echo $check; ?>/> <label for="waitinglist" title="<?php _e('Waiting list','teachpress'); ?>"><?php _e('Waiting list','teachpress'); ?></label></p>
           <p>
           <?php 
            if ($daten["parent"] != 0) {
               $parent_data_strict = get_tp_course_data($daten["parent"], 'strict_signup'); 
-              if ( $parent_data_strict == 1 ) {
-                 $check = 'checked="checked"';
-              }
-              else {
-                 $check = "";
-              }?>
+              $check = $parent_data_strict == 1 ? 'checked="checked"' : '';
+              ?>
               <input name="strict_signup_2" id="strict_signup_2" type="checkbox" value="1" tabindex="27" <?php echo $check; ?> disabled="disabled" /> <label for="strict_signup_2" title="<?php _e('This is a child course. You can only change this option in the parent course','teachpress'); ?>"><?php _e('Strict sign up','teachpress'); ?></label></p>
-      <?php } else { 
-              if ( $daten["strict_signup"] == 1 ) {
-                 $check = 'checked="checked"';
-              }
-              else {
-                 $check = "";
-              }?>
+     <?php } else {
+              $check = $daten["strict_signup"] == 1 ? 'checked="checked"' : '';
+              ?>
            <input name="strict_signup" id="strict_signup" type="checkbox" value="1" tabindex="27" <?php echo $check; ?> /> <label for="strict_signup" title="<?php _e('This is an option only for parent courses. If you activate it, subscribing is only possible for one of the child courses and not in all. This option has no influence on waiting lists.','teachpress'); ?>"><?php _e('Strict sign up','teachpress'); ?></label></p>
    <?php } ?>
            </td>
@@ -246,24 +232,14 @@ function tp_add_course_page() {
                 <?php 
                     $row = get_tp_settings('course_type', '`value` ASC');
                     foreach ($row as $row) {
-                        if ($daten["type"] == $row->value) {
-                            $check = ' selected="selected"';
-                        }
-                        else {
-                            $check = '';
-                        }	
+                        $check = $daten["type"] == $row->value ? ' selected="selected"' : '';
                         echo '<option value="' . stripslashes($row->value) . '"' . $check . '>' . stripslashes($row->value) . '</option>';
                     } ?>
                 </select>
                 <p><label for="semester" title="<?php _e('The term where the course will be happening','teachpress'); ?>"><strong><?php _e('Term','teachpress'); ?></strong></label></p>
                 <select name="semester" id="semester" title="<?php _e('The term where the course will be happening','teachpress'); ?>" tabindex="3">
                 <?php
-                if ($course_ID == 0) {
-                    $value = get_tp_option('sem');
-                }
-                else {
-                    $value = 0;
-                }
+                $value = $course_ID == 0 ? get_tp_option('sem') : 0;
                 $sem = get_tp_settings('semester', '`setting_id` ASC');
                 $x = 0;
                 // Semester in array speichern - wird spaeter fuer Parent-Menu genutzt

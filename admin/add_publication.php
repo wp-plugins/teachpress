@@ -34,7 +34,7 @@ function teachpress_addpublications_page() {
 
    // form variables from add_publication.php
    $data = get_tp_var_types('publication_array');
-   $data['name'] = isset( $_POST['post_title'] ) ? htmlspecialchars($_POST['post_title']) : '';
+   $data['title'] = isset( $_POST['post_title'] ) ? htmlspecialchars($_POST['post_title']) : '';
    $data['type'] = isset( $_POST['type'] ) ? htmlspecialchars($_POST['type']) : '';
    $data['bibtex'] = isset( $_POST['bibtex'] ) ? htmlspecialchars($_POST['bibtex']) : '';
    $data['author'] = isset( $_POST['author'] ) ? htmlspecialchars($_POST['author']) : '';
@@ -42,6 +42,7 @@ function teachpress_addpublications_page() {
    $data['isbn'] = isset( $_POST['isbn'] ) ? htmlspecialchars($_POST['isbn']) : '';
    $data['url'] = isset( $_POST['url'] ) ? htmlspecialchars($_POST['url']) : '';
    $data['date'] = isset( $_POST['date'] ) ? htmlspecialchars($_POST['date']) : '';
+   $data['urldate'] = isset( $_POST['urldate'] ) ? htmlspecialchars($_POST['urldate']) : '';
    $data['booktitle'] = isset( $_POST['booktitle'] ) ? htmlspecialchars($_POST['booktitle']) : '';
    $data['journal'] = isset( $_POST['journal'] ) ? htmlspecialchars($_POST['journal']) : '';
    $data['volume'] = isset( $_POST['volume'] ) ? htmlspecialchars($_POST['volume']) : '';
@@ -63,8 +64,8 @@ function teachpress_addpublications_page() {
    $data['comment'] = isset( $_POST['comment'] ) ? htmlspecialchars($_POST['comment']) : '';
    $data['note'] = isset( $_POST['note'] ) ? htmlspecialchars($_POST['note']) : '';
    $data['image_url'] = isset( $_POST['image_url'] ) ? htmlspecialchars($_POST['image_url']) : '';
-   $data['rel_page'] = isset( $_POST['rel_page'] ) ? htmlspecialchars($_POST['rel_page'],'integer') : '';
-   $data['is_isbn'] = isset( $_POST['is_isbn'] ) ? htmlspecialchars($_POST['is_isbn'],'integer') : '';
+   $data['rel_page'] = isset( $_POST['rel_page'] ) ? intval($_POST['rel_page']) : '';
+   $data['is_isbn'] = isset( $_POST['is_isbn'] ) ? intval($_POST['is_isbn']) : '';
 
    $tags = isset( $_POST['tags'] ) ? htmlspecialchars($_POST['tags']) : '';
    $delbox = isset( $_POST['delbox'] ) ? $_POST['delbox'] : '';
@@ -124,7 +125,7 @@ function teachpress_addpublications_page() {
              <div class="bookmarks" style="background-attachment: scroll; border:1px #DFDFDF solid; display: block; height: 100px; max-height: 205px; overflow-x: auto; overflow-y: auto; padding: 6px 11px;">
           <?php 
              if ($pub_ID != '') {
-                   $sql = "SELECT pub_id FROM " . $teachpress_user . " WHERE `pub_id`='$pub_ID' AND `user` = '$user'";
+                   $sql = "SELECT `pub_id` FROM $teachpress_user WHERE `pub_id`='$pub_ID' AND `user` = '$user'";
                    $test = $wpdb->query($sql);
                    if ($test != '0') {
                            echo '<p><input type="checkbox" name="bookmark[]" id="bookmark" disabled="disabled"/> <label for="bookmark">' . __('add to your own list','teachpress') . '</label></p>';
@@ -137,13 +138,13 @@ function teachpress_addpublications_page() {
                    echo '<p><input type="checkbox" name="bookmark[]" id="bookmark" value="' . $user . '" title="' . __('Click to add the publication in your own list','teachpress') . '"/> <label for="bookmark" title="' . __('Click to add the publication in your own list','teachpress') . '">' . __('add to your own list','teachpress') . '</label></p>';
                    }
              // search users with min. one bookmark
-             $abfrage = "SELECT DISTINCT user FROM " . $teachpress_user . "";
+             $abfrage = "SELECT DISTINCT user FROM $teachpress_user ";
              $row = $wpdb->get_results($abfrage);
              foreach($row as $row) {
                 $user_info = get_userdata($row->user);
                 if ($user != $row->user && $user_info != false) { 
                     if ($pub_ID != '') {
-                        $sql = "SELECT pub_id FROM " . $teachpress_user . " WHERE `pub_id`='$pub_ID' AND `user` = '$user_info->ID'";
+                        $sql = "SELECT pub_id FROM $teachpress_user WHERE `pub_id`='$pub_ID' AND `user` = '$user_info->ID'";
                         $test = $wpdb->query($sql);
                         if ($test != '0') {
                             echo '<p><input type="checkbox" name="bookmark[]" id="bookmark_' . $user_info->ID . '" disabled="disabled"/> <label for="bookmark_' . $user_info->ID . '">' . $user_info->display_name . '</label></p>';
@@ -168,7 +169,7 @@ function teachpress_addpublications_page() {
                 <input type="reset" name="Reset" value="<?php _e('Reset','teachpress'); ?>" id="teachpress_reset" class="button-secondary">
                 </div>
                 <div style="width:50%; float:right; height:25px;">
-                <input name="erstellen" type="submit" class="button-primary" id="publikation_erstellen" onclick="teachpress_validateForm('tags','','R','title','','R','author','','R','bibtex','','R');return document.teachpress_returnValue" value="<?php _e('Create','teachpress'); ?>">
+                <input name="erstellen" type="submit" class="button-primary" id="publikation_erstellen" onclick="teachpress_validateForm('tags','','R','title','','R','bibtex','','R');return document.teachpress_returnValue" value="<?php _e('Create','teachpress'); ?>">
                 </div>
             </td>
            </tr>    
@@ -190,9 +191,9 @@ function teachpress_addpublications_page() {
             <td>
             <?php if ($pub_ID != '') {
             $sql = "SELECT t.name, b.con_id 
-                    FROM " . $teachpress_relation . " b
-                    INNER JOIN " . $teachpress_tags . " t ON t.tag_id=b.tag_id
-                    INNER JOIN " . $teachpress_pub . " p ON p.pub_id=b.pub_id
+                    FROM $teachpress_relation b
+                    INNER JOIN $teachpress_tags t ON t.tag_id=b.tag_id
+                    INNER JOIN $teachpress_pub p ON p.pub_id=b.pub_id
                     WHERE p.pub_id = '$pub_ID'
                     ORDER BY t.name";	
             $test = $wpdb->query($sql);
@@ -209,30 +210,17 @@ function teachpress_addpublications_page() {
             <input name="tags" type="text" id="tags" title="<?php _e('New (separate by comma)','teachpress'); ?>" style="width:95%">
             <div class="teachpress_cloud" style="padding-top:15px;">
             <?php
-            // Number of tags
-            $limit = 30;
             // Font sizes
             $maxsize = 25;
             $minsize = 11;
-            // Select number of tags
-            $sql = "SELECT anzahlTags FROM ( SELECT COUNT(*) AS anzahlTags FROM " . $teachpress_relation . " GROUP BY " . $teachpress_relation . ".`tag_id` ORDER BY anzahlTags DESC ) as temp1 GROUP BY anzahlTags ORDER BY anzahlTags DESC";
-            $sql = "SELECT MAX(anzahlTags) AS max, min(anzahlTags) AS min, COUNT(anzahlTags) as gesamt FROM (".$sql.") AS temp";
-            $tagcloud_temp = $wpdb->get_row($sql, ARRAY_A);
-            $max = $tagcloud_temp['max'];
-            $min = $tagcloud_temp['min'];
-            // Compose tags and numbers
-            $sql = "SELECT tagPeak, name, tag_id FROM ( SELECT COUNT(b.tag_id) as tagPeak, t.name AS name,  t.tag_id as tag_id FROM " . $teachpress_relation . " b LEFT JOIN " . $teachpress_tags . " t ON b.tag_id = t.tag_id GROUP BY b.tag_id ORDER BY tagPeak DESC LIMIT " . $limit . " ) AS temp WHERE tagPeak>=".$min." ORDER BY name";
-            $test = $wpdb->query($sql);
-            if ($test != '0') {
-                $temp = $wpdb->get_results($sql, ARRAY_A);
-                // create the cloud
-                foreach ($temp as $tagcloud) {
-                    if ($min == 1) {
-                        $min = 0;
-                    }
-                    // Formula: max. font size * (current number - min number) / (max number - min number)
-                    $size = floor(($maxsize*($tagcloud['tagPeak']-$min)/($max-$min)));
-                    // Balancing the font size
+           
+            $temp = get_tp_tag_cloud( array('number_tags' => 30, 'output_type' => ARRAY_A) );
+            $max = $temp['info']->max;
+            $min = $temp['info']->min;
+            $min == 1 ? 0 : $min;
+            if ( count($temp['tags']) != 0 ) {
+                foreach ($temp['tags'] as $tagcloud) {
+                    $size = floor(( $maxsize * ( $tagcloud['tagPeak'] - $min )/( $max - $min )));
                     if ($size < $minsize) {
                         $size = $minsize ;
                     }
@@ -279,8 +267,8 @@ function teachpress_addpublications_page() {
            <div id="post-body-content">
            <div id="titlediv">
            <div id="titlewrap">
-           <label class="hide-if-no-js" style="display:none;" id="title-prompt-text" for="title"><?php _e('Name','teachpress'); ?></label>
-           <input type="text" name="post_title" size="30" title="<?php _e('Name','teachpress'); ?>" tabindex="1" value="<?php echo stripslashes($daten["name"]); ?>" id="title" autocomplete="off" />
+           <label class="hide-if-no-js" style="display:none;" id="title-prompt-text" for="title"><?php _e('Title','teachpress'); ?></label>
+           <input type="text" name="post_title" size="30" title="<?php _e('Title','teachpress'); ?>" tabindex="1" value="<?php echo stripslashes($daten["title"]); ?>" id="title" autocomplete="off" />
            </div>
            </div>
            </div>
@@ -345,7 +333,7 @@ function teachpress_addpublications_page() {
              </div>
              <?php
              $display = "";
-             if ($daten["type"] == "article" || $daten["type"] == "book" || $daten["type"] == "booklet" || $daten["type"] == "conference" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "inproceedings" || $daten["type"] == "proceedings" || $daten["type"] == "") 
+             if ($daten["type"] == "article" || $daten["type"] == "book" || $daten["type"] == "collection" || $daten["type"] == "booklet" || $daten["type"] == "conference" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "inproceedings" || $daten["type"] == "proceedings" || $daten["type"] == "") 
                    {$display = 'style="display:block;"';}
              else { $display = 'style="display:none;"';}
              ?>
@@ -355,7 +343,7 @@ function teachpress_addpublications_page() {
              </div>
              <?php
              $display = "";
-             if ($daten["type"] == "article" || $daten["type"] == "book" || $daten["type"] == "conference" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "inproceedings" || $daten["type"] == "proceedings" || $daten["type"] == "techreport" || $daten["type"] == "") 
+             if ($daten["type"] == "article" || $daten["type"] == "book" || $daten["type"] == "collection" || $daten["type"] == "conference" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "inproceedings" || $daten["type"] == "proceedings" || $daten["type"] == "techreport" || $daten["type"] == "") 
                    {$display = 'style="display:block;"';}
              else { $display = 'style="display:none;"';}
              ?>
@@ -375,7 +363,7 @@ function teachpress_addpublications_page() {
              </div>
              <?php
              $display = "";
-             if ($daten["type"] == "book" || $daten["type"] == "conference" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "inproceedings" || $daten["type"] == "proceedings") 
+             if ($daten["type"] == "book" || $daten["type"] == "collection" || $daten["type"] == "conference" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "inproceedings" || $daten["type"] == "proceedings") 
                    {$display = 'style="display:block;"';}
              else { $display = 'style="display:none;"';}
              ?>
@@ -385,7 +373,7 @@ function teachpress_addpublications_page() {
              </div>
              <?php
              $display = "";
-             if ($daten["type"] == "book" || $daten["type"] == "booklet" || $daten["type"] == "conference" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "inproceedings" || $daten["type"] == "manual" || $daten["type"] == "masterthesis" || $daten["type"] == "phdthesis" || $daten["type"] == "proceedings" || $daten["type"] == "techreport") 
+             if ($daten["type"] == "book" || $daten["type"] == "collection" || $daten["type"] == "booklet" || $daten["type"] == "conference" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "inproceedings" || $daten["type"] == "manual" || $daten["type"] == "masterthesis" || $daten["type"] == "phdthesis" || $daten["type"] == "proceedings" || $daten["type"] == "techreport") 
                    {$display = 'style="display:block;"';}
              else { $display = 'style="display:none;"';}
              ?>
@@ -395,7 +383,7 @@ function teachpress_addpublications_page() {
              </div>
              <?php
              $display = "";
-             if ($daten["type"] == "book" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "manual") 
+             if ($daten["type"] == "book" || $daten["type"] == "collection" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "manual") 
                    {$display = 'style="display:block;"';}
              else { $display = 'style="display:none;"';}
              ?>
@@ -425,7 +413,7 @@ function teachpress_addpublications_page() {
              </div>
              <?php
              $display = "";
-             if ($daten["type"] == "conference" || $daten["type"] == "inproceedings" || $daten["type"] == "manual" || $daten["type"] == "proceedings") 
+             if ($daten["type"] == "conference" || $daten["type"] == "inproceedings" || $daten["type"] == "manual" || $daten["type"] == "proceedings" || $daten["type"] == "online") 
                    {$display = 'style="display:block;"';}
              else { $display = 'style="display:none;"';}
              ?>
@@ -445,7 +433,7 @@ function teachpress_addpublications_page() {
              </div>
              <?php
              $display = "";
-             if ($daten["type"] == "book" || $daten["type"] == "conference" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "inproceedings" || $daten["type"] == "proceedings") 
+             if ($daten["type"] == "book" || $daten["type"] == "collection" || $daten["type"] == "conference" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "inproceedings" || $daten["type"] == "proceedings") 
                    {$display = 'style="display:block;"';}
              else { $display = 'style="display:none;"';}
              ?>
@@ -492,12 +480,20 @@ function teachpress_addpublications_page() {
                      <label><input name="is_isbn" type="radio" value="0" id="is_isbn_1" <?php if ($daten["is_isbn"] == '0') { echo 'checked="checked"'; }?> tabindex="26"/><?php _e('ISSN','teachpress'); ?></label>
                    </span>
              </div>
+             <?php
+             $display = "";
+             if ($daten["type"] == "online") {$display = 'style="display:block;"';}
+             else { $display = 'style="display:none;"';}
+             ?>
+             <div id="div_urldate" <?php echo $display; ?>>
+                 <p><label for="urldate" title="<?php _e('The date you have visited the online resource','teachpress'); ?>"><strong><?php _e('Urldate','teachpress'); ?></strong></label></p>
+             <input type="text" name="urldate" id="urldate" title="<?php _e('The date you have visited the online resource','teachpress'); ?>" value="<?php if ($pub_ID != '') { echo $daten["urldate"]; } else {_e('JJJJ-MM-TT','teachpress'); } ?>" onblur="if(this.value=='') this.value='<?php _e('JJJJ-MM-TT','teachpress'); ?>';" onfocus="if(this.value=='<?php _e('JJJJ-MM-TT','teachpress'); ?>') this.value='';" tabindex="27"/>
+             </div>
              <div id="div_url">
-                
                 <p style="margin-bottom:0;"><label for="url" title="<?php _e('URL/Files', 'teachpress'); ?>"><strong><?php _e('URL/Files', 'teachpress'); ?></strong></label></p>
                 <input name="upload_mode" id="upload_mode" type="hidden" value="" />
                 <a class="upload_button" style="cursor:pointer; border:none; float:right; padding-right: 34px;" title="<?php _e('Insert a file from the WordPress Media Library','teachpress'); ?>"><?php _e('Add/Upload','teachpress'); ?> <img src="images/media-button-other.gif"/></a>
-                <textarea name="url" type="text" id="url" class="upload" title="<?php echo __('You can add one URL or file per line. Insert the name of the URL/file behind the address and separate it by a comma and a space. Example:') . ' http://mywebsite.com/docs/readme.pdf, Basic Instructions'; ?>" style="width:95%" rows="4" tabindex="27"><?php echo $daten["url"]; ?></textarea>
+                <textarea name="url" type="text" id="url" class="upload" title="<?php echo __('You can add one URL or file per line. Insert the name of the URL/file behind the address and separate it by a comma and a space. Example:') . ' http://mywebsite.com/docs/readme.pdf, Basic Instructions'; ?>" style="width:95%" rows="4" tabindex="28"><?php echo $daten["url"]; ?></textarea>
              </div>
              </td>
            </tr>
@@ -511,9 +507,9 @@ function teachpress_addpublications_page() {
            <tr>
              <td>
              <p><label for="comment" title="<?php _e('A not vissible private comment','teachpress'); ?>"><strong><?php _e('private comment','teachpress'); ?></strong></label></p>
-             <textarea name="comment" wrap="virtual" id="comment" title="<?php _e('A not vissible private comment','teachpress'); ?>" style="width:95%" rows="4" tabindex="28"><?php echo stripslashes($daten["comment"]); ?></textarea>
+             <textarea name="comment" wrap="virtual" id="comment" title="<?php _e('A not vissible private comment','teachpress'); ?>" style="width:95%" rows="4" tabindex="29"><?php echo stripslashes($daten["comment"]); ?></textarea>
              <p><label for="comment" title="<?php _e('Additional information','teachpress'); ?>"><strong><?php _e('note','teachpress'); ?></strong></label></p>
-             <textarea name="note" wrap="virtual" id="note" title="<?php _e('Additional information','teachpress'); ?>" style="width:95%" rows="4" tabindex="29"><?php echo stripslashes($daten["note"]); ?></textarea>
+             <textarea name="note" wrap="virtual" id="note" title="<?php _e('Additional information','teachpress'); ?>" style="width:95%" rows="4" tabindex="30"><?php echo stripslashes($daten["note"]); ?></textarea>
              </td>
            </tr>
            </thead>    
@@ -524,13 +520,14 @@ function teachpress_addpublications_page() {
      <script type="text/javascript" charset="utf-8">
      jQuery(document).ready(function($) {
          $('#date').datepicker({showWeek: true, changeMonth: true, changeYear: true, showOtherMonths: true, firstDay: 1, renderer: $.extend({}, $.datepicker.weekOfYearRenderer), onShow: $.datepicker.showStatus, dateFormat: 'yy-mm-dd', yearRange: '1950:c+5'});
+         $('#urldate').datepicker({showWeek: true, changeMonth: true, changeYear: true, showOtherMonths: true, firstDay: 1, renderer: $.extend({}, $.datepicker.weekOfYearRenderer), onShow: $.datepicker.showStatus, dateFormat: 'yy-mm-dd', yearRange: '1990:c+5'});
      });
      </script>
     <script type="text/javascript" charset="utf-8">
 	jQuery(document).ready(function($) {
             var availableTags = [
                 <?php
-                $sql = "SELECT name FROM " . $teachpress_tags . " ORDER BY name ASC";
+                $sql = "SELECT name FROM $teachpress_tags ORDER BY name ASC";
                 $sql = $wpdb->get_results($sql, ARRAY_A);
                 foreach ($sql as $row) {
                     echo '"' . $row['name'] . '",';        

@@ -2,26 +2,21 @@
 /* 
  * Form for manual edits in the enrollment system
  * 1. Adding new students manually:
- * @param wp_id - WordPress user-ID
- * @param matriculation_number - Registration number
- * @param firstname
- * @param lastname - Last name
- * @param course_of_studies - Course of studies
- * @param semesternumber - Number of termns
- * @param uzrkurz - 
- * @param birthday - Date of birth
- * @param email
- * 2. Subscribe students manually
- * @param student - WordPress user-ID
- * @param veranstaltung - Course-ID
- * 3. Actions
- * @param insert
- * @param einschreiben
+ * @param int wp_id                 --> [$_POST] WordPress user-ID
+ * @param int matriculation_number  --> [$_POST] Registration number
+ * @param string firstname          --> [$_POST] First name
+ * @param string lastname           --> [$_POST] Last name
+ * @param string course_of_studies  --> [$_POST] Course of studies
+ * @param int semesternumber        --> [$_POST] Number of termns
+ * @param string uzrkurz            --> [$_POST] User name 
+ * @param string birthday           --> [$_POST] Date of birth
+ * @param string email              --> [$_POST] E-mail adress
+ * 2. Actions
+ * @param string insert             --> [$_POST]
 */ 
 function teachpress_students_new_page() { 
 
 global $wpdb;
-global $teachpress_courses; 
 global $teachpress_stud; 
 global $teachpress_settings;
 
@@ -34,8 +29,6 @@ $data['semesternumber'] = isset( $_POST['semesternumber'] ) ? intval($_POST['sem
 $data['userlogin'] = isset( $_POST['userlogin'] ) ? htmlspecialchars($_POST['userlogin']) : '';
 $data['birthday'] = isset( $_POST['birthday'] ) ? htmlspecialchars($_POST['birthday']) : '';
 $data['email'] = isset( $_POST['email'] ) ? htmlspecialchars($_POST['email']) : '';
-$student = isset( $_POST['student'] ) ? htmlspecialchars($_POST['student']) : '';
-$veranstaltung = isset( $_POST['veranstaltung'] ) ? htmlspecialchars($_POST['veranstaltung']) : '';
 
 // actions
 if (isset( $_POST['insert'] ) && $wp_id != __('WordPress User-ID','teachpress') && $wp_id != '') {
@@ -48,98 +41,13 @@ if (isset( $_POST['insert'] ) && $wp_id != __('WordPress User-ID','teachpress') 
    }
    get_tp_message($message);
 }
-if (isset( $_POST['einschreiben'] ) && $student != 0 && $veranstaltung != 0) {
-   tp_subscribe_student_manually($student, $veranstaltung);
-   $message = __('The enrollment for the selected student was successful.','teachpress');
-   get_tp_message($message);
-}
 ?>
 <div class="wrap" >
-<h2><?php _e('Add students manually','teachpress'); ?></h2>
-<p><strong><?php _e("This menu is only for the case, if it's not possible for a student to sign up themselves.",'teachpress'); ?></strong></p>
-<form name="einschreibung" method="post" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
-	<fieldset style="padding:10px; border:1px solid silver;">
-	<legend><?php _e('Enrollment','teachpress'); ?></legend>
-    	<p style="color:#FF0000;"><?php _e('If the student is registered for this course, the number of free places drops up to 0. The system ignores any criteria for the registration','teachpress'); ?></p>
-<table border="0" cellspacing="7" cellpadding="0">
-          <tr>
-            <td><select name="student" id="student">
-              <option value="0">- <?php _e('Select student','teachpress'); ?>- </option>
-                <?php
-                   $row1 = "SELECT wp_id, lastname, firstname, matriculation_number FROM " . $teachpress_stud . " ORDER BY lastname, firstname";
-                   $row1 = $wpdb->get_results($row1);
-                   $zahl = 0;
-                   foreach($row1 as $row1) {
-                      if ($zahl != 0 && $merke[0] != $row1->lastname[0]) {
-                         echo '<option value="0">----------</option>';
-                      }
-                   echo '<option value="' . $row1->wp_id . '">' . $row1->lastname . ' ' . $row1->firstname . ' ' . $row1->matriculation_number . '</option>';
-                      $merke = $row1->lastname;
-                      $zahl++;
-                   } ?>
-        	</select>
-            </select></td>
-            <td><select name="veranstaltung" id="veranstaltung">
-              <option value="0">- <?php _e('Select course','teachpress'); ?> -</option>
-              <?php
-                 // Semester
-                 $sem = "SELECT value FROM " . $teachpress_settings . " WHERE category = 'semester' ORDER BY setting_id";
-                 $sem = $wpdb->get_results($sem);
-                 $x = 0;
-                 foreach ($sem as $sem) { 
-                         $period[$x] = $sem->value;
-                         $x++;
-                 }
-                 // Veranstaltungen
-                 $row1 = "SELECT course_id, name, semester, parent FROM " . $teachpress_courses . " ORDER BY semester DESC, name";
-                 $row1 = $wpdb->get_results($row1);
-                 $v = 0;
-                 foreach($row1 as $row1) { 
-                         $veranstaltungen[$v]["id"] = $row1->course_id;
-                         $veranstaltungen[$v]["name"] = $row1->name;
-                         $veranstaltungen[$v]["semester"] = $row1->semester;
-                         $veranstaltungen[$v]["parent"] = $row1->parent;
-                         $v++;
-                 }
-                 // Semester
-                 for ($i = 0; $i < $x; $i++) {
-                    $zahl = 0;
-                    //Veranstaltungen zum Semester
-                    for ($j = 0; $j < $v; $j++) {
-                       // Wenn's zum Semester passt
-                       if ($period[($x - 1)-$i] == $veranstaltungen[$j]["semester"] ) {
-                          $parent_name = "";
-                          // Wenn Child
-                          if ($veranstaltungen[$j]["parent"] != '0') {
-                             // Parent_Name suchen
-                             for ($k=0;$k<$v;$k++) {
-                                if ($veranstaltungen[$j]["parent"] == $veranstaltungen[$k]["id"]) {
-                                   $parent_name = $veranstaltungen[$k]["name"] . ' ';
-                                }
-                             }
-                          }
-                          echo '<option value="' . $veranstaltungen[$j]["id"] . '">' . $parent_name . ' ' . $veranstaltungen[$j]["name"] . ' ' . $veranstaltungen[$j]["semester"] . '</option>';
-                          $zahl++;
-                       } 
-                    }
-                    // Wenn Semester wechselt
-                    if ($zahl != 0) {
-                            echo '<option value="0">------</option>';
-                    }
-                 }	
-                 ?>
-            </select></td>
-          </tr>
-          <tr>
-            <td colspan="2"><input type="submit" name="einschreiben" id="std_einschreiben2" value="<?php _e('Create','teachpress'); ?>" class="button-primary"/></td>
-          </tr>
-        </table>
-	</fieldset>
-</form> 
+    <p><a href="admin.php?page=teachpress/students.php" class="button-secondary"><?php _e('Back','teachpress'); ?></a></p>
+<h2><?php _e('Add student','teachpress'); ?></h2>
+
 <p style="padding:0px; margin:0px;">&nbsp;</p>
 <form id="neuer_student" name="neuer_student" method="post" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
-<fieldset style="padding:10px; border:1px solid silver;">
-<legend><?php _e('Add student','teachpress'); ?></legend>
 <table class="form-table">
 	<thead>
           <tr>
@@ -236,7 +144,6 @@ if (isset( $_POST['einschreiben'] ) && $student != 0 && $veranstaltung != 0) {
       <input name="insert" type="submit" id="std_einschreiben" onclick="teachpress_validateForm('firstname','','R','lastname','','R','userlogin','','R','email','','RisEmail');return document.teachpress_returnValue" value="<?php _e('Create','teachpress'); ?>" class="button-primary"/>
       <input name="reset" type="reset" id="reset" value="Reset" class="button-secondary"/>
     </p>
-</fieldset>
 </form>
  <script type="text/javascript" charset="utf-8">
      jQuery(document).ready(function($) {

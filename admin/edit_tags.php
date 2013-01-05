@@ -35,7 +35,7 @@ function teachpress_tags_page(){
     // Delete publications - part 1
     if ( $action == "delete" ) {
         echo '<div class="teachpress_message">
-            <p class="hilfe_headline">' . __('Are you sure to delete the selected elements?','teachpress') . '</p>
+            <p class="teachpress_message_headline">' . __('Are you sure to delete the selected elements?','teachpress') . '</p>
             <p><input name="delete_ok" type="submit" class="button-secondary" value="' . __('Delete','teachpress') . '"/>
             <a href="admin.php?page=' . $page . '&search=' . $search . '&amp;limit=' . $curr_page . '"> ' . __('Cancel','teachpress') . '</a></p>
             </div>';
@@ -77,7 +77,7 @@ function teachpress_tags_page(){
         <input name="OK" value="OK" type="submit" class="button-secondary"/>
         <?php
         // Page Menu
-        echo tp_admin_page_menu ($test, $number_messages, $curr_page, $entry_limit, 'admin.php?page=' . $page . '', 'search=' . $search . ''); ?>
+        echo tp_admin_page_menu ($test, $number_messages, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search"); ?>
     </div>
     <div style="width:650px;">
     <table border="0" cellspacing="0" cellpadding="0" class="widefat">
@@ -136,7 +136,7 @@ function teachpress_tags_page(){
     <div class="tablenav"><div class="tablenav-pages" style="float:right;">
       <?php 
       if ($test > $number_messages) {
-         echo tp_admin_page_menu ($test, $number_messages, $curr_page, $entry_limit, 'admin.php?page=' . $page . '', 'search=' . $search . '', 'bottom');
+         echo tp_admin_page_menu ($test, $number_messages, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search", 'bottom');
       } 
       else {
          if ($test == 1) {

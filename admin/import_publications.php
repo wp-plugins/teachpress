@@ -3,35 +3,24 @@
  * Import BibTeX
 */ 
 function teachpress_import_page() {
-     $tab = isset( $_GET['tab'] ) ? $_GET['tab'] : '';
-     // variable 
-     if ( isset($_POST['tp_submit']) && isset ($_POST['bibtex_area']) ) {
+    $tab = isset( $_GET['tab'] ) ? $_GET['tab'] : '';
+    // variable 
+    if ( isset($_POST['tp_submit']) && isset ($_POST['bibtex_area']) ) {
         $bibtex = $_POST['bibtex_area']; // The input is checked by the function tp_bibtex::import_bibtex
         $settings = array(
             'keyword_separator' => htmlspecialchars($_POST['keyword_option']),
             'author_format' => htmlspecialchars($_POST['author_format'])
         );
-	tp_bibtex::import_bibtex($bibtex, $settings);
-	echo '<p><a href="admin.php?page=teachpress/import.php" class="button-secondary">&larr; ' . __('Back','teachpress') . '</a></p>';
-     }
-     else {
-          if ($tab == '' || $tab == 'import') { 
-           $set_menu_1 = __('Import'); 
-          }
-          else { 
-           $set_menu_1 =  '<a href="admin.php?page=teachpress/import.php&amp;tab=import" title="' . __('Import') . '" >' . __('Import') . '</a>'; 
-          }
-
-          if ($tab == 'export') {
-           $set_menu_2 = __('Export'); 
-          }
-          else {
-           $set_menu_2 = '<a href="admin.php?page=teachpress/import.php&amp;tab=export" title="' . __('Export') . '">' . __('Export') . '</a>'; 
-          }
+        tp_bibtex::import_bibtex($bibtex, $settings);
+        echo '<p><a href="admin.php?page=teachpress/import.php" class="button-secondary">&larr; ' . __('Back','teachpress') . '</a></p>';
+    }
+    else {
+        $set_menu_1 = ( $tab == "import" || $tab == "" ) ? "nav-tab nav-tab-active" : "nav-tab";
+        $set_menu_2 = $tab == "export" ? "nav-tab nav-tab-active" : "nav-tab";
 	?>
 	<div class="wrap">
 	<h2><?php _e('Publications','teachpress'); ?></h2>
-        <h3><?php echo $set_menu_1 . ' | ' . $set_menu_2; ?></h3>
+        <h3 class="nav-tab-wrapper"><?php echo '<a href="admin.php?page=teachpress/import.php&amp;tab=import" class="' . $set_menu_1 .'" title="' . __('Import') . '" >' . __('Import') . '</a> <a href="admin.php?page=teachpress/import.php&amp;tab=export" class="' . $set_menu_2 . '" title="' . __('Export') . '">' . __('Export') . '</a>'; ?></h3>
         <?php if ($tab == '' || $tab == 'import') { ?>
         <p><?php _e("Copy your BibTeX entries in the textarea. Restrictions: teachPress can't converting LaTeX special chars as well as not numeric month and day attributes.","teachpress"); ?></p>
 	<form id="tp_import" name="tp_import" action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post">

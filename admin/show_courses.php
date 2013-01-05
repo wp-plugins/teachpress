@@ -66,13 +66,8 @@ function teachpress_show_courses_page() {
      /*
       * Show courses
      */
-     global $wpdb;
-     global $teachpress_settings; 
-     global $teachpress_courses;
-     global $teachpress_signup;
 
      $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
-     $course_ID = isset( $_GET['course_ID'] ) ? intval($_GET['course_ID']) : '';
      $checkbox = isset( $_GET['checkbox'] ) ? $_GET['checkbox'] : '';
      $bulk = isset( $_GET['bulk'] ) ? $_GET['bulk'] : '';
      $copysem = isset( $_GET['copysem'] ) ? $_GET['copysem'] : '';
@@ -94,9 +89,9 @@ function teachpress_show_courses_page() {
            // delete a course, part 1
            if ( $bulk == "delete" ) {
                 echo '<div class="teachpress_message">
-                <p class="hilfe_headline">' . __('Are you sure to delete the selected elements?','teachpress') . '</p>
-                <p><input name="delete_ok" type="submit" class="button-secondary" value="' . __('Delete','teachpress') . '"/>
-                <a href="admin.php?page=teachpress/teachpress.php&sem=' . $sem . '&search=' . $search . '"> ' . __('Cancel','teachpress') . '</a></p>
+                <p class="teachpress_message_headline">' . __('Are you sure to delete the selected elements?','teachpress') . '</p>
+                <p><input name="delete_ok" type="submit" class="button-primary" value="' . __('Delete','teachpress') . '"/>
+                <a href="admin.php?page=teachpress/teachpress.php&sem=' . $sem . '&search=' . $search . '" class="button-secondary"> ' . __('Cancel','teachpress') . '</a></p>
                 </div>';
            }
            // delete a course, part 2
@@ -108,13 +103,12 @@ function teachpress_show_courses_page() {
            // copy a course, part 1
            if ( $bulk == "copy" ) { ?>
                 <div class="teachpress_message">
-                <p class="hilfe_headline"><?php _e('Copy courses','teachpress'); ?></p>
-                <p class="hilfe_text"><?php _e('Select the term, in which you will copy the selected courses.','teachpress'); ?></p>
-                <p class="hilfe_text">
+                <p class="teachpress_message_headline"><?php _e('Copy courses','teachpress'); ?></p>
+                <p class="teachpress_message_text"><?php _e('Select the term, in which you will copy the selected courses.','teachpress'); ?></p>
+                <p class="teachpress_message_text">
                 <select name="copysem" id="copysem">
-                    <?php    
-                    $term = "SELECT `value` FROM " . $teachpress_settings . " WHERE `category` = 'semester' ORDER BY `setting_id` DESC";
-                    $term = $wpdb->get_results($term);
+                    <?php
+                    $term = get_tp_settings('semester');
                     foreach ($term as $term) { 
                         if ($term->value == $sem) {
                             $current = 'selected="selected"' ;
@@ -125,17 +119,17 @@ function teachpress_show_courses_page() {
                         echo '<option value="' . $term->value . '" ' . $current . '>' . stripslashes($term->value) . '</option>';
                     } ?> 
                 </select>
-                <input name="copy_ok" type="submit" class="button-secondary" value="<?php _e('copy','teachpress'); ?>"/>
-                <a href="<?php echo 'admin.php?page=teachpress/teachpress.php&sem=' . $sem . '&search=' . $search . ''; ?>"> <?php _e('Cancel','teachpress'); ?></a>
+                <input name="copy_ok" type="submit" class="button-primary" value="<?php _e('copy','teachpress'); ?>"/>
+                <a href="<?php echo 'admin.php?page=teachpress/teachpress.php&sem=' . $sem . '&search=' . $search . ''; ?>" class="button-secondary"> <?php _e('Cancel','teachpress'); ?></a>
                 </p>
                 </div>
            <?php
            }
            // copy a course, part 2
            if ( isset($_GET['copy_ok']) ) {
-                   tp_copy_course($checkbox, $copysem);
-                   $message = __('Copying successful','teachpress');
-                   get_tp_message($message);
+                tp_copy_course($checkbox, $copysem);
+                $message = __('Copying successful','teachpress');
+                get_tp_message($message);
            }
            ?>
      <div id="searchbox" style="float:right; padding-bottom:10px;"> 
@@ -153,15 +147,15 @@ function teachpress_show_courses_page() {
           </select>
           <input type="submit" name="teachpress_submit" value="<?php _e('OK','teachpress'); ?>" id="teachpress_submit2" class="button-secondary"/>
           <select name="sem" id="sem">
-               <option value="alle"><?php _e('All terms','teachpress'); ?></option>
+               <option value=""><?php _e('All terms','teachpress'); ?></option>
                <?php    
                $row = get_tp_settings('semester');
                foreach ($row as $row) { 
                     if ($row->value == $sem) {
-                            $current = 'selected="selected"' ;
+                        $current = 'selected="selected"' ;
                     }
                     else {
-                            $current = '' ;
+                        $current = '' ;
                     } 
                     echo '<option value="' . $row->value . '" ' . $current . '>' . stripslashes($row->value) . '</option>';
                } ?> 
@@ -185,89 +179,74 @@ function teachpress_show_courses_page() {
         </thead>
         <tbody>
      <?php
-           if ($search == "") {
-                if ($sem == 'alle') {
-                    $abfrage = "SELECT * FROM " . $teachpress_courses . " ORDER BY `name`";
-                }
-                else {
-                    $abfrage = "SELECT * FROM " . $teachpress_courses . " WHERE `semester` = '$sem' ORDER BY `name`, `course_id`";
-                }	
-           }
-           // if the user is using the search
-           else {
-                   $abfrage = "SELECT `course_id`, `name`, `type`, `lecturer`, `date`, `room`, `places`, `start`, `end`, `semester`, `parent`, `visible`, `parent_name` 
-                   FROM (SELECT t.course_id AS course_id, t.name AS name, t.type AS type, t.lecturer AS lecturer, t.date AS date, t.room As room, t.places AS places, t.start AS start, t.end As end, t.semester AS semester, t.parent As parent, t.visible AS visible, p.name AS parent_name FROM " . $teachpress_courses . " t LEFT JOIN " . $teachpress_courses . " p ON t.parent = p.course_id ) AS temp 
-                   WHERE `name` like '%$search%' OR `parent_name` like '%$search%' OR `lecturer` like '%$search%' OR `date` like '%$search%' OR `room` like '%$search%' OR `course_id` = '$search' 
-                   ORDER BY `semester` DESC, `name`";
-           }
-           $test = $wpdb->query($abfrage);	
-           // is the query is empty
-           if ($test == 0) { 
-               echo '<tr><td colspan="13"><strong>' . __('Sorry, no entries matched your criteria.','teachpress') . '</strong></td></tr>';
-           }
-           else {
-                // free places
-                $sql = "SELECT `course_id`, COUNT(`course_id`) AS used_places FROM $teachpress_signup WHERE `waitinglist` = '0' GROUP BY `course_id`";
-                $r = $wpdb->get_results($sql);
-                foreach ($r as $r) {
-                        $free_places[$r->course_id] = $r->used_places;
-                }
-                // END free places
-                $static['bulk'] = $bulk;
-                $static['sem'] = $sem;
-                $static['search'] = $search;
-                $z = 0;
-                $ergebnis = $wpdb->get_results($abfrage);
-                foreach ($ergebnis as $row){
-                    $date1 = tp_datesplit($row->start);
-                    $date2 = tp_datesplit($row->end);
-                    $courses[$z]['course_id'] = $row->course_id;
-                    $courses[$z]['name'] = stripslashes($row->name);
-                    $courses[$z]['type'] = stripslashes($row->type);
-                    $courses[$z]['room'] = stripslashes($row->room);
-                    $courses[$z]['lecturer'] = stripslashes($row->lecturer);
-                    $courses[$z]['date'] = stripslashes($row->date);
-                    $courses[$z]['places'] = $row->places;
-                    // number of free places
-                    if ( array_key_exists($row->course_id, $free_places) ) {
-                        $courses[$z]['fplaces'] = $courses[$z]['places'] - $free_places[$row->course_id];
-                    }
-                    else {
-                        $courses[$z]['fplaces'] = $courses[$z]['places'];
-                    }
-                    $courses[$z]['start'] = '' . $date1[0][0] . '-' . $date1[0][1] . '-' . $date1[0][2] . '';
-                    $courses[$z]['end'] = '' . $date2[0][0] . '-' . $date2[0][1] . '-' . $date2[0][2] . '';
-                    $courses[$z]['semester'] = stripslashes($row->semester);
-                    $courses[$z]['parent'] = $row->parent;
-                    $courses[$z]['visible'] = $row->visible;
-                    $z++;
-                }
-                // display courses
-                for ($i=0; $i<$z; $i++) {
-                    if ($search == "") {
-                        if ($courses[$i]['parent'] == 0) {
-                            echo get_tp_single_table_row_course ($courses[$i], $checkbox, $static);
-                            // Search childs
-                            for ($j=0; $j<$z; $j++) {
-                                if ($courses[$i]['course_id'] == $courses[$j]['parent']) {
-                                    echo get_tp_single_table_row_course ($courses[$j], $checkbox, $static, $courses[$i]['name'],'child');
-                                }
-                            }
-                            // END search childs
-                        }	
-                    }
-                    // if the user is using the search
-                    else {
-                        if ($courses[$i]['parent'] != 0) {
-                            $parent_name = get_tp_course_data($courses[$i]['parent'], 'name'); 
-                        }
-                        else {
-                            $parent_name = "";
-                        }
-                        echo get_tp_single_table_row_course ($courses[$i], $checkbox, $static, $parent_name, 'search');
-                    }
-                }	
-           }   
+        $order = 'name, course_id';
+        if ($search != "") {
+            $order = 'semester DESC, name';	
+        }
+           
+        $row = get_tp_courses( array('search' => $search, 'semester' => $sem, 'order' => 'name, course_id') );
+        // is the query is empty
+        if (count($row) == 0) { 
+            echo '<tr><td colspan="13"><strong>' . __('Sorry, no entries matched your criteria.','teachpress') . '</strong></td></tr>';
+        }
+        else {
+             // free places
+             $free_places = get_tp_courses_used_places();
+             // END free places
+             $static['bulk'] = $bulk;
+             $static['sem'] = $sem;
+             $static['search'] = $search;
+             $z = 0;
+             foreach ($row as $row){
+                 $date1 = tp_datesplit($row->start);
+                 $date2 = tp_datesplit($row->end);
+                 $courses[$z]['course_id'] = $row->course_id;
+                 $courses[$z]['name'] = stripslashes($row->name);
+                 $courses[$z]['type'] = stripslashes($row->type);
+                 $courses[$z]['room'] = stripslashes($row->room);
+                 $courses[$z]['lecturer'] = stripslashes($row->lecturer);
+                 $courses[$z]['date'] = stripslashes($row->date);
+                 $courses[$z]['places'] = $row->places;
+                 // number of free places
+                 if ( array_key_exists($row->course_id, $free_places) ) {
+                     $courses[$z]['fplaces'] = $courses[$z]['places'] - $free_places[$row->course_id];
+                 }
+                 else {
+                     $courses[$z]['fplaces'] = $courses[$z]['places'];
+                 }
+                 $courses[$z]['start'] = '' . $date1[0][0] . '-' . $date1[0][1] . '-' . $date1[0][2] . '';
+                 $courses[$z]['end'] = '' . $date2[0][0] . '-' . $date2[0][1] . '-' . $date2[0][2] . '';
+                 $courses[$z]['semester'] = stripslashes($row->semester);
+                 $courses[$z]['parent'] = $row->parent;
+                 $courses[$z]['visible'] = $row->visible;
+                 $z++;
+             }
+             // display courses
+             for ($i=0; $i<$z; $i++) {
+                 if ($search == "") {
+                     if ($courses[$i]['parent'] == 0) {
+                         echo get_tp_single_table_row_course ($courses[$i], $checkbox, $static);
+                         // Search childs
+                         for ($j=0; $j<$z; $j++) {
+                             if ($courses[$i]['course_id'] == $courses[$j]['parent']) {
+                                 echo get_tp_single_table_row_course ($courses[$j], $checkbox, $static, $courses[$i]['name'],'child');
+                             }
+                         }
+                         // END search childs
+                     }	
+                 }
+                 // if the user is using the search
+                 else {
+                     if ($courses[$i]['parent'] != 0) {
+                         $parent_name = get_tp_course_data($courses[$i]['parent'], 'name'); 
+                     }
+                     else {
+                         $parent_name = "";
+                     }
+                     echo get_tp_single_table_row_course ($courses[$i], $checkbox, $static, $parent_name, 'search');
+                 }
+             }	
+        }   
      ?>
      </tbody>
      </table>

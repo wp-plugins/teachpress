@@ -16,25 +16,27 @@ function tp_show_mail_page() {
     global $current_user;
     get_currentuserinfo();
 
-    $course_ID = isset( $_GET['course_ID'] ) ? intval($_GET['course_ID']) : '';
-    $student_ID = isset( $_GET['student_ID'] ) ? intval($_GET['student_ID']) : '';
+    $course_ID = isset( $_GET['course_ID'] ) ? intval($_GET['course_ID']) : 0;
+    $redirect = isset( $_GET['redirect'] ) ?  intval($_GET['redirect']) : 0;
+    $student_ID = isset( $_GET['student_ID'] ) ? intval($_GET['student_ID']) : 0;
     $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
     $sem = isset( $_GET['sem'] ) ? htmlspecialchars($_GET['sem']) : '';
     $single = isset( $_GET['single'] ) ? htmlspecialchars($_GET['single']) : '';
     $students_group = isset( $_GET['students_group'] ) ? htmlspecialchars($_GET['students_group']) : '';
-    $limit = isset( $_GET['limit'] ) ? intval($_GET['limit']) : '';
+    $limit = isset( $_GET['limit'] ) ? intval($_GET['limit']) : 0;
+    $group = isset( $_GET['group'] ) ? htmlspecialchars($_GET['group']) : '';
 
     if( !isset( $_GET['single'] ) ) {
         $sql = "SELECT DISTINCT st.email 
-                    FROM " . $teachpress_signup . " s 
-                    INNER JOIN " . $teachpress_stud . " st ON st.wp_id=s.wp_id
-                    WHERE s.course_id = '$course_ID'";	
+                FROM $teachpress_signup s 
+                INNER JOIN $teachpress_stud st ON st.wp_id=s.wp_id
+                WHERE s.course_id = '$course_ID'";	
         // E-Mails of registered participants
-        if ( $_GET['type'] == 'reg' ) {
+        if ( $group == 'reg' ) {
             $sql = $sql . " AND s.waitinglist = '0'";	
         }
         // E-Mails of participants in waitinglist
-        if ( $_GET['type'] == 'wtl' ) {
+        if ( $group == 'wtl' ) {
             $sql = $sql . " AND s.waitinglist = '1'";		
         }
         $sql = $sql . " ORDER BY st.lastname ASC";	
@@ -44,10 +46,10 @@ function tp_show_mail_page() {
     <div class="wrap">
         <?php
         if ( isset( $_GET['course_ID'] ) ) {
-            $return_url = 'admin.php?page=teachpress/teachpress.php&amp;course_ID=' . $course_ID . '&amp;sem=' . $sem . '&amp;search=' . $search . '&amp;action=show';
+            $return_url = "admin.php?page=teachpress/teachpress.php&amp;course_ID=$course_ID&amp;sem=$sem&amp;search=$search&amp;redirect=$redirect&amp;action=show";
         }
         if ( isset( $_GET['student_ID'] ) ) {
-            $return_url = 'admin.php?page=teachpress/students.php&amp;student_ID=' . $student_ID . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $limit;
+            $return_url = "admin.php?page=teachpress/students.php&amp;student_ID=$student_ID&amp;search=$search&amp;students_group=$students_group&amp;limit=$limit";
         }
         ?>
         <p><a href="<?php echo $return_url; ?>" class="button-secondary">&larr; <?php _e('Back','teachpress'); ?></a></p>
@@ -72,6 +74,19 @@ function tp_show_mail_page() {
                 </th>
                 <td>
                     <?php
+                    if( !isset( $_GET['single'] ) ) {
+                        $link = "admin.php?page=teachpress/teachpress.php&amp;course_ID=$course_ID&amp;sem=$sem&amp;search=$search&amp;action=mail&amp;type=course";
+                        if ($group == "wtl") {
+                            echo '<p><strong><a href="' . $link . '">' . __('All', 'teachpress') . '</a> | <a href="' . $link . '&amp;group=reg">' . __('Only participants', 'teachpress') . '</a> | ' . __('Only waitinglist','teachpress') . '</strong><p>';
+                        }
+                        elseif ( $group == "reg" ) {
+                            echo '<p><strong><a href="' . $link . '">' . __('All', 'teachpress') . '</a> | ' . __('Only participants', 'teachpress') . ' | <a href="' . $link . '&amp;group=wtl">' . __('Only waitinglist','teachpress') . '</a></strong><p>';
+                        }
+                        else {
+                            echo '<p><strong>' . __('All', 'teachpress') . ' | <a href="' . $link . '&amp;group=reg">' . __('Only participants', 'teachpress') . '</a> | <a href="' . $link . '&amp;group=wtl">' . __('Only waitinglist','teachpress') . '</a></strong><p>';
+                        }
+                    }
+                    
                     if( !isset( $_GET['single'] ) ) {
                         $to = '';
                         foreach($mails as $mail) { 

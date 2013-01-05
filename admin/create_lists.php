@@ -9,6 +9,7 @@ function tp_lists_page() {
    global $teachpress_courses; 
    
    $course_ID = isset( $_GET['course_ID'] ) ? intval($_GET['course_ID']) : '';
+   $redirect = isset( $_GET['redirect'] ) ?  intval($_GET['redirect']) : 0;
    $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
    $sem = isset( $_GET['sem'] ) ? htmlspecialchars($_GET['sem']) : '';
    $sort = isset( $_GET['sort'] ) ? htmlspecialchars($_GET['sort']) : '';
@@ -24,15 +25,16 @@ function tp_lists_page() {
    ?>
    <div class="wrap" style="padding-top:10px;">
    <?php if ($create == '') {
-           echo '<a href="admin.php?page=teachpress/teachpress.php&amp;course_ID=' . $course_ID . '&amp;sem=' . $sem . '&amp;search=' . $search . '&amp;action=show" class="button-secondary" title="' . __('back to the course','teachpress') . '">&larr; ' . __('Back','teachpress') . '</a>';
+           echo '<a href="admin.php?page=teachpress/teachpress.php&amp;course_ID=' . $course_ID . '&amp;sem=' . $sem . '&amp;search=' . $search . '&amp;redirect=' . $redirect . '&amp;action=show" class="button-secondary" title="' . __('back to the course','teachpress') . '">&larr; ' . __('Back','teachpress') . '</a>';
    }
    else {
-           echo '<a href="admin.php?page=teachpress/teachpress.php&amp;course_ID=' . $course_ID . '&amp;sem=' . $sem . '&amp;search=' . $search . '&amp;action=list" class="button-secondary" title="' . __('back to the course','teachpress') . '">&larr; ' . __('Back','teachpress') . '</a>';
+           echo '<a href="admin.php?page=teachpress/teachpress.php&amp;course_ID=' . $course_ID . '&amp;sem=' . $sem . '&amp;search=' . $search . '&amp;redirect=' . $redirect . '&amp;action=list" class="button-secondary" title="' . __('back to the course','teachpress') . '">&larr; ' . __('Back','teachpress') . '</a>';
    }?>
    <form id="einzel" name="einzel" action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="get">
    <input name="page" type="hidden" value="teachpress/teachpress.php"/>
    <input name="action" type="hidden" value="list"/>
    <input name="course_ID" type="hidden" value="<?php echo $course_ID; ?>"/>
+   <input name="redirect" type="hidden" value="<?php echo $redirect; ?>"/>
    <input name="sem" type="hidden" value="<?php echo $sem; ?>" />
    <input name="search" type="hidden" value="<?php echo $search; ?>" />
    <?php if ($create == '') {?>
