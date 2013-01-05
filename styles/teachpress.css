@@ -1,16 +1,23 @@
 /* Help section */
-p.hilfe_headline {font-weight:bold;}
-p.hilfe_text {padding-left:10px;}
 a.teachpress_delete {color:#d62719; text-decoration:none; font-size:12px; font-weight:bold;}
 a.teachpress_delete:hover {text-decoration:underline;}
 .tp_print th {border:1px solid black; padding:5px 5px 5px 5px;}
 .tp_print td {border:1px solid black; padding:5px 5px 5px 5px;}
 .teachpress_message {-webkit-border-radius: 3px; -khtml-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; background-color:#FFFFCC; border:1px solid silver; padding:7px; margin:7px 0 7px 0; width:80%;}
+.teachpress_message_headline {font-weight:bold;}
+.teachpress_message_text {padding-left:10px;}
 /* others */
 td.tp_course_child {padding-left:25px; background: url(../images/child.png) no-repeat 8px 6px;}
 .tp_checkbox {margin-left:8px; padding-left:7px; text-align:left;}
+.tp_actions {padding: 0 0 10px 0;}
 /* Message menu */
 .tp_row_actions {visibility: hidden;padding: 2px 0 0;color:#000000;}
 .tp_row_actions a:hover {color:#FF6600;}
 tr:hover .tp_row_actions {visibility: visible;}
 .tp_row_actions-visible {padding: 2px 0 0;cursor: pointer;}
+/* buttons */
+#teachpress_add_signup { background: url( ../images/mimetypes/document-new-6.png) no-repeat 7px 3px; background-size: 17px auto; padding-left: 30px !important; }
+#teachpress_send_mail { background: url( ../images/mimetypes/text-plain.png) no-repeat 7px 3px; background-size: 17px auto; padding-left: 30px !important; }
+#teachpress_create_list { background: url( ../images/mimetypes/application-opendocument.spreadsheet.png) no-repeat 7px 3px; background-size: 17px auto; padding-left: 30px !important; }
+#teachpress_create_xls { background: url( ../images/mimetypes/application-msexcel.png) no-repeat 7px 3px; background-size: 17px auto; padding-left: 30px !important; }
+#teachpress_create_csv { background: url( ../images/mimetypes/text-csv.png) no-repeat 7px 3px; background-size: 17px auto; padding-left: 30px !important; }
