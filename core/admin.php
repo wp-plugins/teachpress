@@ -5,15 +5,14 @@
 
 /** 
  * teachPress Admin Page Menu
- * @access public
- * @param INT $number_entries    -> Number of all available entries
- * @param INT $entries_per_page  -> Number of entries per page
- * @param INT $current_page      -> current displayed page
- * @param INT $entry_limit       -> SQL entry limit
- * @param STRING $page_link
- * @param STRING $link_atrributes
- * @param STRING $type           -> top or bottom, default: top
- * @return STRING
+ * @param int $number_entries       --> Number of all available entries
+ * @param int $entries_per_page     --> Number of entries per page
+ * @param int $current_page         --> current displayed page
+ * @param int $entry_limit          --> SQL entry limit
+ * @param string $page_link         --> the name of the page you will insert the menu
+ * @param string $link_atrributes   --> the url attributes for get parameters
+ * @param string $type              --> top or bottom, default: top
+ * @return string
 */
 function tp_admin_page_menu ($number_entries, $entries_per_page, $current_page, $entry_limit, $page_link = '', $link_attributes = '', $type = 'top') {
     // if number of entries > number of entries per page
@@ -26,7 +25,7 @@ function tp_admin_page_menu ($number_entries, $entries_per_page, $current_page, 
 
         // first page / previous page
         if ($entry_limit != 0) {
-            $back_links = '<a href="' . $page_link . '&amp;limit=1&amp;' . $link_attributes . '" title="' . __('first page','teachpress') . '" class="page-numbers">&laquo;</a> <a href="' . $page_link . '&amp;limit=' . ($current_page - 1) . '&amp;' . $link_attributes . '" title="' . __('previous page','teachpress') . '" class="page-numbers">&lsaquo;</a> ';
+            $back_links = '<a href="' . $page_link . 'limit=1&amp;' . $link_attributes . '" title="' . __('first page','teachpress') . '" class="page-numbers">&laquo;</a> <a href="' . $page_link . 'limit=' . ($current_page - 1) . '&amp;' . $link_attributes . '" title="' . __('previous page','teachpress') . '" class="page-numbers">&lsaquo;</a> ';
         }
         else {
             $back_links = '<a class="first-page disabled">&laquo;</a> <a class="prev-page disabled">&lsaquo;</a> ';
@@ -35,7 +34,7 @@ function tp_admin_page_menu ($number_entries, $entries_per_page, $current_page, 
 
         // next page/ last page
         if ( ( $entry_limit + $entries_per_page ) <= ($number_entries)) { 
-            $next_links = '<a href="' . $page_link . '&amp;limit=' . ($current_page + 1) . '&amp;' . $link_attributes . '" title="' . __('next page','teachpress') . '" class="page-numbers">&rsaquo;</a> <a href="' . $page_link . '&amp;limit=' . $num_pages . '&amp;' . $link_attributes . '" title="' . __('last page','teachpress') . '" class="page-numbers">&raquo;</a> ';
+            $next_links = '<a href="' . $page_link . 'limit=' . ($current_page + 1) . '&amp;' . $link_attributes . '" title="' . __('next page','teachpress') . '" class="page-numbers">&rsaquo;</a> <a href="' . $page_link . 'limit=' . $num_pages . '&amp;' . $link_attributes . '" title="' . __('last page','teachpress') . '" class="page-numbers">&raquo;</a> ';
         }
         else {
             $next_links = '<a class="next-page disabled">&rsaquo;</a> <a class="last-page disabled">&raquo;</a> ';

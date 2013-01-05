@@ -30,17 +30,18 @@ Max WP Version: 3.4.1
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-// Define Databases
-// Define teachpress database tables, change it, if you will install teachpress in other tables. Every name must be unique.
+/**
+ * Define teachpress database tables, change it, if you will install teachpress in other tables. Every name must be unique.
+ */
 global $wpdb;
-$teachpress_courses = $wpdb->prefix . 'teachpress_courses'; //Events
-$teachpress_stud = $wpdb->prefix . 'teachpress_stud'; //Students
-$teachpress_settings = $wpdb->prefix . 'teachpress_settings'; //Settings
-$teachpress_signup = $wpdb->prefix . 'teachpress_signup'; //Enrollments
-$teachpress_pub = $wpdb->prefix . 'teachpress_pub'; //Publications
-$teachpress_tags = $wpdb->prefix . 'teachpress_tags'; //Tags
-$teachpress_relation = $wpdb->prefix . 'teachpress_relation'; //Relationship Tags - Publications
-$teachpress_user = $wpdb->prefix . 'teachpress_user'; // Relationship Publications - User
+$teachpress_courses = $wpdb->prefix . 'teachpress_courses';     // Courses
+$teachpress_stud = $wpdb->prefix . 'teachpress_stud';           // Students
+$teachpress_settings = $wpdb->prefix . 'teachpress_settings';   // Settings
+$teachpress_signup = $wpdb->prefix . 'teachpress_signup';       // Enrollments
+$teachpress_pub = $wpdb->prefix . 'teachpress_pub';             // Publications
+$teachpress_tags = $wpdb->prefix . 'teachpress_tags';           // Tags
+$teachpress_relation = $wpdb->prefix . 'teachpress_relation';   // Relationship Tags - Publications
+$teachpress_user = $wpdb->prefix . 'teachpress_user';           // Relationship Publications - User
 require_once('version.php');
 
 /*************/
@@ -53,7 +54,6 @@ function tp_add_menu() {
     $tp_admin_page2 = add_menu_page(__('Course','teachpress'), __('Course','teachpress'),'use_teachpress', __FILE__, 'teachpress_show_courses_page', WP_PLUGIN_URL . '/teachpress/images/logo_small.png');
     $tp_admin_page = add_submenu_page('teachpress/teachpress.php',__('Add New','teachpress'), __('Add New', 'teachpress'),'use_teachpress','teachpress/add_course.php','tp_add_course_page');
     add_submenu_page('teachpress/teachpress.php',__('Students','teachpress'), __('Students','teachpress'),'use_teachpress', 'teachpress/students.php', 'teachpress_students_page');
-    add_submenu_page('teachpress/teachpress.php', __('Add manually','teachpress'), __('Add manually','teachpress'),'use_teachpress','teachpress/students_new.php', 'teachpress_students_new_page');
     add_action("load-$tp_admin_page", 'tp_add_course_page_help');
     add_action("load-$tp_admin_page2", 'tp_show_course_page_help');
 }

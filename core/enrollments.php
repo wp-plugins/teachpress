@@ -8,7 +8,7 @@
  * @param int $code
  * @return boolean 
  */
-function get_tp_registration_message($code) {
+function get_tp_signup_message($code) {
     switch ($code) {
     case 0:
         return __('Warning: Wrong course_ID','teachpress');
@@ -57,7 +57,7 @@ function tp_send_notification($code, $wp_id, $name) {
 }
 
 /** 
- * Add registration (= subscribe student in a course)
+ * Add signup (= subscribe student in a course)
  * @param int $checkbox     --> course_ID
  * @param int $wp_id        --> user_ID
  * @return int (teachPress status code)
@@ -69,7 +69,7 @@ function tp_send_notification($code, $wp_id, $name) {
  *   code 201  --> registration was successful,
  *   code 202  --> registration was successful for waitinglist,
 */
-function tp_add_registration($checkbox, $wp_id){
+function tp_add_signup($checkbox, $wp_id){
    global $wpdb;
    global $teachpress_courses;
    global $teachpress_signup;
@@ -127,29 +127,30 @@ function tp_add_registration($checkbox, $wp_id){
 
 /** 
  * Unsubscribe a student (frontend function)
- * @param ARRAY $checkbox2 - An array with the registration IDs
+ * @param array $checkbox   --> An array with the registration IDs
+ * @return string
 */
-function tp_delete_registration_student($checkbox2) {
+function tp_delete_signup_student($checkbox) {
     global $wpdb;
     global $teachpress_signup;
-    for( $i = 0; $i < count( $checkbox2 ); $i++ ) {
-        $checkbox2[$i] = intval($checkbox2[$i]);
+    for( $i = 0; $i < count( $checkbox ); $i++ ) {
+        $checkbox[$i] = intval($checkbox[$i]);
         // Select course ID
-        $sql = "SELECT `course_id`, `waitinglist` FROM $teachpress_signup WHERE `con_id` = '$checkbox2[$i]'";
+        $sql = "SELECT `course_id`, `waitinglist` FROM $teachpress_signup WHERE `con_id` = '$checkbox[$i]'";
         $course = $wpdb->get_row($sql);
         // Start transaction
         $wpdb->query("SET AUTOCOMMIT=0");
         $wpdb->query("START TRANSACTION");
         // check if there are users in the waiting list
         if ( $course->waitinglist == 0 ) {
-            $sql = "SELECT `con_id` FROM $teachpress_signup WHERE `course_id` = '" . $course->course_id . "' AND `waitinglist` = '1' ORDER BY `con_id` ASC LIMIT 0, 1";
+            $sql = "SELECT `con_id` FROM $teachpress_signup WHERE `course_id` = '$course->course_id' AND `waitinglist` = '1' ORDER BY `con_id` ASC LIMIT 0, 1";
             $con_id = $wpdb->get_var($sql);
             // if is true subscribe the first one in the waiting list for the course
             if ($con_id != 0 && $con_id != "") {
                 $wpdb->query( "UPDATE $teachpress_signup SET `waitinglist` = '0' WHERE `con_id` = '$con_id'" );
             }
         }
-        $wpdb->query("DELETE FROM $teachpress_signup WHERE `con_id` = '$checkbox2[$i]'");
+        $wpdb->query("DELETE FROM $teachpress_signup WHERE `con_id` = '$checkbox[$i]'");
         // End transaction
         $wpdb->query("COMMIT");
     }	
@@ -353,11 +354,11 @@ function tp_enrollments_shortcode($atts) {
       );    
       $rtn = $rtn . tp_change_student($wp_id, $data2, 0);
    }
-   // delete registration
+   // delete signup
    if ( isset( $_POST['austragen'] ) ) {
-      $rtn = $rtn . tp_delete_registration_student($checkbox2);
+      $rtn = $rtn . tp_delete_signup_student($checkbox2);
    }
-   // add registrations
+   // add signups
    if ( isset( $_POST['einschreiben'] ) ) {
       for ($n = 0; $n < count( $checkbox ); $n++) {
          $rowr = $wpdb->get_row("SELECT `name`, `parent` FROM " . $teachpress_courses . " WHERE `course_id` = '$checkbox[$n]'");
@@ -367,9 +368,9 @@ function tp_enrollments_shortcode($atts) {
                 $rowr->name = $parent . ' ' . $rowr->name; 
             }
          }
-         $code = tp_add_registration($checkbox[$n], $wp_id);
+         $code = tp_add_signup($checkbox[$n], $wp_id);
          tp_send_notification($code, $wp_id, $rowr->name);
-         $message = get_tp_registration_message($code);
+         $message = get_tp_signup_message($code);
          if ($code == 201) { $class = 'teachpress_message_success'; }
          elseif ($code == 202) { $class = 'teachpress_message_info'; }
          else { $class = 'teachpress_message_error'; }

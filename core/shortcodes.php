@@ -560,69 +560,173 @@ function tp_cloud_shortcode($atts) {
  * @return string
 */
 function tp_list_shortcode($atts){
-   extract(shortcode_atts(array(
-      'user' => 0,
-      'tag' => 0,
-      'type' => '',
-      'exclude' => '', 
-      'year' => 0,
-      'order' => 'date DESC',
-      'headline' => 1,
-      'image' => 'none',
-      'image_size' => 0,
-      'author_name' => 'last',
-      'editor_name' => 'last',
-      'style' => 'std',
-      'link_style' => 'inline'
-   ), $atts));
+    extract(shortcode_atts(array(
+       'user' => 0,
+       'tag' => 0,
+       'type' => '',
+       'exclude' => '', 
+       'year' => 0,
+       'order' => 'date DESC',
+       'headline' => 1,
+       'image' => 'none',
+       'image_size' => 0,
+       'author_name' => 'last',
+       'editor_name' => 'last',
+       'style' => 'std',
+       'link_style' => 'inline'
+    ), $atts));
 
-   $tparray = '';
-   $tpz = 0;
-   $colspan = '';
-   $headline = intval($headline);
-   $image_size = intval($image_size);
- 
-   $settings = array(
-       'author_name' => htmlspecialchars($author_name),
-       'editor_name' => htmlspecialchars($editor_name),
-       'style' => htmlspecialchars($style),
-       'image' => htmlspecialchars($image),
-       'with_tags' => 0,
-       'link_style' => htmlspecialchars($link_style)
-   );
-   
-   if ( $headline == 1 && strpos($order, 'year') === false && strpos($order, 'date') === false ) {
-        $order = 'date DESC, ' . $order;
-   }
-   if ( $headline == 2 ) {
-        $order = "type ASC, date DESC";
-   }
-   
-   if ($settings['image']== 'left' || $settings['image']== 'right') {
-      $settings['pad_size'] = $image_size + 5;
-      $colspan = ' colspan="2"';
-   }
-   
-   $row = get_tp_publications( array('tag' => $tag, 'year' => $year, 'type' => $type, 'user' => $user, 'order' => $order, 'exclude' => $exclude, 'output_type' => ARRAY_A) );
-   foreach ($row as $row) {
-      $tparray[$tpz][0] = '' . $row['year'] . '' ;
-      $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row,'', '', $settings, $tpz + 1);
-      if ( $headline == 2 ) {
-          $tparray[$tpz][2] = '' . $row['type'] . '' ;
-      }
-      $tpz++;			
-   }
-   
-   $row_year = $headline == 1 ? get_tp_publication_years() : '';
-   $result = tp_generate_pub_table($tparray, array('number_publications' => $tpz, 
-                                                   'headline' => $headline,
-                                                   'years' => $row_year,
-                                                   'colspan' => $colspan));
-   return $result;
+    $tparray = '';
+    $tpz = 0;
+    $colspan = '';
+    $headline = intval($headline);
+    $image_size = intval($image_size);
+
+    $settings = array(
+        'author_name' => htmlspecialchars($author_name),
+        'editor_name' => htmlspecialchars($editor_name),
+        'style' => htmlspecialchars($style),
+        'image' => htmlspecialchars($image),
+        'with_tags' => 0,
+        'link_style' => htmlspecialchars($link_style)
+    );
+
+    if ( $headline == 1 && strpos($order, 'year') === false && strpos($order, 'date') === false ) {
+         $order = 'date DESC, ' . $order;
+    }
+    if ( $headline == 2 ) {
+         $order = "type ASC, date DESC";
+    }
+
+    if ($settings['image']== 'left' || $settings['image']== 'right') {
+       $settings['pad_size'] = $image_size + 5;
+       $colspan = ' colspan="2"';
+    }
+
+    $row = get_tp_publications( array('tag' => $tag, 'year' => $year, 'type' => $type, 'user' => $user, 'order' => $order, 'exclude' => $exclude, 'output_type' => ARRAY_A) );
+    foreach ($row as $row) {
+       $tparray[$tpz][0] = '' . $row['year'] . '' ;
+       $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row,'', '', $settings, $tpz + 1);
+       if ( $headline == 2 ) {
+           $tparray[$tpz][2] = '' . $row['type'] . '' ;
+       }
+       $tpz++;			
+    }
+
+    $row_year = $headline == 1 ? get_tp_publication_years() : '';
+    $result = tp_generate_pub_table($tparray, array('number_publications' => $tpz, 
+                                                    'headline' => $headline,
+                                                    'years' => $row_year,
+                                                    'colspan' => $colspan));
+    return $result;
 }
 
-function tp_search_shortcode () {
+/**
+ * tpsearch: Frontend search function for publications
+ *
+ * possible values for $atts:
+ *   entries_per_page (int) => number of entries per page (default: 20)
+ *   image (STRING)         => none, left, right or bottom, default: none 
+ *   image_size (INT)       => max. Image size, default: 0
+ *   author_name (STRING)   => last, initials or old, default: last
+ *   editor_name (STRING)   => last, initials or old, default: last
+ *   style (STRING)         => simple, numbered or std, default: numbered
+ *   link_style (STRING)    => inline or images, default: inline
+ * 
+ * @param array $atts
+ * @return string
+ * @since 4.0.0
+ */
+function tp_search_shortcode ($atts) {
+    extract(shortcode_atts(array(
+       'entries_per_page' => 20,
+       'image' => 'none',
+       'image_size' => 0,
+       'author_name' => 'last',
+       'editor_name' => 'last',
+       'style' => 'numbered',
+       'link_style' => 'inline'
+    ), $atts)); 
     
+    $tparray = '';
+    $tpz = 0;
+    $colspan = '';
+    $image_size = intval($image_size);
+    $entries_per_page = intval($entries_per_page);
+    $settings = array(
+        'author_name' => htmlspecialchars($author_name),
+        'editor_name' => htmlspecialchars($editor_name),
+        'style' => htmlspecialchars($style),
+        'image' => htmlspecialchars($image),
+        'with_tags' => 0,
+        'link_style' => htmlspecialchars($link_style)
+    );
+    if ($settings['image']== 'left' || $settings['image']== 'right') {
+       $settings['pad_size'] = $image_size + 5;
+       $colspan = ' colspan="2"';
+    }
+    
+    $search = isset( $_GET['tps'] ) ? htmlspecialchars( esc_sql( $_GET['tps'] ) ) : "";
+    $link_attributes = "tps=$search";
+    
+    // Handle limits
+    if ( isset( $_GET['limit'] ) ) {
+        $current_page = intval( $_GET['limit'] );
+        if ( $current_page <= 0 ) {
+            $current_page = 1;
+        }
+        $entry_limit = ( $current_page - 1 ) * $entries_per_page;
+    }
+    else {
+        $entry_limit = 0;
+        $current_page = 1;
+    }
+    
+    // Define pagelink
+    if ( get_option('permalink_structure') ) {
+      $page_link = get_permalink() . "?";
+    }
+    else {
+      $page_link = get_permalink() . "&amp;";
+    }
+    
+    $r = '';
+    $r .= '<form method="get">';
+    $r .= '<div class="tp_search_input">';
+    $r .= '<label for="tp_search">' . __('Search') . '</label> ';
+    $r .= '<input name="tps" id="tp_search" title="" type="text" value="' . $search . '"/>';
+    $r .= '<input type="submit" value="Send"/>';
+    $r .= '</div>';
+    if ( $search != "" ) {
+        // get results
+        $tpz = 0;
+        $args = array ('search' => $search, 
+                       'limit' => $entry_limit . ',' .  $entries_per_page,
+                       'output_type' => ARRAY_A);
+        $results = get_tp_publications( $args );
+        $number_entries = get_tp_publications($args, true);
+        
+        // menu
+        $menu = tp_admin_page_menu($number_entries, $entries_per_page, $current_page, $entry_limit, $page_link, $link_attributes, 'bottom');
+        
+        $r .= '<h3>' . __('Results for','teachpress') . ' "' . $search . '":</h3>';
+        $r .= $menu;
+        foreach ($results as $row) {
+            $count = ( $entry_limit == 0 ) ? ( $tpz + 1 ) : ( $entry_limit + $tpz + 1 );
+            $tparray[$tpz][0] = '' . $row['year'] . '' ;
+            $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row,'', '', $settings, $count);
+            $tpz++;
+        }
+        $r .= tp_generate_pub_table($tparray, array('number_publications' => $tpz, 
+                                                    'colspan' => $colspan,
+                                                    'headline' => 0));
+        $r .= $menu;
+    }
+    else {
+        $r . '<div class="teachpress_message_error">' . __('Sorry, no entries matched your criteria.','teachpress') . '</div>';
+    }
+    $r .= '</form>';
+    return $r;
 }
 
 /** 

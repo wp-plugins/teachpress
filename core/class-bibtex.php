@@ -110,10 +110,10 @@ class tp_bibtex {
             }
         }
         if ( $settings['image'] == 'left' ) {
-            $td_left = '<td width="' . $settings['pad_size'] . '">' . $image_marginally . '</td>';
+            $td_left = '<td class="tp_pub_image_left" width="' . $settings['pad_size'] . '">' . $image_marginally . '</td>';
         }
         if ( $settings['image'] == 'right' ) {
-            $td_right = '<td width="' . $settings['pad_size']  . '">' . $image_marginally . '</td>';
+            $td_right = '<td class="tp_pub_image_right" width="' . $settings['pad_size']  . '">' . $image_marginally . '</td>';
         }
         if ( $settings['image'] == 'bottom' ) {
             if ( $row['image_url'] != '' ) {
@@ -185,7 +185,7 @@ class tp_bibtex {
             $a1 = $a1 . '<span class="tp_pub_year_simple">(' . $row['year'] . ')</span>: ';
             $a1 = $a1 . '<span class="tp_pub_title_simple">' . stripslashes($name) . '.</span>';
             $a1 = $a1 . '<span class="tp_pub_additional_simple">' . $in . tp_bibtex::single_publication_meta_row($row, $settings) . '</span>';
-            $a2 = ' <span class="tp_pub_tags_simple">(' . __('Type') . ': <span class="tp_pub_typ_simple">' . stripslashes($type) . '</span> | ' . $a2 . '</span>';
+            $a2 = ' <span class="tp_pub_tags_simple">(' . __('Type') . ': <span class="tp_pub_typ_simple">' . stripslashes($type) . '</span> | ' . $a2 . ')</span>';
         }
         else {
             $a1 = '<tr class="tp_publication">';

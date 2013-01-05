@@ -40,7 +40,7 @@ function get_tp_publication($id, $output_type = OBJECT) {
  * @paran boolean $count    set to true of you only need the number of rows
  * @return mixed            array, object or int
 */
-function get_tp_publications($args, $count = false) {
+function get_tp_publications($args = array(), $count = false) {
     $defaults = array(
         'user' => '',
         'type' => '',
@@ -72,8 +72,9 @@ function get_tp_publications($args, $count = false) {
     $where = "";
     $order = "";
     $having ="";
-    $search = esc_sql(htmlspecialchars($search));
-    $limit = esc_sql(htmlspecialchars($limit));
+    $output_type = esc_sql($output_type);
+    $search = esc_sql($search);
+    $limit = esc_sql($limit);
     
     // if the user needs only the number of rows
     if ( $count == true ) {
@@ -228,7 +229,7 @@ function tp_add_publication($data, $tags, $bookmark) {
      foreach($array as $element) {
         $element = trim($element);
         if ($element != '') {
-            $element = htmlspecialchars($element);
+            $element = esc_sql($element);
             $check = $wpdb->get_var("SELECT `tag_id` FROM $teachpress_tags WHERE `name` = '$element'");
             // if tag not exist
             if ($check == 0){
@@ -331,6 +332,7 @@ function get_tp_publication_years( $args = array() ) {
     
     $join = "";
     $where = "";
+    $output_type = esc_sql($output_type);
     $types = tp_generate_where_clause($type, "p.type", "OR", "=");
     $users = tp_generate_where_clause($user, "u.user", "OR", "=");
     
@@ -357,7 +359,6 @@ function get_tp_publication_years( $args = array() ) {
  */
 function get_tp_publication_user( $args = array() ) {
     $defaults = array(
-        'order' => 'ASC',
         'output_type' => OBJECT
     ); 
     $args = wp_parse_args( $args, $defaults );
@@ -365,6 +366,7 @@ function get_tp_publication_user( $args = array() ) {
     
     global $wpdb;
     global $teachpress_user;
+    $output_type = esc_sql($output_type);
     
     $result = $wpdb->get_results("SELECT DISTINCT user FROM $teachpress_user", $output_type);
     
@@ -380,7 +382,6 @@ function get_tp_publication_user( $args = array() ) {
 function get_tp_publication_used_types( $args = array() ) {
     $defaults = array(
         'user' => '',
-        'order' => 'ASC',
         'output_type' => OBJECT
     ); 
     $args = wp_parse_args( $args, $defaults );
@@ -389,7 +390,6 @@ function get_tp_publication_used_types( $args = array() ) {
     global $wpdb;
     global $teachpress_pub;
     global $teachpress_user;
-    
     $users = tp_generate_where_clause($user, "u.user", "OR", "=");
     
     if ( $user == '' ) {
@@ -412,7 +412,7 @@ function get_tp_publication_used_types( $args = array() ) {
  * Get an array of all tags
  * @param integer $pub_id
  */
-function get_tp_tags($args) {
+function get_tp_tags( $args = array() ) {
     $defaults = array(
         'pub_id' => '',
         'order' => 'ASC',
@@ -425,9 +425,10 @@ function get_tp_tags($args) {
     global $wpdb;
     global $teachpress_tags;
     global $teachpress_relation;
-    $limit = htmlspecialchars($limit);
-    $order = htmlspecialchars($order);
+    $limit = esc_sql($limit);
+    $order = esc_sql($order);
     $publications = tp_generate_where_clause($pub_id, "r.pub_id", "OR", "=");
+    $output_type = esc_sql($output_type);
     
     // Define basics
     $select = "SELECT DISTINCT t.name, r.tag_id, r.pub_id FROM $teachpress_relation r INNER JOIN $teachpress_tags t ON t.tag_id = r.tag_id";
@@ -449,12 +450,16 @@ function get_tp_tags($args) {
 
     // End
     $sql = $select . $join . $where . " ORDER BY t.name $order $limit";
-    //echo $sql;
     $sql = $wpdb->get_results($sql, $output_type);
     return $sql;
 }
 
 /**
+ * Returns a special array for creating tag clouds
+ * 
+ * This function returns the array $result with the array_keys:
+ *      'tags'  => it's an array or object with tags, including following keys: tagPeak, name, tag_id
+ *      'info'  => it's an object which includes information about the frequency of tags, including following keys: max, min
  * 
  * @global type $wpdb
  * @global type $teachpress_tags
@@ -463,7 +468,7 @@ function get_tp_tags($args) {
  * @global type $teachpress_pub
  * @param type $args
  */
-function get_tp_tag_cloud ($args) {
+function get_tp_tag_cloud ( $args = array() ) {
     $defaults = array(
         'user' => '',
         'type' => '',
@@ -481,6 +486,7 @@ function get_tp_tag_cloud ($args) {
 
     $where = "";
     $number_tags = intval($number_tags);
+    $output_type = esc_sql($output_type);
     $types = tp_generate_where_clause($type, "p.type", "OR", "=");
     $users = tp_generate_where_clause($user, "u.user", "OR", "=");
     $join1 = "LEFT JOIN $teachpress_tags t ON r.tag_id = t.tag_id";
@@ -615,7 +621,7 @@ function tp_add_tag_relation($pub_id, $tag_id) {
  * @param array $args
  * @return mixed
  */
-function get_tp_bookmarks($args) {
+function get_tp_bookmarks( $args = array() ) {
     $defaults = array(
         'user' => '',
         'output_type' => OBJECT
@@ -627,6 +633,7 @@ function get_tp_bookmarks($args) {
     global $teachpress_user;
     
     $user = intval($user);
+    $output_type = esc_sql($output_type);
     
     $sql = "SELECT `bookmark_id`, `pub_id` FROM $teachpress_user WHERE `user` = '$user'";
     return $wpdb->get_results($sql, $output_type);
@@ -687,7 +694,7 @@ function get_tp_course_data ($id, $col) {
     global $wpdb;
     global $teachpress_courses;
     $id = intval($id);
-    $col = esc_sql(htmlspecialchars($col));
+    $col = esc_sql($col);
     $result = $wpdb->get_var("SELECT `$col` FROM `$teachpress_courses` WHERE `course_id` = '$id'");
     return $result;
 }
@@ -741,7 +748,7 @@ function get_tp_courses_used_places() {
  * @return object|array
  * @since 4.0.0
  */
-function get_tp_courses ($args) {
+function get_tp_courses ( $args = array() ) {
     $defaults = array(
         'semester' => '',
         'visibility' => '',
@@ -764,11 +771,11 @@ function get_tp_courses ($args) {
                    FROM $teachpress_courses t 
                    LEFT JOIN " . $teachpress_courses . " p ON t.parent = p.course_id ) AS temp";
     $where = "";
-    $order = esc_sql(htmlspecialchars($order));
-    $limit = esc_sql(htmlspecialchars($limit));
-    $output_type = htmlspecialchars($output_type);
+    $order = esc_sql($order);
+    $limit = esc_sql($limit);
+    $output_type = esc_sql($output_type);
     $search = esc_sql(htmlspecialchars($search));
-    $parent = esc_sql(htmlspecialchars($parent));
+    $parent = intval($parent);
     $exclude = tp_generate_where_clause($exclude, "p.pub_id", "AND", "!=");
     $semester = tp_generate_where_clause($semester, "semester", "OR", "=");
     $visibility = tp_generate_where_clause($visibility, "visible", "OR", "=");
@@ -821,20 +828,6 @@ function tp_add_course($data) {
     $wpdb->insert( $teachpress_courses, array( 'name' => $data['name'], 'type' => $data['type'], 'room' => $data['room'], 'lecturer' => $data['lecturer'], 'date' => $data['date'], 'places' => $data['places'], 'start' => $data['start'], 'end' => $data['end'], 'semester' => $data['semester'], 'comment' => $data['comment'], 'rel_page' => $data['rel_page'], 'parent' => $data['parent'], 'visible' => $data['visible'], 'waitinglist' => $data['waitinglist'], 'image_url' => $data['image_url'], 'strict_signup' => $data['strict_signup'] ), array( '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%d' ) );
     return $wpdb->insert_id;
 }
-
-/** 
- * Subscribe a student manually
- * @param int $student      --> ID of the student
- * @param int $course       --> ID of the course
- * @since 4.0.0
-*/	
-function tp_add_direct_registration($student, $course) {
-    global $wpdb;
-    global $teachpress_signup;
-    $student = intval($student);
-    $course = intval($course);
-    $wpdb->query( "INSERT INTO $teachpress_signup (`course_id`, `wp_id`, `waitinglist`, `date`) VALUES ('$course', '$student', '0', NOW() )" );
-}	
 	
 /**
  * Delete course
@@ -911,10 +904,10 @@ function tp_change_course($course_ID, $data){
 /**
  * Get course signups or waitinglist entries
  * @param array $args
- * @return object or array
+ * @return object|array
  * @since 4.0.0
  */
-function get_tp_course_signups ($args) {
+function get_tp_course_signups ( $args = array() ) {
     $defaults = array(
         'course' => '',
         'waitinglist' => '',
@@ -928,10 +921,10 @@ function get_tp_course_signups ($args) {
     global $teachpress_stud;
     global $teachpress_signup;
     
-    $course = htmlspecialchars($course);
-    $order = htmlspecialchars($order);
-    $output_type = htmlspecialchars($output_type);
-    $waitinglist = htmlspecialchars($waitinglist);
+    $course = esc_sql($course);
+    $order = esc_sql($order);
+    $output_type = esc_sql($output_type);
+    $waitinglist = esc_sql($waitinglist);
     
     if ($order != '') {
         $order = " ORDER BY $order";
@@ -951,10 +944,51 @@ function get_tp_course_signups ($args) {
 }
 
 /** 
- * Delete registration
- * @param ARRAY $checkbox   --> An array with course IDs
+ * Subscribe a student manually
+ * @param int $student      --> ID of the student
+ * @param int $course       --> ID of the course
+ * @return boolean
+ * @since 4.0.0
+*/	
+function tp_add_direct_signup($student, $course) {
+    global $wpdb;
+    global $teachpress_signup;
+    $student = intval($student);
+    $course = intval($course);
+    if ( $student != 0 && $course != 0 ) {
+        $wpdb->query( "INSERT INTO $teachpress_signup (`course_id`, `wp_id`, `waitinglist`, `date`) VALUES ('$course', '$student', '0', NOW() )" );
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Move a registration to an other course
+ * @param array $checkbox     --> ID's of registrations
+ * @param int $course         --> course_id
+ * @since 4.0.0
+ */
+function tp_move_signup($checkbox, $course) {
+    global $wpdb;
+    global $teachpress_signup;
+    if ( $checkbox == '' ) { return false; }
+    $course = intval($course);
+    for ( $i = 0; $i < count($checkbox); $i++ ) {
+        $checkbox[$i] = intval($checkbox[$i]);
+        if ( $checkbox[$i] != 0 && $course != 0) {
+            $wpdb->update( $teachpress_signup, array ('course_id' => $course), array( 'con_id' => $checkbox[$i] ), array('%d'), array('%d') );
+        }
+    }
+}
+
+/** 
+ * Delete signup and add an entry from the waitinglist to the course (if possible). Please note that this function doesn't use transactions like tp_delete_signup_student().
+ * @param array $checkbox   --> An array with course IDs
+ * @param boolean $move_up  --> A flag for the automatic move up from waitinglist entries
+ * @since 4.0.0
+ * @version 2
 */
-function tp_delete_registration($checkbox) {
+function tp_delete_signup($checkbox, $move_up = true) {
     global $wpdb;
     global $teachpress_signup;
     if ( $checkbox == '' ) {
@@ -962,17 +996,17 @@ function tp_delete_registration($checkbox) {
     }
     for( $i = 0; $i < count( $checkbox ); $i++ ) {
         $checkbox[$i] = intval($checkbox[$i]);
-        // select the course_ID
-        $row1 = "SELECT `course_id` FROM " . $teachpress_signup . " WHERE `con_id` = '$checkbox[$i]'";
-        $row1 = $wpdb->get_results($row1);
-        foreach ($row1 as $row1) {
-            // check if there are users in the waiting list
-            $sql = "SELECT `con_id` FROM $teachpress_signup WHERE `course_id` = '" . $row1->course_id . "' AND `waitinglist` = '1' ORDER BY `con_id` ASC LIMIT 0, 1";
-            $con_id = $wpdb->get_var($sql);
-            // if is true subscribe the first one in the waiting list for the course
-            if ($con_id != 0 && $con_id != "") {
-                $wpdb->query( "UPDATE $teachpress_signup SET `waitinglist` = '0' WHERE `con_id` = '$con_id'" );
-            }	
+        if ( $move_up == true ) {
+            $row1 = $wpdb->get_results("SELECT `course_id` FROM $teachpress_signup WHERE `con_id` = '$checkbox[$i]'");
+            foreach ($row1 as $row1) {
+                // check if there are users in the waiting list
+                $sql = "SELECT `con_id` FROM $teachpress_signup WHERE `course_id` = '" . $row1->course_id . "' AND `waitinglist` = '1' ORDER BY `con_id` ASC LIMIT 0, 1";
+                $con_id = $wpdb->get_var($sql);
+                // if is true subscribe the first one in the waiting list for the course
+                if ($con_id != 0 && $con_id != "") {
+                    $wpdb->query( "UPDATE $teachpress_signup SET `waitinglist` = '0' WHERE `con_id` = '$con_id'" );
+                }	
+            }
         }
         $wpdb->query( "DELETE FROM $teachpress_signup WHERE `con_id` = '$checkbox[$i]'" );
     }
@@ -987,6 +1021,7 @@ function tp_delete_registration($checkbox) {
 function tp_change_signup_status($checkbox, $status = 'course') {
     global $wpdb;
     global $teachpress_signup;
+    if ( $checkbox == '' ) { return false; }
     $status = $status == 'course' ? 0 : 1;
     for( $i = 0; $i < count( $checkbox ); $i++ ) {
         $checkbox[$i] = intval($checkbox[$i]);
@@ -1019,9 +1054,9 @@ function get_tp_student ($id, $output_type = OBJECT) {
  * @return object or array
  * @since 4.0.0
  */
-function get_tp_students ($args) {
+function get_tp_students ( $args = array() ) {
     $defaults = array(
-        'coure_of_studies' => '',
+        'course_of_studies' => '',
         'search' => '',
         'order' => '`lastname` ASC, `firstname` ASC',
         'limit' => '',
@@ -1170,7 +1205,7 @@ function tp_delete_student($checkbox, $user_ID){
 /**
  * Return true if the user is subscribed in the course or false of not
  * @param integer course_id
- * @param boolean consider_childcourses   --> 
+ * @param boolean consider_childcourses
  * @return boolean
  * @since 3.1.7
  */
@@ -1223,7 +1258,7 @@ function tp_is_user_subscribed ($course_id, $consider_childcourses = false) {
 function get_tp_option($var) {
     global $wpdb;
     global $teachpress_settings;
-    $var = htmlspecialchars($var);
+    $var = esc_sql($var);
     $result = $wpdb->get_var("SELECT `value` FROM $teachpress_settings WHERE `variable` = '$var'");
     return $result;
 }
@@ -1233,15 +1268,15 @@ function get_tp_option($var) {
  * @param string $category
  * @param string $order
  * @param string $output_type
- * @return object
+ * @return object|array
  * @since 4.0.0
  */
 function get_tp_settings($category, $order = "`setting_id` DESC", $output_type = OBJECT) {
     global $wpdb;
     global $teachpress_settings;
-    $category = htmlspecialchars($category);
-    $order = htmlspecialchars($order);
-    $output_type = htmlspecialchars($output_type);
+    $category = esc_sql($category);
+    $order = esc_sql($order);
+    $output_type = esc_sql($output_type);
     $result = $wpdb->get_results("SELECT `value` FROM $teachpress_settings WHERE `category` = '$category' ORDER BY $order", $output_type);
     return $result;
 }
