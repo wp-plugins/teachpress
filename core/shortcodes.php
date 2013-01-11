@@ -35,9 +35,9 @@ function tp_courselist_shortcode($atts) {
 
     $url = array(
           "post_id" => get_the_ID()
-    );    
+    );
 
-    if ( $url["permalink"] == 0 ) {
+    if ( !get_option('permalink_structure') ) {
        if (is_page()) {
           $page = "page_id";
        }
@@ -695,7 +695,7 @@ function tp_search_shortcode ($atts) {
     $r .= '<div class="tp_search_input">';
     $r .= '<label for="tp_search">' . __('Search') . '</label> ';
     $r .= '<input name="tps" id="tp_search" title="" type="text" value="' . $search . '"/>';
-    $r .= '<input type="submit" value="Send"/>';
+    $r .= '<input name="tps_button" type="submit" value="' . __('Go', 'teachpress') . '"/>';
     $r .= '</div>';
     if ( $search != "" ) {
         // get results

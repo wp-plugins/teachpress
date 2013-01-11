@@ -26,20 +26,27 @@ if ($feedtype == 'bibtex') {
  * RSS 2.0
  */ else {
     $url = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-    header("Content-Type: application/rss+xml;");
-    echo '<?xml version="1.0" encoding="UTF-8"?>';
-    echo '<rss xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:wfw="http://wellformedweb.org/CommentAPI/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:sy="http://purl.org/rss/1.0/modules/syndication/" xmlns:slash="http://purl.org/rss/1.0/modules/slash/" version="2.0">';
+    header("Content-Type: application/xml;");
+    echo '<?xml version="1.0" encoding="UTF-8"?>'. chr(13) . chr(10);
+    echo '<rss version="2.0" 
+            xmlns:content="http://purl.org/rss/1.0/modules/content/"
+            xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+            xmlns:dc="http://purl.org/dc/elements/1.1/"
+            xmlns:atom="http://www.w3.org/2005/Atom"
+            xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+            xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+            >' . chr(13) . chr(10);
     echo '<channel>
-                <title>' . get_bloginfo('name') . '</title>
-                <atom:link href="' . $url . '" rel="self" type="application/rss+xml" />
-                <link>' . get_bloginfo('url') . '</link>
-                <description>' . get_bloginfo('description') . '</description>
-                <language>' . get_bloginfo('language') . '</language>
-                <sy:updatePeriod>daily</sy:updatePeriod>
-                <sy:updateFrequency>1</sy:updateFrequency>
-                <copyright>' . get_bloginfo('name') . '</copyright>
-                <pubDate>' . date('r') . '</pubDate>
-                <dc:creator>' . get_bloginfo('name') . '</dc:creator>';
+            <title>' . get_bloginfo('name') . '</title>
+            <atom:link href="' . $url . '" rel="self" type="application/rss+xml" />
+            <link>' . get_bloginfo('url') . '</link>
+            <description>' . get_bloginfo('description') . '</description>
+            <language>' . get_bloginfo('language') . '</language>
+            <sy:updatePeriod>daily</sy:updatePeriod>
+            <sy:updateFrequency>1</sy:updateFrequency>
+            <copyright>' . get_bloginfo('name') . '</copyright>
+            <pubDate>' . date('r') . '</pubDate>
+            <dc:creator>' . get_bloginfo('name') . '</dc:creator>' . chr(13) . chr(10);
 
     $row = get_tp_publications(array('user' => $id, 'tag' => $tag, 'output_type' => ARRAY_A));
     foreach ($row as $row) {
@@ -56,16 +63,17 @@ if ($feedtype == 'bibtex') {
         $row['title'] = tp_bibtex::replace_html_chars($row['title']);
         $item_link = tp_bibtex::replace_html_chars($item_link);
         $settings['editor_name'] = 'simple';
-        echo '<item>
+        echo '
+             <item>
                 <title><![CDATA[' . stripslashes($row['title']) . ']]></title>
                 <description>' . tp_bibtex::single_publication_meta_row($row, $settings) . '</description>
                 <link><![CDATA[' . $item_link . ']]></link>
                 <dc:creator>' . stripslashes($row['author']) . '</dc:creator>
                 <guid isPermaLink="false">' . get_bloginfo('url') . '?publication=' . $row['pub_id'] . '</guid>
                 <pubDate>' . date('r', strtotime($row['date'])) . '</pubDate>
-             </item>';
+             </item>' . chr(13) . chr(10);
     }
-    echo '</channel>';
-    echo '</rss>';
+    echo '</channel>' . chr(13) . chr(10);
+    echo '</rss>' . chr(13) . chr(10);
 }
 ?>
