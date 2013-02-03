@@ -108,7 +108,7 @@ function teachpress_show_courses_page() {
                 <p class="teachpress_message_text">
                 <select name="copysem" id="copysem">
                     <?php
-                    $term = get_tp_settings('semester');
+                    $term = get_tp_options('semester');
                     foreach ($term as $term) { 
                         if ($term->value == $sem) {
                             $current = 'selected="selected"' ;
@@ -149,7 +149,7 @@ function teachpress_show_courses_page() {
           <select name="sem" id="sem">
                <option value=""><?php _e('All terms','teachpress'); ?></option>
                <?php    
-               $row = get_tp_settings('semester');
+               $row = get_tp_options('semester');
                foreach ($row as $row) { 
                     if ($row->value == $sem) {
                         $current = 'selected="selected"' ;

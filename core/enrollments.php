@@ -206,7 +206,7 @@ function tp_registration_form ($user = '', $mode = 'register') {
                         <td><label for="course_of_studies">' . __('Course of studies','teachpress') . '</label></td>
                         <td>
                          <select name="course_of_studies" id="course_of_studies">';
-        $rowstud = get_tp_settings('course_of_studies', "setting_id ASC");
+        $rowstud = get_tp_options('course_of_studies', "setting_id ASC");
         foreach ($rowstud as $rowstud) {
 			$selected = $value == $rowstud->value ? 'selected="selected"' : '';
             $rtn = $rtn . '<option value="' . $rowstud->value . '" ' . $selected . '>' . $rowstud->value . '</option>';

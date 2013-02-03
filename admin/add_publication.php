@@ -10,25 +10,21 @@ function tp_add_publication_page_help () {
         'content'   => '<p><strong>' . __('Required fields','teachpress') . '</strong></p>
                         <p>' . __('The required fields for a new publication: title, author, bibtex key, tags','teachpress') . '</p>
                         <p><strong>' . __('URL/Files','teachpress') . '</strong></p>
-                        <p>' . __('You can add one URL or file per line. Insert the name of the URL/file behind the address and separate it by a comma and a space. Example:') . '<br />http://mywebsite.com/docs/readme.pdf, Basic Instructions</p>'
+                        <p>' . __('You can add one URL or file per line. Insert the name of the URL/file behind the address and separate it by a comma and a space. Example:', 'teachpress') . '<br />http://mywebsite.com/docs/readme.pdf, Basic Instructions</p>'
     ) );
 } 
 
-/* New publication / edit publication
+/** 
+ * New publication / edit publication
  * from show_publications.php (GET):
- * @param $pub_ID (INT) - publication ID
- * @param $search (String) - for a return to the search
- * @param $filter (String) - for a return to the search
+ * @param int $pub_ID       -> publication ID
+ * @param string $search)   -> for a return to the search
+ * @param string $filter    -> for a return to the search
 */
 function teachpress_addpublications_page() {
-
-   global $teachpress_pub; 
-   global $teachpress_relation; 
-   global $teachpress_tags;
-   global $teachpress_user;
-   global $current_user;
-   global $wpdb;
+   
    // WordPress current unser info
+   global $current_user;
    get_currentuserinfo();
    $user = $current_user->ID;
 
@@ -125,8 +121,7 @@ function teachpress_addpublications_page() {
              <div class="bookmarks" style="background-attachment: scroll; border:1px #DFDFDF solid; display: block; height: 100px; max-height: 205px; overflow-x: auto; overflow-y: auto; padding: 6px 11px;">
           <?php 
              if ($pub_ID != '') {
-                   $sql = "SELECT `pub_id` FROM $teachpress_user WHERE `pub_id`='$pub_ID' AND `user` = '$user'";
-                   $test = $wpdb->query($sql);
+                   $test = tp_check_bookmark($pub_ID, $user);
                    if ($test != '0') {
                            echo '<p><input type="checkbox" name="bookmark[]" id="bookmark" disabled="disabled"/> <label for="bookmark">' . __('add to your own list','teachpress') . '</label></p>';
                    }
@@ -138,15 +133,13 @@ function teachpress_addpublications_page() {
                    echo '<p><input type="checkbox" name="bookmark[]" id="bookmark" value="' . $user . '" title="' . __('Click to add the publication in your own list','teachpress') . '"/> <label for="bookmark" title="' . __('Click to add the publication in your own list','teachpress') . '">' . __('add to your own list','teachpress') . '</label></p>';
                    }
              // search users with min. one bookmark
-             $abfrage = "SELECT DISTINCT user FROM $teachpress_user ";
-             $row = $wpdb->get_results($abfrage);
+             $row = get_tp_publication_user();
              foreach($row as $row) {
                 $user_info = get_userdata($row->user);
                 if ($user != $row->user && $user_info != false) { 
                     if ($pub_ID != '') {
-                        $sql = "SELECT pub_id FROM $teachpress_user WHERE `pub_id`='$pub_ID' AND `user` = '$user_info->ID'";
-                        $test = $wpdb->query($sql);
-                        if ($test != '0') {
+                        $test = tp_check_bookmark($pub_ID, $user_info->ID);
+                        if ($test === true) {
                             echo '<p><input type="checkbox" name="bookmark[]" id="bookmark_' . $user_info->ID . '" disabled="disabled"/> <label for="bookmark_' . $user_info->ID . '">' . $user_info->display_name . '</label></p>';
                         }
                         else {
@@ -190,17 +183,10 @@ function teachpress_addpublications_page() {
         <tr>
             <td>
             <?php if ($pub_ID != '') {
-            $sql = "SELECT t.name, b.con_id 
-                    FROM $teachpress_relation b
-                    INNER JOIN $teachpress_tags t ON t.tag_id=b.tag_id
-                    INNER JOIN $teachpress_pub p ON p.pub_id=b.pub_id
-                    WHERE p.pub_id = '$pub_ID'
-                    ORDER BY t.name";	
-            $test = $wpdb->query($sql);
-            if ($test != '0') {
-                $sql = $wpdb->get_results($sql);
+            $current_tags = get_tp_tags( array('pub_id' => $pub_ID) );
+            if ($current_tags != '') {
                 echo '<p><strong>' . __('Current','teachpress') . '</strong></p>';
-                foreach ($sql as $row3){
+                foreach ($current_tags as $row3){
                     $s = "'";
                     echo'<input name="delbox[]" type="checkbox" value="' . $row3->con_id . '" title="Tag &laquo;' . $row3->name . '&raquo; ' . __('Delete','teachpress') . '" id="checkbox_' . $row3->con_id . '" onclick="teachpress_change_label_color(' . $s . $row3->con_id . $s . ')"/> <span style="font-size:12px;" ><label for="checkbox_' . $row3->con_id . '" title="Tag &laquo;' . $row3->name . '&raquo; ' . __('Delete','teachpress') . '" id="tag_label_' . $row3->con_id . '">' . $row3->name . '</label></span> | ';
                 } 
@@ -243,7 +229,7 @@ function teachpress_addpublications_page() {
         <tr>
             <td>
             <?php if ($daten["image_url"] != '') {
-                echo '<p><img name="tp_pub_image" src="' . $daten["image_url"] . '" alt="' . $daten["name"] . '" title="' . $daten["name"] . '" style="max-width:100%;"/></p>';
+                echo '<p><img name="tp_pub_image" src="' . $daten["image_url"] . '" alt="' . $daten["title"] . '" title="' . $daten["title"] . '" style="max-width:100%;"/></p>';
             } ?>
             <p><label for="image_url" title="<?php _e('With the image field you can add an image to a publication. You can display images in all publication lists','teachpress'); ?>"><strong><?php _e('Image URL','teachpress'); ?></strong></label></p>
             <input name="image_url" id="image_url" class="upload" type="text" title="<?php _e('With the image field you can add an image to a publication. You can display images in all publication lists','teachpress'); ?>" style="width:90%;" value="<?php echo $daten["image_url"]; ?>"/>
@@ -298,8 +284,8 @@ function teachpress_addpublications_page() {
              <textarea name="author" wrap="virtual" id="author" title="<?php _e('The names of the authors, separate by `and`. Example: Mark Twain and Albert Einstein','teachpress'); ?>" style="width:95%" rows="3" tabindex="4"><?php echo stripslashes($daten["author"]); ?></textarea>
              <p><label for="editor" title="<?php _e('The names of the editors, separate by `and`. Example: Mark Twain and Albert Einstein','teachpress'); ?>"><strong><?php _e('Editor(s)','teachpress'); ?></strong></label></p>
              <textarea name="editor" id="editor" type="text" title="<?php _e('The names of the editors, separate by `and`. Example: Mark Twain and Albert Einstein','teachpress'); ?>" style="width:95%" rows="3" tabindex="5"><?php echo stripslashes($daten["editor"]); ?></textarea>
-             <p><label for="date" title="<?php _e('The date of publishing','teachpress'); ?>"><strong><?php _e('Date','teachpress'); ?></strong></label></p>
-             <input type="text" name="date" id="date" title="<?php _e('The date of publishing','teachpress'); ?>" value="<?php if ($pub_ID != '') { echo $daten["date"]; } else {_e('JJJJ-MM-TT','teachpress'); } ?>" onblur="if(this.value=='') this.value='<?php _e('JJJJ-MM-TT','teachpress'); ?>';" onfocus="if(this.value=='<?php _e('JJJJ-MM-TT','teachpress'); ?>') this.value='';" tabindex="6"/>
+             <p><label for="date" title="<?php _e('date of publishing','teachpress'); ?>"><strong><?php _e('date of publishing','teachpress'); ?></strong></label></p>
+             <input type="text" name="date" id="date" title="<?php _e('date of publishing','teachpress'); ?>" value="<?php if ($pub_ID != '') { echo $daten["date"]; } else {_e('JJJJ-MM-TT','teachpress'); } ?>" onblur="if(this.value=='') this.value='<?php _e('JJJJ-MM-TT','teachpress'); ?>';" onfocus="if(this.value=='<?php _e('JJJJ-MM-TT','teachpress'); ?>') this.value='';" tabindex="6"/>
            </td>
            </tr>
            </thead>
@@ -322,7 +308,6 @@ function teachpress_addpublications_page() {
              <textarea name="booktitle" id="booktitle" wrap="virtual" style="width:95%;" rows="3" tabindex="7" title="<?php _e('The title of a book','teachpress'); ?>"><?php echo stripslashes($daten["booktitle"]); ?></textarea>
              </div>
              <?php
-             $display = "";
              if ($daten["type"] == "article" || $daten["type"] == "") 
                    {$display = 'style="display:block;"';}
              else { $display = 'style="display:none;"';}
@@ -332,7 +317,6 @@ function teachpress_addpublications_page() {
              <input name="journal" id="journal" type="text" title="<?php _e('The title of a journal','teachpress'); ?>" style="width:95%" value="<?php echo stripslashes($daten["journal"]); ?>" tabindex="8" />
              </div>
              <?php
-             $display = "";
              if ($daten["type"] == "article" || $daten["type"] == "book" || $daten["type"] == "collection" || $daten["type"] == "booklet" || $daten["type"] == "conference" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "inproceedings" || $daten["type"] == "proceedings" || $daten["type"] == "") 
                    {$display = 'style="display:block;"';}
              else { $display = 'style="display:none;"';}
@@ -342,7 +326,6 @@ function teachpress_addpublications_page() {
              <input name="volume" id="volume" type="text" title="<?php _e('The volume of a journal or book','teachpress'); ?>" value="<?php echo stripslashes($daten["volume"]); ?>" tabindex="9" />
              </div>
              <?php
-             $display = "";
              if ($daten["type"] == "article" || $daten["type"] == "book" || $daten["type"] == "collection" || $daten["type"] == "conference" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "inproceedings" || $daten["type"] == "proceedings" || $daten["type"] == "techreport" || $daten["type"] == "") 
                    {$display = 'style="display:block;"';}
              else { $display = 'style="display:none;"';}
@@ -352,7 +335,6 @@ function teachpress_addpublications_page() {
              <input name="number" id="number" type="text" title="<?php _e('The number of a book, journal or work in a series','teachpress'); ?>" value="<?php echo stripslashes($daten["number"]); ?>" tabindex="10" />
              </div>
              <?php
-             $display = "";
              if ($daten["type"] == "article" || $daten["type"] == "conference" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "inproceedings" || $daten["type"] == "") 
                    {$display = 'style="display:block;"';}
              else { $display = 'style="display:none;"';}
@@ -362,7 +344,6 @@ function teachpress_addpublications_page() {
              <input name="pages" id="pages" type="text" title="<?php _e('The page you are referring to.','teachpress'); ?>" value="<?php echo stripslashes($daten["pages"]); ?>" tabindex="11" />
              </div>
              <?php
-             $display = "";
              if ($daten["type"] == "book" || $daten["type"] == "collection" || $daten["type"] == "conference" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "inproceedings" || $daten["type"] == "proceedings") 
                    {$display = 'style="display:block;"';}
              else { $display = 'style="display:none;"';}
@@ -372,7 +353,6 @@ function teachpress_addpublications_page() {
              <input name="publisher" id="publisher" type="text" title="<?php _e('The names of publisher','teachpress'); ?>" style="width:95%" value="<?php echo stripslashes($daten["publisher"]); ?>" tabindex="12" />
              </div>
              <?php
-             $display = "";
              if ($daten["type"] == "book" || $daten["type"] == "collection" || $daten["type"] == "booklet" || $daten["type"] == "conference" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "inproceedings" || $daten["type"] == "manual" || $daten["type"] == "masterthesis" || $daten["type"] == "phdthesis" || $daten["type"] == "proceedings" || $daten["type"] == "techreport") 
                    {$display = 'style="display:block;"';}
              else { $display = 'style="display:none;"';}
@@ -382,7 +362,6 @@ function teachpress_addpublications_page() {
              <input name="address" type="text" id="address" style="width:95%" tabindex="13" title="<?php _e('The address of the publisher or the place of confernece','teachpress'); ?>" value="<?php echo stripslashes($daten["address"]); ?>" />
              </div>
              <?php
-             $display = "";
              if ($daten["type"] == "book" || $daten["type"] == "collection" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "manual") 
                    {$display = 'style="display:block;"';}
              else { $display = 'style="display:none;"';}
@@ -392,7 +371,6 @@ function teachpress_addpublications_page() {
              <input name="edition" id="edition" type="text" title="<?php _e('The edition of a book','teachpress'); ?>" value="<?php echo stripslashes($daten["edition"]); ?>" tabindex="14" />
              </div>
              <?php
-             $display = "";
              if ($daten["type"] == "inbook" || $daten["type"] == "incollection") 
                    {$display = 'style="display:block;"';}
              else { $display = 'style="display:none;"';}
@@ -402,7 +380,6 @@ function teachpress_addpublications_page() {
              <input name="chapter" id="chapter" type="text" title="<?php _e('The chapter or the section number','teachpress'); ?>" value="<?php echo stripslashes($daten["chapter"]); ?>" tabindex="15" />
              </div>
              <?php
-             $display = "";
              if ($daten["type"] == "techreport") 
                    {$display = 'style="display:block;"';}
              else { $display = 'style="display:none;"';}
@@ -412,7 +389,6 @@ function teachpress_addpublications_page() {
              <input name="institution" id="institution" type="text" title="<?php _e('The name of a sponsoring institution','teachpress'); ?>" style="width:95%" value="<?php echo stripslashes($daten["institution"]); ?>" tabindex="15"/>
              </div>
              <?php
-             $display = "";
              if ($daten["type"] == "conference" || $daten["type"] == "inproceedings" || $daten["type"] == "manual" || $daten["type"] == "proceedings" || $daten["type"] == "online") 
                    {$display = 'style="display:block;"';}
              else { $display = 'style="display:none;"';}
@@ -422,7 +398,6 @@ function teachpress_addpublications_page() {
              <input name="organization" id="organization" type="text" title="<?php _e('The names of a sponsoring organization','teachpress'); ?>" style="width:95%" value="<?php echo stripslashes($daten["organization"]); ?>" tabindex="16" />
              </div>
              <?php
-             $display = "";
              if ($daten["type"] == "masterthesis" || $daten["type"] == "phdthesis") 
                    {$display = 'style="display:block;"';}
              else { $display = 'style="display:none;"';}
@@ -432,7 +407,6 @@ function teachpress_addpublications_page() {
              <input name="school" id="school" type="text" title="<?php _e('The names of the academic instituion where a thesis was written','teachpress'); ?>" style="width:95%" value="<?php echo stripslashes($daten["school"]); ?>" tabindex="17" />
              </div>
              <?php
-             $display = "";
              if ($daten["type"] == "book" || $daten["type"] == "collection" || $daten["type"] == "conference" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "inproceedings" || $daten["type"] == "proceedings") 
                    {$display = 'style="display:block;"';}
              else { $display = 'style="display:none;"';}
@@ -450,7 +424,6 @@ function teachpress_addpublications_page() {
              <textarea name="abstract" id="abstract" rows="5" title="<?php _e('A short summary of the publication','teachpress'); ?>" style="width:95%" tabindex="20" ><?php echo stripslashes($daten["abstract"]); ?></textarea>
              </div>
              <?php
-             $display = "";
              if ($daten["type"] == "booklet" || $daten["type"] == "misc") 
                    {$display = 'style="display:block;"';}
              else { $display = 'style="display:none;"';}
@@ -464,7 +437,6 @@ function teachpress_addpublications_page() {
              <input name="key" id="key" type="text" title="<?php _e('If there is no author or editor given, so this field is used for the sorting.','teachpress'); ?>" value="<?php echo stripslashes($daten["key"]); ?>" tabindex="22"/>
              </div>
              <?php
-             $display = "";
              if ($daten["type"] == "inbook" || $daten["type"] == "incollection" || $daten["type"] == "masterthesis" || $daten["type"] == "phdthesis" || $daten["type"] == "techreport") {$display = 'style="display:block;"';}
              else { $display = 'style="display:none;"';}
              ?>
@@ -481,7 +453,6 @@ function teachpress_addpublications_page() {
                    </span>
              </div>
              <?php
-             $display = "";
              if ($daten["type"] == "online") {$display = 'style="display:block;"';}
              else { $display = 'style="display:none;"';}
              ?>
@@ -493,7 +464,7 @@ function teachpress_addpublications_page() {
                 <p style="margin-bottom:0;"><label for="url" title="<?php _e('URL/Files', 'teachpress'); ?>"><strong><?php _e('URL/Files', 'teachpress'); ?></strong></label></p>
                 <input name="upload_mode" id="upload_mode" type="hidden" value="" />
                 <a class="upload_button" style="cursor:pointer; border:none; float:right; padding-right: 34px;" title="<?php _e('Insert a file from the WordPress Media Library','teachpress'); ?>"><?php _e('Add/Upload','teachpress'); ?> <img src="images/media-button-other.gif"/></a>
-                <textarea name="url" type="text" id="url" class="upload" title="<?php echo __('You can add one URL or file per line. Insert the name of the URL/file behind the address and separate it by a comma and a space. Example:') . ' http://mywebsite.com/docs/readme.pdf, Basic Instructions'; ?>" style="width:95%" rows="4" tabindex="28"><?php echo $daten["url"]; ?></textarea>
+                <textarea name="url" type="text" id="url" class="upload" title="<?php echo __('You can add one URL or file per line. Insert the name of the URL/file behind the address and separate it by a comma and a space. Example:', 'teachpress') . ' http://mywebsite.com/docs/readme.pdf, Basic Instructions'; ?>" style="width:95%" rows="4" tabindex="28"><?php echo $daten["url"]; ?></textarea>
              </div>
              </td>
            </tr>
@@ -527,10 +498,9 @@ function teachpress_addpublications_page() {
 	jQuery(document).ready(function($) {
             var availableTags = [
                 <?php
-                $sql = "SELECT name FROM $teachpress_tags ORDER BY name ASC";
-                $sql = $wpdb->get_results($sql, ARRAY_A);
+                $sql = get_tp_tags( array('group_by' => true) );
                 foreach ($sql as $row) {
-                    echo '"' . $row['name'] . '",';        
+                    echo '"' . $row->name . '",';        
                 } ?>
             ];
             function split( val ) {

@@ -69,10 +69,7 @@ function teachpress_import_page() {
                        <select name="tp_user" id="tp_user">
                             <option value="all"><?php _e('All'); ?></option>
                             <?php
-                            global $wpdb;
-                            global $teachpress_user;
-                            $abfrage = "SELECT DISTINCT user FROM " . $teachpress_user . "";
-                            $row = $wpdb->get_results($abfrage, ARRAY_A);
+                            $row = get_tp_publication_user();
                             foreach($row as $row) {
                                  $user_info = get_userdata($row['user']);
                                  if ( $user_info != false ) { 

@@ -97,7 +97,7 @@ function teachpress_students_page() {
         <select name="students_group" id="students_group">
             <option value="">- <?php _e('All students','teachpress'); ?> -</option>
             <?php
-            $row = get_tp_settings('course_of_studies', 'value ASC');
+            $row = get_tp_options('course_of_studies', 'value ASC');
             foreach($row as $row){
                 $current = $row->value == $students_group ? ' selected="selected"' : '';
                 echo'<option value="' . $row->value . '"' . $current . '>' . $row->value . '</option>';

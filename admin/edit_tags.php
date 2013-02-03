@@ -94,7 +94,7 @@ function teachpress_tags_page(){
             echo '<tr><td colspan="4"><strong>' . __('Sorry, no entries matched your criteria.','teachpress') . '</strong></td></tr>';
         }
         else {
-            $sql2 = "SELECT * FROM " . $teachpress_relation . "";
+            $sql2 = "SELECT * FROM $teachpress_relation";
             $row = $wpdb->get_results($sql2);
             $z=0;
             foreach ($row as $row) {

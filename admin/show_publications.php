@@ -99,11 +99,20 @@ function teachpress_publications_page() {
         echo '<p><a href="admin.php?page=' . $page . '&amp;search=' . $search . '&amp;limit=' . $curr_page . '" class="button-secondary">&larr; ' . __('Back','teachpress') . '</a></p>';
         echo '<h2>' . __('BibTeX','teachpress') . '</h2>';
         echo '<textarea name="bibtex_area" rows="20" style="width:90%;" >';
-        for ($i=0; $i < count ($checkbox); $i++) {
-            $checkbox[$i] = intval($checkbox[$i]);
-            $row = get_tp_publication( $checkbox[$i], ARRAY_A );
-            $tags = get_tp_tags( array('output_type' => ARRAY_A, 'pub_id' => $checkbox[$i]) );
-            echo tp_bibtex::get_single_publication_bibtex($row, $tags);	
+        if ( $checkbox != '' ) {
+            for ($i=0; $i < count ($checkbox); $i++) {
+                $checkbox[$i] = intval($checkbox[$i]);
+                $row = get_tp_publication( $checkbox[$i], ARRAY_A );
+                $tags = get_tp_tags( array('output_type' => ARRAY_A, 'pub_id' => $checkbox[$i]) );
+                echo tp_bibtex::get_single_publication_bibtex($row, $tags);	
+            }
+        }
+        else {
+            $row = get_tp_publications( array('output_type' => ARRAY_A) );
+            foreach ( $row as $row ) {
+                $tags = get_tp_tags( array('output_type' => ARRAY_A, 'pub_id' => $row['pub_id']) );
+                echo tp_bibtex::get_single_publication_bibtex($row, $tags);
+            }
         }
         echo '</textarea>';
     }

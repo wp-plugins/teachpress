@@ -110,7 +110,7 @@ function get_tp_publications($args = array(), $count = false) {
 
     // define global search
     if ( $search != "" ) {
-        $search = "p.title LIKE '%$search%' OR p.author LIKE '%$search%' OR p.editor LIKE '%$search%' OR p.isbn LIKE '%$search%' OR p.booktitle LIKE '%$search%' OR p.journal LIKE '%$search%'";
+        $search = "p.title LIKE '%$search%' OR p.author LIKE '%$search%' OR p.editor LIKE '%$search%' OR p.isbn LIKE '%$search%' OR p.booktitle LIKE '%$search%' OR p.journal LIKE '%$search%' OR p.date LIKE '%$search%'";
     }
 
     // define where clause
@@ -277,7 +277,7 @@ function tp_change_publication($pub_ID, $data, $bookmark, $delbox, $tags) {
     global $teachpress_relation;
     $pub_ID = intval($pub_ID);
     // update row
-    $wpdb->update( $teachpress_pub, array( 'title' => $data['title'], 'type' => $data['type'], 'bibtex' => $data['bibtex'], 'author' => $data['author'], 'editor' => $data['editor'], 'isbn' => $data['isbn'], 'url' => $data['url'], 'date' => $data['date'], 'urldate' => $data['urldate'], 'booktitle' => $data['booktitle'], 'journal' => $data['journal'], 'volume' => $data['volume'], 'number' => $data['number'], 'pages' => $data['pages'] , 'publisher' => $data['publisher'], 'address' => $data['address'], 'edition' => $data['edition'], 'chapter' => $data['chapter'], 'institution' => $data['institution'], 'organization' => $data['organization'], 'school' => $data['school'], 'series' => $data['series'], 'crossref' => $data['crossref'], 'abstract' => $data['abstract'], 'howpublished' => $data['howpublished'], 'key' => $data['key'], 'techtype' => $data['techtype'], 'comment' => $data['comment'], 'note' => $data['note'], 'image_url' => $data['image_url'], 'is_isbn' => $data['is_isbn'], 'rel_page' => $data['rel_page'] ), array( 'pub_id' => $pub_ID ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d' ), array( '%d' ) );
+    $wpdb->update( $teachpress_pub, array( 'title' => $data['title'], 'type' => $data['type'], 'bibtex' => $data['bibtex'], 'author' => $data['author'], 'editor' => $data['editor'], 'isbn' => $data['isbn'], 'url' => $data['url'], 'date' => $data['date'], 'urldate' => $data['urldate'], 'booktitle' => $data['booktitle'], 'journal' => $data['journal'], 'volume' => $data['volume'], 'number' => $data['number'], 'pages' => $data['pages'] , 'publisher' => $data['publisher'], 'address' => $data['address'], 'edition' => $data['edition'], 'chapter' => $data['chapter'], 'institution' => $data['institution'], 'organization' => $data['organization'], 'school' => $data['school'], 'series' => $data['series'], 'crossref' => $data['crossref'], 'abstract' => $data['abstract'], 'howpublished' => $data['howpublished'], 'key' => $data['key'], 'techtype' => $data['techtype'], 'comment' => $data['comment'], 'note' => $data['note'], 'image_url' => $data['image_url'], 'is_isbn' => $data['is_isbn'], 'rel_page' => $data['rel_page'] ), array( 'pub_id' => $pub_ID ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ,'%d', '%d' ), array( '%d' ) );
     // Bookmarks
     if ($bookmark != '') {
         for( $i = 0; $i < count( $bookmark ); $i++ ) {
@@ -332,6 +332,7 @@ function get_tp_publication_years( $args = array() ) {
     
     $join = "";
     $where = "";
+    $order = esc_sql($order);
     $output_type = esc_sql($output_type);
     $types = tp_generate_where_clause($type, "p.type", "OR", "=");
     $users = tp_generate_where_clause($user, "u.user", "OR", "=");
@@ -347,7 +348,7 @@ function get_tp_publication_years( $args = array() ) {
         $where = " WHERE $where";
     }
     
-    $result = $wpdb->get_results("SELECT DISTINCT DATE_FORMAT(p.date, '%Y') AS year FROM $teachpress_pub p $join $where ORDER BY year DESC", $output_type);
+    $result = $wpdb->get_results("SELECT DISTINCT DATE_FORMAT(p.date, '%Y') AS year FROM $teachpress_pub p $join $where ORDER BY year $order", $output_type);
     return $result;
 }
 
@@ -409,14 +410,27 @@ function get_tp_publication_used_types( $args = array() ) {
 /********/
     
 /**
- * Get an array of all tags
- * @param integer $pub_id
+ * Get an array of all tags based on the publication tag relation
+ * 
+ * Note: If you only need a list of used tags, set group_by to true.
+ * In this case you should ignore the columns tag_id and pub_id from return
+ * 
+ * Possible values for $args:
+ *  pub_id          --> publication IDs (separated by comma)
+ *  order           --> ASC or DESC; deflaut is ASC
+ *  limit           --> the sql search limit, example: 0,30
+ *  group by        --> boolean flag for the group by clause
+ *  output type     --> OBJECT, ARRAY_A, ARRAY_N 
+ * 
+ * @param array $args
+ * @return array|object
  */
 function get_tp_tags( $args = array() ) {
     $defaults = array(
         'pub_id' => '',
         'order' => 'ASC',
         'limit' => '',
+        'group_by' => false, 
         'output_type' => OBJECT
     ); 
     $args = wp_parse_args( $args, $defaults );
@@ -431,7 +445,7 @@ function get_tp_tags( $args = array() ) {
     $output_type = esc_sql($output_type);
     
     // Define basics
-    $select = "SELECT DISTINCT t.name, r.tag_id, r.pub_id FROM $teachpress_relation r INNER JOIN $teachpress_tags t ON t.tag_id = r.tag_id";
+    $select = "SELECT DISTINCT t.name, r.tag_id, r.pub_id, r.con_id FROM $teachpress_relation r INNER JOIN $teachpress_tags t ON t.tag_id = r.tag_id";
     $join = "";
     $where = "";
     
@@ -447,9 +461,12 @@ function get_tp_tags( $args = array() ) {
     if ( $limit != '' ) {
         $limit = "LIMIT $limit";
     }
+    
+    // GROUP BY clause
+    $group_by = $group_by === true ? " GROUP BY t.name" : "";
 
     // End
-    $sql = $select . $join . $where . " ORDER BY t.name $order $limit";
+    $sql = $select . $join . $where . $group_by . " ORDER BY t.name $order $limit";
     $sql = $wpdb->get_results($sql, $output_type);
     return $sql;
 }
@@ -662,6 +679,25 @@ function tp_delete_bookmark($del_id) {
     global $teachpress_user;
     $del_id = intval($del_id);
     $wpdb->query( "DELETE FROM $teachpress_user WHERE `bookmark_id` = '$del_id'" );
+}
+
+/**
+ * Check if an user has bookmarked a publication
+ * @param int $pub_id
+ * @param int $user_id
+ * @return boolean
+ * @since 4.0.0
+ */
+function tp_check_bookmark($pub_id, $user_id) {
+    global $wpdb;
+    global $teachpress_user;
+    $pub_id = intval($pub_id);
+    $user_id = intval($user_id);
+    $test = $wpdb->query("SELECT `pub_id` FROM $teachpress_user WHERE `pub_id`='$pub_id' AND `user` = '$user_id'");
+    if ($test != 0) {
+        return true;
+    }
+    return false;
 }
 
 /***********/
@@ -1246,9 +1282,9 @@ function tp_is_user_subscribed ($course_id, $consider_childcourses = false) {
     return false;
 }
 
-/************/
-/* Settings */
-/************/
+/********************/
+/* Settings/Options */
+/********************/
 
 /** 
  * Get a teachPress option
@@ -1265,13 +1301,13 @@ function get_tp_option($var) {
 
 /**
  * Get all settings of a category
- * @param string $category
- * @param string $order
- * @param string $output_type
+ * @param string $category      --> category name (system, course_of_studies, course_type, semester)
+ * @param string $order         --> default: setting_id DESC
+ * @param string $output_type   --> default: OBJECT
  * @return object|array
  * @since 4.0.0
  */
-function get_tp_settings($category, $order = "`setting_id` DESC", $output_type = OBJECT) {
+function get_tp_options($category, $order = "`setting_id` DESC", $output_type = OBJECT) {
     global $wpdb;
     global $teachpress_settings;
     $category = esc_sql($category);
@@ -1283,9 +1319,10 @@ function get_tp_settings($category, $order = "`setting_id` DESC", $output_type =
 
 /** 
  * Delete an option
- * @param int $delete
+ * @param int $delete 
+ * @since 4.0.0
 */
-function tp_delete_setting($delete) {
+function tp_delete_option($delete) {
     global $wpdb;
     global $teachpress_settings;
     $delete = intval($delete);		
@@ -1294,20 +1331,22 @@ function tp_delete_setting($delete) {
 
 /** 
  * Add an option
- * @param string $name
- * @param string $typ
+ * @param string $name      --> name of the variable
+ * @param string $category  --> category name (system, course_of_studies, course_type, semester) 
+ * @since 4.0.0
 */
-function tp_add_setting($name, $typ) { 
+function tp_add_option($name, $category) { 
     global $wpdb;
     global $teachpress_settings;
-    $wpdb->insert( $teachpress_settings, array( 'variable' => $name, 'value' => $name, 'category' => $typ ), array( '%s', '%s', '%s' ) );
+    $wpdb->insert( $teachpress_settings, array( 'variable' => $name, 'value' => $name, 'category' => $category ), array( '%s', '%s', '%s' ) );
 }
 
 /** 
  * Change settings
  * @param ARRAY $options
+ * @since 4.0.0 
 */
-function tp_change_settings($options) {
+function tp_change_options($options) {
     global $wpdb;
     global $teachpress_settings;
     $wpdb->query( "UPDATE $teachpress_settings SET `value` = '" . $options['semester'] . "' WHERE `variable` = 'sem'" );

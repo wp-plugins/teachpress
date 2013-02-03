@@ -17,8 +17,7 @@
 function teachpress_students_new_page() { 
 
 global $wpdb;
-global $teachpress_stud; 
-global $teachpress_settings;
+global $teachpress_stud;
 
 $wp_id = isset($_POST['wp_id']) ? intval($_POST['wp_id']) : '';
 $data['matriculation_number'] = isset( $_POST['matriculation_number'] ) ? intval($_POST['matriculation_number']) : '';
@@ -57,7 +56,7 @@ if (isset( $_POST['insert'] ) && $wp_id != __('WordPress User-ID','teachpress') 
               echo '<select name="wp_id" id="wp_id">';
               echo '<option value="n">' . __('Select user','teachpress') . '</option>';
               $sql = "SELECT u.ID, s.wp_id, u.user_login FROM " . $wpdb->users . " u
-                      LEFT JOIN " . $teachpress_stud . " s ON u.ID = s.wp_id";	
+                      LEFT JOIN $teachpress_stud s ON u.ID = s.wp_id";	
               $row = $wpdb->get_results($sql);
               foreach ($row as $row) {
                  if ($row->ID != $row->wp_id) {
@@ -94,8 +93,7 @@ if (isset( $_POST['insert'] ) && $wp_id != __('WordPress User-ID','teachpress') 
             <td>
             <select name="course_of_studies" id="course_of_studies">
              <?php
-              $stud = "SELECT value FROM " . $teachpress_settings . " WHERE category = 'course_of_studies'";
-              $stud = $wpdb->get_results($stud);
+              $stud = get_tp_options('course_of_studies', 'value ASC');
               foreach ($stud as $stud) {
                     echo '<option value="' . $stud->value . '">' . $stud->value . '</option>';
               } ?>

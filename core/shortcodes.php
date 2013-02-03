@@ -68,7 +68,7 @@ function tp_courselist_shortcode($atts) {
                <form name="lvs" method="get" action="' . $_SERVER['REQUEST_URI'] . '">
                ' . $page . '		
                <div class="tp_auswahl"><label for="semester">' . __('Select the term','teachpress') . '</label> <select name="semester" id="semester" title="' . __('Select the term','teachpress') . '">';
-    $rowsem = get_tp_settings('semester');
+    $rowsem = get_tp_options('semester');
     foreach($rowsem as $rowsem) { 
        if ($rowsem->value == $sem) {
           $current = 'selected="selected"' ;
@@ -431,7 +431,7 @@ function tp_cloud_shortcode($atts) {
    
    // Filter year
    $options = '';
-   $row_year = get_tp_publication_years( array( 'user' => $user, 'type' => $sort_type ) );
+   $row_year = get_tp_publication_years( array( 'user' => $user, 'type' => $sort_type, 'order' => 'DESC' ) );
    foreach ($row_year as $row) {
       if ($row->year != '0000') {
          $current = $row->year == $yr ? 'selected="selected"' : '' ;
@@ -684,18 +684,17 @@ function tp_search_shortcode ($atts) {
     
     // Define pagelink
     if ( get_option('permalink_structure') ) {
-      $page_link = get_permalink() . "?";
+        $page_link = get_permalink() . "?";
     }
     else {
-      $page_link = get_permalink() . "&amp;";
+        $page_link = get_permalink() . "&amp;";
     }
     
     $r = '';
     $r .= '<form method="get">';
     $r .= '<div class="tp_search_input">';
-    $r .= '<label for="tp_search">' . __('Search') . '</label> ';
-    $r .= '<input name="tps" id="tp_search" title="" type="text" value="' . $search . '"/>';
-    $r .= '<input name="tps_button" type="submit" value="' . __('Go', 'teachpress') . '"/>';
+    $r .= '<input name="tps" id="tp_search" title="" type="text" value="' . $search . '" tabindex="1" size="40"/>';
+    $r .= '<input name="tps_button" type="submit" value="' . __('Search', 'teachpress') . '"/>';
     $r .= '</div>';
     if ( $search != "" ) {
         // get results

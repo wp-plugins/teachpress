@@ -54,20 +54,20 @@ function teachpress_admin_settings() {
               tp_uninstall();
           }
           else {
-              tp_change_settings($all_options);
+              tp_change_options($all_options);
           }
           
           $message = __('Settings are changed. Please note that access changes are visible, until you have reloaded this page a secont time.','teachpress');
           get_tp_message($message);
      }
      if (isset( $_POST['addstud'] ) && $name != __('Add course of studies','teachpress')) {
-           tp_add_setting($name, 'course_of_studies');
+         tp_add_option($name, 'course_of_studies');
      }
      if (isset( $_POST['addtyp'] ) && $typ != __('Add type','teachpress')) {
-           tp_add_setting($typ, 'course_type');
+           tp_add_option($typ, 'course_type');
      }
      if (isset( $_POST['addsem'] ) && $newsem != __('Add term','teachpress')) {
-           tp_add_setting($newsem, 'semester');
+           tp_add_option($newsem, 'semester');
      }
      if ( isset( $_GET['delete'] ) ) {
            tp_delete_setting($_GET['delete']);
@@ -131,8 +131,8 @@ function teachpress_admin_settings() {
                     <th><label for="semester" title="<?php _e('Current term','teachpress'); ?>"><?php _e('Current term','teachpress'); ?></label></th>
                     <td style="vertical-align:middle;"><select name="semester" id="semester" title="<?php _e('Current term','teachpress'); ?>">
                     <?php
-                    $value = get_tp_option('sem');   
-                    $sem = $wpdb->get_results("SELECT setting_id, value FROM $teachpress_settings WHERE category = 'semester' ORDER BY setting_id DESC");
+                    $value = get_tp_option('sem');
+                    $sem = get_tp_options('semester');
                     foreach ($sem as $sem) { 
                         if ($sem->value == $value) {
                             $current = 'selected="selected"' ;
