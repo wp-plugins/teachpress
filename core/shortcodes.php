@@ -312,7 +312,7 @@ function tp_generate_pub_table($tparray, $args ) {
  * 
  *   WARNING: id has been removed with teachPress 4.0.0, please use user instead!
  * 
- * GET-Parameter: $yr (Year, int), $type (Type, string), $author (Author, int)
+ * GET-Parameter: $yr (Year, int), $type (Type, string), $auth (Author, int), $tg (tag id, int)
  * @param array atts
  * @return string
 */
@@ -340,7 +340,7 @@ function tp_cloud_shortcode($atts) {
    $tgid = isset ($_GET['tgid']) ? intval($_GET['tgid']) : '';
    $yr = isset ($_GET['yr']) ? intval($_GET['yr']) : '';
    $type = isset ($_GET['type']) ? htmlspecialchars( $_GET['type'] ) : '';
-   $author = isset ($_GET['author']) ? intval($_GET['author']) : '';
+   $author = isset ($_GET['auth']) ? intval($_GET['auth']) : '';
    
    // if author is set by shortcode parameter
    if ($user != 0) {
@@ -417,7 +417,7 @@ function tp_cloud_shortcode($atts) {
       }
       
       // define url
-      $link_url .= "yr=$yr&amp;type=$type&amp;author=$author" . $settings['html_anchor'];
+      $link_url .= "yr=$yr&amp;type=$type&amp;auth=$author" . $settings['html_anchor'];
       
       $asg .= '<span style="font-size:' . $size . 'px;"><a href="' . $link_url . '" title="' . $link_title . '" class="' . $link_class . '">' . stripslashes($tagcloud['name']) . '</a></span> ';
    }
@@ -435,11 +435,11 @@ function tp_cloud_shortcode($atts) {
    foreach ($row_year as $row) {
       if ($row->year != '0000') {
          $current = $row->year == $yr ? 'selected="selected"' : '' ;
-         $options = $options . '<option value = "' . $permalink . 'tgid=' . $tgid . '&amp;yr=' . $row->year . '&amp;type=' . $type . '&amp;author=' . $author . $settings['html_anchor'] . '" ' . $current . '>' . $row->year . '</option>';
+         $options = $options . '<option value = "' . $permalink . 'tgid=' . $tgid . '&amp;yr=' . $row->year . '&amp;type=' . $type . '&amp;auth=' . $author . $settings['html_anchor'] . '" ' . $current . '>' . $row->year . '</option>';
       }
    }
    $filter1 ='<select name="yr" id="yr" onchange="teachpress_jumpMenu(' . $str . 'parent' . $str . ',this,0)">
-          <option value="' . $permalink . 'tgid=' . $tgid . '&amp;type=' . $type . '&amp;author=' . $author . '' . $settings['html_anchor'] . '">' . __('All years','teachpress') . '</option>' . $options . '</select>';
+          <option value="' . $permalink . 'tgid=' . $tgid . '&amp;type=' . $type . '&amp;auth=' . $author . '' . $settings['html_anchor'] . '">' . __('All years','teachpress') . '</option>' . $options . '</select>';
    // END filter year
 
    // Filter type
@@ -450,10 +450,10 @@ function tp_cloud_shortcode($atts) {
       $options = '';
       foreach ($row as $row) {
           $current = ($row->type == $type && $type != '0') ? 'selected="selected"' : '';
-          $options = $options . '<option value = "' . $permalink . 'tgid=' . $tgid . '&amp;yr=' . $yr . '&amp;type=' . $row->type . '&amp;author=' . $author . $settings['html_anchor'] . '" ' . $current . '>' . tp_translate_pub_type($row->type, 'pl') . '</option>';
+          $options = $options . '<option value = "' . $permalink . 'tgid=' . $tgid . '&amp;yr=' . $yr . '&amp;type=' . $row->type . '&amp;auth=' . $author . $settings['html_anchor'] . '" ' . $current . '>' . tp_translate_pub_type($row->type, 'pl') . '</option>';
       }
       $filter2 ='<span style="padding-left:10px; padding-right:10px;"><select name="type" id="type" onchange="teachpress_jumpMenu(' . $str . 'parent' . $str . ',this,0)">
-                   <option value="' . $permalink . 'tgid=' . $tgid . '&amp;yr=' . $yr . '&amp;author=' . $author . $settings['html_anchor'] . '">' . __('All types','teachpress') . '</option>
+                   <option value="' . $permalink . 'tgid=' . $tgid . '&amp;yr=' . $yr . '&amp;auth=' . $author . $settings['html_anchor'] . '">' . __('All types','teachpress') . '</option>
                          ' . $options . '
                  </select></span>';
    }		   
@@ -475,7 +475,7 @@ function tp_cloud_shortcode($atts) {
          }
          $user_info = get_userdata( $row['user'] );
          if ( $user_info != false ) {
-               $options = $options . '<option value = "' . $permalink . 'tgid=' . $tgid . '&amp;yr=' . $yr . '&amp;type=' . $type . '&amp;author=' . $row['user'] . $settings['html_anchor'] . '" ' . $current . '>' . $user_info->display_name . '</option>';
+               $options = $options . '<option value = "' . $permalink . 'tgid=' . $tgid . '&amp;yr=' . $yr . '&amp;type=' . $type . '&amp;auth=' . $row['user'] . $settings['html_anchor'] . '" ' . $current . '>' . $user_info->display_name . '</option>';
          }
       }  
       $filter3 ='<select name="pub-author" id="pub-author" onchange="teachpress_jumpMenu(' . $str . 'parent' . $str . ',this,0)">
