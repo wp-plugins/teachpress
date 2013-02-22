@@ -22,7 +22,7 @@ function teachpress_import_page() {
 	<h2><?php _e('Publications','teachpress'); ?></h2>
         <h3 class="nav-tab-wrapper"><?php echo '<a href="admin.php?page=teachpress/import.php&amp;tab=import" class="' . $set_menu_1 .'" title="' . __('Import') . '" >' . __('Import') . '</a> <a href="admin.php?page=teachpress/import.php&amp;tab=export" class="' . $set_menu_2 . '" title="' . __('Export') . '">' . __('Export') . '</a>'; ?></h3>
         <?php if ($tab == '' || $tab == 'import') { ?>
-        <p><?php _e("Copy your BibTeX entries in the textarea. Restrictions: teachPress can't converting LaTeX special chars as well as not numeric month and day attributes.","teachpress"); ?></p>
+        <p><?php _e("Copy your BibTeX entries in the textarea. Restrictions: teachPress can't convert not numeric month and day attributes.","teachpress"); ?></p>
 	<form id="tp_import" name="tp_import" action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post">
 	<input type="hidden" name="page" value="teachpress/import.php"/>
         <table class="form-table">

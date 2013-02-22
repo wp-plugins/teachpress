@@ -41,7 +41,7 @@ function tp_send_notification($code, $wp_id, $name) {
     global $teachpress_stud;
     if ( $code == 201 || $code == 202 ) {
         // Send user an E-Mail and return a message
-        $to = $wpdb->get_var("SELECT `email` FROM " . $teachpress_stud . " WHERE `wp_id` = '$wp_id'");
+        $to = $wpdb->get_var("SELECT `email` FROM $teachpress_stud WHERE `wp_id` = '$wp_id'");
         if ( $code == 201 ) {
             $subject = '[' . get_bloginfo('name') . '] ' . __('Registration','teachpress');
             $message = __('Your Registration for the following course was successful:','teachpress') . chr(13) . chr(10);

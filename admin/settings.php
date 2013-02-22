@@ -277,22 +277,22 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
                  <?php
                  $val = get_tp_option('regnum') == '1' ? ' checked="checked"' : '';
                  ?>
-                <input name="matriculation_number_field" id="matriculation_number_field" type="checkbox"<?php echo $check; ?> value="1" /> <label for="matriculation_number_field"><?php _e('Matr. number','teachpress'); ?></label><br />
+                <input name="matriculation_number_field" id="matriculation_number_field" type="checkbox"<?php echo $val; ?> value="1" /> <label for="matriculation_number_field"><?php _e('Matr. number','teachpress'); ?></label><br />
                 <input name="firstname_field" type="checkbox" checked="checked" disabled="disabled" /> <?php _e('First name','teachpress'); ?><br />
                 <input name="lastname_field" type="checkbox" checked="checked" disabled="disabled" /> <?php _e('Last name','teachpress'); ?><br />
                 <?php
                  $val = get_tp_option('studies') == '1' ? ' checked="checked"' : '';
                  ?>
-                <input name="course_of_studies_field" id="course_of_studies_field" type="checkbox"<?php echo $check; ?> value="1" /> <label for="course_of_studies_field"><?php _e('Course of studies','teachpress'); ?></label><br />
+                <input name="course_of_studies_field" id="course_of_studies_field" type="checkbox"<?php echo $val; ?> value="1" /> <label for="course_of_studies_field"><?php _e('Course of studies','teachpress'); ?></label><br />
                 <?php
                  $val = get_tp_option('termnumber') == '1' ? ' checked="checked"' : '';
                  ?>
-                <input name="semesternumber_field" id="semesternumber_field" type="checkbox"<?php echo $check; ?> value="1" /> <label for="semesternumber_field"><?php _e('Number of terms','teachpress'); ?></label><br />
+                <input name="semesternumber_field" id="semesternumber_field" type="checkbox"<?php echo $val; ?> value="1" /> <label for="semesternumber_field"><?php _e('Number of terms','teachpress'); ?></label><br />
                 <input name="nutzerkuerzel_field" type="checkbox" checked="checked" disabled="disabled" /> <?php _e('User account','teachpress'); ?><br />
                 <?php
                  $val = get_tp_option('birthday') == '1' ? ' checked="checked"' : '';
                  ?>
-                <input name="birthday_field" id="birthday_field" type="checkbox"<?php echo $check; ?> value="1" /> <label for="birthday_field"><?php _e('Date of birth','teachpress'); ?></label><br />
+                <input name="birthday_field" id="birthday_field" type="checkbox"<?php echo $val; ?> value="1" /> <label for="birthday_field"><?php _e('Date of birth','teachpress'); ?></label><br />
                 <input name="email_field" type="checkbox" checked="checked" disabled="disabled" /> <?php _e('E-Mail'); ?><br />
                 </td>
                 <td><?php _e('Define which fields for the registration form you will use. Some are required.','teachpress'); ?></td>

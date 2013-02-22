@@ -72,6 +72,11 @@ class tp_bibtex {
                 }
             }
         }
+        // Add month
+        if ( $row['type'] == 'booklet' ) {
+            $date = tp_datesplit( $row['date'] );
+            $string = $string . 'month = {' . $date[0][1] . '},' . chr(13) . chr(10);
+        }
         // Add keywords
         if ( $all_tags != '' ) {
             $keywords = '';
@@ -93,11 +98,11 @@ class tp_bibtex {
 
     /**
      * Get a single publication in html format
-     * @param array $row
-     * @param array $all_tags
-     * @param array $url
-     * @param array $settings
-     * @param int $tpz
+     * @param array $row        --> the publication array
+     * @param array $all_tags   --> array of tags
+     * @param array $url        --> the URL of the page on which the publication will be displayed
+     * @param array $settings   --> array of settings
+     * @param int $tpz          --> the counter for numbered publications (default: 0)
      * @return string
      * @since 3.0.0
     */
@@ -149,8 +154,8 @@ class tp_bibtex {
         }
 
         // parse author names
-        if ( $row['type'] == 'collection' ) {
-            $all_authors = tp_bibtex::parse_author($row['editor'], $settings['author_name'] );
+        if ( $row['type'] == 'collection' || ( $row['type'] == 'article' && $row['author'] == '' && $row['editor'] != '' ) ) {
+            $all_authors = tp_bibtex::parse_author($row['editor'], $settings['author_name'] ) . ' (' . __('Ed.','teachpress') . ')';
         }
         else {
             $all_authors = tp_bibtex::parse_author($row['author'], $settings['author_name'] );
@@ -164,7 +169,7 @@ class tp_bibtex {
         $abstract = '';
         $url = '';
 
-        // if is abstract
+        // if is an abstract
         if ( $row['abstract'] != '' ) {
             $abstract = '<a id="tp_abstract_sh_' . $row['pub_id'] . '" class="tp_show" onclick="teachpress_pub_showhide(' . $str . $row['pub_id'] . $str . ',' . $str . 'tp_abstract' . $str . ')" title="' . __('Show abstract','teachpress') . '" style="cursor:pointer;">' . __('Abstract','teachpress') . '</a> | ';
         }
@@ -266,6 +271,15 @@ class tp_bibtex {
             $isbn = '';
         }
         
+        // for urldate
+        if ( isset( $row['urldate'] ) ) {
+             $row['urldate'] = ( array_key_exists('date_format', $settings) === true ) ? date( $settings['date_format'], strtotime($row['urldate']) ) : $row['urldate'];
+            $urldate = tp_bibtex::prepare_html_line($row['urldate'],', ' . __('visited','teachpress') . ': ','');
+        }
+        else {
+            $urldate = '';
+        }
+        
         // isset() doesn't work for $editor
         $editor = $row['editor'] != '' ? tp_bibtex::parse_author($row['editor'], $settings['editor_name']) . ' (' . __('Ed.','teachpress') . '): ' : '';
         $pages = isset( $row['pages'] ) ? tp_bibtex::prepare_html_line( tp_bibtex::prepare_page_number($row['pages']) , __('Page(s)','teachpress') . ': ',', ') : '';
@@ -277,69 +291,70 @@ class tp_bibtex {
         $publisher = isset( $row['publisher'] ) ? tp_bibtex::prepare_html_line($row['publisher'],'',', ') : '';
         $address = isset( $row['address'] ) ? tp_bibtex::prepare_html_line($row['address'],'',', ') : '';
         $edition = isset( $row['edition'] ) ? tp_bibtex::prepare_html_line($row['edition'],'',', ') : '';
-        $chapter = isset( $row['chapter'] ) ? tp_bibtex::prepare_html_line($row['chapter'],'',', ') : '';
+        $chapter = isset( $row['chapter'] ) ? tp_bibtex::prepare_html_line($row['chapter'],' ' . __('Chapter','teachpress') . ' ',', ') : '';
         $institution = isset( $row['institution'] ) ? tp_bibtex::prepare_html_line($row['institution'],'',' ') : '';
         $organization = isset( $row['organization'] ) ? tp_bibtex::prepare_html_line($row['organization'],'',' ') : '';
         $school = isset( $row['school'] ) ? tp_bibtex::prepare_html_line($row['school'],'',', ') : '';
         $series = isset( $row['series'] ) ? tp_bibtex::prepare_html_line($row['series'],'',' ') : '';
-        $howpublished = isset( $row['howpublished'] ) ? tp_bibtex::prepare_html_line($row['howpublished'],'',' ') : '';
-        $techtype = isset( $row['techtype'] ) ? tp_bibtex::prepare_html_line($row['techtype'],'',' ') : '';
-        $urldate = isset( $row['urldate'] ) ? tp_bibtex::prepare_html_line($row['urldate'],', ' . __('visited','teachpress') . ': ','') : '';
+        $howpublished = isset( $row['howpublished'] ) ? tp_bibtex::prepare_html_line($row['howpublished'],'',', ') : '';
+        $techtype = isset( $row['techtype'] ) ? tp_bibtex::prepare_html_line($row['techtype'],'',', ') : '';
+        $note = isset( $row['techtype'] ) ? tp_bibtex::prepare_html_line($row['note'],'',', ') : '';
 
         // end format after type
         if ($row['type'] == 'article') {
-            $end = $journal . $volume . $number . $pages . $year . $isbn . '.';
+            $end = $journal . $volume . $number . $pages . $note . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'book') {
-            $end = $edition . $publisher . $address . $year . $isbn . '.';
+            $end = $edition . $publisher . $address . $note . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'booklet') {
-            $end = $howpublished . $address . $edition . $year . $isbn . '.';
+            $end = $howpublished . $address . $edition . $note . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'collection') {
-            $end = $edition . $publisher . $address . $year . $isbn . '.';
+            $end = $edition . $publisher . $address . $note . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'conference') {
-            $end = $booktitle . $year . $volume . $number . $series . $organization . $publisher . $address . $isbn . '.';
+            $end = $booktitle . $volume . $number . $series . $organization . $publisher . $address . $note . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'inbook') {
-            $end = $editor . $booktitle . $volume . $number . $pages . $publisher . $address . $edition . $year . $isbn . '.';
+            $end = $editor . $booktitle . $volume . $number . $chapter . $pages . $publisher . $address . $edition . $note . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'incollection') {
-            $end = $editor . $booktitle . $volume . $number . $pages . $publisher . $address . $year . $isbn . '.';
+            $end = $editor . $booktitle . $volume . $number . $pages . $publisher . $address . $note . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'inproceedings') {
-            $end = $editor . $booktitle . $pages . $organization . $publisher . $address . $year . $isbn . '.';
+            $end = $editor . $booktitle . $pages . $organization . $publisher . $address . $note . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'manual') {
-            $end = $editor . $organization . $address. $edition . $year . $isbn . '.';
+            $end = $editor . $organization . $address. $edition . $note . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'mastersthesis') {
-            $end = $school . $year . $isbn . '.';
+            $end = $school . $note . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'misc') {
-            $end = $journal . $volume . $howpublished . $year . $isbn . '.';
+            $end = $journal . $volume . $howpublished . $note . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'online') {
-            $end = $editor . $organization . $year . $urldate . '.';
+            $end = $editor . $organization . $note . $year . $urldate . '.';
         }
         elseif ($row['type'] == 'phdthesis') {
-            $end = $school . $year . $isbn . '.';
+            $end = $school . $note . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'presentation') {
-            $end = $howpublished . $row['address'] . '.';
+            $date = ( array_key_exists('date_format', $settings) === true ) ? ', ' . date( $settings['date_format'], strtotime($row['date']) ) . '' : '';
+            $end = $howpublished . $row['address'] . $note . $date . '.';
         }
         elseif ($row['type'] == 'proceedings') {
-            $end = $howpublished . $organization. $publisher. $address . $edition . $year . $isbn . '.';
+            $end = $howpublished . $organization. $publisher. $address . $edition . $note . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'techreport') {
-            $end = $school . $institution . $address . $number . $year . $isbn . '.';
+            $end = $institution . $address . $techtype . $number . $note . $year . $isbn . '.';
         }
         elseif ($row['type'] == 'unpublished') {
-            $end = $year . $isbn . '.';
+            $end = $note . $year . $isbn . '.';
         }
         else {
-            $end = $row['year'] . '.';
+            $end = $note . $year . '.';
         }
         $end = stripslashes($end);
         return $end;
@@ -366,8 +381,9 @@ class tp_bibtex {
         list($preamble, $strings, $entries, $undefinedStrings) = $parse->returnArrays();
         if ( $test === false ) {
             echo '<p><strong>' . __('Imported Publications:','teachpress') . '</strong></p>';
-        }    
-        for ($i = 0; $i < count($entries); $i++) {
+        }
+        $max = count( $entries );
+        for ( $i = 0; $i < $max; $i++ ) {
             $number = $i + 1;
             $entries[$i]['date'] = array_key_exists('date', $entries[$i]) == true ? $entries[$i]['date'] : '';
             $entries[$i]['keywords'] = array_key_exists('keywords', $entries[$i]) == true ? $entries[$i]['keywords'] : '';
@@ -428,12 +444,16 @@ class tp_bibtex {
             else {
                 $entries[$i]['is_isbn'] = 1;
             }
-            // add in database
+            // rename to teachPress keys
             $entries[$i]['type'] = $entries[$i]['bibtexEntryType'];
             $entries[$i]['bibtex'] = $entries[$i]['bibtexCitation'];
             // handle export data from teachPress
             if ( isset( $entries[$i]['tppubtype'] ) ) {
                 $entries[$i]['type'] = $entries[$i]['tppubtype'];
+            }
+            // replace the last bibtex chars
+            foreach ($entries[$i] as $key => $value) {
+                $entries[$i][$key] = str_replace(array('{','}'), array('',''), $value);
             }
             if ( $test === false ) {
                 $new_entry = tp_add_publication($entries[$i], $tags, '');
@@ -482,49 +502,58 @@ class tp_bibtex {
     public static function replace_bibtex_chars ($input) {
         // return the input if there are no bibtex chars
         if ( strpos( $input,'\\' ) === false && strpos($input,'{') === false ) { return $input; }
-        
-        $input = str_replace(chr(92),'',$input);
+        // Step 1: Chars which based on a combination of two chars, delete escapes
+        $array_a = array('\ss','\O','\o','\AE','\ae','\OE','\oe','\textendash','\textemdash',chr(92));
+        $array_b = array('ß','Ø','ø','Æ','æ','Œ','œ','–','—','');
+        $input = str_replace( $array_a , $array_b ,$input);
+        // Step 2: All over special chars 
         $array_1 = array('"{a}','"{A}','`{a}','`{A}',"'{a}","'{A}",'~{a}','~{A}','={a}','={A}','^{a}','^{A}','.{a}','.{A}','u{a}','u{A}','k{a}','k{A}','r{a}','r{A}',
                          '.{b}','.{B}',
-                         "'{c}","'{C}",'v{c}','v{C}','c{c}','c{C}','.{c}','.{C}',
-                         'v{d}','v{D}','.{d}','.{D}','{d}','{D}',
+                         "'{c}","'{C}",'v{c}','v{C}','c{c}','c{C}','.{c}','.{C}','^{c}','^{C}',
+                         'v{d}','v{D}','.{d}','.{D}','d{d}','d{D}','{d}','{D}',
                          '"{e}','"{E}',"'{e}","'{E}",'`{e}','`{E}','^{e}','^{E}','u{e}','u{E}','v{e}','v{E}','={e}','={E}','k{e}','k{E}','.{e}','.{E}',
                          '.{f}','.{F}',
-                         'u{g}','u{G}','c{g}','c{G}','.{g}','.{G}',
-                         '.{h}','.{H}','{h}','{H}',
+                         'u{g}','u{G}','c{g}','c{G}','.{g}','.{G}','^{g}','^{G}',
+                         '.{h}','.{H}','d{h}','d{H}','^{h}','^{H}','{h}','{H}',
                          '"{i}','"{I}','~{i}','~{I}','`{i}','`{I}',"'{i}","'{I}",'^{i}','^{I}','u{i}','u{I}','={i}','={I}','k{i}','k{I}','.{i}','.{I}',
-                         'c{k}','c{K}',
-                         "'{l}","'{L}",'v{l}','v{L}','c{l}','c{L}',
-                         '.{m}','.{M}',
+                         '^{j}','^{J}',
+                         'c{k}','c{K}','d{k}','d{K}',
+                         "'{l}","'{L}",'v{l}','v{L}','c{l}','c{L}','d{l}','d{L}',
+                         '.{m}','.{M}','d{m}','d{M}',
                          "'{n}","'{N}",'~{n}','~{N}','v{n}','v{N}','c{n}','c{N}','.{n}','.{N}',
-                         '"{o}','"{O}','`{o}','`{O}',"'{o}","'{O}",'~{o}','~{O}','^{o}','^{O}','u{o}','u{O}','.{o}','={o}','={O}','H{o}',
+                         '"{o}','"{O}','`{o}','`{O}',"'{o}","'{O}",'~{o}','~{O}','^{o}','^{O}','u{o}','u{O}','.{o}','.{O}','={o}','={O}','H{o}','H{O}',
                          '.{p}','.{P}',
-                         "'{r}","'{R}",'v{r}','v{R}','c{r}','c{R}','.{r}','.{R}',
-                         "'{s}","'{S}",'v{s}','v{S}','c{s}','c{S}','.{s}','.{S}','{ss}',
-                         'v{t}','v{T}','c{t}','c{T}','.{t}','.{T}','{t}','{T}',
-                         '"{u}','"{U}','`{u}','`{U}',"'{u}","'{U}",'^{u}','^{U}','d{u}','d{U}','~{u}','~{U}','u{u}','u{U}','={u}','={U}','k{u}','k{U}','r{u}','r{U}',
-                         '"{y}','"{Y}',"'{y}","'{Y}",
+                         "'{r}","'{R}",'v{r}','v{R}','c{r}','c{R}','.{r}','.{R}','d{r}','d{R}',
+                         "'{s}","'{S}",'v{s}','v{S}','c{s}','c{S}','.{s}','.{S}','d{s}','d{S}','^{s}','^{S}',
+                         'v{t}','v{T}','c{t}','c{T}','.{t}','.{T}','d{t}','d{T}','{t}','{T}',
+                         '"{u}','"{U}','`{u}','`{U}',"'{u}","'{U}",'^{u}','^{U}','d{u}','d{U}','~{u}','~{U}','u{u}','u{U}','={u}','={U}','k{u}','k{U}','r{u}','r{U}','H{u}','H{U}',
+                         'd{v}','d{V}',
+                         '^{w}','^{W}',
+                         '"{y}','"{Y}',"'{y}","'{Y}",'^{y}','^{Y}',
                          "'{z}","'{Z}",'v{z}','v{Z}','.{z}','.{Z}');
         $array_2 = array('ä','Ä','à','À','á','Á','ã','Ã','ā','Ā','â','Â','å','Å','ă','Ă','ą','Ą','å','Å',
                          'ḃ','Ḃ',
-                         'ć','Ć','č','Č','ç','Ç','ċ','Ċ',
-                         'ď','Ď','ḋ','Ḋ','đ','Đ',
+                         'ć','Ć','č','Č','ç','Ç','ċ','Ċ','ĉ','Ĉ',
+                         'ď','Ď','ḋ','Ḋ','ḍ','Ḍ','đ','Đ',
                          'ë','Ë','é','É','è','È','ê','Ê','ĕ','Ĕ','ě','Ě','ē','Ē','ę','Ę','ė','Ė',
                          'ḟ','Ḟ',
-                         'ğ','Ğ','ģ','Ģ','ġ','Ġ',
-                         'ḣ','Ḣ','ħ','Ħ',
+                         'ğ','Ğ','ģ','Ģ','ġ','Ġ','ĝ','Ĝ',
+                         'ḣ','Ḣ','ḥ','Ḥ','ĥ','Ĥ','ħ','Ħ',
                          'ï','Ï','ĩ','Ĩ','ì','Ì','í','Í','î','Î','ĭ','Ĭ','ī','Ī','į','Į','i','İ',
-                         'ķ','Ķ',
-                         'ĺ','Ĺ','ľ','Ľ','ļ','Ļ',
-                         'ṁ','Ṁ',
+                         'ĵ','Ĵ',
+                         'ķ','Ķ','ḳ','Ḳ',
+                         'ĺ','Ĺ','ľ','Ľ','ļ','Ļ','ḷ','Ḷ',
+                         'ṁ','Ṁ','ṃ','Ṃ',
                          'ń','Ń','ñ','Ñ','ň','Ň','ņ','Ņ','ṅ','Ṅ',
-                         'ö','Ö','ò','Ò','ó','Ó','õ','Õ','ô','Ô','ŏ','Ŏ','ȯ','ō','Ō','ő',
+                         'ö','Ö','ò','Ò','ó','Ó','õ','Õ','ô','Ô','ŏ','Ŏ','ȯ','Ȯ','ō','Ō','ő','Ő',
                          'ṗ','Ṗ',
-                         'ŕ','Ŕ','ř','Ř','ŗ','Ŗ','ṙ','Ṙ',
-                         'ś','Ś','š','Š','ş','Ş','ṡ','Ṡ','ß',
-                         'ť','Ť','ţ','Ţ','ṫ','Ṫ','ŧ','Ŧ',
-                         'ü','Ü','ù','Ù','ú','Ú','û','Û','ụ','Ụ','ũ','Ũ','ŭ','Ŭ','ū','Ū','ų','Ų','ů','Ů',
-                         'ÿ','Ÿ','ý','Ý',
+                         'ŕ','Ŕ','ř','Ř','ŗ','Ŗ','ṙ','Ṙ','ṛ','Ṛ',
+                         'ś','Ś','š','Š','ş','Ş','ṡ','Ṡ','ṣ','Ṣ','ŝ','Ŝ',
+                         'ť','Ť','ţ','Ţ','ṫ','Ṫ','ṭ','Ṭ','ŧ','Ŧ',
+                         'ü','Ü','ù','Ù','ú','Ú','û','Û','ụ','Ụ','ũ','Ũ','ŭ','Ŭ','ū','Ū','ų','Ų','ů','Ů','ű','Ű',
+                         'ṿ','Ṿ',
+                         'ŵ','Ŵ',
+                         'ÿ','Ÿ','ý','Ý','ŷ','Ŷ',
                          'ź','Ź','ž','Ž','ż','Ż');
         $return = str_replace($array_1, $array_2, $input);
         return htmlspecialchars($return);

@@ -219,7 +219,8 @@ function tp_add_publication($data, $tags, $bookmark) {
      $pub_ID = $wpdb->insert_id;
      // Bookmarks
      if ( $bookmark != '' ) {
-        for( $i = 0; $i < count( $bookmark ); $i++ ) {
+        $max = count( $bookmark );
+        for( $i = 0; $i < $max; $i++ ) {
            if ($bookmark[$i] != '' || $bookmark[$i] != 0) {
                tp_add_bookmark($pub_ID, $bookmark[$i]);
            }
@@ -280,7 +281,8 @@ function tp_change_publication($pub_ID, $data, $bookmark, $delbox, $tags) {
     $wpdb->update( $teachpress_pub, array( 'title' => $data['title'], 'type' => $data['type'], 'bibtex' => $data['bibtex'], 'author' => $data['author'], 'editor' => $data['editor'], 'isbn' => $data['isbn'], 'url' => $data['url'], 'date' => $data['date'], 'urldate' => $data['urldate'], 'booktitle' => $data['booktitle'], 'journal' => $data['journal'], 'volume' => $data['volume'], 'number' => $data['number'], 'pages' => $data['pages'] , 'publisher' => $data['publisher'], 'address' => $data['address'], 'edition' => $data['edition'], 'chapter' => $data['chapter'], 'institution' => $data['institution'], 'organization' => $data['organization'], 'school' => $data['school'], 'series' => $data['series'], 'crossref' => $data['crossref'], 'abstract' => $data['abstract'], 'howpublished' => $data['howpublished'], 'key' => $data['key'], 'techtype' => $data['techtype'], 'comment' => $data['comment'], 'note' => $data['note'], 'image_url' => $data['image_url'], 'is_isbn' => $data['is_isbn'], 'rel_page' => $data['rel_page'] ), array( 'pub_id' => $pub_ID ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ,'%d', '%d' ), array( '%d' ) );
     // Bookmarks
     if ($bookmark != '') {
-        for( $i = 0; $i < count( $bookmark ); $i++ ) {
+        $max = count( $bookmark );
+        for( $i = 0; $i < $max; $i++ ) {
             if ($bookmark[$i] != '' || $bookmark[$i] != 0) {
                 tp_add_bookmark($pub_ID, $bookmark[$i]);
             }
@@ -1009,7 +1011,8 @@ function tp_move_signup($checkbox, $course) {
     global $teachpress_signup;
     if ( $checkbox == '' ) { return false; }
     $course = intval($course);
-    for ( $i = 0; $i < count($checkbox); $i++ ) {
+    $max = count($checkbox);
+    for ( $i = 0; $i < $max; $i++ ) {
         $checkbox[$i] = intval($checkbox[$i]);
         if ( $checkbox[$i] != 0 && $course != 0) {
             $wpdb->update( $teachpress_signup, array ('course_id' => $course), array( 'con_id' => $checkbox[$i] ), array('%d'), array('%d') );
@@ -1030,7 +1033,8 @@ function tp_delete_signup($checkbox, $move_up = true) {
     if ( $checkbox == '' ) {
         return false;
     }
-    for( $i = 0; $i < count( $checkbox ); $i++ ) {
+    $max = count( $checkbox );
+    for( $i = 0; $i < $max; $i++ ) {
         $checkbox[$i] = intval($checkbox[$i]);
         if ( $move_up == true ) {
             $row1 = $wpdb->get_results("SELECT `course_id` FROM $teachpress_signup WHERE `con_id` = '$checkbox[$i]'");
@@ -1059,7 +1063,8 @@ function tp_change_signup_status($checkbox, $status = 'course') {
     global $teachpress_signup;
     if ( $checkbox == '' ) { return false; }
     $status = $status == 'course' ? 0 : 1;
-    for( $i = 0; $i < count( $checkbox ); $i++ ) {
+    $max = count( $checkbox );
+    for( $i = 0; $i < $max; $i++ ) {
         $checkbox[$i] = intval($checkbox[$i]);
         $wpdb->update( $teachpress_signup, array ( 'waitinglist' => $status ), array ( 'con_id' => $checkbox[$i] ), array ( '%d'), array ( '%d' ) );
     }

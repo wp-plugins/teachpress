@@ -220,7 +220,12 @@ function teachpress_publications_page() {
                   echo '</td>';
                   echo '<td>' . $row->pub_id . '</td>';
                   echo '<td>' . tp_translate_pub_type($row->type) . '</td>';
-                  echo '<td>' . stripslashes( str_replace(' and ', ', ', $row->author) ) . '</td>';
+                  if ( $row->type == 'collection' || ( $row->author == '' && $row->editor != '' ) ) {
+                     echo '<td>' . stripslashes( str_replace(' and ', ', ', $row->editor) ) . ' (' . __('Ed.','teachpress') . ')</td>';
+                  }
+                  else {
+                     echo '<td>' . stripslashes( str_replace(' and ', ', ', $row->author) ) . '</td>';
+                  }
                   echo '<td>';
                   // Tags
                   $tag_string = '';

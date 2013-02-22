@@ -441,8 +441,8 @@ function teachpress_addpublications_page() {
              else { $display = 'style="display:none;"';}
              ?>
              <div id="div_techtype" <?php echo $display; ?>>
-             <p><label for="techtype" title="<?php _e('The type of a technical report.','teachpress'); ?>"><strong><?php _e('Type'); ?></strong></label></p>
-             <input name="techtype" id="techtype" type="text" title="<?php _e('The type of a technical report.','teachpress'); ?>" value="<?php echo stripslashes($daten["techtype"]); ?>" tabindex="23" />
+             <p><label for="techtype" title="<?php _e('The type of a technical report, thesis, incollection or inbook.','teachpress'); ?>"><strong><?php _e('Type'); ?></strong></label></p>
+             <input name="techtype" id="techtype" type="text" title="<?php _e('The type of a technical report, thesis, incollection or inbook.','teachpress'); ?>" value="<?php echo stripslashes($daten["techtype"]); ?>" tabindex="23" />
              </div>
              <div id="div_isbn">
              <p><label for="isbn" title="<?php _e('The ISBN or ISSN of the publication','teachpress'); ?>"><strong><?php _e('ISBN/ISSN','teachpress'); ?></strong></label></p>
