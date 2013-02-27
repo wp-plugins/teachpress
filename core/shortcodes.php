@@ -68,7 +68,7 @@ function tp_courselist_shortcode($atts) {
                <form name="lvs" method="get" action="' . $_SERVER['REQUEST_URI'] . '">
                ' . $page . '		
                <div class="tp_auswahl"><label for="semester">' . __('Select the term','teachpress') . '</label> <select name="semester" id="semester" title="' . __('Select the term','teachpress') . '">';
-    $rowsem = get_tp_settings('semester');
+    $rowsem = get_tp_options('semester');
     foreach($rowsem as $rowsem) { 
        if ($rowsem->value == $sem) {
           $current = 'selected="selected"' ;
@@ -204,8 +204,10 @@ function tp_date_shortcode($attr) {
  * Shorcode for a single publication
  * 
  * possible values of $atts:
- *  id              --> id of the publication
- *  author_name     --> last, initials or old, default: old
+ *  id (INT)                --> id of the publication
+ *  author_name (STRING)    --> last, initials or old, default: simple
+ *  author_name (STRING)    --> last, initials or old, default: last
+ *  date_format (STRING)    --> the format for date; needed for the types: presentations, online; default: d.m.Y
  * 
  * @param array $atts
  * @return string
@@ -215,14 +217,18 @@ function tp_single_shortcode ($atts) {
     extract(shortcode_atts(array(
        'id' => 0,
        'author_name' => 'simple',
-       'editor_name' => 'last'
+       'editor_name' => 'last',
+       'date_format' => 'd.m.Y'
     ), $atts));
 
-    $settings['$author_name'] = htmlspecialchars($author_name);
-    $settings['editor_name'] = htmlspecialchars($editor_name);
-
+    $settings = array(
+       'author_name' => htmlspecialchars($author_name),
+       'editor_name' => htmlspecialchars($editor_name),
+       'date_format' => htmlspecialchars($date_format)
+    );
+    
     $publication = get_tp_publication($id, ARRAY_A);
-    $author = tp_bibtex::parse_author($publication['author'], $settings['$author_name']);
+    $author = tp_bibtex::parse_author($publication['author'], $settings['author_name']);
 
     $asg = '<div class="tp_single_publication"><span class="tp_single_author">' . stripslashes($author) . '</span> (<span class="tp_single_year">' . $publication['year'] . '</span>): <span class="tp_single_title">' . stripslashes($publication['title']) . '</span>, <span class="tp_single_additional">' . tp_bibtex::single_publication_meta_row($publication, $settings) . '</span></div>';
     return $asg;
@@ -232,9 +238,9 @@ function tp_single_shortcode ($atts) {
  * Sort the table lines of a publication table
  * @param array $tparray
  * @param array $args
- * @param STRING $line_title
- * @param STRING $line_name
- * @return STRING 
+ * @param string $line_title
+ * @param string $line_name
+ * @return string 
  * @since 4.0.0
  * @version 2
  */
@@ -280,7 +286,8 @@ function tp_generate_pub_table($tparray, $args ) {
     }
     if ( $args['headline'] == 2 ) {
         $pub_types = get_tp_publication_types();
-        for ( $j = 1; $j < count($pub_types); $j++ ) {
+        $max = count($pub_types);
+        for ( $j = 1; $j < $max; $j++ ) {
             $pubs = $pubs . tp_sort_pub_table($tparray, $args, $pub_types[$j][2], $pub_types[$j][0]);
         }
     }
@@ -294,25 +301,26 @@ function tp_generate_pub_table($tparray, $args ) {
  * Publication list with tag cloud
  * 
  * Parameters for the array $atts:
- *   user (INT)             => the id of on or more users (separated by comma)
- *   type (STRING)          => the publication types you want to show (separated by comma)
- *   exclude (INT)          => one or more IDs of publications you don't want to show (separated by comma)
- *   order (STRING)         => name, year, bibtex or type, default: date DESC
- *   headline (INT)         => show headlines with years(1) with publication types(2) or not(0), default: 1
- *   maxsize (INT)          => maximal font size for the tag cloud, default: 35
- *   minsize (INT)          => minimal font size for the tag cloud, default: 11
- *   limit (INT)            => Number of tags, default: 30
- *   image (STRING)         => none, left, right or bottom, default: none 
- *   image_size (INT)       => max. Image size, default: 0
- *   anchor (INT)           => 0 (false) or 1 (true), default: 1
- *   author_name (STRING)   => simple, last, initials or old, default: last
- *   editor_name (STRING)   => simple, last, initials or old, default: last
- *   style (STRING)         => simple or std, default: std
- *   link_style (STRING)    => inline or images, default: inline
+ *   user (INT)             --> the id of on or more users (separated by comma)
+ *   type (STRING)          --> the publication types you want to show (separated by comma)
+ *   exclude (INT)          --> one or more IDs of publications you don't want to show (separated by comma)
+ *   order (STRING)         --> name, year, bibtex or type, default: date DESC
+ *   headline (INT)         --> show headlines with years(1) with publication types(2) or not(0), default: 1
+ *   maxsize (INT)          --> maximal font size for the tag cloud, default: 35
+ *   minsize (INT)          --> minimal font size for the tag cloud, default: 11
+ *   limit (INT)            --> Number of tags, default: 30
+ *   image (STRING)         --> none, left, right or bottom, default: none 
+ *   image_size (INT)       --> max. Image size, default: 0
+ *   anchor (INT)           --> 0 (false) or 1 (true), default: 1
+ *   author_name (STRING)   --> simple, last, initials or old, default: last
+ *   editor_name (STRING)   --> simple, last, initials or old, default: last
+ *   style (STRING)         --> simple or std, default: std
+ *   link_style (STRING)    --> inline or images, default: inline
+ *   date_format (STRING)   --> the format for date; needed for the types: presentations, online; default: d.m.Y
  * 
  *   WARNING: id has been removed with teachPress 4.0.0, please use user instead!
  * 
- * GET-Parameter: $yr (Year, int), $type (Type, string), $author (Author, int)
+ * GET-Parameter: $yr (Year, int), $type (Type, string), $auth (Author, int), $tg (tag id, int)
  * @param array atts
  * @return string
 */
@@ -332,7 +340,8 @@ function tp_cloud_shortcode($atts) {
       'author_name' => 'last',
       'editor_name' => 'last',
       'style' => 'std',
-      'link_style' => 'inline'
+      'link_style' => 'inline',
+      'date_format' => 'd.m.Y',
    ), $atts));
    $user = intval($user);
    $sort_type = htmlspecialchars($type);
@@ -340,7 +349,7 @@ function tp_cloud_shortcode($atts) {
    $tgid = isset ($_GET['tgid']) ? intval($_GET['tgid']) : '';
    $yr = isset ($_GET['yr']) ? intval($_GET['yr']) : '';
    $type = isset ($_GET['type']) ? htmlspecialchars( $_GET['type'] ) : '';
-   $author = isset ($_GET['author']) ? intval($_GET['author']) : '';
+   $author = isset ($_GET['auth']) ? intval($_GET['auth']) : '';
    
    // if author is set by shortcode parameter
    if ($user != 0) {
@@ -363,7 +372,8 @@ function tp_cloud_shortcode($atts) {
        'image' => htmlspecialchars($image),
        'with_tags' => 1,
        'link_style' => htmlspecialchars($link_style),
-       'html_anchor' => $anchor == '1' ? '#tppubs' : ''
+       'html_anchor' => $anchor == '1' ? '#tppubs' : '',
+       'date_format' => htmlspecialchars($date_format)
    );
    
    // Permalinks
@@ -417,7 +427,7 @@ function tp_cloud_shortcode($atts) {
       }
       
       // define url
-      $link_url .= "yr=$yr&amp;type=$type&amp;author=$author" . $settings['html_anchor'];
+      $link_url .= "yr=$yr&amp;type=$type&amp;auth=$author" . $settings['html_anchor'];
       
       $asg .= '<span style="font-size:' . $size . 'px;"><a href="' . $link_url . '" title="' . $link_title . '" class="' . $link_class . '">' . stripslashes($tagcloud['name']) . '</a></span> ';
    }
@@ -431,15 +441,15 @@ function tp_cloud_shortcode($atts) {
    
    // Filter year
    $options = '';
-   $row_year = get_tp_publication_years( array( 'user' => $user, 'type' => $sort_type ) );
+   $row_year = get_tp_publication_years( array( 'user' => $user, 'type' => $sort_type, 'order' => 'DESC' ) );
    foreach ($row_year as $row) {
       if ($row->year != '0000') {
          $current = $row->year == $yr ? 'selected="selected"' : '' ;
-         $options = $options . '<option value = "' . $permalink . 'tgid=' . $tgid . '&amp;yr=' . $row->year . '&amp;type=' . $type . '&amp;author=' . $author . $settings['html_anchor'] . '" ' . $current . '>' . $row->year . '</option>';
+         $options = $options . '<option value = "' . $permalink . 'tgid=' . $tgid . '&amp;yr=' . $row->year . '&amp;type=' . $type . '&amp;auth=' . $author . $settings['html_anchor'] . '" ' . $current . '>' . $row->year . '</option>';
       }
    }
    $filter1 ='<select name="yr" id="yr" onchange="teachpress_jumpMenu(' . $str . 'parent' . $str . ',this,0)">
-          <option value="' . $permalink . 'tgid=' . $tgid . '&amp;type=' . $type . '&amp;author=' . $author . '' . $settings['html_anchor'] . '">' . __('All years','teachpress') . '</option>' . $options . '</select>';
+          <option value="' . $permalink . 'tgid=' . $tgid . '&amp;type=' . $type . '&amp;auth=' . $author . '' . $settings['html_anchor'] . '">' . __('All years','teachpress') . '</option>' . $options . '</select>';
    // END filter year
 
    // Filter type
@@ -450,10 +460,10 @@ function tp_cloud_shortcode($atts) {
       $options = '';
       foreach ($row as $row) {
           $current = ($row->type == $type && $type != '0') ? 'selected="selected"' : '';
-          $options = $options . '<option value = "' . $permalink . 'tgid=' . $tgid . '&amp;yr=' . $yr . '&amp;type=' . $row->type . '&amp;author=' . $author . $settings['html_anchor'] . '" ' . $current . '>' . tp_translate_pub_type($row->type, 'pl') . '</option>';
+          $options = $options . '<option value = "' . $permalink . 'tgid=' . $tgid . '&amp;yr=' . $yr . '&amp;type=' . $row->type . '&amp;auth=' . $author . $settings['html_anchor'] . '" ' . $current . '>' . tp_translate_pub_type($row->type, 'pl') . '</option>';
       }
       $filter2 ='<span style="padding-left:10px; padding-right:10px;"><select name="type" id="type" onchange="teachpress_jumpMenu(' . $str . 'parent' . $str . ',this,0)">
-                   <option value="' . $permalink . 'tgid=' . $tgid . '&amp;yr=' . $yr . '&amp;author=' . $author . $settings['html_anchor'] . '">' . __('All types','teachpress') . '</option>
+                   <option value="' . $permalink . 'tgid=' . $tgid . '&amp;yr=' . $yr . '&amp;auth=' . $author . $settings['html_anchor'] . '">' . __('All types','teachpress') . '</option>
                          ' . $options . '
                  </select></span>';
    }		   
@@ -475,7 +485,7 @@ function tp_cloud_shortcode($atts) {
          }
          $user_info = get_userdata( $row['user'] );
          if ( $user_info != false ) {
-               $options = $options . '<option value = "' . $permalink . 'tgid=' . $tgid . '&amp;yr=' . $yr . '&amp;type=' . $type . '&amp;author=' . $row['user'] . $settings['html_anchor'] . '" ' . $current . '>' . $user_info->display_name . '</option>';
+               $options = $options . '<option value = "' . $permalink . 'tgid=' . $tgid . '&amp;yr=' . $yr . '&amp;type=' . $type . '&amp;auth=' . $row['user'] . $settings['html_anchor'] . '" ' . $current . '>' . $user_info->display_name . '</option>';
          }
       }  
       $filter3 ='<select name="pub-author" id="pub-author" onchange="teachpress_jumpMenu(' . $str . 'parent' . $str . ',this,0)">
@@ -542,19 +552,21 @@ function tp_cloud_shortcode($atts) {
  * Publication list without tag cloud
  * 
  * possible values for $atts:
- *   user (INT)             => 0 for all publications of all users, default: 0
- *   tag (INT)              => tag-ID, default: 0
- *   type (STRING)          => publication types (separated by comma)
- *   exclude (STRING)       => a string with one or more IDs of publication you don't want to display
- *   year (INT)             => default: 0 (=show all years)
- *   order (STRING)         => name, year, bibtex or type, default: date DESC
- *   headline (INT)         => show headlines with years(1) with publication types(2) or not(0), default: 1
- *   image (STRING)         => none, left, right or bottom, default: none 
- *   image_size (INT)       => max. Image size, default: 0
- *   author_name (STRING)   => last, initials or old, default: last
- *   editor_name (STRING)   => last, initials or old, default: last
- *   style (STRING)         => simple, numbered or std, default: std
- *   link_style (STRING)    => inline or images, default: inline
+ *   user (INT)             --> 0 for all publications of all users, default: 0
+ *   tag (INT)              --> tag-ID, default: 0
+ *   type (STRING)          --> publication types (separated by comma)
+ *   exclude (STRING)       --> a string with one or more IDs of publication you don't want to display
+ *   include (STRING)       --> a string with one or more IDs of publication you want to display
+ *   year (INT)             --> default: 0 (=show all years)
+ *   order (STRING)         --> name, year, bibtex or type, default: date DESC
+ *   headline (INT)         --> show headlines with years(1) with publication types(2) or not(0), default: 1
+ *   image (STRING)         --> none, left, right or bottom, default: none 
+ *   image_size (INT)       --> max. Image size, default: 0
+ *   author_name (STRING)   --> last, initials or old, default: last
+ *   editor_name (STRING)   --> last, initials or old, default: last
+ *   style (STRING)         --> simple, numbered or std, default: std
+ *   link_style (STRING)    --> inline or images, default: inline
+ *   date_format (STRING)   --> the format for date; needed for the types: presentations, online; default: d.m.Y
  * 
  * @param array $atts
  * @return string
@@ -564,7 +576,8 @@ function tp_list_shortcode($atts){
        'user' => 0,
        'tag' => 0,
        'type' => '',
-       'exclude' => '', 
+       'exclude' => '',
+       'include' => '',
        'year' => 0,
        'order' => 'date DESC',
        'headline' => 1,
@@ -573,7 +586,8 @@ function tp_list_shortcode($atts){
        'author_name' => 'last',
        'editor_name' => 'last',
        'style' => 'std',
-       'link_style' => 'inline'
+       'link_style' => 'inline',
+       'date_format' => 'd.m.Y'
     ), $atts));
 
     $tparray = '';
@@ -588,7 +602,8 @@ function tp_list_shortcode($atts){
         'style' => htmlspecialchars($style),
         'image' => htmlspecialchars($image),
         'with_tags' => 0,
-        'link_style' => htmlspecialchars($link_style)
+        'link_style' => htmlspecialchars($link_style),
+        'date_format' => htmlspecialchars($date_format)
     );
 
     if ( $headline == 1 && strpos($order, 'year') === false && strpos($order, 'date') === false ) {
@@ -603,7 +618,7 @@ function tp_list_shortcode($atts){
        $colspan = ' colspan="2"';
     }
 
-    $row = get_tp_publications( array('tag' => $tag, 'year' => $year, 'type' => $type, 'user' => $user, 'order' => $order, 'exclude' => $exclude, 'output_type' => ARRAY_A) );
+    $row = get_tp_publications( array('tag' => $tag, 'year' => $year, 'type' => $type, 'user' => $user, 'order' => $order, 'exclude' => $exclude, 'include' => $include, 'output_type' => ARRAY_A) );
     foreach ($row as $row) {
        $tparray[$tpz][0] = '' . $row['year'] . '' ;
        $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row,'', '', $settings, $tpz + 1);
@@ -625,13 +640,15 @@ function tp_list_shortcode($atts){
  * tpsearch: Frontend search function for publications
  *
  * possible values for $atts:
- *   entries_per_page (int) => number of entries per page (default: 20)
- *   image (STRING)         => none, left, right or bottom, default: none 
- *   image_size (INT)       => max. Image size, default: 0
- *   author_name (STRING)   => last, initials or old, default: last
- *   editor_name (STRING)   => last, initials or old, default: last
- *   style (STRING)         => simple, numbered or std, default: numbered
- *   link_style (STRING)    => inline or images, default: inline
+ *   entries_per_page (INT) --> number of entries per page (default: 20)
+ *   image (STRING)         --> none, left, right or bottom, default: none 
+ *   image_size (INT)       --> max. Image size, default: 0
+ *   author_name (STRING)   --> last, initials or old, default: last
+ *   editor_name (STRING)   --> last, initials or old, default: last
+ *   style (STRING)         --> simple, numbered or std, default: numbered
+ *   link_style (STRING)    --> inline or images, default: inline
+ *   as_filter (STRING)     --> set it to "true" if you want to display publications by default
+ *   date_format (STRING)   --> the format for date; needed for presentations, default: d.m.Y
  * 
  * @param array $atts
  * @return string
@@ -645,7 +662,9 @@ function tp_search_shortcode ($atts) {
        'author_name' => 'last',
        'editor_name' => 'last',
        'style' => 'numbered',
-       'link_style' => 'inline'
+       'link_style' => 'inline',
+       'as_filter' => 'false',
+       'date_format' => 'd.m.Y'
     ), $atts)); 
     
     $tparray = '';
@@ -659,7 +678,8 @@ function tp_search_shortcode ($atts) {
         'style' => htmlspecialchars($style),
         'image' => htmlspecialchars($image),
         'with_tags' => 0,
-        'link_style' => htmlspecialchars($link_style)
+        'link_style' => htmlspecialchars($link_style),
+        'date_format' => htmlspecialchars($date_format)
     );
     if ($settings['image']== 'left' || $settings['image']== 'right') {
        $settings['pad_size'] = $image_size + 5;
@@ -684,20 +704,19 @@ function tp_search_shortcode ($atts) {
     
     // Define pagelink
     if ( get_option('permalink_structure') ) {
-      $page_link = get_permalink() . "?";
+        $page_link = get_permalink() . "?";
     }
     else {
-      $page_link = get_permalink() . "&amp;";
+        $page_link = get_permalink() . "&amp;";
     }
     
     $r = '';
     $r .= '<form method="get">';
     $r .= '<div class="tp_search_input">';
-    $r .= '<label for="tp_search">' . __('Search') . '</label> ';
-    $r .= '<input name="tps" id="tp_search" title="" type="text" value="' . $search . '"/>';
-    $r .= '<input name="tps_button" type="submit" value="' . __('Go', 'teachpress') . '"/>';
+    $r .= '<input name="tps" id="tp_search" title="" type="text" value="' . $search . '" tabindex="1" size="40"/>';
+    $r .= '<input name="tps_button" type="submit" value="' . __('Search', 'teachpress') . '"/>';
     $r .= '</div>';
-    if ( $search != "" ) {
+    if ( $search != "" || $as_filter != 'false' ) {
         // get results
         $tpz = 0;
         $args = array ('search' => $search, 
@@ -708,8 +727,9 @@ function tp_search_shortcode ($atts) {
         
         // menu
         $menu = tp_admin_page_menu($number_entries, $entries_per_page, $current_page, $entry_limit, $page_link, $link_attributes, 'bottom');
-        
-        $r .= '<h3>' . __('Results for','teachpress') . ' "' . $search . '":</h3>';
+        if ( $search != "" ) {
+            $r .= '<h3>' . __('Results for','teachpress') . ' "' . $search . '":</h3>';
+        }
         $r .= $menu;
         foreach ($results as $row) {
             $count = ( $entry_limit == 0 ) ? ( $tpz + 1 ) : ( $entry_limit + $tpz + 1 );

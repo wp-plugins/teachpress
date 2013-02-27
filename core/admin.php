@@ -94,8 +94,11 @@ function get_tp_wp_pages($sort_column = "menu_order", $sort_order = "ASC", $sele
             }
             elseif (is_array($selected)) {
                 if ( in_array($item->ID, $selected) ) {
-                $current = ' selected="selected"';
-                }   
+                    $current = ' selected="selected"';
+                }
+                else {
+                    $current = '';
+                }
             }
             else {
                 $current = '';

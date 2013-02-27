@@ -3,17 +3,17 @@
 Plugin Name: teachPress
 Plugin URI: http://mtrv.wordpress.com/teachpress/
 Description: With teachPress you can easy manage courses, enrollments and publications.
-Version: 3.1.6
+Version: 4.0.0
 Author: Michael Winkler
 Author URI: http://mtrv.wordpress.com/
 Min WP Version: 3.3
-Max WP Version: 3.4.1
+Max WP Version: 3.5.1
 */
 
 /*
    LICENCE
  
-    Copyright 2008-2012 Michael Winkler
+    Copyright 2008-2013 Michael Winkler
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -487,7 +487,7 @@ function tp_db_update() {
 /**
  * teachPress plugin activation
  * @param boolean $network_wide
- * @since 3.2.0
+ * @since 4.0.0
  */
 function tp_activation ( $network_wide ) {
     global $wpdb;
@@ -611,13 +611,13 @@ function tp_install() {
         dbDelta($sql);
         // Default settings		
         $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('sem', 'Example term', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('db-version', '3.1.6', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('db-version', '4.0.0', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('sign_out', '0', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('login', 'std', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('stylesheet', '1', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('regnum', '1', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('studies', '1', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('termnumber', '1', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('regnum', '0', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('studies', '0', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('termnumber', '0', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('birthday', '1', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('rel_page_courses', 'page', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('rel_page_publications', 'page', 'system')");

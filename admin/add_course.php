@@ -230,7 +230,7 @@ function tp_add_course_page() {
                 <p><label for="course_type" title="<?php _e('The course type','teachpress'); ?>"><strong><?php _e('Type'); ?></strong></label></p>
                 <select name="course_type" id="course_type" title="<?php _e('The course type','teachpress'); ?>" tabindex="2">
                 <?php 
-                    $row = get_tp_settings('course_type', '`value` ASC');
+                    $row = get_tp_options('course_type', '`value` ASC');
                     foreach ($row as $row) {
                         $check = $daten["type"] == $row->value ? ' selected="selected"' : '';
                         echo '<option value="' . stripslashes($row->value) . '"' . $check . '>' . stripslashes($row->value) . '</option>';
@@ -240,7 +240,7 @@ function tp_add_course_page() {
                 <select name="semester" id="semester" title="<?php _e('The term where the course will be happening','teachpress'); ?>" tabindex="3">
                 <?php
                 $value = $course_ID == 0 ? get_tp_option('sem') : 0;
-                $sem = get_tp_settings('semester', '`setting_id` ASC');
+                $sem = get_tp_options('semester', '`setting_id` ASC');
                 $x = 0;
                 // Semester in array speichern - wird spaeter fuer Parent-Menu genutzt
                 foreach ($sem as $sem) { 

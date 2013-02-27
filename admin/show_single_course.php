@@ -134,7 +134,7 @@ function tp_show_single_course_page() {
          <tr>
            <td width="170"><strong><?php _e('Type'); ?></strong></td>
            <td><?php echo stripslashes($daten["type"]); ?></td>
-           <td width="100"><strong><?php _e('Course ID'); ?></strong></td>
+           <td width="100"><strong><?php _e('ID'); ?></strong></td>
            <td width="140"><?php echo $daten["course_id"]; ?></td>
          </tr>
          <tr>
@@ -207,15 +207,14 @@ function tp_show_single_course_page() {
                if ($zahl != 0 && $merke[0] != $row1->lastname[0]) {
                   echo '<option>----------</option>';
                }
-               echo '<option value="' . $row1->wp_id . '">' . $row1->lastname . ' ' . $row1->firstname . ' ' . $row1->matriculation_number . '</option>';
+               echo '<option value="' . $row1->wp_id . '">' . stripslashes($row1->lastname) . ', ' . stripslashes($row1->firstname) . ' (' . $row1->matriculation_number . ')</option>';
                $merke = $row1->lastname;
                $zahl++;
             } ?>
        </select>
-       <?php print_r ($merke); ?>
        <p>
            <input type="submit" name="add_signup" class="button-primary" value="<?php _e('Add', 'teachpress'); ?>" />
-           <a onclick="teachpress_showhide('tp_add_signup_form')" class="button-secondary" style="cursor:pointer;">Abbrechen</a>
+           <a onclick="teachpress_showhide('tp_add_signup_form')" class="button-secondary" style="cursor:pointer;"><?php _e('Cancel', 'teachpress'); ?></a>
        </p>
    </div>
    <!-- Move to a course -->
@@ -226,6 +225,7 @@ function tp_show_single_course_page() {
         ?>
         <div class="teachpress_message" id="tp_move_to_course">
             <p class="teachpress_message_headline"><?php _e('Move to a related course','teachpress'); ?></p>
+            <p><?php _e('If you move a signup to an other course the signup status will be not changed. So a waitinglist will be a waitinglist entry.','teachpress'); ?></p>
             <select name="tp_rel_course" id="tp_rel_course">
                 <?php
                 foreach ( $related_courses as $rel ) {

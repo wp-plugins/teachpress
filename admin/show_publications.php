@@ -99,11 +99,20 @@ function teachpress_publications_page() {
         echo '<p><a href="admin.php?page=' . $page . '&amp;search=' . $search . '&amp;limit=' . $curr_page . '" class="button-secondary">&larr; ' . __('Back','teachpress') . '</a></p>';
         echo '<h2>' . __('BibTeX','teachpress') . '</h2>';
         echo '<textarea name="bibtex_area" rows="20" style="width:90%;" >';
-        for ($i=0; $i < count ($checkbox); $i++) {
-            $checkbox[$i] = intval($checkbox[$i]);
-            $row = get_tp_publication( $checkbox[$i], ARRAY_A );
-            $tags = get_tp_tags( array('output_type' => ARRAY_A, 'pub_id' => $checkbox[$i]) );
-            echo tp_bibtex::get_single_publication_bibtex($row, $tags);	
+        if ( $checkbox != '' ) {
+            for ($i=0; $i < count ($checkbox); $i++) {
+                $checkbox[$i] = intval($checkbox[$i]);
+                $row = get_tp_publication( $checkbox[$i], ARRAY_A );
+                $tags = get_tp_tags( array('output_type' => ARRAY_A, 'pub_id' => $checkbox[$i]) );
+                echo tp_bibtex::get_single_publication_bibtex($row, $tags);	
+            }
+        }
+        else {
+            $row = get_tp_publications( array('output_type' => ARRAY_A) );
+            foreach ( $row as $row ) {
+                $tags = get_tp_tags( array('output_type' => ARRAY_A, 'pub_id' => $row['pub_id']) );
+                echo tp_bibtex::get_single_publication_bibtex($row, $tags);
+            }
         }
         echo '</textarea>';
     }
@@ -131,7 +140,7 @@ function teachpress_publications_page() {
                  echo '<a href="admin.php?page=' . $page . '&amp;filter=' . $filter . '&amp;tag=' . $tag_id . '" style="font-size:14px; font-weight:bold; text-decoration:none; padding-right:3px;" title="' . __('Cancel the search','teachpress') . '">X</a>';
          } ?>
          <input type="text" name="search" id="pub_search_field" value="<?php echo $search; ?>"/>
-         <input type="submit" name="pub_search_button" id="pub_search_button" value="<?php _e('Search'); ?>" class="button-secondary"/>
+         <input type="submit" name="pub_search_button" id="pub_search_button" value="<?php _e('Search','teachpress'); ?>" class="button-secondary"/>
       </div>
       <div class="tablenav" style="padding-bottom:5px;">
       <select name="action">
@@ -156,7 +165,7 @@ function teachpress_publications_page() {
             <tr>
                <th>&nbsp;</th>
                <th class="check-column"><input name="tp_check_all" id="tp_check_all" type="checkbox" value="" onclick="teachpress_checkboxes('checkbox','tp_check_all');" /></th>
-               <th><?php _e('Name','teachpress'); ?></th>
+               <th><?php _e('Title','teachpress'); ?></th>
                <th><?php _e('ID'); ?></th>
                <th><?php _e('Type'); ?></th> 
                <th><?php _e('Author(s)','teachpress'); ?></th>
@@ -211,7 +220,12 @@ function teachpress_publications_page() {
                   echo '</td>';
                   echo '<td>' . $row->pub_id . '</td>';
                   echo '<td>' . tp_translate_pub_type($row->type) . '</td>';
-                  echo '<td>' . stripslashes( str_replace(' and ', ', ', $row->author) ) . '</td>';
+                  if ( $row->type == 'collection' || ( $row->author == '' && $row->editor != '' ) ) {
+                     echo '<td>' . stripslashes( str_replace(' and ', ', ', $row->editor) ) . ' (' . __('Ed.','teachpress') . ')</td>';
+                  }
+                  else {
+                     echo '<td>' . stripslashes( str_replace(' and ', ', ', $row->author) ) . '</td>';
+                  }
                   echo '<td>';
                   // Tags
                   $tag_string = '';

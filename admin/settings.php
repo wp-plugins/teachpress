@@ -54,20 +54,20 @@ function teachpress_admin_settings() {
               tp_uninstall();
           }
           else {
-              tp_change_settings($all_options);
+              tp_change_options($all_options);
           }
           
           $message = __('Settings are changed. Please note that access changes are visible, until you have reloaded this page a secont time.','teachpress');
           get_tp_message($message);
      }
      if (isset( $_POST['addstud'] ) && $name != __('Add course of studies','teachpress')) {
-           tp_add_setting($name, 'course_of_studies');
+         tp_add_option($name, 'course_of_studies');
      }
      if (isset( $_POST['addtyp'] ) && $typ != __('Add type','teachpress')) {
-           tp_add_setting($typ, 'course_type');
+           tp_add_option($typ, 'course_type');
      }
      if (isset( $_POST['addsem'] ) && $newsem != __('Add term','teachpress')) {
-           tp_add_setting($newsem, 'semester');
+           tp_add_option($newsem, 'semester');
      }
      if ( isset( $_GET['delete'] ) ) {
            tp_delete_setting($_GET['delete']);
@@ -101,17 +101,17 @@ function teachpress_admin_settings() {
           <thead>
                <tr>
                  <th width="160"><label title="<?php _e('teachPress version','teachpress'); ?>"><?php _e('teachPress version','teachpress'); ?></label></th>
-                 <td width="210" style="vertical-align: middle;"><?php 
-                    // Test ob Datenbank installiert ist
+                 <td width="210"><?php 
+                    // test if database is installed
                     $test = get_tp_option('db-version');
                     if ($test != '') {
-                       // Test ob Datenbank noch aktuell
+                       // test if the database needs an update
                        $version =  get_tp_version();
                        if ($test == $version) { 
-                          echo '' . $version . ' <span style="color:#00FF00; font-weight:bold;">&radic;</span>';
+                          echo $version . ' <span style="color:#00FF00; font-weight:bold;">&radic;</span>';
                        } 
                        else {
-                          echo '' . $test . ' <span style="color:#FF0000; font-weight:bold;">X</span> <a href="options-general.php?page=teachpress/settings.php&up=1"><strong>' . __('Update to','teachpress') . ' ' . $version . '</strong></a>';
+                          echo $test . ' <span style="color:#FF0000; font-weight:bold;">X</span> <a href="options-general.php?page=teachpress/settings.php&up=1"><strong>' . __('Update to','teachpress') . ' ' . $version . '</strong></a>';
                        }
                     }
                     else {
@@ -125,14 +125,14 @@ function teachpress_admin_settings() {
                        }
                     } ?>
                  </td>
-                 <td style="vertical-align: middle;"><?php _e('Shows the teachPress database version and available database updates','teachpress'); ?></td>
+                 <td><?php _e('Shows the teachPress database version and available database updates','teachpress'); ?></td>
                </tr>
                <tr>
                     <th><label for="semester" title="<?php _e('Current term','teachpress'); ?>"><?php _e('Current term','teachpress'); ?></label></th>
-                    <td style="vertical-align:middle;"><select name="semester" id="semester" title="<?php _e('Current term','teachpress'); ?>">
+                    <td><select name="semester" id="semester" title="<?php _e('Current term','teachpress'); ?>">
                     <?php
-                    $value = get_tp_option('sem');   
-                    $sem = $wpdb->get_results("SELECT setting_id, value FROM $teachpress_settings WHERE category = 'semester' ORDER BY setting_id DESC");
+                    $value = get_tp_option('sem');
+                    $sem = get_tp_options('semester');
                     foreach ($sem as $sem) { 
                         if ($sem->value == $value) {
                             $current = 'selected="selected"' ;
@@ -142,12 +142,12 @@ function teachpress_admin_settings() {
                         } 
                         echo '<option value="' . $sem->value . '" ' . $current . '>' . stripslashes($sem->value) . '</option>';
                     } ?>    
-					</select></td>
-                    <td style="vertical-align: middle;"><?php _e('Here you can change the current term. This value is used for the default settings for all menus.','teachpress'); ?></td>
+                    </select></td>
+                    <td><?php _e('Here you can change the current term. This value is used for the default settings for all menus.','teachpress'); ?></td>
                </tr>
               <tr>
               	<th><?php _e('Related pages (Post type)','teachpress'); ?></th>
-                <td style="vertical-align:middle;">
+                <td>
                    <?php $value = get_tp_option('rel_page_courses'); ?>
                    <p><select name="rel_page_courses" id="rel_page_courses" title="<?php _e('for courses','teachpress');?>">
                    <option value="page" <?php if ($value == 'page') { echo 'selected="selected"'; } ?>><?php _e('Pages');?></option>
@@ -196,7 +196,7 @@ function teachpress_admin_settings() {
               </tr>
               <tr>
               	<th><label for="stylesheet" title="<?php _e('Frontend styles','teachpress'); ?>"><?php _e('Frontend styles','teachpress'); ?></label></th>
-                <td style="vertical-align:middle;">
+                <td style="vertical-align: top;">
                      <select name="stylesheet" id="stylesheet" title="<?php _e('Frontend styles','teachpress'); ?>">
                 <?php
                  $value = get_tp_option('stylesheet');
@@ -215,7 +215,7 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
               </tr>
               <tr>
               	<th><label for="userrole" title="<?php _e('Backend access for','teachpress'); ?>"><?php _e('Backend access for','teachpress'); ?></label></th>
-                <td style="vertical-align:middle;">
+                <td style="vertical-align: top;">
                     <select name="userrole[]" id="userrole" multiple="multiple" style="height:80px;" title="<?php _e('Backend access for','teachpress'); ?>">
                     <?php
                     global $wp_roles;
@@ -228,7 +228,7 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
                     </select>
 					
                 </td>
-                <td><?php _e('Select which userrole your users must have to use the teachPress backend.','teachpress'); ?><br /><?php _e('use &lt;Ctrl&gt; key to select multiple roles','teachpress'); ?></td>
+                <td style="vertical-align: top;"><?php _e('Select which userrole your users must have to use the teachPress backend.','teachpress'); ?><br /><?php _e('use &lt;Ctrl&gt; key to select multiple roles','teachpress'); ?></td>
               </tr>
              </thead>
              </table>
@@ -237,7 +237,7 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
              <thead>
               <tr>
               	<th width="160"><label for="login_mode"><?php _e('Mode','teachpress'); ?></label></th>
-                <td width="210" style="vertical-align:middle;">
+                <td width="210" style="vertical-align: top;">
                 <select name="login" id="login_mode" title="<?php _e('Mode','teachpress'); ?>">
                   <?php
                   $value = get_tp_option('login');
@@ -256,7 +256,7 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
               </tr>
               <tr>
               <th><label for="sign_out" title="<?php _e('Prevent sign out','teachpress'); ?>"><?php _e('Prevent sign out','teachpress'); ?></label></th>
-              <td style="vertical-align:middle;"><select name="sign_out" id="sign_out" title="<?php _e('Prevent sign out','teachpress'); ?>">
+              <td><select name="sign_out" id="sign_out" title="<?php _e('Prevent sign out','teachpress'); ?>">
 				  <?php
                   $value = get_tp_option('sign_out');
                   if ($value == '1') {
@@ -269,7 +269,7 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
                   } 
                   ?>
               </select></td>
-              <td style="vertical-align: middle;"><?php _e('Prevent sign out for your users','teachpress'); ?></td>
+              <td><?php _e('Prevent sign out for your users','teachpress'); ?></td>
               </tr>
               <tr>
               	<th><?php _e('User data fields','teachpress'); ?></th>
@@ -277,25 +277,25 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
                  <?php
                  $val = get_tp_option('regnum') == '1' ? ' checked="checked"' : '';
                  ?>
-                <input name="matriculation_number_field" id="matriculation_number_field" type="checkbox"<?php echo $check; ?> value="1" /> <label for="matriculation_number_field"><?php _e('Matr. number','teachpress'); ?></label><br />
+                <input name="matriculation_number_field" id="matriculation_number_field" type="checkbox"<?php echo $val; ?> value="1" /> <label for="matriculation_number_field"><?php _e('Matr. number','teachpress'); ?></label><br />
                 <input name="firstname_field" type="checkbox" checked="checked" disabled="disabled" /> <?php _e('First name','teachpress'); ?><br />
                 <input name="lastname_field" type="checkbox" checked="checked" disabled="disabled" /> <?php _e('Last name','teachpress'); ?><br />
                 <?php
                  $val = get_tp_option('studies') == '1' ? ' checked="checked"' : '';
                  ?>
-                <input name="course_of_studies_field" id="course_of_studies_field" type="checkbox"<?php echo $check; ?> value="1" /> <label for="course_of_studies_field"><?php _e('Course of studies','teachpress'); ?></label><br />
+                <input name="course_of_studies_field" id="course_of_studies_field" type="checkbox"<?php echo $val; ?> value="1" /> <label for="course_of_studies_field"><?php _e('Course of studies','teachpress'); ?></label><br />
                 <?php
                  $val = get_tp_option('termnumber') == '1' ? ' checked="checked"' : '';
                  ?>
-                <input name="semesternumber_field" id="semesternumber_field" type="checkbox"<?php echo $check; ?> value="1" /> <label for="semesternumber_field"><?php _e('Number of terms','teachpress'); ?></label><br />
+                <input name="semesternumber_field" id="semesternumber_field" type="checkbox"<?php echo $val; ?> value="1" /> <label for="semesternumber_field"><?php _e('Number of terms','teachpress'); ?></label><br />
                 <input name="nutzerkuerzel_field" type="checkbox" checked="checked" disabled="disabled" /> <?php _e('User account','teachpress'); ?><br />
                 <?php
                  $val = get_tp_option('birthday') == '1' ? ' checked="checked"' : '';
                  ?>
-                <input name="birthday_field" id="birthday_field" type="checkbox"<?php echo $check; ?> value="1" /> <label for="birthday_field"><?php _e('Date of birth','teachpress'); ?></label><br />
+                <input name="birthday_field" id="birthday_field" type="checkbox"<?php echo $val; ?> value="1" /> <label for="birthday_field"><?php _e('Date of birth','teachpress'); ?></label><br />
                 <input name="email_field" type="checkbox" checked="checked" disabled="disabled" /> <?php _e('E-Mail'); ?><br />
                 </td>
-                <td><?php _e('Define which fields for the registration form you will use. Some are required.','teachpress'); ?></td>
+                <td style="vertical-align: top;"><?php _e('Define which fields for the registration form you will use. Some are required.','teachpress'); ?></td>
               </tr>
              </thead> 
 			</table>
@@ -304,7 +304,7 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
             	<thead>
                     <tr>
                       <td>
-			<span style="margin-right: 8px;"><?php _e('Remove teachPress from the database:','teachpress'); ?></span>
+			<span style="margin-right: 15px;"><?php _e('Remove teachPress from the database:','teachpress'); ?></span>
                         <input type="radio" name="drop_tp" value="1" id="drop_tp_0" />
                         <label for="drop_tp_0"><?php _e('yes','teachpress'); ?></label>
                         <input type="radio" name="drop_tp" value="0" id="drop_tp_1" checked="checked" />
@@ -333,8 +333,7 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
                     </tr>
                </thead>
                <?php
-		$row = "SELECT number, value, setting_id FROM ( SELECT COUNT(s.course_of_studies) as number, e.value AS value,  e.setting_id as setting_id, e.category as category FROM $teachpress_settings e LEFT JOIN $teachpress_stud s ON e.value = s.course_of_studies GROUP BY e.value ORDER BY number DESC ) AS temp WHERE category = 'course_of_studies' ORDER BY value";
-		$row = $wpdb->get_results($row);
+		$row = $wpdb->get_results("SELECT number, value, setting_id FROM ( SELECT COUNT(s.course_of_studies) as number, e.value AS value,  e.setting_id as setting_id, e.category as category FROM $teachpress_settings e LEFT JOIN $teachpress_stud s ON e.value = s.course_of_studies GROUP BY e.value ORDER BY number DESC ) AS temp WHERE category = 'course_of_studies' ORDER BY value");
 		foreach ($row as $row) { ?>
                     <tr>
 			<td><a title="<?php _e('Delete course of studies','teachpress'); ?>" href="options-general.php?page=teachpress/settings.php&amp;delete=<?php echo $row->setting_id; ?>&amp;tab=courses" class="teachpress_delete">X</a></td>
@@ -362,8 +361,7 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
                          <th><?php _e('Number of courses','teachpress'); ?></th>
                     </tr>
                     <?php
-                    $row = "SELECT number, value, setting_id FROM ( SELECT COUNT(v.semester) as number, e.variable AS value,  e.setting_id as setting_id, e.category as category FROM $teachpress_settings e LEFT JOIN $teachpress_courses v ON e.variable = v.semester GROUP BY e.variable ORDER BY number DESC ) AS temp WHERE category = 'semester' ORDER BY setting_id";
-                    $row = $wpdb->get_results($row);
+                    $row = $wpdb->get_results("SELECT number, value, setting_id FROM ( SELECT COUNT(v.semester) as number, e.variable AS value,  e.setting_id as setting_id, e.category as category FROM $teachpress_settings e LEFT JOIN $teachpress_courses v ON e.variable = v.semester GROUP BY e.variable ORDER BY number DESC ) AS temp WHERE category = 'semester' ORDER BY setting_id");
                     foreach ($row as $row) { ?> 
                          <tr>
                               <td><a title="<?php _e('Delete term','teachpress'); ?>" href="options-general.php?page=teachpress/settings.php&amp;delete=<?php echo $row->setting_id; ?>&amp;tab=courses" class="teachpress_delete">X</a></td>
@@ -391,8 +389,7 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
               </tr>
             </thead>
           <?php    
-            $row = "SELECT number, value, setting_id FROM ( SELECT COUNT(v.type) as number, e.value AS value,  e.setting_id as setting_id, e.category as category FROM $teachpress_settings e LEFT JOIN $teachpress_courses v ON e.value = v.type GROUP BY e.value ORDER BY number DESC ) AS temp WHERE category = 'course_type' ORDER BY value";
-            $row = $wpdb->get_results($row);
+            $row = $wpdb->get_results("SELECT number, value, setting_id FROM ( SELECT COUNT(v.type) as number, e.value AS value,  e.setting_id as setting_id, e.category as category FROM $teachpress_settings e LEFT JOIN $teachpress_courses v ON e.value = v.type GROUP BY e.value ORDER BY number DESC ) AS temp WHERE category = 'course_type' ORDER BY value");
             foreach ($row as $row) { ?>  
                     <tr>
                          <td><a title="<?php _e('Delete type','teachpress'); ?>" href="options-general.php?page=teachpress/settings.php&amp;delete=<?php echo $row->setting_id; ?>&amp;tab=courses" class="teachpress_delete">X</a></td>

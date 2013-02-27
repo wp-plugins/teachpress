@@ -5,8 +5,6 @@
  * @param $sem
 */
 function tp_lists_page() {
-   global $wpdb;
-   global $teachpress_courses; 
    
    $course_ID = isset( $_GET['course_ID'] ) ? intval($_GET['course_ID']) : '';
    $redirect = isset( $_GET['redirect'] ) ?  intval($_GET['redirect']) : 0;
@@ -105,7 +103,7 @@ function tp_lists_page() {
         $row = get_tp_course($course_ID);
         // define course name
         if ($row->parent != 0) {
-           $parent_name = $wpdb->get_var("SELECT `name` FROM " . $teachpress_courses . " WHERE `course_id` = '$row->parent'");
+           $parent_name = get_tp_course_data($row->parent, 'name');
            // if parent_name == child name
            if ($parent_name == $row->name) {
                $parent_name = "";

@@ -14,14 +14,15 @@ class tp_bibtex {
     var $input;
 
     /**
-    * Get a single publication in bibtex format
-    * @param ARRAY $row
-    * @param ARRAY $all_tags (optional)
-    * @return STRING 
+     * Get a single publication in bibtex format
+     * @param array $row
+     * @param array $all_tags (optional)
+     * @return string
+     * @since 3.0.0 
     */
-    function get_single_publication_bibtex ($row, $all_tags = '') {
+    public static function get_single_publication_bibtex ($row, $all_tags = '') {
         $string = '';
-        $pub_fields = array('type', 'bibtex', 'title', 'author', 'editor', 'title', 'note', 'url', 'isbn', 'date','urldate', 'booktitle', 'journal', 'volume', 'number', 'pages', 'publisher', 'address', 'edition', 'chapter', 'institution', 'organization', 'school', 'series', 'crossref', 'abstract', 'howpublished', 'key', 'techtype', 'note');
+        $pub_fields = array('type','bibtex','title','author','editor','url','isbn','date','urldate','booktitle','journal','volume','number','pages','publisher','address','edition','chapter','institution','organization','school','series','crossref','abstract','howpublished','key','techtype','note');
         // initial string
         if ( $row['type'] == 'presentation' ) {
             $string = '@misc{' . stripslashes($row['bibtex']) . ',' . chr(13) . chr(10);
@@ -29,7 +30,7 @@ class tp_bibtex {
         else {
             $string = '@' . stripslashes($row['type']) . '{' . stripslashes($row['bibtex']) . ',' . chr(13) . chr(10);
         }
-        // add BibTeX fields
+        // loop for all BibTeX fields
         for ( $i = 2; $i < count($pub_fields); $i++ ) {
             // replace html chars
             if ( $pub_fields[$i] == 'author' || $pub_fields[$i] == 'title' ) {
@@ -46,16 +47,35 @@ class tp_bibtex {
                         $string = $string . 'issn = {' . $row[$pub_fields[$i]] . '},' . chr(13) . chr(10);
                     }
                 }
-                // Year
+                // year
                 elseif ( $pub_fields[$i] == 'date' ) {
-                    $string = $string . 'year  = {' . $row['year'] . '},' . chr(13) . chr(10);
-                    $string = $string . tp_bibtex::prepare_bibtex_line($row[$pub_fields[$i]],$pub_fields[$i]);
+                    if ( $row[$pub_fields[$i]] != '0000-00-00' ) {
+                        $string = $string . 'year  = {' . $row['year'] . '},' . chr(13) . chr(10);
+                        $string = $string . tp_bibtex::prepare_bibtex_line($row[$pub_fields[$i]],$pub_fields[$i]);
+                    }
+                }
+                // urldate
+                elseif ( $pub_fields[$i] == 'urldate' ) {
+                    if ( $row[$pub_fields[$i]] != '0000-00-00' ) {
+                        $string = $string . tp_bibtex::prepare_bibtex_line($row[$pub_fields[$i]],$pub_fields[$i]);
+                    }
+                }
+                // techtype
+                elseif ( $pub_fields[$i] == 'techtype' ) {
+                    if ( $row[$pub_fields[$i]] != '' ) {
+                        $string = $string . 'type = {' . $row[$pub_fields[$i]] . '},' . chr(13) . chr(10);
+                    }
                 }
                 // normal case
                 else {
                     $string = $string . tp_bibtex::prepare_bibtex_line($row[$pub_fields[$i]],$pub_fields[$i]);
                 }
             }
+        }
+        // Add month
+        if ( $row['type'] == 'booklet' ) {
+            $date = tp_datesplit( $row['date'] );
+            $string = $string . 'month = {' . $date[0][1] . '},' . chr(13) . chr(10);
         }
         // Add keywords
         if ( $all_tags != '' ) {
@@ -78,14 +98,15 @@ class tp_bibtex {
 
     /**
      * Get a single publication in html format
-     * @param array $row
-     * @param array $all_tags
-     * @param array $url
-     * @param array $settings
-     * @param int $tpz
+     * @param array $row        --> the publication array
+     * @param array $all_tags   --> array of tags
+     * @param array $url        --> the URL of the page on which the publication will be displayed
+     * @param array $settings   --> array of settings
+     * @param int $tpz          --> the counter for numbered publications (default: 0)
      * @return string
+     * @since 3.0.0
     */
-    function get_single_publication_html ($row, $all_tags, $permalink, $settings, $tpz = 0) {
+    public static function get_single_publication_html ($row, $all_tags, $permalink, $settings, $tpz = 0) {
         $tag_string = '';
         $str = "'";
         $keywords = '';
@@ -122,7 +143,7 @@ class tp_bibtex {
         }
         // transform URL into full HTML link
         if ( $row['rel_page'] != 0 ) {
-            $name = '<a href="' . get_permalink($row['rel_page']) . '">' . $row['title'] . '</a>';
+            $name = '<a href="' . get_permalink($row['rel_page']) . '">' . stripslashes($row['title']) . '</a>';
         }
         // for inline style
         elseif ( $row['url'] != '' && $settings['link_style'] == 'inline' ) {
@@ -133,8 +154,8 @@ class tp_bibtex {
         }
 
         // parse author names
-        if ( $row['type'] == 'collection' ) {
-            $all_authors = tp_bibtex::parse_author($row['editor'], $settings['author_name'] );
+        if ( $row['type'] == 'collection' || ( $row['type'] == 'article' && $row['author'] == '' && $row['editor'] != '' ) ) {
+            $all_authors = tp_bibtex::parse_author($row['editor'], $settings['author_name'] ) . ' (' . __('Ed.','teachpress') . ')';
         }
         else {
             $all_authors = tp_bibtex::parse_author($row['author'], $settings['author_name'] );
@@ -148,7 +169,7 @@ class tp_bibtex {
         $abstract = '';
         $url = '';
 
-        // if is abstract
+        // if is an abstract
         if ( $row['abstract'] != '' ) {
             $abstract = '<a id="tp_abstract_sh_' . $row['pub_id'] . '" class="tp_show" onclick="teachpress_pub_showhide(' . $str . $row['pub_id'] . $str . ',' . $str . 'tp_abstract' . $str . ')" title="' . __('Show abstract','teachpress') . '" style="cursor:pointer;">' . __('Abstract','teachpress') . '</a> | ';
         }
@@ -183,7 +204,7 @@ class tp_bibtex {
             $a1 = $a1 . '<td class="tp_pub_info_simple">';
             $a1 = $a1 . '<span class="tp_pub_author_simple">' . stripslashes($all_authors) . '</span> ';
             $a1 = $a1 . '<span class="tp_pub_year_simple">(' . $row['year'] . ')</span>: ';
-            $a1 = $a1 . '<span class="tp_pub_title_simple">' . stripslashes($name) . '.</span>';
+            $a1 = $a1 . '<span class="tp_pub_title_simple">' . stripslashes($name) . '.</span> ';
             $a1 = $a1 . '<span class="tp_pub_additional_simple">' . $in . tp_bibtex::single_publication_meta_row($row, $settings) . '</span>';
             $a2 = ' <span class="tp_pub_tags_simple">(' . __('Type') . ': <span class="tp_pub_typ_simple">' . stripslashes($type) . '</span> | ' . $a2 . ')</span>';
         }
@@ -229,117 +250,130 @@ class tp_bibtex {
     }
 
     /**
-    * Get the second line of the publications with editor, year, volume, address, edition, etc.
-    * @param ARRAY $row
-    * @param ARRAY $settings
-    * @return STRING
+     * Get the second line of the publications with editor, year, volume, address, edition, etc.
+     * @param array $row
+     * @param array $settings
+     * @return string
+     * @since 3.0.0
     */
-    function single_publication_meta_row($row, $settings) {
-    // For ISBN or ISSN number
-    if ( $row['isbn'] != '' ) {
-        // test if ISBN or ISSN
-        if ($row['is_isbn'] == '0') { 
-            $isbn = ', ISSN: ' . $row['isbn'] . '';
+    public static function single_publication_meta_row($row, $settings) {
+        // For ISBN or ISSN number
+        if ( $row['isbn'] != '' ) {
+            // test if ISBN or ISSN
+            if ($row['is_isbn'] == '0') { 
+                $isbn = ', ISSN: ' . $row['isbn'] . '';
+            }
+            else {
+                $isbn = ', ISBN: ' . $row['isbn'] . '';
+            }
         }
         else {
-            $isbn = ', ISBN: ' . $row['isbn'] . '';
+            $isbn = '';
         }
-    }
-    else {
-        $isbn = '';
-    }
-    // Editor
-    if ( $row['editor'] != '' ) {  
-        $editor = tp_bibtex::parse_author($row['editor'], $settings['editor_name']);
-        $editor = '' . $editor . ' (' . __('Ed.','teachpress') . '): ';
-    }
-    else {
-        $editor = '';
-    }
-    // Rest of the fields
-    $year = isset( $row['year'] ) ? $year = tp_bibtex::prepare_html_line($row['year']) : '';
-    $booktitle = isset( $row['booktitle'] ) ? $booktitle = tp_bibtex::prepare_html_line($row['booktitle'],'',', ') : '';
-    $journal = isset( $row['journal'] ) ? $journal = tp_bibtex::prepare_html_line($row['journal'],'',', ') : '';
-    $volume = isset( $row['volume'] ) ? $volume = tp_bibtex::prepare_html_line($row['volume'],'',', ') : '';
-    $number = isset( $row['number'] ) ? $number = tp_bibtex::prepare_html_line($row['number'],'',', ') : '';
-    $pages = isset( $row['pages'] ) ? $pages = tp_bibtex::prepare_html_line($row['pages'],'' . __('Page(s)','teachpress') . ': ',', ') : '';
-    $publisher = isset( $row['publisher'] ) ? $publisher = tp_bibtex::prepare_html_line($row['publisher'],'',', ') : '';
-    $address = isset( $row['address'] ) ? $address = tp_bibtex::prepare_html_line($row['address'],'',', ') : '';
-    $edition = isset( $row['edition'] ) ? $edition = tp_bibtex::prepare_html_line($row['edition'],'',', ') : '';
-    $chapter = isset( $row['chapter'] ) ? $chapter = tp_bibtex::prepare_html_line($row['chapter'],'',' ') : '';
-    $institution = isset( $row['institution'] ) ? $institution = tp_bibtex::prepare_html_line($row['institution'],'',' ') : '';
-    $organization = isset( $row['organization'] ) ? $organization = tp_bibtex::prepare_html_line($row['organization'],'',' ') : '';
-    $school = isset( $row['school'] ) ? $school = tp_bibtex::prepare_html_line($row['school'],'',', ') : '';
-    $series = isset( $row['series'] ) ? $series = tp_bibtex::prepare_html_line($row['series'],'',' ') : '';
-    $howpublished = isset( $row['howpublished'] ) ? $howpublished = tp_bibtex::prepare_html_line($row['howpublished'],'',' ') : '';
-    $techtype = isset( $row['techtype'] ) ? $techtype = tp_bibtex::prepare_html_line($row['techtype'],'',' ') : '';
-    $urldate = isset( $row['urldate'] ) ? $urldate = tp_bibtex::prepare_html_line($row['urldate'],', ' . __('visited','teachpress') . ': ','') : '';
+        
+        // for urldate
+        if ( isset( $row['urldate'] ) ) {
+             $row['urldate'] = ( array_key_exists('date_format', $settings) === true ) ? date( $settings['date_format'], strtotime($row['urldate']) ) : $row['urldate'];
+            $urldate = tp_bibtex::prepare_html_line($row['urldate'],', ' . __('visited','teachpress') . ': ','');
+        }
+        else {
+            $urldate = '';
+        }
+        
+        // isset() doesn't work for $editor
+        $editor = $row['editor'] != '' ? tp_bibtex::parse_author($row['editor'], $settings['editor_name']) . ' (' . __('Ed.','teachpress') . '): ' : '';
+        $pages = isset( $row['pages'] ) ? tp_bibtex::prepare_html_line( tp_bibtex::prepare_page_number($row['pages']) , __('pp.','teachpress') . ' ',', ') : '';
+        $year = isset( $row['year'] ) ? tp_bibtex::prepare_html_line($row['year']) : '';
+        $booktitle = isset( $row['booktitle'] ) ? tp_bibtex::prepare_html_line($row['booktitle'],'',', ') : '';
+        $journal = isset( $row['journal'] ) ? tp_bibtex::prepare_html_line($row['journal'],'',', ') : '';
+        $volume = isset( $row['volume'] ) ? tp_bibtex::prepare_html_line($row['volume'],'',' ') : '';
+        $number = isset( $row['number'] ) ? tp_bibtex::prepare_html_line($row['number'],'(','), ') : '';
+        $publisher = isset( $row['publisher'] ) ? tp_bibtex::prepare_html_line($row['publisher'],'',', ') : '';
+        $address = isset( $row['address'] ) ? tp_bibtex::prepare_html_line($row['address'],'',', ') : '';
+        $edition = isset( $row['edition'] ) ? tp_bibtex::prepare_html_line($row['edition'],'',', ') : '';
+        $chapter = isset( $row['chapter'] ) ? tp_bibtex::prepare_html_line($row['chapter'],' ' . __('Chapter','teachpress') . ' ',', ') : '';
+        $institution = isset( $row['institution'] ) ? tp_bibtex::prepare_html_line($row['institution'],'',' ') : '';
+        $organization = isset( $row['organization'] ) ? tp_bibtex::prepare_html_line($row['organization'],'',' ') : '';
+        $school = isset( $row['school'] ) ? tp_bibtex::prepare_html_line($row['school'],'',', ') : '';
+        $series = isset( $row['series'] ) ? tp_bibtex::prepare_html_line($row['series'],'',' ') : '';
+        $howpublished = isset( $row['howpublished'] ) ? tp_bibtex::prepare_html_line($row['howpublished'],'',', ') : '';
+        $techtype = isset( $row['techtype'] ) ? tp_bibtex::prepare_html_line($row['techtype'],'',', ') : '';
+        $note = isset( $row['techtype'] ) ? tp_bibtex::prepare_html_line($row['note'],', (',')') : '';
+        
+        // special cases for volume/number
+        if ( $number == '' && $volume != '' ) {
+            $volume = substr($volume, 0, -1);
+            $number = ', ';
+        }
 
-    // end format after type
-    if ($row['type'] == 'article') {
-        $end = $journal . $volume . $number . $pages . $year . $isbn . '.';
+        // end format after type
+        if ($row['type'] == 'article') {
+            $end = $journal . $volume . $number . $pages . $year . $isbn . $note . '.';
+        }
+        elseif ($row['type'] == 'book') {
+            $end = $edition . $publisher . $address . $year . $isbn . $note .'.';
+        }
+        elseif ($row['type'] == 'booklet') {
+            $end = $howpublished . $address . $edition . $year . $isbn . $note . '.';
+        }
+        elseif ($row['type'] == 'collection') {
+            $end = $edition . $publisher . $address . $year . $isbn . $note . '.';
+        }
+        elseif ($row['type'] == 'conference') {
+            $end = $booktitle . $volume . $number . $series . $organization . $publisher . $address . $year . $isbn . $note . '.';
+        }
+        elseif ($row['type'] == 'inbook') {
+            $end = $editor . $booktitle . $volume . $number . $chapter . $pages . $publisher . $address . $edition. $year . $isbn . $note . '.';
+        }
+        elseif ($row['type'] == 'incollection') {
+            $end = $editor . $booktitle . $volume . $number . $pages . $publisher . $address . $year . $isbn . $note . '.';
+        }
+        elseif ($row['type'] == 'inproceedings') {
+            $end = $editor . $booktitle . $pages . $organization . $publisher . $address. $year . $isbn . $note . '.';
+        }
+        elseif ($row['type'] == 'manual') {
+            $end = $editor . $organization . $address. $edition . $year . $isbn . $note . '.';
+        }
+        elseif ($row['type'] == 'mastersthesis') {
+            $end = $school . $year . $isbn . $note . '.';
+        }
+        elseif ($row['type'] == 'misc') {
+            $end = $howpublished . $year . $isbn . $note . '.';
+        }
+        elseif ($row['type'] == 'online') {
+            $end = $editor . $organization . $year . $urldate . $note . '.';
+        }
+        elseif ($row['type'] == 'phdthesis') {
+            $end = $school . $year . $isbn . $note . '.';
+        }
+        elseif ($row['type'] == 'presentation') {
+            $date = ( array_key_exists('date_format', $settings) === true ) ? ', ' . date( $settings['date_format'], strtotime($row['date']) ) . '' : '';
+            $end = $howpublished . $row['address'] . $date . $note . '.';
+        }
+        elseif ($row['type'] == 'proceedings') {
+            $end = $howpublished . $organization. $publisher. $address . $edition . $year . $isbn . $note . '.';
+        }
+        elseif ($row['type'] == 'techreport') {
+            $end = $institution . $address . $techtype . $number. $year . $isbn . $note . '.';
+        }
+        elseif ($row['type'] == 'unpublished') {
+            $end = $year . $isbn . $note . '.';
+        }
+        else {
+            $end = $year . $note . '.';
+        }
+        $end = stripslashes($end);
+        return $end;
     }
-    elseif ($row['type'] == 'book') {
-        $end = $edition . $publisher . $address . $year . $isbn . '.';
-    }
-    elseif ($row['type'] == 'booklet') {
-        $end = $howpublished . $address . $edition . $year . $isbn . '.';
-    }
-    elseif ($row['type'] == 'collection') {
-        $end = $edition . $publisher . $address . $year . $isbn . '.';
-    }
-    elseif ($row['type'] == 'conference') {
-        $end = $booktitle . $year . $volume . $number . $series . $organization . $publisher . $address . $isbn . '.';
-    }
-    elseif ($row['type'] == 'inbook') {
-        $end = $editor . $booktitle . $volume . $number . $pages . $publisher . $address . $edition . $year . $isbn . '.';
-    }
-    elseif ($row['type'] == 'incollection') {
-        $end = $editor . $booktitle . $volume . $number . $pages . $publisher . $address . $year . $isbn . '.';
-    }
-    elseif ($row['type'] == 'inproceedings') {
-        $end = $editor . $booktitle . $pages . $organization . $publisher . $address . $year . $isbn . '.';
-    }
-    elseif ($row['type'] == 'manual') {
-        $end = $editor . $organization . $address. $edition . $year . $isbn . '.';
-    }
-    elseif ($row['type'] == 'mastersthesis') {
-        $end = $school . $year . $isbn . '.';
-    }
-    elseif ($row['type'] == 'misc') {
-        $end = $journal . $volume . $howpublished . $year . $isbn . '.';
-    }
-    elseif ($row['type'] == 'online') {
-        $end = $editor . $organization . $year . $urldate . '.';
-    }
-    elseif ($row['type'] == 'phdthesis') {
-        $end = $school . $year . $isbn . '.';
-    }
-    elseif ($row['type'] == 'presentation') {
-        $end = $howpublished . $row['address'] . '.';
-    }
-    elseif ($row['type'] == 'proceedings') {
-        $end = $howpublished . $organization. $publisher. $address . $edition . $year . $isbn . '.';
-    }
-    elseif ($row['type'] == 'techreport') {
-        $end = $school . $institution . $address . $number . $year . $isbn . '.';
-    }
-    elseif ($row['type'] == 'unpublished') {
-        $end = $year . $isbn . '.';
-    }
-    else {
-        $end = $row['year'] . '.';
-    }
-    $end = stripslashes($end);
-    return $end;
-    }
+    
     /**
     * Import a BibTeX String
     * @global $PARSEENTRIES (CLASS)
-    * @param string $input 
+    * @param string $input      --> the input string with bibtex entries
     * @param array $settings    --> with index names: keyword_separator, author_format
+    * @param string $test       --> set it to true for test mode ( = disable the inserting of publications into database )
     */
-    function import_bibtex ($input, $settings) {
+    static function import_bibtex ($input, $settings, $test = false) {
         global $PARSEENTRIES;
         // Replace bibtex chars and secure the input parameter
         $input = tp_bibtex::replace_bibtex_chars($input);
@@ -351,14 +385,17 @@ class tp_bibtex {
         $parse->loadBibtexString($input);
         $parse->extractEntries();
         list($preamble, $strings, $entries, $undefinedStrings) = $parse->returnArrays();
-        echo '<p><strong>' . __('Imported Publications:','teachpress') . '</strong></p>';
-        for ($i = 0; $i < count($entries); $i++) {
+        $max = count( $entries );
+        for ( $i = 0; $i < $max; $i++ ) {
             $number = $i + 1;
-            $entries[$i]['date'] = array_key_exists('date', $entries[$i]) == true ? $entries[$i]['date'] : '';
-            $entries[$i]['keywords'] = array_key_exists('keywords', $entries[$i]) == true ? $entries[$i]['keywords'] : '';
-            $entries[$i]['tags'] = array_key_exists('tags', $entries[$i]) == true ? $entries[$i]['tags'] : '';
-            $entries[$i]['isbn'] = array_key_exists('isbn', $entries[$i]) == true ? $entries[$i]['isbn'] : '';
-            $entries[$i]['issn'] = array_key_exists('issn', $entries[$i]) == true ? $entries[$i]['issn'] : '';
+            $entries[$i]['name'] = array_key_exists('name', $entries[$i]) === true ? $entries[$i]['name'] : '';
+            $entries[$i]['date'] = array_key_exists('date', $entries[$i]) === true ? $entries[$i]['date'] : '';
+            $entries[$i]['location'] = array_key_exists('location', $entries[$i]) === true ? $entries[$i]['location'] : '';
+            $entries[$i]['keywords'] = array_key_exists('keywords', $entries[$i]) === true ? $entries[$i]['keywords'] : '';
+            $entries[$i]['tags'] = array_key_exists('tags', $entries[$i]) === true ? $entries[$i]['tags'] : '';
+            $entries[$i]['isbn'] = array_key_exists('isbn', $entries[$i]) === true ? $entries[$i]['isbn'] : '';
+            $entries[$i]['issn'] = array_key_exists('issn', $entries[$i]) === true ? $entries[$i]['issn'] : '';
+            $entries[$i]['tppubtype'] = array_key_exists('tppubtype', $entries[$i]) === true ? $entries[$i]['tppubtype'] : '';
             // for the date of publishing
             if ( $entries[$i]['date'] != '' ) {
                 $entries[$i]['date'] = $entries[$i]['date'];
@@ -379,9 +416,14 @@ class tp_bibtex {
             else {
                 $tags = '';
             }
-            // correct name | title bug of old teachPress version
-            if ($entries[$i]['title'] == '') {
+            // correct name | title bug of old teachPress versions
+            if ($entries[$i]['name'] != '') {
                 $entries[$i]['title'] = $entries[$i]['name'];
+            }
+            
+            // consider old location fields
+            if ( $entries[$i]['location'] != '' ) {
+                $entries[$i]['address'] = $entries[$i]['location'];
             }
             // for author / editor
             // for format lastname1, firstname1 and lastname2, firstname2
@@ -409,26 +451,32 @@ class tp_bibtex {
             else {
                 $entries[$i]['is_isbn'] = 1;
             }
-            // add in database
+            // rename to teachPress keys
             $entries[$i]['type'] = $entries[$i]['bibtexEntryType'];
             $entries[$i]['bibtex'] = $entries[$i]['bibtexCitation'];
             // handle export data from teachPress
-            if ( isset( $entries[$i]['tppubtype'] ) ) {
+            if ( $entries[$i]['tppubtype'] != '' ) {
                 $entries[$i]['type'] = $entries[$i]['tppubtype'];
             }
-            $new_entry = tp_add_publication($entries[$i], $tags, '');
-            // return for user
-            echo '<p>(' . $number . ') <a href="admin.php?page=teachpress/addpublications.php&amp;pub_ID=' . $new_entry . '" target="_blank">' . $entries[$i]['bibtexEntryType'] . ': ' . $entries[$i]['author'] . ' (' . $entries[$i]['year'] . '): ' . $entries[$i]['title'] . '</a></p>';
+            // replace bibtex chars
+            foreach ($entries[$i] as $key => $value) {
+                $entries[$i][$key] = str_replace(array('{','}'), array('',''), $value);
+            }
+            if ( $test === false ) {
+                $entries[$i]['entry_id'] = tp_add_publication($entries[$i], $tags, ''); 
+            }
         }
+        return $entries;
 
     }
 
     /**
-    * Replace some HTML special chars with the UTF-8 versions
-    * @param STRING $input
-    * @return STRING $input
+     * Replace some HTML special chars with the UTF-8 versions
+     * @param string $input
+     * @return string
+     * @since 3.0.0
     */
-    function replace_html_chars ($input) {
+    public static function replace_html_chars ($input) {
         $array_1 = array('&Uuml;','&uuml;',
                          '&Ouml;','&ouml;','&ograve;','&oacute;','&Ograve;','&Oacute;',
                          '&Auml;','&auml;','&aacute;','&agrave;','&Agrave;','&Aacute;',
@@ -448,67 +496,128 @@ class tp_bibtex {
     }
 
     /**
-    * Replace some BibTeX special chars with the UTF-8 versions and secure the parameter
-    * @param string $input
-    * @return string $input
-    */
-    function replace_bibtex_chars ($input) {
-        $input = str_replace(chr(92),'',$input);
-        $array_1 = array('{"A}','{"a}','r{a}','k{a}',"'{a}",'`{a}',"'{A}",'`{A}',
-                         'c{c}',
-                         "'{e}",'`{e}',"'{E}",'`{E}',
-                         '{"O}','{"o}','u{o}','.{o}','={o}','~{o}','H{o}','^{o}',"'{o}",'`{o}',"'{O}",'`{O}',
-                         '{ss}','v{s}',
-                         '{"U}','{"u}','d{u}');
-        $array_2 = array('Ä','ä','å','ą','á','à','Á','À',
-                         'ç',
-                         'é','è','É','È',
-                         'Ö','ö','ŏ','ȯ','ō','õ','ő','ô','ó','ò','Ó','Ò',
-                         'ß','š',
-                         'Ü','ü','ụ');
+     * Replace some BibTeX special chars with the UTF-8 versions and secure the parameter
+     * @access public
+     * @param string $input
+     * @return string
+     * @since 3.0.0
+     */
+    public static function replace_bibtex_chars ($input) {
+        // return the input if there are no bibtex chars
+        if ( strpos( $input,'\\' ) === false && strpos($input,'{') === false ) { return $input; }
+        // Step 1: Chars which based on a combination of two chars, delete escapes
+        $array_a = array('\ss','\O','\o','\AE','\ae','\OE','\oe','\textendash','\textemdash',chr(92));
+        $array_b = array('ß','Ø','ø','Æ','æ','Œ','œ','–','—','');
+        $input = str_replace( $array_a , $array_b ,$input);
+        // Step 2: All over special chars 
+        $array_1 = array('"{a}','"{A}','`{a}','`{A}',"'{a}","'{A}",'~{a}','~{A}','={a}','={A}','^{a}','^{A}','.{a}','.{A}','u{a}','u{A}','k{a}','k{A}','r{a}','r{A}',
+                         '.{b}','.{B}',
+                         "'{c}","'{C}",'v{c}','v{C}','c{c}','c{C}','.{c}','.{C}','^{c}','^{C}',
+                         'v{d}','v{D}','.{d}','.{D}','d{d}','d{D}','{d}','{D}',
+                         '"{e}','"{E}',"'{e}","'{E}",'`{e}','`{E}','^{e}','^{E}','u{e}','u{E}','v{e}','v{E}','={e}','={E}','k{e}','k{E}','.{e}','.{E}',
+                         '.{f}','.{F}',
+                         'u{g}','u{G}','c{g}','c{G}','.{g}','.{G}','^{g}','^{G}',
+                         '.{h}','.{H}','d{h}','d{H}','^{h}','^{H}','{h}','{H}',
+                         '"{i}','"{I}','~{i}','~{I}','`{i}','`{I}',"'{i}","'{I}",'^{i}','^{I}','u{i}','u{I}','={i}','={I}','k{i}','k{I}','.{i}','.{I}',
+                         '^{j}','^{J}',
+                         'c{k}','c{K}','d{k}','d{K}',
+                         "'{l}","'{L}",'v{l}','v{L}','c{l}','c{L}','d{l}','d{L}',
+                         '.{m}','.{M}','d{m}','d{M}',
+                         "'{n}","'{N}",'~{n}','~{N}','v{n}','v{N}','c{n}','c{N}','.{n}','.{N}',
+                         '"{o}','"{O}','`{o}','`{O}',"'{o}","'{O}",'~{o}','~{O}','^{o}','^{O}','u{o}','u{O}','.{o}','.{O}','={o}','={O}','H{o}','H{O}',
+                         '.{p}','.{P}',
+                         "'{r}","'{R}",'v{r}','v{R}','c{r}','c{R}','.{r}','.{R}','d{r}','d{R}',
+                         "'{s}","'{S}",'v{s}','v{S}','c{s}','c{S}','.{s}','.{S}','d{s}','d{S}','^{s}','^{S}',
+                         'v{t}','v{T}','c{t}','c{T}','.{t}','.{T}','d{t}','d{T}','{t}','{T}',
+                         '"{u}','"{U}','`{u}','`{U}',"'{u}","'{U}",'^{u}','^{U}','d{u}','d{U}','~{u}','~{U}','u{u}','u{U}','={u}','={U}','k{u}','k{U}','r{u}','r{U}','H{u}','H{U}',
+                         'd{v}','d{V}',
+                         '^{w}','^{W}',
+                         '"{y}','"{Y}',"'{y}","'{Y}",'^{y}','^{Y}',
+                         "'{z}","'{Z}",'v{z}','v{Z}','.{z}','.{Z}');
+        $array_2 = array('ä','Ä','à','À','á','Á','ã','Ã','ā','Ā','â','Â','å','Å','ă','Ă','ą','Ą','å','Å',
+                         'ḃ','Ḃ',
+                         'ć','Ć','č','Č','ç','Ç','ċ','Ċ','ĉ','Ĉ',
+                         'ď','Ď','ḋ','Ḋ','ḍ','Ḍ','đ','Đ',
+                         'ë','Ë','é','É','è','È','ê','Ê','ĕ','Ĕ','ě','Ě','ē','Ē','ę','Ę','ė','Ė',
+                         'ḟ','Ḟ',
+                         'ğ','Ğ','ģ','Ģ','ġ','Ġ','ĝ','Ĝ',
+                         'ḣ','Ḣ','ḥ','Ḥ','ĥ','Ĥ','ħ','Ħ',
+                         'ï','Ï','ĩ','Ĩ','ì','Ì','í','Í','î','Î','ĭ','Ĭ','ī','Ī','į','Į','i','İ',
+                         'ĵ','Ĵ',
+                         'ķ','Ķ','ḳ','Ḳ',
+                         'ĺ','Ĺ','ľ','Ľ','ļ','Ļ','ḷ','Ḷ',
+                         'ṁ','Ṁ','ṃ','Ṃ',
+                         'ń','Ń','ñ','Ñ','ň','Ň','ņ','Ņ','ṅ','Ṅ',
+                         'ö','Ö','ò','Ò','ó','Ó','õ','Õ','ô','Ô','ŏ','Ŏ','ȯ','Ȯ','ō','Ō','ő','Ő',
+                         'ṗ','Ṗ',
+                         'ŕ','Ŕ','ř','Ř','ŗ','Ŗ','ṙ','Ṙ','ṛ','Ṛ',
+                         'ś','Ś','š','Š','ş','Ş','ṡ','Ṡ','ṣ','Ṣ','ŝ','Ŝ',
+                         'ť','Ť','ţ','Ţ','ṫ','Ṫ','ṭ','Ṭ','ŧ','Ŧ',
+                         'ü','Ü','ù','Ù','ú','Ú','û','Û','ụ','Ụ','ũ','Ũ','ŭ','Ŭ','ū','Ū','ų','Ų','ů','Ů','ű','Ű',
+                         'ṿ','Ṿ',
+                         'ŵ','Ŵ',
+                         'ÿ','Ÿ','ý','Ý','ŷ','Ŷ',
+                         'ź','Ź','ž','Ž','ż','Ż');
         $return = str_replace($array_1, $array_2, $input);
         return htmlspecialchars($return);
     }
-
+    
     /**
-    * Prepare a single BibTeX line with the input from onde publication field
-    * @param STRING $input - the value of the publication field
-    * @param STRING $fieldname - the name of the publication field
-    * @return STRING $input - the line
-    */
-    function prepare_bibtex_line($input, $fieldname) {
-        if ($input != '') {
-            $input = '' . $fieldname . ' = {' . stripslashes($input) . '},' . chr(13) . chr(10);
+     * Prepare a page number
+     * @access public
+     * @param strin $input
+     * @return string
+     * @since 4.0.0
+     */
+    public static function prepare_page_number ($input) {
+        if ( isset($input) ) {
+            return str_replace("--", "–", $input);
         }
         else {
-            $input = '';
+            return '';
         }
-        return $input;
     }
 
     /**
-    * Prepare a single HTML line with the input from one publication field
-    * @param STRING $input
-    * @param STRING $before
-    * @param STRING $after
-    * @return STRING $input 
-    */
-    function prepare_html_line($input, $before = '', $after = '') {
+     * Prepare a single BibTeX line with the input from onde publication field
+     * @param string $input - the value of the publication field
+     * @param string $fieldname - the name of the publication field
+     * @return string $input - the line
+     * @since 3.0.0
+     */
+    public static function prepare_bibtex_line($input, $fieldname) {
         if ($input != '') {
-            $input = $before . $input . $after;
+            return '' . $fieldname . ' = {' . stripslashes($input) . '},' . chr(13) . chr(10);
         }
         else {
-            $input = '';
+            return '';
         }
-        return $input;
     }
 
     /**
-    * Prepare a url link for publication resources 
-    * @param STRING $url
-    * @param STRING $mode     -> list or enumeration
-    * @return string 
-    */
+     * Prepare a single HTML line with the input from one publication field
+     * @param string $input
+     * @param string $before
+     * @param string $after
+     * @return string
+     * @since 3.0.0 
+     */
+    public static function prepare_html_line($input, $before = '', $after = '') {
+        if ($input != '') {
+            return $before . $input . $after;
+        }
+        else {
+            return '';
+        }
+    }
+
+    /**
+     * Prepare a url link for publication resources 
+     * @param string $url
+     * @param string $mode     -> list or enumeration
+     * @return string
+     * @since 3.0.0
+     */
     private function prepare_url($url, $mode = 'list') {
         $end = '';
         $url = explode(chr(13) . chr(10), $url);
@@ -537,13 +646,14 @@ class tp_bibtex {
     }
 
     /**
-    * Parse author names
-    * @global $PARSECREATORS
-    * @param STRING $input
-    * @param STRING $mode --> values: last, initials, old
-    * @return STIRNG 
+     * Parse author names
+     * @global $PARSECREATORS
+     * @param string $input
+     * @param string $mode       --> values: last, initials, old
+     * @return string
+     * @since 3.0.0
     */
-    function parse_author ($input, $mode = '') {
+    public static function parse_author ($input, $mode = '') {
         global $PARSECREATORS;
         /* the new teachpress parsing
             * last: 	Adolf F. Weinhold and Ludwig van Beethoven --> Weinhold, Adolf; van Beethoven, Ludwig
@@ -590,7 +700,7 @@ class tp_bibtex {
                 $one_author = "";
             }
         }
-        /* the simple teachpress_parsing
+        /* the simple teachpress parsing
             * example: Adolf F. Weinhold and Albert Einstein --> Adolf F. Weinhold, Albert Einstein
         */
         else {

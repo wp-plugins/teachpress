@@ -85,7 +85,7 @@ function teachpress_students_page() {
         <a href="admin.php?page=teachpress/students.php" style="font-size:14px; font-weight:bold; text-decoration:none; padding-right:3px;" title="<?php _e('Cancel the search','teachpress'); ?>">X</a>
         <?php } ?>
         <input name="search" type="text" value="<?php echo stripslashes($search); ?>"/></td>
-        <input name="go" type="submit" value="<?php _e('Search'); ?>" id="teachpress_search_senden" class="button-secondary"/>
+        <input name="go" type="submit" value="<?php _e('Search','teachpress'); ?>" id="teachpress_search_senden" class="button-secondary"/>
     </div>
     <div class="tablenav" style="padding-bottom:5px;">
     <select name="bulk" id="bulk">
@@ -97,7 +97,7 @@ function teachpress_students_page() {
         <select name="students_group" id="students_group">
             <option value="">- <?php _e('All students','teachpress'); ?> -</option>
             <?php
-            $row = get_tp_settings('course_of_studies', 'value ASC');
+            $row = get_tp_options('course_of_studies', 'value ASC');
             foreach($row as $row){
                 $current = $row->value == $students_group ? ' selected="selected"' : '';
                 echo'<option value="' . $row->value . '"' . $current . '>' . $row->value . '</option>';

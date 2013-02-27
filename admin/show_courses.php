@@ -108,7 +108,7 @@ function teachpress_show_courses_page() {
                 <p class="teachpress_message_text">
                 <select name="copysem" id="copysem">
                     <?php
-                    $term = get_tp_settings('semester');
+                    $term = get_tp_options('semester');
                     foreach ($term as $term) { 
                         if ($term->value == $sem) {
                             $current = 'selected="selected"' ;
@@ -137,7 +137,7 @@ function teachpress_show_courses_page() {
          <a href="admin.php?page=teachpress/teachpress.php" style="font-size:14px; font-weight:bold; text-decoration:none; padding-right:3px;" title="<?php _e('Cancel the search','teachpress'); ?>">X</a>
          <?php } ?>
          <input type="text" name="search" id="pub_search_field" value="<?php echo stripslashes($search); ?>"/></td>
-         <input type="submit" name="pub_search_button" id="pub_search_button" value="<?php _e('Search'); ?>" class="button-secondary"/>
+         <input type="submit" name="pub_search_button" id="pub_search_button" value="<?php _e('Search','teachpress'); ?>" class="button-secondary"/>
      </div>
      <div id="filterbox" style="padding-bottom:10px;">    
           <select name="bulk" id="bulk">
@@ -149,7 +149,7 @@ function teachpress_show_courses_page() {
           <select name="sem" id="sem">
                <option value=""><?php _e('All terms','teachpress'); ?></option>
                <?php    
-               $row = get_tp_settings('semester');
+               $row = get_tp_options('semester');
                foreach ($row as $row) { 
                     if ($row->value == $sem) {
                         $current = 'selected="selected"' ;
