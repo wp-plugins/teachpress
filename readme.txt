@@ -3,7 +3,7 @@ Contributors: Michael Winkler
 Tags: management, publications, enrollments, teachpress, education, course management, BibTeX, bibliography
 Requires at least: 3.3
 Tested up to: 3.5.1
-Stable tag: 4.0.0
+Stable tag: 4.0.1
 
 With this plugin you can easy manage courses, enrollments and publications.
 
@@ -111,6 +111,9 @@ define ('TP_PUBLICATION_SYSTEM','disable');
 If you save plugins outside the normal path (/wp-content/plugins/), the plugin can't load required WordPress files in some cases. Solution: Change the path in the following plugin files: export.php (line 9) / feed.php (line 7).
 
 == Changelog ==
+= 4.0.1 - (28.02.2013) =
+* Bugfix: [tpcloud]: Tag cloud generation fixed if parameter user is enabled
+* Bugfix: [tpcloud, tplist, tpsearch]: Publication list generation fixed and improved
 = 4.0.0 - (27.02.2013) =
 * New: Publication types "online" and "collection" added
 * New: Field "urldate" added for publications with the type "online"

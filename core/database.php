@@ -394,16 +394,16 @@ function get_tp_publication_used_types( $args = array() ) {
     global $wpdb;
     global $teachpress_pub;
     global $teachpress_user;
+    $output_type = esc_sql($output_type);
     $users = tp_generate_where_clause($user, "u.user", "OR", "=");
-    
     if ( $user == '' ) {
-        $result = $wpdb->get_results("SELECT DISTINCT p.type FROM $teachpress_pub p ORDER BY p.type ASC");
+        $result = $wpdb->get_results("SELECT DISTINCT p.type FROM $teachpress_pub p ORDER BY p.type ASC", $output_type);
     }    
     else {
         $result = $wpdb->get_results("SELECT DISTINCT p.type from $teachpress_pub p 
                                       INNER JOIN $teachpress_user u ON u.pub_id=p.pub_id 
-                                      WHERE $user 
-                                      ORDER BY p.type ASC");
+                                      WHERE $users 
+                                      ORDER BY p.type ASC", $output_type);
     }
     return $result;
 }
@@ -527,8 +527,8 @@ function get_tp_tag_cloud ( $args = array() ) {
     if ( $types != '') {
         $where = $where != "" ? $where . " AND ( $types )" : $types;
     }
-    if ( $types != '') {
-        $users = $where != "" ? $where . " AND ( $users )" : $users;
+    if ( $users != '') {
+        $where = $where != "" ? $where . " AND ( $users )" : $users;
     }
     if ( $where != '' ) {
         $where = " WHERE $where";
