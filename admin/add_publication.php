@@ -203,7 +203,7 @@ function teachpress_addpublications_page() {
             $temp = get_tp_tag_cloud( array('number_tags' => 30, 'output_type' => ARRAY_A) );
             $max = $temp['info']->max;
             $min = $temp['info']->min;
-            $min == 1 ? 0 : $min;
+            $min = ( $min == 1 ) ? 0 : $min;
             if ( count($temp['tags']) != 0 ) {
                 foreach ($temp['tags'] as $tagcloud) {
                     $size = floor(( $maxsize * ( $tagcloud['tagPeak'] - $min )/( $max - $min )));

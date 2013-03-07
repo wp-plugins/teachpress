@@ -68,8 +68,8 @@ function get_tp_publications($args = array(), $count = false) {
     global $teachpress_user;
 
     // define basics
-    $select = "SELECT DISTINCT p.pub_id, p.title, p.type, p.bibtex, p.author, p.editor, p.date, DATE_FORMAT(p.date, '%Y') AS year, p.urldate, p.isbn , p.url, p.booktitle, p.journal, p.volume, p.number, p.pages, p.publisher, p.address, p.edition, p.chapter, p.institution, p.organization, p.school, p.series, p.crossref, p.abstract, p.howpublished, p.key, p.techtype, p.note, p.is_isbn, p.image_url, p.rel_page FROM $teachpress_relation b ";
-    $join = "INNER JOIN $teachpress_pub p ON p.pub_id = b.pub_id ";
+    $select = "SELECT DISTINCT p.pub_id, p.title, p.type, p.bibtex, p.author, p.editor, p.date, DATE_FORMAT(p.date, '%Y') AS year, p.urldate, p.isbn , p.url, p.booktitle, p.journal, p.volume, p.number, p.pages, p.publisher, p.address, p.edition, p.chapter, p.institution, p.organization, p.school, p.series, p.crossref, p.abstract, p.howpublished, p.key, p.techtype, p.note, p.is_isbn, p.image_url, p.rel_page FROM $teachpress_pub p ";
+    $join = "";
     $where = "";
     $order = "";
     $having ="";
@@ -80,15 +80,14 @@ function get_tp_publications($args = array(), $count = false) {
     // if the user needs only the number of rows
     if ( $count == true ) {
         $select = "SELECT COUNT( DISTINCT p.pub_id ) AS `count` FROM $teachpress_pub p ";
-        $join = "INNER JOIN $teachpress_relation b ON p.pub_id = b.pub_id ";
     }
 
     // additional joins
     if ( $user != '' ) {
-        $join = $join . "INNER JOIN $teachpress_user u ON u.pub_id= b.pub_id ";
+        $join = $join . "INNER JOIN $teachpress_user u ON u.pub_id = p.pub_id ";
     }
     if ( $tag != '' ) {
-        $join = $join . "INNER JOIN $teachpress_tags t ON t.tag_id = b.tag_id ";
+        $join = $join . "INNER JOIN $teachpress_relation b ON p.pub_id = b.pub_id INNER JOIN $teachpress_tags t ON t.tag_id = b.tag_id ";
     }
 
     // define order_by clause
