@@ -20,6 +20,21 @@ function get_tp_publication($id, $output_type = OBJECT) {
 }
 
 /**
+ * Get a single publication by the bibtex key
+ * @param int $id
+ * @param string $output_type (OBJECT, ARRAY_A or ARRAY_N)
+ * @return mixed
+ * @since 4.0.3
+ */
+function get_tp_publication_by_key($key, $output_type = OBJECT) {
+    global $wpdb;
+    global $teachpress_pub;
+    $key = esc_sql(htmlspecialchars($key));
+    $result = $wpdb->get_row("SELECT *, DATE_FORMAT(date, '%Y') AS year FROM $teachpress_pub WHERE `bibtex` = '$key'", $output_type);
+    return $result;
+}
+
+/**
  * Get an array or object of publications
  * 
  * Possible values for $args:
@@ -257,9 +272,9 @@ function tp_delete_publications($checkbox){
     global $teachpress_user;
     for( $i = 0; $i < count( $checkbox ); $i++ ) {
         $checkbox[$i] = intval($checkbox[$i]);
-        $wpdb->query( "DELETE FROM $teachpress_pub WHERE `pub_id` = $checkbox[$i]" );
         $wpdb->query( "DELETE FROM $teachpress_relation WHERE `pub_id` = $checkbox[$i]" );
         $wpdb->query( "DELETE FROM $teachpress_user WHERE `pub_id` = $checkbox[$i]" );
+        $wpdb->query( "DELETE FROM $teachpress_pub WHERE `pub_id` = $checkbox[$i]" );
     }
 }	
 
@@ -806,14 +821,13 @@ function get_tp_courses ( $args = array() ) {
     // Define basics
     $sql = "SELECT course_id, name, type, lecturer, date, room, places, start, end, semester, parent, visible, rel_page, comment, parent_name
             FROM ( SELECT t.course_id AS course_id, t.name AS name, t.type AS type, t.lecturer AS lecturer, t.date AS date, t.room As room, t.places AS places, t.start AS start, t.end As end, t.semester AS semester, t.parent As parent, t.visible AS visible, t.rel_page AS rel_page, t.comment AS comment, p.name AS parent_name 
-                   FROM $teachpress_courses t 
-                   LEFT JOIN " . $teachpress_courses . " p ON t.parent = p.course_id ) AS temp";
+                FROM $teachpress_courses t 
+                LEFT JOIN $teachpress_courses p ON t.parent = p.course_id ) AS temp";
     $where = "";
     $order = esc_sql($order);
     $limit = esc_sql($limit);
     $output_type = esc_sql($output_type);
     $search = esc_sql(htmlspecialchars($search));
-    $parent = intval($parent);
     $exclude = tp_generate_where_clause($exclude, "p.pub_id", "AND", "!=");
     $semester = tp_generate_where_clause($semester, "semester", "OR", "=");
     $visibility = tp_generate_where_clause($visibility, "visible", "OR", "=");
@@ -835,7 +849,8 @@ function get_tp_courses ( $args = array() ) {
     if ( $search != '') {
         $where = $where != "" ? $where . " AND ( $search )" : $search ;
     }
-    if ( $parent != '' ) {
+    if ( $parent !== '' ) {
+        $parent = intval($parent);
         $where = $where != "" ? $where . " AND ( `parent` = '$parent' )" : "`parent` = '$parent'" ;
     }
     if ( $where != '' ) {

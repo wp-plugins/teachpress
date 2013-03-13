@@ -159,7 +159,7 @@ class tp_export {
         $row = get_tp_publications( array('user' => $user_ID, 'output_type' => ARRAY_A) );
         if ( $format == 'bibtex' ) {
             foreach ($row as $row) {
-                $tags = $wpdb->get_results("SELECT DISTINCT t.name FROM " . $teachpress_tags . " t INNER JOIN  " . $teachpress_relation . " r ON r.`tag_id` = t.`tag_id` WHERE r.pub_id = '" . $row['pub_id'] . "' ", ARRAY_A);
+                $tags = $wpdb->get_results("SELECT DISTINCT t.name FROM $teachpress_tags t INNER JOIN  $teachpress_relation r ON r.`tag_id` = t.`tag_id` WHERE r.pub_id = '" . $row['pub_id'] . "' ", ARRAY_A);
                 echo tp_bibtex::get_single_publication_bibtex($row, $tags);
             }
         }     
@@ -190,16 +190,15 @@ class tp_export {
     */
     function rtf_row ($row) {
         $settings['editor_name'] = 'initials';
+        $settings['style'] = 'simple';
         if ( $row['type'] == 'collection' ) {
             $all_authors = tp_bibtex::parse_author($row['editor'], $settings['editor_name'] );
-            $in = '';
         }
         else {
             $all_authors = tp_bibtex::parse_author($row['author'], $settings['editor_name'] );
-            $in = $row['editor'] != '' ? '' . __('In','teachpress') . ':' : '';
         }
         $meta = tp_bibtex::single_publication_meta_row($row, $settings);
-        $line = $all_authors . ' (' . $row['year'] . ')' . ': ' . stripslashes($row['title']) . ', ' . $in . $meta;
+        $line = $all_authors . ' (' . $row['year'] . ')' . ': ' . stripslashes($row['title']) . '. ' . $meta;
         $line = str_replace('  ', ' ', $line);
         $line = utf8_decode($line);
         return $line;

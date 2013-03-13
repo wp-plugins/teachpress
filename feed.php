@@ -16,9 +16,10 @@ $feedtype = isset($_GET['feedtype']) ? htmlspecialchars($_GET['feedtype']) : '';
  */
 if ($feedtype == 'bibtex') {
     header('Content-Type: text/plain; charset=utf-8;');
-    $row = get_tp_publications(array('user' => $id, 'tag' => $tag));
+    $row = get_tp_publications(array('user' => $id, 'tag' => $tag, 'output_type' => ARRAY_A));
     foreach ($row as $row) {
-        echo tp_bibtex::get_single_publication_bibtex($row);
+        $tags = get_tp_tags(array('pub_id' => $row['pub_id'], 'output_type' => ARRAY_A));
+        echo tp_bibtex::get_single_publication_bibtex($row, $tags);
     }
 }
 
@@ -63,6 +64,7 @@ if ($feedtype == 'bibtex') {
         $row['title'] = tp_bibtex::replace_html_chars($row['title']);
         $item_link = tp_bibtex::replace_html_chars($item_link);
         $settings['editor_name'] = 'simple';
+        $settings['style'] = 'simple';
         echo '
              <item>
                 <title><![CDATA[' . stripslashes($row['title']) . ']]></title>

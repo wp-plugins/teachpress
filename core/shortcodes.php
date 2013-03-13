@@ -216,6 +216,7 @@ function tp_date_shortcode($attr) {
 function tp_single_shortcode ($atts) {
     extract(shortcode_atts(array(
        'id' => 0,
+       'key' => '',
        'author_name' => 'simple',
        'editor_name' => 'last',
        'date_format' => 'd.m.Y'
@@ -224,13 +225,20 @@ function tp_single_shortcode ($atts) {
     $settings = array(
        'author_name' => htmlspecialchars($author_name),
        'editor_name' => htmlspecialchars($editor_name),
-       'date_format' => htmlspecialchars($date_format)
+       'date_format' => htmlspecialchars($date_format),
+       'style' => 'simple', 
     );
     
-    $publication = get_tp_publication($id, ARRAY_A);
+    if ( $key != '' ) {
+        $publication = get_tp_publication_by_key($key, ARRAY_A);
+    }
+    else {
+        $publication = get_tp_publication($id, ARRAY_A);
+    }
+    
     $author = tp_bibtex::parse_author($publication['author'], $settings['author_name']);
 
-    $asg = '<div class="tp_single_publication"><span class="tp_single_author">' . stripslashes($author) . '</span> (<span class="tp_single_year">' . $publication['year'] . '</span>): <span class="tp_single_title">' . stripslashes($publication['title']) . '</span>, <span class="tp_single_additional">' . tp_bibtex::single_publication_meta_row($publication, $settings) . '</span></div>';
+    $asg = '<div class="tp_single_publication"><span class="tp_single_author">' . stripslashes($author) . '</span><span class="tp_single_year"> (' . $publication['year'] . ')</span>: <span class="tp_single_title">' . stripslashes($publication['title']) . '</span>. <span class="tp_single_additional">' . tp_bibtex::single_publication_meta_row($publication, $settings) . '</span></div>';
     return $asg;
 }
 

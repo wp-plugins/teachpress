@@ -85,6 +85,9 @@ class tp_bibtex {
             }
             $string = $string . 'keywords = {' . substr($keywords, 0, -2) . '}';
         }
+        else {
+            $string = $string . 'keywords = {}';
+        }
         // Add teachPress export data
         if ( $row['type'] == 'presentation' ) {
             $string = $string . ",". chr(13) . chr(10) . 'tppubtype = {' . $row['type'] . '}' . chr(13) . chr(10);
@@ -195,7 +198,6 @@ class tp_bibtex {
         }
         // different styles: simple and normal
         if ($settings['style'] == 'simple' || $settings['style'] == 'numbered') {
-            $in = $row['editor'] != '' ? '' . __('In','teachpress') . ': ' : '';
             $a1 = '<tr class="tp_publication_simple">';
             if ( $settings['style'] == 'numbered' ) {
                 $a1 = $a1 . '<td class="tp_pub_number">' . $tpz . '.</td>';
@@ -204,8 +206,8 @@ class tp_bibtex {
             $a1 = $a1 . '<td class="tp_pub_info_simple">';
             $a1 = $a1 . '<span class="tp_pub_author_simple">' . stripslashes($all_authors) . '</span> ';
             $a1 = $a1 . '<span class="tp_pub_year_simple">(' . $row['year'] . ')</span>: ';
-            $a1 = $a1 . '<span class="tp_pub_title_simple">' . stripslashes($name) . '.</span> ';
-            $a1 = $a1 . '<span class="tp_pub_additional_simple">' . $in . tp_bibtex::single_publication_meta_row($row, $settings) . '</span>';
+            $a1 = $a1 . '<span class="tp_pub_title_simple">' . stripslashes($name) . '</span>. ';
+            $a1 = $a1 . '<span class="tp_pub_additional_simple">' . tp_bibtex::single_publication_meta_row($row, $settings) . '</span>';
             $a2 = ' <span class="tp_pub_tags_simple">(' . __('Type') . ': <span class="tp_pub_typ_simple">' . stripslashes($type) . '</span> | ' . $a2 . ')</span>';
         }
         else {
@@ -305,10 +307,18 @@ class tp_bibtex {
             $volume = substr($volume, 0, -1);
             $number = ', ';
         }
+        
+        // special cases for article/incollection/inbook/inproceedings
+        $in = '';
+        if ($settings['style'] == 'simple' || $settings['style'] == 'numbered' ) {
+            if ( $row['type'] == 'article' || $row['type'] == 'inbook' || $row['type'] == 'incollection' || $row['type'] == 'inproceedings') {
+                $in = '' . __('In','teachpress') . ': ';
+            }
+        }
 
         // end format after type
         if ($row['type'] == 'article') {
-            $end = $journal . $volume . $number . $pages . $year . $isbn . $note . '.';
+            $end = $in . $journal . $volume . $number . $pages . $year . $isbn . $note . '.';
         }
         elseif ($row['type'] == 'book') {
             $end = $edition . $publisher . $address . $year . $isbn . $note .'.';
@@ -323,13 +333,13 @@ class tp_bibtex {
             $end = $booktitle . $volume . $number . $series . $organization . $publisher . $address . $year . $isbn . $note . '.';
         }
         elseif ($row['type'] == 'inbook') {
-            $end = $editor . $booktitle . $volume . $number . $chapter . $pages . $publisher . $address . $edition. $year . $isbn . $note . '.';
+            $end = $in . $editor . $booktitle . $volume . $number . $chapter . $pages . $publisher . $address . $edition. $year . $isbn . $note . '.';
         }
         elseif ($row['type'] == 'incollection') {
-            $end = $editor . $booktitle . $volume . $number . $pages . $publisher . $address . $year . $isbn . $note . '.';
+            $end = $in . $editor . $booktitle . $volume . $number . $pages . $publisher . $address . $year . $isbn . $note . '.';
         }
         elseif ($row['type'] == 'inproceedings') {
-            $end = $editor . $booktitle . $pages . $organization . $publisher . $address. $year . $isbn . $note . '.';
+            $end = $in . $editor . $booktitle . $pages . $organization . $publisher . $address. $year . $isbn . $note . '.';
         }
         elseif ($row['type'] == 'manual') {
             $end = $editor . $organization . $address. $edition . $year . $isbn . $note . '.';
