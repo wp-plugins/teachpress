@@ -31,46 +31,46 @@ function teachpress_admin_settings() {
      <?php
      // event handler
      if ( isset($_GET['up']) ) {
-          tp_db_update();
+        tp_db_update();
      }
      if ( isset($_GET['ins']) ) {
-          tp_install();
+        tp_install();
      }
      if (isset( $_POST['einstellungen'] )) {
-          if ($all_options['matriculation_number'] != '1') {
-              $all_options['matriculation_number'] == 0;
-          }
-          if ($all_options['course_of_studies'] != '1') {
-              $all_options['course_of_studies'] == 0;
-          }
-          if ($all_options['semesternumber'] != '1') {
-              $all_options['semesternumber'] == 0;
-          }
-          if ($all_options['birthday'] != '1') {
-              $all_options['birthday'] == 0;
-          }
-          
-          if ($_POST['drop_tp'] == '1') {
-              tp_uninstall();
-          }
-          else {
-              tp_change_options($all_options);
-          }
-          
-          $message = __('Settings are changed. Please note that access changes are visible, until you have reloaded this page a secont time.','teachpress');
-          get_tp_message($message);
+        if ($all_options['matriculation_number'] != '1') {
+            $all_options['matriculation_number'] == 0;
+        }
+        if ($all_options['course_of_studies'] != '1') {
+            $all_options['course_of_studies'] == 0;
+        }
+        if ($all_options['semesternumber'] != '1') {
+            $all_options['semesternumber'] == 0;
+        }
+        if ($all_options['birthday'] != '1') {
+            $all_options['birthday'] == 0;
+        }
+
+        if ($_POST['drop_tp'] == '1') {
+            tp_uninstall();
+        }
+        else {
+            tp_change_options($all_options);
+        }
+
+        $message = __('Settings are changed. Please note that access changes are visible, until you have reloaded this page a secont time.','teachpress');
+        get_tp_message($message);
      }
      if (isset( $_POST['addstud'] ) && $name != __('Add course of studies','teachpress')) {
-         tp_add_option($name, 'course_of_studies');
+        tp_add_option($name, 'course_of_studies');
      }
      if (isset( $_POST['addtyp'] ) && $typ != __('Add type','teachpress')) {
-           tp_add_option($typ, 'course_type');
+        tp_add_option($typ, 'course_type');
      }
      if (isset( $_POST['addsem'] ) && $newsem != __('Add term','teachpress')) {
-           tp_add_option($newsem, 'semester');
+        tp_add_option($newsem, 'semester');
      }
      if ( isset( $_GET['delete'] ) ) {
-           tp_delete_setting($_GET['delete']);
+        tp_delete_option($_GET['delete']);
      }?>
      <h2 style="padding-bottom:0px;"><?php _e('teachPress settings','teachpress'); ?></h2>
      <?php
