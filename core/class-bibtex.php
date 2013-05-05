@@ -417,8 +417,8 @@ class tp_bibtex {
                 $entries[$i]['date'] = $entries[$i]['year'] . '-01-01';
             }
             // for tags
-            if ($entries[$i]['keywords'] != '') { 
-                $tags = str_replace($settings['keyword_separator'],",",$entries[$i]['keywords']);   
+            if ($entries[$i]['keywords'] != '') {
+                $tags = str_replace($settings['keyword_separator'],",",$entries[$i]['keywords']);
             }
             elseif ($entries[$i]['tags'] != '') {
                 $tags = str_replace($settings['keyword_separator'],",",$entries[$i]['tags']);
@@ -473,6 +473,10 @@ class tp_bibtex {
                 $entries[$i][$key] = str_replace(array('{','}'), array('',''), $value);
             }
             if ( $test === false ) {
+                // Try to fix problems with line breaks
+                if ( $tags != '' ) {
+                    $tags = str_replace (array("\r\n", "\n", "\r"), ' ', $tags);
+                }
                 $entries[$i]['entry_id'] = tp_add_publication($entries[$i], $tags, ''); 
             }
         }

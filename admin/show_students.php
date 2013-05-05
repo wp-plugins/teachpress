@@ -55,10 +55,6 @@ function teachpress_students_page() {
         teachpress_students_new_page();
     }
     else {
-        $field1 = get_tp_option('regnum');
-        $field2 = get_tp_option('studies');
-        $students = get_tp_students( array('course_of_studies' => $students_group, 'search' => $search, 'limit' => $entry_limit . ',' . $entries_per_page, 'output_type' => OBJECT ) );
-        $number_entries = get_tp_students( array('course_of_studies' => $students_group, 'search' => $search, 'output_type' => OBJECT, 'count' => true ) );
         ?>
         <div class="wrap">
         <form name="search" method="get" action="admin.php">
@@ -78,6 +74,11 @@ function teachpress_students_page() {
             $message = __('Removing successful','teachpress');
             get_tp_message($message);
         }
+        // Load data
+        $field1 = get_tp_option('regnum');
+        $field2 = get_tp_option('studies');
+        $students = get_tp_students( array('course_of_studies' => $students_group, 'search' => $search, 'limit' => $entry_limit . ',' . $entries_per_page, 'output_type' => OBJECT ) );
+        $number_entries = get_tp_students( array('course_of_studies' => $students_group, 'search' => $search, 'output_type' => OBJECT, 'count' => true ) );
         ?>
         <h2><?php _e('Students','teachpress'); ?> <a class="add-new-h2" href="admin.php?page=teachpress/students.php&amp;action=add"><?php _e('Add student','teachpress'); ?></a></h2>
         <div id="searchbox" style="float:right; padding-bottom:5px;">  

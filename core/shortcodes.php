@@ -314,6 +314,8 @@ function tp_generate_pub_table($tparray, $args ) {
  * 
  * Parameters for the array $atts:
  *   user (INT)             --> the id of on or more users (separated by comma)
+ *   tag (INT)              -->
+ *   year (INT)             -->
  *   type (STRING)          --> the publication types you want to show (separated by comma)
  *   exclude (INT)          --> one or more IDs of publications you don't want to show (separated by comma)
  *   order (STRING)         --> name, year, bibtex or type, default: date DESC
@@ -339,6 +341,8 @@ function tp_generate_pub_table($tparray, $args ) {
 function tp_cloud_shortcode($atts) {
    extract(shortcode_atts(array(
       'user' => '',
+      'tag' => '',
+      'year' => '',
       'type' => '',
       'exclude' => '', 
       'order' => 'date DESC',
@@ -357,6 +361,8 @@ function tp_cloud_shortcode($atts) {
    ), $atts));
    $user = intval($user);
    $sort_type = htmlspecialchars($type);
+   $tag = htmlspecialchars($tag);
+   $year = htmlspecialchars($year);
    
    $tgid = isset ($_GET['tgid']) ? intval($_GET['tgid']) : '';
    $yr = isset ($_GET['yr']) ? intval($_GET['yr']) : '';
@@ -390,7 +396,6 @@ function tp_cloud_shortcode($atts) {
    
    // Permalinks
    // Link structure
-
    if ( get_option('permalink_structure') ) {
       $permalink = get_permalink() . "?";
    }
@@ -410,9 +415,9 @@ function tp_cloud_shortcode($atts) {
    $min = $temp["info"]->min;
    $max = $temp["info"]->max;
    // level out the min
-    if ($min == 1) {
-       $min = 0;
-    }
+   if ($min == 1) {
+      $min = 0;
+   }
    // Create the cloud
    foreach ($temp["tags"] as $tagcloud) {
       $link_url = $permalink;

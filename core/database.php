@@ -557,7 +557,7 @@ function get_tp_tag_cloud ( $args = array() ) {
             GROUP BY anzahlTags 
             ORDER BY anzahlTags DESC";
     $cloud_info = $wpdb->get_row("SELECT MAX(anzahlTags) AS max, min(anzahlTags) AS min FROM ( $sql ) AS temp", OBJECT);
-    
+    $cloud_info->min = $cloud_info->min == '' ? 0 : $cloud_info->min; // Fix if there are no tags
     $sql = "SELECT tagPeak, name, tag_id FROM ( 
               SELECT COUNT(r.tag_id) as tagPeak, t.name AS name, t.tag_id as tag_id 
               FROM $teachpress_relation r 
@@ -763,6 +763,7 @@ function get_tp_course_free_places($course_id, $places) {
     global $wpdb;
     global $teachpress_signup;
     $course_id = intval($course_id);
+    $places = intval($places);
     $used_places = $wpdb->get_var("SELECT COUNT(`course_id`) FROM $teachpress_signup WHERE `course_id` = '$course_id' AND `waitinglist` = 0");
     return ($places - $used_places);
 }

@@ -1,9 +1,10 @@
 === teachPress ===
 Contributors: Michael Winkler
 Tags: management, publications, enrollments, teachpress, education, course management, BibTeX, bibliography
+License: GPLv2 or later
 Requires at least: 3.3
 Tested up to: 3.5.1
-Stable tag: 4.0.4
+Stable tag: 4.0.5
 
 With this plugin you can easy manage courses, enrollments and publications.
 
@@ -111,6 +112,14 @@ define ('TP_PUBLICATION_SYSTEM','disable');
 If you save plugins outside the normal path (/wp-content/plugins/), the plugin can't load required WordPress files in some cases. Solution: Change the path in the following plugin files: export.php (line 9) / feed.php (line 7).
 
 == Changelog ==
+= 4.0.5 - (xx.05.2013) =
+* Bugfix: [tpenrollments]: Fixed possible destroying of templates, [reported in WP Support Forum](http://wordpress.org/support/topic/bug-registration-form-in-tpenrollments-destroyes-design)
+* Bugfix: [tpenrollments]: Not fillable input fields in the registration form, [reported in WP Support Forum](http://wordpress.org/support/topic/bug-registration-form-in-tpenrollments-destroyes-design)
+* Bugfix: [tpenrollments]: User registration doesn't work, [reported in WP Support Forum](http://wordpress.org/support/topic/bug-formula-tp_registration_form-do-not-work-for-registration)
+* Bugfix: Fixed a wrong SQL-Request if tags are not exists in get_tp_tag_cloud(), [reported in WP Support Forum](http://wordpress.org/support/topic/bug-see-some-php-code-under-the-add-publication-page)
+* Bugfix: Fixed a wrong call of objects under some conditions in tp_registration_form()
+* Bugfix: Fixed an untimely loading of data under some conditions in teachpress_students_page()
+* Bugfix: Publication import: Try to fix a problem with line breaks within keywords, [reported here](http://mtrv.wordpress.com/teachpress/comment-page-4/#comment-2123)
 = 4.0.4 - (15.03.2013) =
 * Bugfix: Fixed a bug which prevent deleting terms, courses of studies and course types
 = 4.0.3 - (13.03.2013) =
