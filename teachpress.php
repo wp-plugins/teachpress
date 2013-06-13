@@ -3,7 +3,7 @@
 Plugin Name: teachPress
 Plugin URI: http://mtrv.wordpress.com/teachpress/
 Description: With teachPress you can easy manage courses, enrollments and publications.
-Version: 4.0.5
+Version: 4.1.0
 Author: Michael Winkler
 Author URI: http://mtrv.wordpress.com/
 Min WP Version: 3.3
@@ -42,7 +42,6 @@ $teachpress_pub = $wpdb->prefix . 'teachpress_pub';             // Publications
 $teachpress_tags = $wpdb->prefix . 'teachpress_tags';           // Tags
 $teachpress_relation = $wpdb->prefix . 'teachpress_relation';   // Relationship Tags - Publications
 $teachpress_user = $wpdb->prefix . 'teachpress_user';           // Relationship Publications - User
-require_once('version.php');
 
 /*************/
 /* Add menus */
@@ -167,11 +166,12 @@ function get_tp_publication_types() {
     $pub_types[10] = array (0 => 'masterthesis', 1 => __('Mastersthesis','teachpress'), 2 => __('Masterstheses','teachpress'));
     $pub_types[11] = array (0 => 'misc', 1 => __('Misc','teachpress'), 2 => __('Misc','teachpress'));
     $pub_types[12] = array (0 => 'online', 1 => __('Online','teachpress'), 2 => __('Online','teachpress'));
-    $pub_types[13] = array (0 => 'phdthesis', 1 => __('PhD Thesis','teachpress'), 2 => __('PhD Theses','teachpress'));
-    $pub_types[14] = array (0 => 'presentation', 1 => __('Presentation','teachpress'), 2 => __('Presentations','teachpress'));
-    $pub_types[15] = array (0 => 'proceedings', 1 => __('Proceeding','teachpress'), 2 => __('Proceedings','teachpress'));
-    $pub_types[16] = array (0 => 'techreport', 1 => __('Techreport','teachpress'), 2 => __('Techreports','teachpress'));
-    $pub_types[17] = array (0 => 'unpublished', 1 => __('Unpublished','teachpress'), 2 => __('Unpublished','teachpress'));
+    $pub_types[13] = array (0 => 'periodical', 1 => __('Periodical','teachpress'), 2 => __('Periodicals','teachpress'));
+    $pub_types[14] = array (0 => 'phdthesis', 1 => __('PhD Thesis','teachpress'), 2 => __('PhD Theses','teachpress'));
+    $pub_types[15] = array (0 => 'presentation', 1 => __('Presentation','teachpress'), 2 => __('Presentations','teachpress'));
+    $pub_types[16] = array (0 => 'proceedings', 1 => __('Proceeding','teachpress'), 2 => __('Proceedings','teachpress'));
+    $pub_types[17] = array (0 => 'techreport', 1 => __('Techreport','teachpress'), 2 => __('Techreports','teachpress'));
+    $pub_types[18] = array (0 => 'unpublished', 1 => __('Unpublished','teachpress'), 2 => __('Unpublished','teachpress'));
     return $pub_types;
 }
 
@@ -247,46 +247,23 @@ function tp_translate_pub_type($string, $num = 'sin') {
 
 /** 
  * Get publication types
- * @param string $selected
- * @param string $mode      - list (list menu) or jump (jump menu)
- * @param string $url       - jump mode only
- * @param int $tgid         - jump mode only
- * @param int $yr           - jump mode only
- * @param string $autor     - jump mode only
- *
- * $pub_types[i][0] --> Database string
- * $pub_types[i][1] --> Translation string
- *
+ * @param string $selected  --> 
+ * @param string $mode      --> sng (singular titles) or pl (plural titles)
+ * 
+ * @version 2
+ * @since 4.1.0
+ * 
  * @return string
 */
-function get_tp_publication_type_options ($selected, $mode = 'list', $url = '', $tgid = '', $yr = '', $author = '', $anchor = 1) {
+function get_tp_publication_type_options ($selected, $mode = 'sng') {
      $selected = htmlspecialchars($selected);
-     $url = htmlspecialchars($url);
-     $author = htmlspecialchars($author);
-     $tgid = intval($tgid);
-     $yr = intval($yr);
-     $anchor = intval($anchor);
      $types = '';
-     if ($anchor == 1) {
-          $html_anchor = '#tppubs';
-     }
-     else {
-          $html_anchor = '';
-     }
      $pub_types = get_tp_publication_types();
-     for ($i = 1; $i <= 15; $i++) {
-         if ($pub_types[$i][0] == $selected && $selected != '') {
-              $current = 'selected="selected"';
-         }
-         else {
-              $current = '';
-         }
-         if ($mode == 'jump') {
-              $types = $types . '<option value="' . $url . 'tgid=' . $tgid . '&amp;yr=' . $yr . '&amp;type=' . $pub_types[$i][0] . '&amp;autor=' . $author . $html_anchor . '" ' . $current . '>' . __('' . $pub_types[$i][1] . '','teachpress') . '</option>';
-         }
-         else {
-              $types = $types . '<option value="' . $pub_types[$i][0] . '" ' . $current . '>' . __('' . $pub_types[$i][1] . '','teachpress') . '</option>';  
-         }
+     $m = ($mode === 'sng') ? 1 : 2;
+     $max = count($pub_types);
+     for ($i = 1; $i < $max; $i++) {
+         $current = ($pub_types[$i][0] == $selected && $selected != '') ? 'selected="selected"' : '';
+         $types = $types . '<option value="' . $pub_types[$i][0] . '" ' . $current . '>' . __('' . $pub_types[$i][$m] . '','teachpress') . '</option>';  
      }
    return $types;
 }
@@ -328,6 +305,7 @@ function get_tp_var_types($type) {
                         'date' => '',
                         'urldate' => '',
                         'booktitle' => '',
+                        'issuetitle' => '',
                         'journal' => '',
                         'volume' => '',
                         'number' => '',
@@ -360,8 +338,7 @@ function get_tp_var_types($type) {
  * @return string
 */
 function get_tp_version(){
-    global $tp_version;
-    return $tp_version;
+    return '4.1.0';
 }
 
 /** 
@@ -390,8 +367,7 @@ function tp_advanced_registration() {
     global $wpdb;
     global $teachpress_stud;
     global $current_user;
-    $sql = "SELECT `wp_id` FROM $teachpress_stud WHERE `wp_id` = '$current_user->ID'";
-    $test = $wpdb->query($sql);
+    $test = $wpdb->query("SELECT `wp_id` FROM $teachpress_stud WHERE `wp_id` = '$current_user->ID'");
     if ($test == '0' && $user->ID != '0') {
         if ($user->user_firstname == '') {
             $user->user_firstname = $user->display_name;
@@ -611,7 +587,7 @@ function tp_install() {
         dbDelta($sql);
         // Default settings		
         $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('sem', 'Example term', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('db-version', '4.0.5', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('db-version', '4.1.0', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('sign_out', '0', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('login', 'std', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('stylesheet', '1', 'system')");
@@ -640,6 +616,7 @@ function tp_install() {
                     `date` DATE ,
                     `urldate` DATE ,
                     `booktitle` VARCHAR (200) ,
+                    `issuetitle` VARCHAR (200),
                     `journal` VARCHAR(200) ,
                     `volume` VARCHAR(40) ,
                     `number` VARCHAR(40) ,
@@ -713,7 +690,9 @@ function tp_uninstall() {
     global $teachpress_tags;
     global $teachpress_relation;
     global $teachpress_user;
-    $wpdb->query("DROP TABLE $teachpress_courses, $teachpress_stud, $teachpress_settings, $teachpress_signup, $teachpress_pub, $teachpress_tags, $teachpress_user, $teachpress_relation");
+    $wpdb->query("SET FOREIGN_KEY_CHECKS=0");
+    $wpdb->query("DROP TABLE `$teachpress_courses`, `$teachpress_stud`, `$teachpress_settings`, `$teachpress_signup`, `$teachpress_pub`, `$teachpress_tags`, `$teachpress_user`, `$teachpress_relation`");
+    $wpdb->query("SET FOREIGN_KEY_CHECKS=1");
 }
 
 /*********************/
@@ -723,12 +702,7 @@ function tp_uninstall() {
 /** Admin interface script loader */ 
 function tp_backend_scripts() {
     // Define $page
-    if ( isset($_GET['page']) ) {
-        $page = $_GET['page'];
-    }
-    else {
-        $page = '';
-    }
+    $page = isset($_GET['page']) ? $_GET['page'] : '';
     wp_enqueue_style('teachpress-print-css', WP_PLUGIN_URL . '/teachpress/styles/print.css', false, false, 'print');
     // Load scripts only, when it's teachpress page
     if ( strpos($page, 'teachpress') !== false || strpos($page, 'publications') !== false ) {

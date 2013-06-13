@@ -22,7 +22,7 @@ class tp_bibtex {
     */
     public static function get_single_publication_bibtex ($row, $all_tags = '') {
         $string = '';
-        $pub_fields = array('type','bibtex','title','author','editor','url','isbn','date','urldate','booktitle','journal','volume','number','pages','publisher','address','edition','chapter','institution','organization','school','series','crossref','abstract','howpublished','key','techtype','note');
+        $pub_fields = array('type','bibtex','title','author','editor','url','isbn','date','urldate','booktitle','issuetitle','journal','volume','number','pages','publisher','address','edition','chapter','institution','organization','school','series','crossref','abstract','howpublished','key','techtype','note');
         // initial string
         if ( $row['type'] == 'presentation' ) {
             $string = '@misc{' . stripslashes($row['bibtex']) . ',' . chr(13) . chr(10);
@@ -128,18 +128,18 @@ class tp_bibtex {
         $image_bottom = '';
         $td_left = '';
         $td_right = '';
-        if ( $settings['image'] == 'left' || $settings['image'] == 'right' ) {
+        if ( $settings['image'] === 'left' || $settings['image'] === 'right' ) {
             if ( $row['image_url'] != '' ) {
                 $image_marginally = '<img name="' . $row['title'] . '" src="' . $row['image_url'] . '" width="' . ($settings['pad_size'] - 5) .'" alt="' . $row['title'] . '" />';
             }
         }
-        if ( $settings['image'] == 'left' ) {
+        if ( $settings['image'] === 'left' ) {
             $td_left = '<td class="tp_pub_image_left" width="' . $settings['pad_size'] . '">' . $image_marginally . '</td>';
         }
-        if ( $settings['image'] == 'right' ) {
+        if ( $settings['image'] === 'right' ) {
             $td_right = '<td class="tp_pub_image_right" width="' . $settings['pad_size']  . '">' . $image_marginally . '</td>';
         }
-        if ( $settings['image'] == 'bottom' ) {
+        if ( $settings['image'] === 'bottom' ) {
             if ( $row['image_url'] != '' ) {
                 $image_bottom = '<div class="tp_pub_image_bottom"><img name="' . stripslashes($row['title']) . '" src="' . $row['image_url'] . '" style="max-width:' . ($settings['pad_size']  - 5) .'px;" alt="' . stripslashes($row['title']) . '" /></div>';
             }
@@ -149,7 +149,7 @@ class tp_bibtex {
             $name = '<a href="' . get_permalink($row['rel_page']) . '">' . stripslashes($row['title']) . '</a>';
         }
         // for inline style
-        elseif ( $row['url'] != '' && $settings['link_style'] == 'inline' ) {
+        elseif ( $row['url'] != '' && $settings['link_style'] === 'inline' ) {
             $name = '<a class="tp_title_link" onclick="teachpress_pub_showhide(' . $str . $row['pub_id'] . $str . ',' . $str . 'tp_links' . $str . ')" style="cursor:pointer;">' . $row['title'] . '</a>';
         }
         else {
@@ -157,7 +157,7 @@ class tp_bibtex {
         }
 
         // parse author names
-        if ( $row['type'] == 'collection' || ( $row['type'] == 'article' && $row['author'] == '' && $row['editor'] != '' ) ) {
+        if ( $row['type'] === 'collection' || $row['type'] === 'periodical' || ( $row['type'] === 'article' && $row['author'] == '' && $row['editor'] != '' ) ) {
             $all_authors = tp_bibtex::parse_author($row['editor'], $settings['author_name'] ) . ' (' . __('Ed.','teachpress') . ')';
         }
         else {
@@ -274,7 +274,7 @@ class tp_bibtex {
         }
         
         // for urldate
-        if ( isset( $row['urldate'] ) ) {
+        if ( isset( $row['urldate'] ) && $row['urldate'] !== '0000-00-00'  ) {
              $row['urldate'] = ( array_key_exists('date_format', $settings) === true ) ? date( $settings['date_format'], strtotime($row['urldate']) ) : $row['urldate'];
             $urldate = tp_bibtex::prepare_html_line($row['urldate'],', ' . __('visited','teachpress') . ': ','');
         }
@@ -287,6 +287,7 @@ class tp_bibtex {
         $pages = isset( $row['pages'] ) ? tp_bibtex::prepare_html_line( tp_bibtex::prepare_page_number($row['pages']) , __('pp.','teachpress') . ' ',', ') : '';
         $year = isset( $row['year'] ) ? tp_bibtex::prepare_html_line($row['year']) : '';
         $booktitle = isset( $row['booktitle'] ) ? tp_bibtex::prepare_html_line($row['booktitle'],'',', ') : '';
+        $issuetitle = isset( $row['issuetitle'] ) ? tp_bibtex::prepare_html_line($row['issuetitle'],'',', ') : '';
         $journal = isset( $row['journal'] ) ? tp_bibtex::prepare_html_line($row['journal'],'',', ') : '';
         $volume = isset( $row['volume'] ) ? tp_bibtex::prepare_html_line($row['volume'],'',' ') : '';
         $number = isset( $row['number'] ) ? tp_bibtex::prepare_html_line($row['number'],'(','), ') : '';
@@ -310,63 +311,66 @@ class tp_bibtex {
         
         // special cases for article/incollection/inbook/inproceedings
         $in = '';
-        if ($settings['style'] == 'simple' || $settings['style'] == 'numbered' ) {
-            if ( $row['type'] == 'article' || $row['type'] == 'inbook' || $row['type'] == 'incollection' || $row['type'] == 'inproceedings') {
-                $in = '' . __('In','teachpress') . ': ';
+        if ($settings['style'] === 'simple' || $settings['style'] === 'numbered' ) {
+            if ( $row['type'] === 'article' || $row['type'] === 'inbook' || $row['type'] === 'incollection' || $row['type'] === 'inproceedings') {
+                $in = __('In','teachpress') . ': ';
             }
         }
 
         // end format after type
-        if ($row['type'] == 'article') {
+        if ($row['type'] === 'article') {
             $end = $in . $journal . $volume . $number . $pages . $year . $isbn . $note . '.';
         }
-        elseif ($row['type'] == 'book') {
+        elseif ($row['type'] === 'book') {
             $end = $edition . $publisher . $address . $year . $isbn . $note .'.';
         }
-        elseif ($row['type'] == 'booklet') {
+        elseif ($row['type'] === 'booklet') {
             $end = $howpublished . $address . $edition . $year . $isbn . $note . '.';
         }
-        elseif ($row['type'] == 'collection') {
+        elseif ($row['type'] === 'collection') {
             $end = $edition . $publisher . $address . $year . $isbn . $note . '.';
         }
-        elseif ($row['type'] == 'conference') {
+        elseif ($row['type'] === 'conference') {
             $end = $booktitle . $volume . $number . $series . $organization . $publisher . $address . $year . $isbn . $note . '.';
         }
-        elseif ($row['type'] == 'inbook') {
+        elseif ($row['type'] === 'inbook') {
             $end = $in . $editor . $booktitle . $volume . $number . $chapter . $pages . $publisher . $address . $edition. $year . $isbn . $note . '.';
         }
-        elseif ($row['type'] == 'incollection') {
+        elseif ($row['type'] === 'incollection') {
             $end = $in . $editor . $booktitle . $volume . $number . $pages . $publisher . $address . $year . $isbn . $note . '.';
         }
-        elseif ($row['type'] == 'inproceedings') {
+        elseif ($row['type'] === 'inproceedings') {
             $end = $in . $editor . $booktitle . $pages . $organization . $publisher . $address. $year . $isbn . $note . '.';
         }
-        elseif ($row['type'] == 'manual') {
+        elseif ($row['type'] === 'manual') {
             $end = $editor . $organization . $address. $edition . $year . $isbn . $note . '.';
         }
         elseif ($row['type'] == 'mastersthesis') {
             $end = $school . $year . $isbn . $note . '.';
         }
-        elseif ($row['type'] == 'misc') {
+        elseif ($row['type'] === 'misc') {
             $end = $howpublished . $year . $isbn . $note . '.';
         }
-        elseif ($row['type'] == 'online') {
+        elseif ($row['type'] === 'online') {
             $end = $editor . $organization . $year . $urldate . $note . '.';
         }
-        elseif ($row['type'] == 'phdthesis') {
+        elseif ($row['type'] === 'periodical') {
+            $end = $issuetitle . $series . $volume . $number . $year . $urldate . $isbn . $note . '.';
+        }
+        elseif ($row['type'] === 'phdthesis') {
             $end = $school . $year . $isbn . $note . '.';
         }
-        elseif ($row['type'] == 'presentation') {
+        elseif ($row['type'] === 'presentation') {
             $date = ( array_key_exists('date_format', $settings) === true ) ? ', ' . date( $settings['date_format'], strtotime($row['date']) ) . '' : '';
             $end = $howpublished . $row['address'] . $date . $note . '.';
         }
-        elseif ($row['type'] == 'proceedings') {
+        elseif ($row['type'] === 'proceedings') {
             $end = $howpublished . $organization. $publisher. $address . $edition . $year . $isbn . $note . '.';
         }
-        elseif ($row['type'] == 'techreport') {
+        elseif ($row['type'] === 'techreport') {
             $end = $institution . $address . $techtype . $number. $year . $isbn . $note . '.';
         }
-        elseif ($row['type'] == 'unpublished') {
+        elseif ($row['type'] === 'unpublished') {
             $end = $year . $isbn . $note . '.';
         }
         else {

@@ -40,6 +40,7 @@ function teachpress_addpublications_page() {
    $data['date'] = isset( $_POST['date'] ) ? htmlspecialchars($_POST['date']) : '';
    $data['urldate'] = isset( $_POST['urldate'] ) ? htmlspecialchars($_POST['urldate']) : '';
    $data['booktitle'] = isset( $_POST['booktitle'] ) ? htmlspecialchars($_POST['booktitle']) : '';
+   $data['issuetitle'] = isset( $_POST['issuetitle'] ) ? htmlspecialchars($_POST['issuetitle']) : '';
    $data['journal'] = isset( $_POST['journal'] ) ? htmlspecialchars($_POST['journal']) : '';
    $data['volume'] = isset( $_POST['volume'] ) ? htmlspecialchars($_POST['volume']) : '';
    $data['number'] = isset( $_POST['number'] ) ? htmlspecialchars($_POST['number']) : '';
@@ -162,7 +163,7 @@ function teachpress_addpublications_page() {
                 <input type="reset" name="Reset" value="<?php _e('Reset','teachpress'); ?>" id="teachpress_reset" class="button-secondary">
                 </div>
                 <div style="width:50%; float:right; height:25px;">
-                <input name="erstellen" type="submit" class="button-primary" id="publikation_erstellen" onclick="teachpress_validateForm('tags','','R','title','','R','bibtex','','R');return document.teachpress_returnValue" value="<?php _e('Create','teachpress'); ?>">
+                <input name="erstellen" type="submit" class="button-primary" id="publikation_erstellen" onclick="teachpress_validateForm('tags','','R','title','','R','bibtex','','R');return document.teachpress_returnValue;" value="<?php _e('Create','teachpress'); ?>">
                 </div>
             </td>
            </tr>    
@@ -202,8 +203,7 @@ function teachpress_addpublications_page() {
            
             $temp = get_tp_tag_cloud( array('number_tags' => 30, 'output_type' => ARRAY_A) );
             $max = $temp['info']->max;
-            $min = $temp['info']->min;
-            $min = ( $min == 1 ) ? 0 : $min;
+            $min = ( $temp['info']->min === 1 ) ? 0 : $temp['info']->min;
             if ( count($temp['tags']) != 0 ) {
                 foreach ($temp['tags'] as $tagcloud) {
                     $size = floor(( $maxsize * ( $tagcloud['tagPeak'] - $min )/( $max - $min )));
@@ -270,8 +270,8 @@ function teachpress_addpublications_page() {
                 <tr>
                 <td style="border:none; padding:0 0 0 0; margin: 0 0 0 0;">
                     <p><label for="type" title="<?php _e('The type of publication','teachpress'); ?>"><strong><?php _e('Type'); ?></strong></label></p>
-                    <select name="type" id="type" title="<?php _e('The type of publication','teachpress'); ?>" onchange="teachpress_publicationFields('std')" tabindex="2">
-                        <?php echo get_tp_publication_type_options ($daten["type"], $mode = 'list'); ?>
+                    <select name="type" id="type" title="<?php _e('The type of publication','teachpress'); ?>" onchange="teachpress_publicationFields('std');" tabindex="2">
+                        <?php echo get_tp_publication_type_options ($daten["type"], $mode = 'sng'); ?>
                     </select>
                 </td>
                 <td style="border:none; padding:0 0 0 0; margin: 0 0 0 0;">
@@ -285,7 +285,7 @@ function teachpress_addpublications_page() {
              <p><label for="editor" title="<?php _e('The names of the editors, separate by `and`. Example: Mark Twain and Albert Einstein','teachpress'); ?>"><strong><?php _e('Editor(s)','teachpress'); ?></strong></label></p>
              <textarea name="editor" id="editor" type="text" title="<?php _e('The names of the editors, separate by `and`. Example: Mark Twain and Albert Einstein','teachpress'); ?>" style="width:95%" rows="3" tabindex="5"><?php echo stripslashes($daten["editor"]); ?></textarea>
              <p><label for="date" title="<?php _e('date of publishing','teachpress'); ?>"><strong><?php _e('date of publishing','teachpress'); ?></strong></label></p>
-             <input type="text" name="date" id="date" title="<?php _e('date of publishing','teachpress'); ?>" value="<?php if ($pub_ID != '') { echo $daten["date"]; } else {_e('JJJJ-MM-TT','teachpress'); } ?>" onblur="if(this.value=='') this.value='<?php _e('JJJJ-MM-TT','teachpress'); ?>';" onfocus="if(this.value=='<?php _e('JJJJ-MM-TT','teachpress'); ?>') this.value='';" tabindex="6"/>
+             <input type="text" name="date" id="date" title="<?php _e('date of publishing','teachpress'); ?>" value="<?php if ($pub_ID != '') { echo $daten["date"]; } else {_e('JJJJ-MM-TT','teachpress'); } ?>" onblur="if(this.value==='') this.value='<?php _e('JJJJ-MM-TT','teachpress'); ?>';" onfocus="if(this.value==='<?php _e('JJJJ-MM-TT','teachpress'); ?>') this.value='';" tabindex="6"/>
            </td>
            </tr>
            </thead>
@@ -293,178 +293,91 @@ function teachpress_addpublications_page() {
            <table class="widefat" style="margin-bottom:15px;">
            <thead>
            <tr>
-             <th><?php _e('Detailed information','teachpress'); ?> <small><a id="show_all_fields" onclick="teachpress_publicationFields('all')" style="cursor:pointer; display:inline;"><?php _e('Show all fields','teachpress'); ?></a> <a id="show_recommend_fields" onclick="teachpress_publicationFields('std2')" style="cursor:pointer; display:none;"><?php _e('Show recommend fields','teachpress'); ?></a></small></th>
+             <th><?php _e('Detailed information','teachpress'); ?> <small><a id="show_all_fields" onclick="teachpress_publicationFields('all');" style="cursor:pointer; display:inline;"><?php _e('Show all fields','teachpress'); ?></a> <a id="show_recommend_fields" onclick="teachpress_publicationFields('std2');" style="cursor:pointer; display:none;"><?php _e('Show recommend fields','teachpress'); ?></a></small></th>
            </tr>
            <tr>
              <td>
              <?php
-             $display = "";
-             if ($daten["type"] == "conference" || $daten["type"] =="incollection" || $daten["type"] == "inproceedings") 
-                   {$display = 'style="display:block;"';}
-             else { $display = 'style="display:none;"';}
+             // booktitle
+             echo get_tp_publication_form_field('booktitle', __('The title of a book','teachpress'),__('booktitle','teachpress'),'textarea',$daten["type"],$daten["booktitle"],array('conference','incollection','inproceedings'),7,'width:95%; height: 58px;');
+             
+             // issuetitle
+             echo get_tp_publication_form_field('issuetitle', __('The subtitle of a periodical publication','teachpress'),__('issuetitle','teachpress'),'textarea',$daten["type"],$daten["issuetitle"],array('periodical'),7,'width:95%; height: 58px;');
+             
+             // journal
+             echo get_tp_publication_form_field('journal', __('The title of a journal','teachpress'),__('journal','teachpress'),'input',$daten["type"],$daten["journal"],array('article','periodical',''),8,'width:95%;');
+             
+             // volume
+             echo get_tp_publication_form_field('volume', __('The volume of a journal or book','teachpress'),__('volume','teachpress'),'input',$daten["type"],$daten["volume"],array('article','book','booklet','collection','conference','inbook','incollection','inproceedings','periodical','proceedings',''),9);
+             
+             // number
+             echo get_tp_publication_form_field('number', __('The number of a book, journal or work in a series','teachpress'),__('Number','teachpress'),'input',$daten["type"],$daten["number"],array('article','book','collection','conference','inbook','incollection','inproceedings','periodical','proceedings','techreport',''),10);
+             
+             // pages
+             echo get_tp_publication_form_field('pages',__('The page you are referring to.','teachpress'),__('pages','teachpress'),'input',$daten["type"],$daten["pages"],array('article','conference','inbook','incollection','inproceedings',''),11);
+             
+             // publisher
+             echo get_tp_publication_form_field('publisher', __('The names of publisher','teachpress'),__('publisher','teachpress'),'input',$daten["type"],$daten["publisher"],array('book','collection','conference','inbook','incollection','inproceedings','proceedings'),12,'width:95%;');
+             
+             // address
+             echo get_tp_publication_form_field('address', __('The address of the publisher or the place of confernece','teachpress'),__('address','teachpress'),'input',$daten["type"],$daten["address"],array('book','booklet','collection','conference','inbook','incollection','inproceedings','manual','masterthesis','phdthesis','proceedings','techreport'),13,'width:95%;');
+             
+             // edition
+             echo get_tp_publication_form_field('edition', __('The edition of a book','teachpress'),__('edition','teachpress'),'input',$daten["type"],$daten["edition"],array('book','collection','inbook','incollection','manual'),14);
+             
+             // chapter
+             echo get_tp_publication_form_field('chapter', __('The chapter or the section number','teachpress'),__('chapter','teachpress'),'input',$daten["type"],$daten["chapter"],array('inbook','incollection'),15);
+             
+             // institution
+             echo get_tp_publication_form_field('institution', __('The name of a sponsoring institution','teachpress'),__('institution','teachpress'),'input',$daten["type"],$daten["institution"],array('techreport'),16,'width:95%;');
+             
+             // organization
+             echo get_tp_publication_form_field('organization', __('The names of a sponsoring organization','teachpress'),__('organization','teachpress'),'input',$daten["type"],$daten["organization"],array('conference','inproceedings','manual','proceedings','online'),17,'width:95%;');
+             
+             // school
+             echo get_tp_publication_form_field('school', __('The names of the academic instituion where a thesis was written','teachpress'),__('school','teachpress'),'input',$daten["type"],$daten["school"],array('masterthesis','phdthesis'),18,'width:95%;');
+            
+             // series
+             echo get_tp_publication_form_field('series', __('The name of a series','teachpress'),__('series','teachpress'),'input',$daten["type"],$daten["series"],array('book','collection','conference','inbook','incollection','inproceedings','periodical','proceedings'),19);
+             
+             // crossref
+             echo get_tp_publication_form_field('crossref', __('The bibTeX key this work is referring to','teachpress'),__('crossref','teachpress'),'input','nothing',$daten["crossref"],array(''),20);
+             
+             // abstract
+             echo get_tp_publication_form_field('abstract', __('A short summary of the publication','teachpress'),__('abstract','teachpress'),'textarea','',$daten["abstract"],array(''),21,'width:95%; height: 88px;');
+             
+             // howpublished
+             echo get_tp_publication_form_field('howpublished', __('An unusual method for publishing','teachpress'),__('howpublished','teachpress'),'input',$daten["type"],$daten["howpublished"],array('booklet','misc'),22,'width:95%;');
+             
+             // key
+             echo get_tp_publication_form_field('key', __('If there is no author or editor given, so this field is used for the sorting.','teachpress'),__('Key','teachpress'),'input','nothing',$daten["key"],array(''),23);
+             
+             // techtype
+             echo get_tp_publication_form_field('techtype', __('The type of a technical report, thesis, incollection or inbook.','teachpress'),__('Type'),'input',$daten["type"],$daten["techtype"],array('inbook','incollection','masterthesis','phdthesis','techreport'),24);
+             
              ?>
-             <div id="div_booktitle" <?php echo $display; ?>>
-             <p><label for="booktitle" title="<?php _e('The title of a book','teachpress'); ?>"><strong><?php _e('booktitle','teachpress'); ?></strong></label></p>
-             <textarea name="booktitle" id="booktitle" wrap="virtual" style="width:95%;" rows="3" tabindex="7" title="<?php _e('The title of a book','teachpress'); ?>"><?php echo stripslashes($daten["booktitle"]); ?></textarea>
-             </div>
-             <?php
-             if ($daten["type"] == "article" || $daten["type"] == "") 
-                   {$display = 'style="display:block;"';}
-             else { $display = 'style="display:none;"';}
-             ?>
-             <div id="div_journal" <?php echo $display; ?>>
-             <p><label for="journal" title="<?php _e('The title of a journal','teachpress'); ?>"><strong><?php _e('journal','teachpress'); ?></strong></label></p>
-             <input name="journal" id="journal" type="text" title="<?php _e('The title of a journal','teachpress'); ?>" style="width:95%" value="<?php echo stripslashes($daten["journal"]); ?>" tabindex="8" />
-             </div>
-             <?php
-             if ($daten["type"] == "article" || $daten["type"] == "book" || $daten["type"] == "collection" || $daten["type"] == "booklet" || $daten["type"] == "conference" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "inproceedings" || $daten["type"] == "proceedings" || $daten["type"] == "") 
-                   {$display = 'style="display:block;"';}
-             else { $display = 'style="display:none;"';}
-             ?>
-             <div id="div_volume" <?php echo $display; ?>>
-             <p><label for="volume" title="<?php _e('The volume of a journal or book','teachpress'); ?>"><strong><?php _e('volume','teachpress'); ?></strong></label></p>
-             <input name="volume" id="volume" type="text" title="<?php _e('The volume of a journal or book','teachpress'); ?>" value="<?php echo stripslashes($daten["volume"]); ?>" tabindex="9" />
-             </div>
-             <?php
-             if ($daten["type"] == "article" || $daten["type"] == "book" || $daten["type"] == "collection" || $daten["type"] == "conference" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "inproceedings" || $daten["type"] == "proceedings" || $daten["type"] == "techreport" || $daten["type"] == "") 
-                   {$display = 'style="display:block;"';}
-             else { $display = 'style="display:none;"';}
-             ?>
-             <div id="div_number" <?php echo $display; ?>>
-             <p><label for="number" title="<?php _e('The number of a book, journal or work in a series','teachpress'); ?>"><strong><?php _e('Number','teachpress'); ?></strong></label></p>
-             <input name="number" id="number" type="text" title="<?php _e('The number of a book, journal or work in a series','teachpress'); ?>" value="<?php echo stripslashes($daten["number"]); ?>" tabindex="10" />
-             </div>
-             <?php
-             if ($daten["type"] == "article" || $daten["type"] == "conference" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "inproceedings" || $daten["type"] == "") 
-                   {$display = 'style="display:block;"';}
-             else { $display = 'style="display:none;"';}
-             ?>
-             <div id="div_pages" <?php echo $display; ?>>
-             <p><label for="pages" title="<?php _e('The page you are referring to.','teachpress'); ?>"><strong><?php _e('pages','teachpress'); ?></strong></label></p>
-             <input name="pages" id="pages" type="text" title="<?php _e('The page you are referring to.','teachpress'); ?>" value="<?php echo stripslashes($daten["pages"]); ?>" tabindex="11" />
-             </div>
-             <?php
-             if ($daten["type"] == "book" || $daten["type"] == "collection" || $daten["type"] == "conference" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "inproceedings" || $daten["type"] == "proceedings") 
-                   {$display = 'style="display:block;"';}
-             else { $display = 'style="display:none;"';}
-             ?>
-             <div id="div_publisher" <?php echo $display; ?>>
-             <p><label for="publisher" title="<?php _e('The names of publisher','teachpress'); ?>"><strong><?php _e('publisher','teachpress'); ?></strong></label></p>
-             <input name="publisher" id="publisher" type="text" title="<?php _e('The names of publisher','teachpress'); ?>" style="width:95%" value="<?php echo stripslashes($daten["publisher"]); ?>" tabindex="12" />
-             </div>
-             <?php
-             if ($daten["type"] == "book" || $daten["type"] == "collection" || $daten["type"] == "booklet" || $daten["type"] == "conference" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "inproceedings" || $daten["type"] == "manual" || $daten["type"] == "masterthesis" || $daten["type"] == "phdthesis" || $daten["type"] == "proceedings" || $daten["type"] == "techreport") 
-                   {$display = 'style="display:block;"';}
-             else { $display = 'style="display:none;"';}
-             ?>
-             <div id="div_address" <?php echo $display; ?>>
-             <p><label for="address" title="<?php _e('The address of the publisher or the place of confernece','teachpress'); ?>"><strong><?php _e('address','teachpress'); ?></strong></label></p>
-             <input name="address" type="text" id="address" style="width:95%" tabindex="13" title="<?php _e('The address of the publisher or the place of confernece','teachpress'); ?>" value="<?php echo stripslashes($daten["address"]); ?>" />
-             </div>
-             <?php
-             if ($daten["type"] == "book" || $daten["type"] == "collection" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "manual") 
-                   {$display = 'style="display:block;"';}
-             else { $display = 'style="display:none;"';}
-             ?>
-             <div id="div_edition" <?php echo $display; ?>>
-             <p><label for="edition" title="<?php _e('The edition of a book','teachpress'); ?>"><strong><?php _e('edition','teachpress'); ?></strong></label></p>
-             <input name="edition" id="edition" type="text" title="<?php _e('The edition of a book','teachpress'); ?>" value="<?php echo stripslashes($daten["edition"]); ?>" tabindex="14" />
-             </div>
-             <?php
-             if ($daten["type"] == "inbook" || $daten["type"] == "incollection") 
-                   {$display = 'style="display:block;"';}
-             else { $display = 'style="display:none;"';}
-             ?>
-             <div id="div_chapter" <?php echo $display; ?>>
-             <p><label for="chapter" title="<?php _e('The chapter or the section number','teachpress'); ?>"><strong><?php _e('chapter','teachpress'); ?></strong></label></p>
-             <input name="chapter" id="chapter" type="text" title="<?php _e('The chapter or the section number','teachpress'); ?>" value="<?php echo stripslashes($daten["chapter"]); ?>" tabindex="15" />
-             </div>
-             <?php
-             if ($daten["type"] == "techreport") 
-                   {$display = 'style="display:block;"';}
-             else { $display = 'style="display:none;"';}
-             ?>
-             <div id="div_institution" <?php echo $display; ?>>
-             <p><label for="institution" title="<?php _e('The name of a sponsoring institution','teachpress'); ?>"><strong><?php _e('institution','teachpress'); ?></strong></label></p>
-             <input name="institution" id="institution" type="text" title="<?php _e('The name of a sponsoring institution','teachpress'); ?>" style="width:95%" value="<?php echo stripslashes($daten["institution"]); ?>" tabindex="15"/>
-             </div>
-             <?php
-             if ($daten["type"] == "conference" || $daten["type"] == "inproceedings" || $daten["type"] == "manual" || $daten["type"] == "proceedings" || $daten["type"] == "online") 
-                   {$display = 'style="display:block;"';}
-             else { $display = 'style="display:none;"';}
-             ?>
-             <div id="div_organization" <?php echo $display; ?>>
-             <p><label for="organization" title="<?php _e('The names of a sponsoring organization','teachpress'); ?>"><strong><?php _e('organization','teachpress'); ?></strong></label></p>
-             <input name="organization" id="organization" type="text" title="<?php _e('The names of a sponsoring organization','teachpress'); ?>" style="width:95%" value="<?php echo stripslashes($daten["organization"]); ?>" tabindex="16" />
-             </div>
-             <?php
-             if ($daten["type"] == "masterthesis" || $daten["type"] == "phdthesis") 
-                   {$display = 'style="display:block;"';}
-             else { $display = 'style="display:none;"';}
-             ?>
-             <div id="div_school" <?php echo $display; ?>>
-             <p><label for="school" title="<?php _e('The names of the academic instituion where a thesis was written','teachpress'); ?>"><strong><?php _e('school','teachpress'); ?></strong></label></p>
-             <input name="school" id="school" type="text" title="<?php _e('The names of the academic instituion where a thesis was written','teachpress'); ?>" style="width:95%" value="<?php echo stripslashes($daten["school"]); ?>" tabindex="17" />
-             </div>
-             <?php
-             if ($daten["type"] == "book" || $daten["type"] == "collection" || $daten["type"] == "conference" || $daten["type"] == "inbook" || $daten["type"] =="incollection" || $daten["type"] == "inproceedings" || $daten["type"] == "proceedings") 
-                   {$display = 'style="display:block;"';}
-             else { $display = 'style="display:none;"';}
-             ?>
-             <div id="div_series" <?php echo $display; ?>>
-             <p><label for="series" title="<?php _e('The name of a series','teachpress'); ?>"><strong><?php _e('series','teachpress'); ?></strong></label></p>
-             <input name="series" id="series" type="text" title="<?php _e('The name of a series','teachpress'); ?>" value="<?php echo stripslashes($daten["series"]); ?>" tabindex="18"/>
-             </div>
-             <div id="div_crossref" style="display:none;">
-             <p><label for="crossref" title="<?php _e('The bibTeX key this work is referring to','teachpress'); ?>"><strong><?php _e('crossref','teachpress'); ?></strong></label></p>
-             <input name="crossref" id="crossref" type="text" title="<?php _e('The bibTeX key this work is referring to','teachpress'); ?>" value="<?php echo stripslashes($daten["crossref"]); ?>" tabindex="19" />
-             </div>
-             <div id="div_abstract">
-             <p><label for="abstract" title="<?php _e('A short summary of the publication','teachpress'); ?>"><strong><?php _e('abstract','teachpress'); ?></strong></label></p>
-             <textarea name="abstract" id="abstract" rows="5" title="<?php _e('A short summary of the publication','teachpress'); ?>" style="width:95%" tabindex="20" ><?php echo stripslashes($daten["abstract"]); ?></textarea>
-             </div>
-             <?php
-             if ($daten["type"] == "booklet" || $daten["type"] == "misc") 
-                   {$display = 'style="display:block;"';}
-             else { $display = 'style="display:none;"';}
-             ?>
-             <div id="div_howpublished" <?php echo $display; ?>>
-             <p><label for="howpublished" title="<?php _e('An unusual method for publishing','teachpress'); ?>"><strong><?php _e('howpublished','teachpress'); ?></strong></label></p>
-             <input name="howpublished" id="howpublished" type="text" title="<?php _e('An unusual method for publishing','teachpress'); ?>" value="<?php echo stripslashes($daten["howpublished"]); ?>" tabindex="21" />
-             </div>
-             <div id="div_key" style="display:none;">
-             <p><label for="key" title="<?php _e('If there is no author or editor given, so this field is used for the sorting.','teachpress'); ?>"><strong><?php _e('Key','teachpress'); ?></strong></label></p>
-             <input name="key" id="key" type="text" title="<?php _e('If there is no author or editor given, so this field is used for the sorting.','teachpress'); ?>" value="<?php echo stripslashes($daten["key"]); ?>" tabindex="22"/>
-             </div>
-             <?php
-             if ($daten["type"] == "inbook" || $daten["type"] == "incollection" || $daten["type"] == "masterthesis" || $daten["type"] == "phdthesis" || $daten["type"] == "techreport") {$display = 'style="display:block;"';}
-             else { $display = 'style="display:none;"';}
-             ?>
-             <div id="div_techtype" <?php echo $display; ?>>
-             <p><label for="techtype" title="<?php _e('The type of a technical report, thesis, incollection or inbook.','teachpress'); ?>"><strong><?php _e('Type'); ?></strong></label></p>
-             <input name="techtype" id="techtype" type="text" title="<?php _e('The type of a technical report, thesis, incollection or inbook.','teachpress'); ?>" value="<?php echo stripslashes($daten["techtype"]); ?>" tabindex="23" />
-             </div>
              <div id="div_isbn">
              <p><label for="isbn" title="<?php _e('The ISBN or ISSN of the publication','teachpress'); ?>"><strong><?php _e('ISBN/ISSN','teachpress'); ?></strong></label></p>
-             <input type="text" name="isbn" id="isbn" title="<?php _e('The ISBN or ISSN of the publication','teachpress'); ?>" value="<?php echo $daten["isbn"]; ?>" tabindex="24">
+             <input type="text" name="isbn" id="isbn" title="<?php _e('The ISBN or ISSN of the publication','teachpress'); ?>" value="<?php echo $daten["isbn"]; ?>" tabindex="25">
                    <span style="padding-left:7px;">
-                     <label><input name="is_isbn" type="radio" id="is_isbn_0" value="1" <?php if ($daten["is_isbn"] == '1' || $pub_ID == '') { echo 'checked="checked"'; }?> tabindex="25"/><?php _e('ISBN','teachpress'); ?></label>
-                     <label><input name="is_isbn" type="radio" value="0" id="is_isbn_1" <?php if ($daten["is_isbn"] == '0') { echo 'checked="checked"'; }?> tabindex="26"/><?php _e('ISSN','teachpress'); ?></label>
+                     <label><input name="is_isbn" type="radio" id="is_isbn_0" value="1" <?php if ($daten["is_isbn"] == '1' || $pub_ID == '') { echo 'checked="checked"'; }?> tabindex="26"/><?php _e('ISBN','teachpress'); ?></label>
+                     <label><input name="is_isbn" type="radio" value="0" id="is_isbn_1" <?php if ($daten["is_isbn"] == '0') { echo 'checked="checked"'; }?> tabindex="27"/><?php _e('ISSN','teachpress'); ?></label>
                    </span>
              </div>
              <?php
-             if ($daten["type"] == "online") {$display = 'style="display:block;"';}
+             $display = '';
+             if ($daten["type"] === 'online' || $daten["type"] === 'periodical') {$display = 'style="display:block;"';}
              else { $display = 'style="display:none;"';}
              ?>
              <div id="div_urldate" <?php echo $display; ?>>
                  <p><label for="urldate" title="<?php _e('The date you have visited the online resource','teachpress'); ?>"><strong><?php _e('Urldate','teachpress'); ?></strong></label></p>
-             <input type="text" name="urldate" id="urldate" title="<?php _e('The date you have visited the online resource','teachpress'); ?>" value="<?php if ($pub_ID != '') { echo $daten["urldate"]; } else {_e('JJJJ-MM-TT','teachpress'); } ?>" onblur="if(this.value=='') this.value='<?php _e('JJJJ-MM-TT','teachpress'); ?>';" onfocus="if(this.value=='<?php _e('JJJJ-MM-TT','teachpress'); ?>') this.value='';" tabindex="27"/>
+             <input type="text" name="urldate" id="urldate" title="<?php _e('The date you have visited the online resource','teachpress'); ?>" value="<?php if ($pub_ID != '') { echo $daten["urldate"]; } else {_e('JJJJ-MM-TT','teachpress'); } ?>" onblur="if(this.value==='') this.value='<?php _e('JJJJ-MM-TT','teachpress'); ?>';" onfocus="if(this.value==='<?php _e('JJJJ-MM-TT','teachpress'); ?>') this.value='';" tabindex="28"/>
              </div>
              <div id="div_url">
                 <p style="margin-bottom:0;"><label for="url" title="<?php _e('URL/Files', 'teachpress'); ?>"><strong><?php _e('URL/Files', 'teachpress'); ?></strong></label></p>
                 <input name="upload_mode" id="upload_mode" type="hidden" value="" />
                 <a class="upload_button" style="cursor:pointer; border:none; float:right; padding-right: 34px;" title="<?php _e('Insert a file from the WordPress Media Library','teachpress'); ?>"><?php _e('Add/Upload','teachpress'); ?> <img src="images/media-button-other.gif"/></a>
-                <textarea name="url" type="text" id="url" class="upload" title="<?php echo __('You can add one URL or file per line. Insert the name of the URL/file behind the address and separate it by a comma and a space. Example:', 'teachpress') . ' http://mywebsite.com/docs/readme.pdf, Basic Instructions'; ?>" style="width:95%" rows="4" tabindex="28"><?php echo $daten["url"]; ?></textarea>
+                <textarea name="url" type="text" id="url" class="upload" title="<?php echo __('You can add one URL or file per line. Insert the name of the URL/file behind the address and separate it by a comma and a space. Example:', 'teachpress') . ' http://mywebsite.com/docs/readme.pdf, Basic Instructions'; ?>" style="width:95%" rows="4" tabindex="29"><?php echo $daten["url"]; ?></textarea>
              </div>
              </td>
            </tr>
@@ -478,9 +391,9 @@ function teachpress_addpublications_page() {
            <tr>
              <td>
              <p><label for="comment" title="<?php _e('A not vissible private comment','teachpress'); ?>"><strong><?php _e('private comment','teachpress'); ?></strong></label></p>
-             <textarea name="comment" wrap="virtual" id="comment" title="<?php _e('A not vissible private comment','teachpress'); ?>" style="width:95%" rows="4" tabindex="29"><?php echo stripslashes($daten["comment"]); ?></textarea>
+             <textarea name="comment" wrap="virtual" id="comment" title="<?php _e('A not vissible private comment','teachpress'); ?>" style="width:95%" rows="4" tabindex="30"><?php echo stripslashes($daten["comment"]); ?></textarea>
              <p><label for="comment" title="<?php _e('Additional information','teachpress'); ?>"><strong><?php _e('note','teachpress'); ?></strong></label></p>
-             <textarea name="note" wrap="virtual" id="note" title="<?php _e('Additional information','teachpress'); ?>" style="width:95%" rows="4" tabindex="30"><?php echo stripslashes($daten["note"]); ?></textarea>
+             <textarea name="note" wrap="virtual" id="note" title="<?php _e('Additional information','teachpress'); ?>" style="width:95%" rows="4" tabindex="31"><?php echo stripslashes($daten["note"]); ?></textarea>
              </td>
            </tr>
            </thead>    

@@ -187,6 +187,34 @@ function get_tp_single_table_row_course ($course, $checkbox, $static, $parent_co
     return $return;
 }
 
+/**
+ * Returns a form field for the add_publication_page()
+ * @param string $name          --> field name
+ * @param string $title         --> field title
+ * @param string label          --> field label
+ * @param string $field_type    --> field type (textarea|input)
+ * @param string $pub_type      --> publication type of the current/visible entry
+ * @param string $pub_value     --> field value of the current/visible entry
+ * @param array $availabe_for   --> array of publication types
+ * @param int $tabindex         --> the tab index
+ * @param string $style         --> css style attributes
+ * @return string
+ * @since 4.1.0
+ */
+function get_tp_publication_form_field ($name, $title, $label, $field_type, $pub_type, $pub_value, $availabe_for, $tabindex, $style = '') {
+    $display = ( in_array($pub_type, $availabe_for) ) ? 'style="display:block;"' : 'style="display:none;"';
+    if ( $field_type === 'textarea' ) {
+        $field = '<textarea name="' . $name . '" id="' . $name . '" wrap="virtual" style="' . $style . '" tabindex="' . $tabindex . '" title="' . $title . '">' . stripslashes($pub_value) . '</textarea>';
+    }
+    else {
+        $field = '<input name="' . $name . '" id="' . $name . '" type="text" title="' . $title . '" style="' . $style . '" value="' . stripslashes($pub_value) . '" tabindex="8" />';
+    }
+    $a = '<div id="div_' . $name . '" ' . $display . '>
+          <p><label for="' . $name . '" title="' . $title . '"><strong>' . $label . '</strong></label></p>
+          ' . $field . '</div>';
+    return $a;
+}
+
 /***********/
 /* Courses */
 /***********/

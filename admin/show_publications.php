@@ -153,7 +153,7 @@ function teachpress_publications_page() {
       <input name="ok" value="<?php _e('OK','teachpress'); ?>" type="submit" class="button-secondary"/>
       <select name="filter">
          <option value="0">- <?php _e('All types','teachpress'); ?> -</option>
-         <?php echo get_tp_publication_type_options ($filter, $mode = 'list'); ?>
+         <?php echo get_tp_publication_type_options ($filter, $mode = 'pl'); ?>
       </select>
       <input name="filter-ok" value="<?php _e('Limit selection','teachpress'); ?>" type="submit" class="button-secondary"/>
       <?php

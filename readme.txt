@@ -4,7 +4,7 @@ Tags: management, publications, enrollments, teachpress, education, course manag
 License: GPLv2 or later
 Requires at least: 3.3
 Tested up to: 3.5.1
-Stable tag: 4.0.5
+Stable tag: 4.1.0
 
 With this plugin you can easy manage courses, enrollments and publications.
 
@@ -112,7 +112,16 @@ define ('TP_PUBLICATION_SYSTEM','disable');
 If you save plugins outside the normal path (/wp-content/plugins/), the plugin can't load required WordPress files in some cases. Solution: Change the path in the following plugin files: export.php (line 9) / feed.php (line 7).
 
 == Changelog ==
-= 4.0.5 - (xx.05.2013) =
+= 4.1.0 - (13.06.2013) =
+* New: [tplist]: Optional pagination added
+* New: [tplist]: New parameters "pagination" and "entries_per_page" added
+* New: [tplist]: New headline option added (sort by year and type)
+* New: Publication type "periodical" added
+* New: Field "issuetitle" added for publications with the type "periodical"
+* Bugfix: [tpcloud]: Changing of the "order" parameter has not worked
+* Bugfix: Fixed a bug which prevents adding of publications
+* Bugfix: Unable to delete all databases with tp_uninstall()
+= 4.0.5 - (05.05.2013) =
 * Bugfix: [tpenrollments]: Fixed possible destroying of templates, [reported in WP Support Forum](http://wordpress.org/support/topic/bug-registration-form-in-tpenrollments-destroyes-design)
 * Bugfix: [tpenrollments]: Not fillable input fields in the registration form, [reported in WP Support Forum](http://wordpress.org/support/topic/bug-registration-form-in-tpenrollments-destroyes-design)
 * Bugfix: [tpenrollments]: User registration doesn't work, [reported in WP Support Forum](http://wordpress.org/support/topic/bug-formula-tp_registration_form-do-not-work-for-registration)
