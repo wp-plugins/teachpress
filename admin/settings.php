@@ -420,11 +420,11 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
     	<tr>
           <th width="160"><?php _e('RSS feed addresses','teachpress'); ?></th>
           <td><p><em><?php _e('For all publications:','teachpress'); ?></em><br />
-            	<strong><?php echo WP_PLUGIN_URL . '/teachpress/feed.php'; ?></strong> &raquo; <a href="<?php echo WP_PLUGIN_URL . '/teachpress/feed.php'; ?>" target="_blank"><?php _e('Show','teachpress'); ?></a></p>
+            	<strong><?php echo plugins_url() . '/teachpress/feed.php'; ?></strong> &raquo; <a href="<?php echo plugins_url() . '/teachpress/feed.php'; ?>" target="_blank"><?php _e('Show','teachpress'); ?></a></p>
             	<p><em><?php _e('Example for publications of a single user (id = WordPress user-ID):','teachpress'); ?></em><br />
-            	<strong><?php echo WP_PLUGIN_URL . '/teachpress/feed.php?id=1'; ?></strong> &raquo; <a href="<?php echo WP_PLUGIN_URL . '/teachpress/feed.php?id=1'; ?>" target="_blank"><?php _e('Show','teachpress'); ?></a></p>
+            	<strong><?php echo plugins_url() . '/teachpress/feed.php?id=1'; ?></strong> &raquo; <a href="<?php echo plugins_url() . '/teachpress/feed.php?id=1'; ?>" target="_blank"><?php _e('Show','teachpress'); ?></a></p>
                 <p><em><?php _e('Example for publications of a single tag (tag = tag-id):','teachpress'); ?></em><br />
-            	<strong><?php echo WP_PLUGIN_URL . '/teachpress/feed.php?tag=1'; ?></strong> &raquo; <a href="<?php echo WP_PLUGIN_URL . '/teachpress/feed.php?tag=1'; ?>" target="_blank"><?php _e('Show','teachpress'); ?></a></p>
+            	<strong><?php echo plugins_url() . '/teachpress/feed.php?tag=1'; ?></strong> &raquo; <a href="<?php echo plugins_url() . '/teachpress/feed.php?tag=1'; ?>" target="_blank"><?php _e('Show','teachpress'); ?></a></p>
             </td>
         </tr>
         </thead>

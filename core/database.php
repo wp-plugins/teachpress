@@ -430,7 +430,7 @@ function get_tp_publication_used_types( $args = array() ) {
 /********/
     
 /**
- * Get an array of all tags based on the publication tag relation
+ * Get an array of all used tags based on the publication tag relation
  * 
  * Note: If you only need a list of used tags, set group_by to true.
  * In this case you should ignore the columns tag_id and pub_id from return

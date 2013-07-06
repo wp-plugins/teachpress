@@ -117,7 +117,7 @@ function teachpress_import_page() {
         
         if ($tab == 'export') {
         ?>
-        <form id="tp_export" name="tp_export" action="<?php echo WP_PLUGIN_URL; ?>/teachpress/export.php?type=pub" method="post">
+        <form id="tp_export" name="tp_export" action="<?php echo plugins_url(); ?>/teachpress/export.php?type=pub" method="post">
         <table class="form-table">
              <tr>
                   <th style="width: 150px;"><label for="tp_user"><?php _e('Publications by user','teachpress'); ?></label></th>

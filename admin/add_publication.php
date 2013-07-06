@@ -206,7 +206,8 @@ function teachpress_addpublications_page() {
             $min = ( $temp['info']->min === 1 ) ? 0 : $temp['info']->min;
             if ( count($temp['tags']) != 0 ) {
                 foreach ($temp['tags'] as $tagcloud) {
-                    $size = floor(( $maxsize * ( $tagcloud['tagPeak'] - $min )/( $max - $min )));
+                    $divisor = ( ($max - $min) === 0 ) ? 1 : ($max - $min);  // fix division through zero
+                    $size = floor(( $maxsize * ( $tagcloud['tagPeak'] - $min ) / $divisor ));
                     if ($size < $minsize) {
                         $size = $minsize ;
                     }

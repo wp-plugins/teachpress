@@ -362,7 +362,7 @@ class tp_bibtex {
         }
         elseif ($row['type'] === 'presentation') {
             $date = ( array_key_exists('date_format', $settings) === true ) ? ', ' . date( $settings['date_format'], strtotime($row['date']) ) . '' : '';
-            $end = $howpublished . $row['address'] . $date . $note . '.';
+            $end = ( $howpublished === '' && $row['address'] === '' ) ? substr($date,2) . $note . '.' : $howpublished . $row['address'] . $date . $note . '.';
         }
         elseif ($row['type'] === 'proceedings') {
             $end = $howpublished . $organization. $publisher. $address . $edition . $year . $isbn . $note . '.';

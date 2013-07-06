@@ -3,8 +3,8 @@ Contributors: Michael Winkler
 Tags: management, publications, enrollments, teachpress, education, course management, BibTeX, bibliography
 License: GPLv2 or later
 Requires at least: 3.3
-Tested up to: 3.5.1
-Stable tag: 4.1.0
+Tested up to: 3.5.2
+Stable tag: 4.1.1
 
 With this plugin you can easy manage courses, enrollments and publications.
 
@@ -112,6 +112,11 @@ define ('TP_PUBLICATION_SYSTEM','disable');
 If you save plugins outside the normal path (/wp-content/plugins/), the plugin can't load required WordPress files in some cases. Solution: Change the path in the following plugin files: export.php (line 9) / feed.php (line 7).
 
 == Changelog ==
+= 4.1.1 - (06.07.2013) =
+* Bugfix: Fixed an division through zero problem in teachpress_addpublications_page()
+* Bugfix: Fixed an improper presentation of meta information in some cases if the publication type is presentation
+* Bugfix: [tpenrollments]: Prevent execution of tp_add_signup() and tp_delete_signup_student() if there was no course selected
+* Bugfix: Fixed embedding of scripts and images for SSL-Sessions 
 = 4.1.0 - (13.06.2013) =
 * New: [tplist]: Optional pagination added
 * New: [tplist]: New parameters "pagination" and "entries_per_page" added

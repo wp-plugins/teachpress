@@ -3,11 +3,11 @@
 Plugin Name: teachPress
 Plugin URI: http://mtrv.wordpress.com/teachpress/
 Description: With teachPress you can easy manage courses, enrollments and publications.
-Version: 4.1.0
+Version: 4.1.1
 Author: Michael Winkler
 Author URI: http://mtrv.wordpress.com/
 Min WP Version: 3.3
-Max WP Version: 3.5.1
+Max WP Version: 3.5.2
 */
 
 /*
@@ -50,7 +50,7 @@ $teachpress_user = $wpdb->prefix . 'teachpress_user';           // Relationship 
 function tp_add_menu() {
     global $tp_admin_page;
     global $tp_admin_page2;
-    $tp_admin_page2 = add_menu_page(__('Course','teachpress'), __('Course','teachpress'),'use_teachpress', __FILE__, 'teachpress_show_courses_page', WP_PLUGIN_URL . '/teachpress/images/logo_small.png');
+    $tp_admin_page2 = add_menu_page(__('Course','teachpress'), __('Course','teachpress'),'use_teachpress', __FILE__, 'teachpress_show_courses_page', plugins_url() . '/teachpress/images/logo_small.png');
     $tp_admin_page = add_submenu_page('teachpress/teachpress.php',__('Add New','teachpress'), __('Add New', 'teachpress'),'use_teachpress','teachpress/add_course.php','tp_add_course_page');
     add_submenu_page('teachpress/teachpress.php',__('Students','teachpress'), __('Students','teachpress'),'use_teachpress', 'teachpress/students.php', 'teachpress_students_page');
     add_action("load-$tp_admin_page", 'tp_add_course_page_help');
@@ -61,7 +61,7 @@ function tp_add_menu2() {
     global $tp_admin_page3;
     global $tp_admin_page4;
     global $tp_admin_page5;
-    $tp_admin_page3 = add_menu_page (__('Publications','teachpress'), __('Publications','teachpress'), 'use_teachpress', 'publications.php', 'teachpress_publications_page', WP_PLUGIN_URL . '/teachpress/images/logo_small.png');
+    $tp_admin_page3 = add_menu_page (__('Publications','teachpress'), __('Publications','teachpress'), 'use_teachpress', 'publications.php', 'teachpress_publications_page', plugins_url() . '/teachpress/images/logo_small.png');
     $tp_admin_page4 = add_submenu_page('publications.php',__('Your publications','teachpress'), __('Your publications','teachpress'),'use_teachpress','teachpress/publications.php','teachpress_publications_page');
     $tp_admin_page5 = add_submenu_page('publications.php',__('Add New', 'teachpress'), __('Add New','teachpress'),'use_teachpress','teachpress/addpublications.php','teachpress_addpublications_page');
     add_submenu_page('publications.php',__('Import/Export'), __('Import/Export'), 'use_teachpress', 'teachpress/import.php','teachpress_import_page');
@@ -183,41 +183,42 @@ function get_tp_publication_types() {
  */
 function get_tp_mimetype_images($url) {
     $mimetype = substr($url,-4,4);
+    $url = plugins_url();
     $mimetypes = array(
-        '.pdf' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-pdf.png',
-        '.doc' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-msword.png',
-        'docx' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-msword.png',
-        '.ppt' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-mspowerpoint.png',
-        'pptx' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-mspowerpoint.png',
-        '.xls' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-msexcel.png',
-        'xlsx' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-msexcel.png',
-        '.odt' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-opendocument.text.png',
-        '.ods' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-opendocument.spreadsheet.png',
-        '.odp' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-opendocument.presentation.png',
-        '.odf' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-opendocument.formula.png',
-        '.odg' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-opendocument.graphics.png',
-        '.odc' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-opendocument.chart.png',
-        '.odi' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-opendocument.image.png',
-        '.rtf' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/application-rtf.png',
-        '.rdf' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/text-rdf.png',
-        '.txt' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/text-plain.png',
-        '.tex' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/text-x-bibtex.png',
-        'html' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/text-html.png',
-        '.php' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/text-html.png',
-        '.xml' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/text-xml.png',
-        '.csv' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/text-csv.png',
-        '.mp3' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/audio-x-generic.png',
-        '.wma' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/audio-x-generic.png',
-        '.wav' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/audio-x-generic.png',
-        '.gif' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/image-x-generic.png',
-        '.jpg' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/image-x-generic.png',
-        '.png' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/image-x-generic.png',
-        '.svg' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/image-x-generic.png',
-        '.dvi' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/video-x-generic.png',
-        '.flv' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/video-x-generic.png',
-        '.mov' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/video-x-generic.png',
-        '.mp4' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/video-x-generic.png',
-        '.wmv' => WP_PLUGIN_URL . '/teachpress/images/mimetypes/video-x-generic.png',
+        '.pdf' => $url . '/teachpress/images/mimetypes/application-pdf.png',
+        '.doc' => $url . '/teachpress/images/mimetypes/application-msword.png',
+        'docx' => $url . '/teachpress/images/mimetypes/application-msword.png',
+        '.ppt' => $url . '/teachpress/images/mimetypes/application-mspowerpoint.png',
+        'pptx' => $url . '/teachpress/images/mimetypes/application-mspowerpoint.png',
+        '.xls' => $url . '/teachpress/images/mimetypes/application-msexcel.png',
+        'xlsx' => $url . '/teachpress/images/mimetypes/application-msexcel.png',
+        '.odt' => $url . '/teachpress/images/mimetypes/application-opendocument.text.png',
+        '.ods' => $url . '/teachpress/images/mimetypes/application-opendocument.spreadsheet.png',
+        '.odp' => $url . '/teachpress/images/mimetypes/application-opendocument.presentation.png',
+        '.odf' => $url . '/teachpress/images/mimetypes/application-opendocument.formula.png',
+        '.odg' => $url . '/teachpress/images/mimetypes/application-opendocument.graphics.png',
+        '.odc' => $url . '/teachpress/images/mimetypes/application-opendocument.chart.png',
+        '.odi' => $url . '/teachpress/images/mimetypes/application-opendocument.image.png',
+        '.rtf' => $url . '/teachpress/images/mimetypes/application-rtf.png',
+        '.rdf' => $url . '/teachpress/images/mimetypes/text-rdf.png',
+        '.txt' => $url . '/teachpress/images/mimetypes/text-plain.png',
+        '.tex' => $url . '/teachpress/images/mimetypes/text-x-bibtex.png',
+        'html' => $url . '/teachpress/images/mimetypes/text-html.png',
+        '.php' => $url . '/teachpress/images/mimetypes/text-html.png',
+        '.xml' => $url . '/teachpress/images/mimetypes/text-xml.png',
+        '.csv' => $url . '/teachpress/images/mimetypes/text-csv.png',
+        '.mp3' => $url . '/teachpress/images/mimetypes/audio-x-generic.png',
+        '.wma' => $url . '/teachpress/images/mimetypes/audio-x-generic.png',
+        '.wav' => $url . '/teachpress/images/mimetypes/audio-x-generic.png',
+        '.gif' => $url . '/teachpress/images/mimetypes/image-x-generic.png',
+        '.jpg' => $url . '/teachpress/images/mimetypes/image-x-generic.png',
+        '.png' => $url . '/teachpress/images/mimetypes/image-x-generic.png',
+        '.svg' => $url . '/teachpress/images/mimetypes/image-x-generic.png',
+        '.dvi' => $url . '/teachpress/images/mimetypes/video-x-generic.png',
+        '.flv' => $url . '/teachpress/images/mimetypes/video-x-generic.png',
+        '.mov' => $url . '/teachpress/images/mimetypes/video-x-generic.png',
+        '.mp4' => $url . '/teachpress/images/mimetypes/video-x-generic.png',
+        '.wmv' => $url . '/teachpress/images/mimetypes/video-x-generic.png',
         );
     if ( isset ($mimetypes[$mimetype]) ) {
         return $mimetypes[$mimetype];
@@ -334,11 +335,10 @@ function get_tp_var_types($type) {
 
 /** 
  * Returns the current teachPress version
- * @global string $tp_version
  * @return string
 */
 function get_tp_version(){
-    return '4.1.0';
+    return '4.1.1';
 }
 
 /** 
@@ -587,7 +587,7 @@ function tp_install() {
         dbDelta($sql);
         // Default settings		
         $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('sem', 'Example term', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('db-version', '4.1.0', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('db-version', '4.1.1', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('sign_out', '0', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('login', 'std', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('stylesheet', '1', 'system')");
@@ -703,19 +703,19 @@ function tp_uninstall() {
 function tp_backend_scripts() {
     // Define $page
     $page = isset($_GET['page']) ? $_GET['page'] : '';
-    wp_enqueue_style('teachpress-print-css', WP_PLUGIN_URL . '/teachpress/styles/print.css', false, false, 'print');
+    wp_enqueue_style('teachpress-print-css', plugins_url() . '/teachpress/styles/print.css', false, false, 'print');
     // Load scripts only, when it's teachpress page
     if ( strpos($page, 'teachpress') !== false || strpos($page, 'publications') !== false ) {
-        wp_enqueue_script('teachpress-standard', WP_PLUGIN_URL . '/teachpress/js/backend.js');
-        wp_enqueue_style('teachpress.css', WP_PLUGIN_URL . '/teachpress/styles/teachpress.css');
+        wp_enqueue_script('teachpress-standard', plugins_url() . '/teachpress/js/backend.js');
+        wp_enqueue_style('teachpress.css', plugins_url() . '/teachpress/styles/teachpress.css');
         wp_enqueue_script('media-upload');
         add_thickbox();
         // Load jQuery + ui plugins
         wp_enqueue_script(array('jquery-ui-core', 'jquery-ui-datepicker', 'jquery-ui-resizable', 'jquery-ui-autocomplete'));
-        wp_enqueue_style('teachpress-jquery-ui.css', WP_PLUGIN_URL . '/teachpress/styles/jquery.ui.css');
+        wp_enqueue_style('teachpress-jquery-ui.css', plugins_url() . '/teachpress/styles/jquery.ui.css');
         $lang = array('de_DE','it_IT','es_ES', 'sk_SK');
         if ( in_array( WPLANG , $lang) ) {
-            wp_enqueue_script('teachpress-datepicker-de', WP_PLUGIN_URL . '/teachpress/js/datepicker/jquery.ui.datepicker-' . WPLANG . '.js');
+            wp_enqueue_script('teachpress-datepicker-de', plugins_url() . '/teachpress/js/datepicker/jquery.ui.datepicker-' . WPLANG . '.js');
         }
     }
 }
@@ -723,10 +723,10 @@ function tp_backend_scripts() {
 /** Adds files to the WordPress Frontend Admin Header */ 
 function tp_frontend_scripts() {
     echo chr(13) . chr(10) . '<!-- teachPress ' . get_tp_version() . ' -->' . chr(13) . chr(10);
-    echo '<script type="text/javascript" src="' . WP_PLUGIN_URL . '/teachpress/js/frontend.js"></script>' . chr(13) . chr(10);
+    echo '<script type="text/javascript" src="' . plugins_url() . '/teachpress/js/frontend.js"></script>' . chr(13) . chr(10);
     $value = get_tp_option('stylesheet');
     if ($value == '1') {
-        echo '<link type="text/css" href="' . WP_PLUGIN_URL . '/teachpress/styles/teachpress_front.css" rel="stylesheet" />' . chr(13) . chr(10);
+        echo '<link type="text/css" href="' . plugins_url() . '/teachpress/styles/teachpress_front.css" rel="stylesheet" />' . chr(13) . chr(10);
     }
     echo '<!-- END teachPress -->' . chr(13) . chr(10);
 }

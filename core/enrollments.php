@@ -359,11 +359,11 @@ function tp_enrollments_shortcode($atts) {
       $rtn = $rtn . tp_change_student($wp_id, $data2, 0);
    }
    // delete signup
-   if ( isset( $_POST['austragen'] ) ) {
+   if ( isset( $_POST['austragen'] ) && $checkbox2 != '' ) {
       $rtn = $rtn . tp_delete_signup_student($checkbox2);
    }
    // add signups
-   if ( isset( $_POST['einschreiben'] ) ) {
+   if ( isset( $_POST['einschreiben'] ) && $checkbox != '' ) {
       $max = count( $checkbox );
       for ($n = 0; $n < $max; $n++) {
          $rowr = $wpdb->get_row("SELECT `name`, `parent` FROM $teachpress_courses WHERE `course_id` = '$checkbox[$n]'");

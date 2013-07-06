@@ -37,11 +37,11 @@ if ( is_user_logged_in() && current_user_can('use_teachpress') ) {
         }
         if ($format == 'rss') {
             if ( $user_ID == 0 ) {
-            header("Location: " . WP_PLUGIN_URL . "/teachpress/feed.php");
+            header("Location: " . plugins_url() . "/teachpress/feed.php");
             exit;
             }
             else {
-            header("Location: " . WP_PLUGIN_URL . "/teachpress/feed.php?id=$user_ID");
+            header("Location: " . plugins_url() . "/teachpress/feed.php?id=$user_ID");
             exit;
             }
         }
