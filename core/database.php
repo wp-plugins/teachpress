@@ -91,18 +91,13 @@ function get_tp_publications($args = array(), $count = false) {
     $output_type = esc_sql($output_type);
     $search = esc_sql($search);
     $limit = esc_sql($limit);
-    
-    // if the user needs only the number of rows
-    if ( $count == true ) {
-        $select = "SELECT COUNT( DISTINCT p.pub_id ) AS `count` FROM $teachpress_pub p ";
-    }
 
     // additional joins
     if ( $user != '' ) {
-        $join = $join . "INNER JOIN $teachpress_user u ON u.pub_id = p.pub_id ";
+        $join .= "INNER JOIN $teachpress_user u ON u.pub_id = p.pub_id ";
     }
     if ( $tag != '' ) {
-        $join = $join . "INNER JOIN $teachpress_relation b ON p.pub_id = b.pub_id INNER JOIN $teachpress_tags t ON t.tag_id = b.tag_id ";
+        $join .= "INNER JOIN $teachpress_relation b ON p.pub_id = b.pub_id INNER JOIN $teachpress_tags t ON t.tag_id = b.tag_id ";
     }
 
     // define order_by clause
@@ -128,7 +123,7 @@ function get_tp_publications($args = array(), $count = false) {
         $search = "p.title LIKE '%$search%' OR p.author LIKE '%$search%' OR p.editor LIKE '%$search%' OR p.isbn LIKE '%$search%' OR p.booktitle LIKE '%$search%' OR p.issuetitle LIKE '%$search%' OR p.journal LIKE '%$search%' OR p.date LIKE '%$search%'";
     }
 
-    // define where clause
+    // define where, having and limit clause
     $ex = tp_generate_where_clause($exclude, "p.pub_id", "AND", "!=");
     $includes = tp_generate_where_clause($include, "p.pub_id", "OR", "=");
     $types = tp_generate_where_clause($type, "p.type", "OR", "=");
@@ -165,10 +160,10 @@ function get_tp_publications($args = array(), $count = false) {
     if ( $where != '' ) {
         $where = " WHERE $where";
     }
-    if ( $years != '') {
+    if ( $years != '' ) {
         $having = " HAVING $years";
     }
-    if ( $limit != '' AND $count != true ) {
+    if ( $limit != '' ) {
         $limit = "LIMIT $limit";
     }
     else {
@@ -176,7 +171,12 @@ function get_tp_publications($args = array(), $count = false) {
     }
 
     // End
-    $sql = $select . $join . $where . $having . " ORDER BY $order $limit";
+    if ( $count !== true ) {
+        $sql = $select . $join . $where . $having . " ORDER BY $order $limit";
+    }
+    else {
+        $sql = "SELECT COUNT( DISTINCT pub_id ) AS `count` FROM ( $select $join $where $having) p ";
+    }
     // echo $sql;
     $sql = $count != true ? $wpdb->get_results($sql, $output_type): $wpdb->get_var($sql);
     return $sql;
@@ -1312,8 +1312,9 @@ function tp_is_user_subscribed ($course_id, $consider_childcourses = false) {
 
 /** 
  * Get a teachPress option
- * @param string $var           --> permalink, sem, db-version, sign_out or login
+ * @param string $var           --> sem, db-version, sign_out, login, regnum, studies, termnumber, birthday
  * @Return string
+ * @since 1.0.0
 */
 function get_tp_option($var) {
     global $wpdb;

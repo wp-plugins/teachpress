@@ -156,8 +156,8 @@ class tp_bibtex {
             $name = $row['title'];
         }
 
-        // parse author names
-        if ( $row['type'] === 'collection' || $row['type'] === 'periodical' || ( $row['type'] === 'article' && $row['author'] == '' && $row['editor'] != '' ) ) {
+        // parse author names 
+        if ( $row['type'] === 'collection' || $row['type'] === 'periodical' || ( $row['author'] === '' && $row['editor'] !== '' ) ) {
             $all_authors = tp_bibtex::parse_author($row['editor'], $settings['author_name'] ) . ' (' . __('Ed.','teachpress') . ')';
         }
         else {
@@ -382,26 +382,24 @@ class tp_bibtex {
     
     /**
     * Import a BibTeX String
-    * @global $PARSEENTRIES (CLASS)
+    * @global class $PARSEENTRIES
     * @param string $input      --> the input string with bibtex entries
     * @param array $settings    --> with index names: keyword_separator, author_format
     * @param string $test       --> set it to true for test mode ( = disable the inserting of publications into database )
     */
     static function import_bibtex ($input, $settings, $test = false) {
         global $PARSEENTRIES;
-        // Replace bibtex chars and secure the input parameter
         $input = tp_bibtex::replace_bibtex_chars($input);
-        // Parse a bibtex PHP string
         $parse = NEW PARSEENTRIES();
         $parse->expandMacro = TRUE;
-        $array = array("RMP" => "Rev., Mod. Phys.");
+        $array = array('RMP' => 'Rev., Mod. Phys.');
         $parse->loadStringMacro($array);
         $parse->loadBibtexString($input);
         $parse->extractEntries();
+        
         list($preamble, $strings, $entries, $undefinedStrings) = $parse->returnArrays();
         $max = count( $entries );
         for ( $i = 0; $i < $max; $i++ ) {
-            $number = $i + 1;
             $entries[$i]['name'] = array_key_exists('name', $entries[$i]) === true ? $entries[$i]['name'] : '';
             $entries[$i]['date'] = array_key_exists('date', $entries[$i]) === true ? $entries[$i]['date'] : '';
             $entries[$i]['location'] = array_key_exists('location', $entries[$i]) === true ? $entries[$i]['location'] : '';
@@ -636,7 +634,7 @@ class tp_bibtex {
      * @return string
      * @since 3.0.0
      */
-    private function prepare_url($url, $mode = 'list') {
+    private static function prepare_url($url, $mode = 'list') {
         $end = '';
         $url = explode(chr(13) . chr(10), $url);
         foreach ($url as $url) {

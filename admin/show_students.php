@@ -93,7 +93,7 @@ function teachpress_students_page() {
         <option>- <?php _e('Bulk actions','teachpress'); ?> -</option>
         <option value="delete"><?php _e('Delete','teachpress'); ?></option>
     </select>
-    <input type="submit" name="teachpress_submit" value="<?php _e('OK','teachpress'); ?>" id="teachpress_submit2" class="button-secondary"/>
+    <input type="submit" name="teachpress_submit" value="<?php _e('OK','teachpress'); ?>" id="doaction" class="button-secondary"/>
     <?php if ($field2 == '1') { ?>
         <select name="students_group" id="students_group">
             <option value="">- <?php _e('All students','teachpress'); ?> -</option>

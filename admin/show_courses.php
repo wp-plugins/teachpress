@@ -145,7 +145,7 @@ function teachpress_show_courses_page() {
                <option value="copy"><?php _e('copy','teachpress'); ?></option>
                <option value="delete"><?php _e('Delete','teachpress'); ?></option>
           </select>
-          <input type="submit" name="teachpress_submit" value="<?php _e('OK','teachpress'); ?>" id="teachpress_submit2" class="button-secondary"/>
+          <input type="submit" name="teachpress_submit" id="doaction" value="<?php _e('OK','teachpress'); ?>" class="button-secondary"/>
           <select name="sem" id="sem">
                <option value=""><?php _e('All terms','teachpress'); ?></option>
                <?php    

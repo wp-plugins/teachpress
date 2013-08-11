@@ -792,6 +792,9 @@ function tp_search_shortcode ($atts) {
     
     $r = '';
     $r .= '<form method="get">';
+    if ( !get_option('permalink_structure') ) {
+        $r .= '<input type="hidden" name="p" id="page_id" value="' . get_the_ID() . '"/>';
+    }
     $r .= '<div class="tp_search_input">';
     $r .= '<input name="tps" id="tp_search" title="" type="text" value="' . $search . '" tabindex="1" size="40"/>';
     $r .= '<input name="tps_button" type="submit" value="' . __('Search', 'teachpress') . '"/>';
