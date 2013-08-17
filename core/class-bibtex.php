@@ -672,19 +672,19 @@ class tp_bibtex {
     public static function parse_author ($input, $mode = '') {
         global $PARSECREATORS;
         /* the new teachpress parsing
-            * last: 	Adolf F. Weinhold and Ludwig van Beethoven --> Weinhold, Adolf; van Beethoven, Ludwig
-            * initials: 	Adolf F. Weinhold and Ludwig van Beethoven --> Weinhold, Adolf F; van Beethoven, Ludwig
+         * last: 	Adolf F. Weinhold and Ludwig van Beethoven --> Weinhold, Adolf; van Beethoven, Ludwig
+         * initials: 	Adolf F. Weinhold and Ludwig van Beethoven --> Weinhold, Adolf F; van Beethoven, Ludwig
         */
         if ($mode == 'last' || $mode == 'initials') {
             $creator = new PARSECREATORS();
             $creatorArray = $creator->parse($input);
-            $all_authors = "";
+            $all_authors = '';
             for ($i = 0; $i < count($creatorArray); $i++) {
-                $one_author = "";
+                $one_author = '';
                 if ($mode == 'last' || $mode == 'initials') {
                     if ($creatorArray[$i][3] != '') { $one_author = trim($creatorArray[$i][3]);}
-                    if ($creatorArray[$i][2] != '') { $one_author = $one_author . ' ' .trim($creatorArray[$i][2]) . ',';}
-                    if ($creatorArray[$i][0] != '') { $one_author = $one_author . ' ' .trim($creatorArray[$i][0]);}
+                    if ($creatorArray[$i][2] != '') { $one_author .= ' ' .trim($creatorArray[$i][2]) . ',';}
+                    if ($creatorArray[$i][0] != '') { $one_author .= ' ' .trim($creatorArray[$i][0]);}
                     if ($mode == 'initials') { 
                         if ($creatorArray[$i][1] != '') { $one_author = $one_author . ' ' .trim($creatorArray[$i][1]);}
                     }
@@ -694,11 +694,11 @@ class tp_bibtex {
             }
         }
         /* the original (old) teachpress parsing
-            * example: Adolf F. Weinhold and Ludwig van Beethoven --> Weinhold, Adolf F.; van Beethoven, Ludwig
+         * example: Adolf F. Weinhold and Ludwig van Beethoven --> Weinhold, Adolf F.; van Beethoven, Ludwig
         */
         elseif ($mode == 'old') {
-            $all_authors = "";
-            $one_author = "";
+            $all_authors = '';
+            $one_author = '';
             $array = explode(" and ",$input);
             $lenth = count ($array);
             for ($i=0; $i < $lenth; $i++) {
@@ -713,11 +713,11 @@ class tp_bibtex {
                 if ($i < $lenth - 1) {
                     $all_authors = $all_authors . '; ';
                 }
-                $one_author = "";
+                $one_author = '';
             }
         }
         /* the simple teachpress parsing
-            * example: Adolf F. Weinhold and Albert Einstein --> Adolf F. Weinhold, Albert Einstein
+         * example: Adolf F. Weinhold and Albert Einstein --> Adolf F. Weinhold, Albert Einstein
         */
         else {
             $all_authors = str_replace(' and ', ', ', $input);

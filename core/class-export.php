@@ -12,7 +12,7 @@ class tp_export {
     * @param array $option
     * @param int $waitinglist 
     */
-    function get_course_registration_table($course_ID, $option, $waitinglist = '') {
+    static function get_course_registration_table($course_ID, $option, $waitinglist = '') {
         $row = get_tp_course_signups( array('course' => $course_ID, 'waitinglist' => $waitinglist, 'output_type' => ARRAY_A, 'order' => 'st.lastname ASC') );
         echo '<table border="1" cellpadding="5" cellspacing="0">';
         echo '<thead>';
@@ -58,7 +58,7 @@ class tp_export {
     * Export course data in xls format
     * @param int $course_ID 
     */
-    function get_course_xls($course_ID) {
+    static function get_course_xls($course_ID) {
         global $wpdb;
         global $teachpress_courses;
 		global $teachpress_signup;
@@ -121,7 +121,7 @@ class tp_export {
     * @param int $course_ID
     * @param array $options 
     */
-    function get_course_csv($course_ID) {
+    static function get_course_csv($course_ID) {
         // load settings
         $option['regnum'] = get_tp_option('regnum');
         $option['studies'] = get_tp_option('studies');
@@ -150,20 +150,20 @@ class tp_export {
     * @param int $user_ID 
     * @param string $format - bibtex or rtf
     */
-    function get_publication($user_ID, $format = 'bibtex') {
+    public static function get_publication($user_ID, $format = 'bibtex') {
         global $wpdb;
         global $teachpress_tags;
         global $teachpress_relation;
         
         $user_ID = intval($user_ID);
         $row = get_tp_publications( array('user' => $user_ID, 'output_type' => ARRAY_A) );
-        if ( $format == 'bibtex' ) {
+        if ( $format === 'bibtex' ) {
             foreach ($row as $row) {
                 $tags = $wpdb->get_results("SELECT DISTINCT t.name FROM $teachpress_tags t INNER JOIN  $teachpress_relation r ON r.`tag_id` = t.`tag_id` WHERE r.pub_id = '" . $row['pub_id'] . "' ", ARRAY_A);
                 echo tp_bibtex::get_single_publication_bibtex($row, $tags);
             }
         }     
-        if ( $format == 'rtf' ) {
+        if ( $format === 'rtf' ) {
             echo tp_export::rtf($row);
         }
     }
@@ -173,7 +173,7 @@ class tp_export {
     * @param array $row
     * @return string
     */
-    function rtf ($row) {
+    static function rtf ($row) {
         $head = '{\rtf1';
         $line = '';
         foreach ($row as $row) {
@@ -188,7 +188,7 @@ class tp_export {
     * @param array $row
     * @return string 
     */
-    function rtf_row ($row) {
+    static function rtf_row ($row) {
         $settings['editor_name'] = 'initials';
         $settings['style'] = 'simple';
         if ( $row['type'] == 'collection' ) {
@@ -209,7 +209,7 @@ class tp_export {
     * @param string $char
     * @return string 
     */
-    function decode ($char) {
+    static function decode ($char) {
         $array_1 = array('Ã¼','Ã¶', 'Ã¤', 'Ã¤', 'Ã?','Â§','Ãœ','Ã','Ã–','&Uuml;','&uuml;', '&Ouml;', '&ouml;', '&Auml;','&auml;', '&nbsp;', '&szlig;', '&sect;', '&ndash;', '&rdquo;', '&ldquo;', '&eacute;', '&egrave;', '&aacute;', '&agrave;', '&ograve;','&oacute;', '&copy;', '&reg;', '&micro;', '&pound;', '&raquo;', '&laquo;', '&yen;', '&Agrave;', '&Aacute;', '&Egrave;', '&Eacute;', '&Ograve;', '&Oacute;', '&shy;', '&amp;');
         $array_2 = array('ü','ö', 'ä', 'ä', 'ß', '§','Ü','Ä','Ö','Ü','ü', 'Ö', 'ö', 'Ä', 'ä', ' ', 'ß', '§', '-', '”', '“', 'é', 'è', 'á', 'à', 'ò', 'ó', '©', '®', 'µ', '£', '»', '«', '¥', 'À', 'Á', 'È', 'É', 'Ò', 'Ó', '­', '&');
         $char = str_replace($array_1, $array_2, $char);

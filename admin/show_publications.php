@@ -33,6 +33,7 @@ function teachpress_publications_page() {
     $page = isset( $_GET['page'] ) ? htmlspecialchars($_GET['page']) : '';
     $filter = ( isset( $_GET['filter'] ) && $_GET['filter'] != '0' ) ? htmlspecialchars($_GET['filter']) : '';
     $user = isset( $_GET['user'] ) ? intval($_GET['user']) : '';
+    $year = isset( $_GET['year'] ) ? intval($_GET['year']) : '';
     $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
     $tag_id = isset( $_GET['tag'] ) ? intval($_GET['tag']) : '';
 
@@ -121,12 +122,13 @@ function teachpress_publications_page() {
         $args = array('search' => $search,
                       'user' => $user_ID,
                       'tag' => $tag_id,
+                      'year' => $year,
                       'limit' => $entry_limit . ',' .  $number_messages,
                       'type' => $filter,
                       'order' => 'date DESC, title ASC'
                      );
         $test = get_tp_publications($args, true);
-
+        
         // Load tags
         $tags = get_tp_tags( array('output_type' => ARRAY_A) );
         
@@ -143,19 +145,43 @@ function teachpress_publications_page() {
          <input type="submit" name="pub_search_button" id="pub_search_button" value="<?php _e('Search','teachpress'); ?>" class="button-secondary"/>
       </div>
       <div class="tablenav" style="padding-bottom:5px;">
-      <select name="action">
-         <option value="0">- <?php _e('Bulk actions','teachpress'); ?> -</option>
-         <option value="bibtex"><?php _e('Show as BibTeX entry','teachpress'); ?></option>
-         <?php if ($page == 'publications.php') {?>
-         <option value="delete"><?php _e('Delete','teachpress'); ?></option>
-         <?php } ?>
-      </select>
-      <input name="ok" value="<?php _e('OK','teachpress'); ?>" type="submit" class="button-secondary"/>
-      <select name="filter">
-         <option value="0">- <?php _e('All types','teachpress'); ?> -</option>
-         <?php echo get_tp_publication_type_options ($filter, $mode = 'pl'); ?>
-      </select>
-      <input name="filter-ok" value="<?php _e('Limit selection','teachpress'); ?>" type="submit" class="button-secondary"/>
+          <div class="alignleft actions">
+            <select name="action">
+               <option value="0">- <?php _e('Bulk actions','teachpress'); ?> -</option>
+               <option value="bibtex"><?php _e('Show as BibTeX entry','teachpress'); ?></option>
+               <?php if ($page == 'publications.php') {?>
+               <option value="delete"><?php _e('Delete','teachpress'); ?></option>
+               <?php } ?>
+            </select>
+            <input name="ok" id="doaction" value="<?php _e('OK','teachpress'); ?>" type="submit" class="button-secondary"/>
+          </div>
+          <div class="alignleft actions">
+            <select name="filter">
+               <option value="0">- <?php _e('All types','teachpress'); ?> -</option>
+               <?php echo get_tp_publication_type_options ($filter, $mode = 'pl'); ?>
+            </select>
+            <select name="year">
+                <option value="0">- <?php _e('All years','teachpress'); ?> -</option>
+                <?php
+                $array_years = get_tp_publication_years( array('order' => 'DESC') );
+                foreach ( $array_years as $row ) {
+                    $selected = ( $year == $row->year ) ? 'selected="selected"' : '';
+                    echo '<option value="' . $row->year . '" ' . $selected . '>' . $row->year . '</option>';
+                }
+                ?>
+            </select>
+            <select name="tag">
+                <option value="0">- <?php _e('All tags','teachpress'); ?> -</option>
+                <?php
+                $array_tags = get_tp_tags( array('group_by' => true, 'order' => 'ASC') );
+                foreach ( $array_tags as $row ) {
+                    $selected = ( $tag_id == $row->tag_id ) ? 'selected="selected"' : '';
+                    echo '<option value="' . $row->tag_id . '" ' . $selected . '>' . $row->name . '</option>';
+                }
+                ?>
+            </select>
+            <input name="filter-ok" value="<?php _e('Limit selection','teachpress'); ?>" type="submit" class="button-secondary"/>
+          </div>
       <?php
       // Page Menu
       echo tp_admin_page_menu ($test, $number_messages, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search&amp;filter=$filter&amp;tag=$tag_id"); ?>
@@ -182,7 +208,7 @@ function teachpress_publications_page() {
              //$row = $wpdb->get_results($abfrage);
              $row = get_tp_publications($args);
              foreach ($row as $row) { 
-                 $get_string = '&amp;search=' . $search . '&amp;filter=' . $filter . '&amp;limit=' . $curr_page . '&amp;site=' . $page . '&amp;tag=' . $tag_id . '';
+                 $get_string = '&amp;search=' . $search . '&amp;filter=' . $filter . '&amp;limit=' . $curr_page . '&amp;site=' . $page . '&amp;tag=' . $tag_id . '&amp;year=' . $year;
                  ?>
                <tr>
                   <td style="font-size:20px; padding-top:8px; padding-bottom:0px; padding-right:0px;">
@@ -220,7 +246,7 @@ function teachpress_publications_page() {
                   echo '</td>';
                   echo '<td>' . $row->pub_id . '</td>';
                   echo '<td>' . tp_translate_pub_type($row->type) . '</td>';
-                  if ( $row->type == 'collection' || ( $row->author == '' && $row->editor != '' ) ) {
+                  if ( $row->type === 'collection' || ( $row->author === '' && $row->editor !== '' ) ) {
                      echo '<td>' . stripslashes( str_replace(' and ', ', ', $row->editor) ) . ' (' . __('Ed.','teachpress') . ')</td>';
                   }
                   else {

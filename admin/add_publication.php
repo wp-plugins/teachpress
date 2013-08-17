@@ -74,6 +74,7 @@ function teachpress_addpublications_page() {
    $filter = isset( $_GET['filter'] ) ? htmlspecialchars($_GET['filter']) : '';
    $site = isset( $_GET['site'] ) ? htmlspecialchars($_GET['site']) : '';
    $tag_id = isset( $_GET['tag'] ) ? htmlspecialchars($_GET['tag']) : '';
+   $year = isset( $_GET['year'] ) ? intval($_GET['year']) : '';
    $entry_limit = isset( $_GET['limit'] ) ? htmlspecialchars($_GET['limit']) : '';
 
    $daten = get_tp_var_types('publication_array');
@@ -95,7 +96,7 @@ function teachpress_addpublications_page() {
    }
 
    if ( $pub_ID != '' && !isset($_POST['erstellen']) ) {
-           echo '<p style="margin-bottom:0px;"><a href="admin.php?page=publications.php&amp;search=' . $search . '&amp;filter=' .  $filter . '&amp;limit=' . $entry_limit . '&amp;tag=' . $tag_id . '" class="button-secondary" title="' . __('Back','teachpress') . '">&larr; ' . __("Back",'teachpress') . '</a></p>';
+      echo '<p style="margin-bottom:0px;"><a href="admin.php?page=publications.php&amp;search=' . $search . '&amp;filter=' .  $filter . '&amp;limit=' . $entry_limit . '&amp;tag=' . $tag_id . '&amp;year=' . $year . '" class="button-secondary" title="' . __('Back','teachpress') . '">&larr; ' . __("Back",'teachpress') . '</a></p>';
    } ?>
    <h2><?php if ($pub_ID == '') { _e('Add a new publication','teachpress'); } else { _e('Edit publication','teachpress'); } ?></h2>
      <input name="page" type="hidden" value="teachpress/addpublications.php">
@@ -108,8 +109,9 @@ function teachpress_addpublications_page() {
           <input type="hidden" name="site" id="site" value="<?php echo $site; ?>" />
           <input type="hidden" name="filter" id="filter" value="<?php echo $filter; ?>" />
           <input type="hidden" name="tag" id="tag" value="<?php echo $tag_id; ?>" />
+          <input type="hidden" name="year" id="year" value="<?php echo $year; ?>" />
      <?php } ?>
-     <div style="min-width:780px; width:100%; max-width:1100px;">
+     <div style="min-width:780px; width:100%;">
      <div style="width:30%; float:right; padding-right:2%; padding-left:1%;">
      <table class="widefat" style="margin-bottom:15px;">
            <thead>
