@@ -31,11 +31,11 @@ function teachpress_publications_page() {
     $checkbox = isset( $_GET['checkbox'] ) ? $_GET['checkbox'] : '';
     $action = isset( $_GET['action'] ) ? $_GET['action'] : '';
     $page = isset( $_GET['page'] ) ? htmlspecialchars($_GET['page']) : '';
-    $filter = ( isset( $_GET['filter'] ) && $_GET['filter'] != '0' ) ? htmlspecialchars($_GET['filter']) : '';
-    $user = isset( $_GET['user'] ) ? intval($_GET['user']) : '';
+    $type = ( isset( $_GET['filter'] ) && $_GET['filter'] != '0' ) ? htmlspecialchars($_GET['filter']) : '';
     $year = isset( $_GET['year'] ) ? intval($_GET['year']) : '';
     $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
     $tag_id = isset( $_GET['tag'] ) ? intval($_GET['tag']) : '';
+    $user = ( $page !== 'publications.php' ) ? $current_user->ID : '';
 
     // Page menu
     $number_messages = 50;
@@ -62,7 +62,7 @@ function teachpress_publications_page() {
     }
     // Add a bookmark for the publication
     if ( isset( $_GET['add_id'] ) ) {
-        tp_add_bookmark($_GET['add_id'], $user);
+        tp_add_bookmark($_GET['add_id'], $current_user->ID);
     }
     // Delete bookmark for the publication
     if ( isset( $_GET['del_id'] ) ) {
@@ -118,13 +118,13 @@ function teachpress_publications_page() {
         echo '</textarea>';
     }
     else {
-        $user_ID = $page == 'publications.php' ? '' : $current_user->ID;
+        $user_ID = ( $page === 'publications.php' ) ? '' : $current_user->ID;
         $args = array('search' => $search,
                       'user' => $user_ID,
                       'tag' => $tag_id,
                       'year' => $year,
                       'limit' => $entry_limit . ',' .  $number_messages,
-                      'type' => $filter,
+                      'type' => $type,
                       'order' => 'date DESC, title ASC'
                      );
         $test = get_tp_publications($args, true);
@@ -139,7 +139,7 @@ function teachpress_publications_page() {
       <h2><?php echo $title; ?></h2>
       <div id="searchbox" style="float:right; padding-bottom:5px;">
          <?php if ($search != "") { 
-                 echo '<a href="admin.php?page=' . $page . '&amp;filter=' . $filter . '&amp;tag=' . $tag_id . '" style="font-size:14px; font-weight:bold; text-decoration:none; padding-right:3px;" title="' . __('Cancel the search','teachpress') . '">X</a>';
+                 echo '<a href="admin.php?page=' . $page . '&amp;filter=' . $type . '&amp;tag=' . $tag_id . '" style="font-size:14px; font-weight:bold; text-decoration:none; padding-right:3px;" title="' . __('Cancel the search','teachpress') . '">X</a>';
          } ?>
          <input type="text" name="search" id="pub_search_field" value="<?php echo $search; ?>"/>
          <input type="submit" name="pub_search_button" id="pub_search_button" value="<?php _e('Search','teachpress'); ?>" class="button-secondary"/>
@@ -158,12 +158,18 @@ function teachpress_publications_page() {
           <div class="alignleft actions">
             <select name="filter">
                <option value="0">- <?php _e('All types','teachpress'); ?> -</option>
-               <?php echo get_tp_publication_type_options ($filter, $mode = 'pl'); ?>
+               <?php 
+               $array_types = get_tp_publication_used_types( array('user' => $user, 'output_type' => OBJECT) );
+               foreach ( $array_types as $row ) {
+                   $selected = ( $type == $row->type ) ? 'selected="selected"' : '';
+                   echo '<option value="' . $row->type . '" ' . $selected . '>' . tp_translate_pub_type($row->type,'pl') . '</option>';
+               }
+               ?>
             </select>
             <select name="year">
                 <option value="0">- <?php _e('All years','teachpress'); ?> -</option>
                 <?php
-                $array_years = get_tp_publication_years( array('order' => 'DESC') );
+                $array_years = get_tp_publication_years( array('order' => 'DESC', 'user' => $user) );
                 foreach ( $array_years as $row ) {
                     $selected = ( $year == $row->year ) ? 'selected="selected"' : '';
                     echo '<option value="' . $row->year . '" ' . $selected . '>' . $row->year . '</option>';
@@ -173,7 +179,7 @@ function teachpress_publications_page() {
             <select name="tag">
                 <option value="0">- <?php _e('All tags','teachpress'); ?> -</option>
                 <?php
-                $array_tags = get_tp_tags( array('group_by' => true, 'order' => 'ASC') );
+                $array_tags = get_tp_tags( array('user' => $user, 'group_by' => true, 'order' => 'ASC') );
                 foreach ( $array_tags as $row ) {
                     $selected = ( $tag_id == $row->tag_id ) ? 'selected="selected"' : '';
                     echo '<option value="' . $row->tag_id . '" ' . $selected . '>' . $row->name . '</option>';
@@ -184,7 +190,7 @@ function teachpress_publications_page() {
           </div>
       <?php
       // Page Menu
-      echo tp_admin_page_menu ($test, $number_messages, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search&amp;filter=$filter&amp;tag=$tag_id"); ?>
+      echo tp_admin_page_menu ($test, $number_messages, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search&amp;filter=$type&amp;tag=$tag_id"); ?>
       </div>
       <table class="widefat">
          <thead>
@@ -208,7 +214,7 @@ function teachpress_publications_page() {
              //$row = $wpdb->get_results($abfrage);
              $row = get_tp_publications($args);
              foreach ($row as $row) { 
-                 $get_string = '&amp;search=' . $search . '&amp;filter=' . $filter . '&amp;limit=' . $curr_page . '&amp;site=' . $page . '&amp;tag=' . $tag_id . '&amp;year=' . $year;
+                 $get_string = '&amp;search=' . $search . '&amp;filter=' . $type . '&amp;limit=' . $curr_page . '&amp;site=' . $page . '&amp;tag=' . $tag_id . '&amp;year=' . $year;
                  ?>
                <tr>
                   <td style="font-size:20px; padding-top:8px; padding-bottom:0px; padding-right:0px;">
@@ -224,7 +230,7 @@ function teachpress_publications_page() {
                   if ($page == 'publications.php') {
                      // Add to your own list icon
                      if ($test2 == false) {
-                        echo '<a href="' . $pagenow . '?page=' . $page . '&amp;add_id='. $row->pub_id . '&amp;user=' . $current_user->ID . $get_string . '" title="' . __('Add to your own list','teachpress') . '">+</a>';
+                        echo '<a href="' . $pagenow . '?page=' . $page . '&amp;add_id='. $row->pub_id . $get_string . '" title="' . __('Add to your own list','teachpress') . '">+</a>';
                      }
                   }
                   else {
@@ -258,10 +264,10 @@ function teachpress_publications_page() {
                   foreach ($tags as $temp) {
                      if ($temp["pub_id"] == $row->pub_id) {
                         if ($temp["tag_id"] == $tag_id) {
-                           $tag_string = $tag_string . '<a href="admin.php?page=' . $page . '&amp;search=' . $search . '&amp;filter=' . $filter . '&amp;limit=' . $curr_page . '" title="' . __('Delete tag as filter','teachpress') . '"><strong>' . stripslashes($temp["name"]) . '</strong></a>, ';
+                           $tag_string = $tag_string . '<a href="admin.php?page=' . $page . '&amp;search=' . $search . '&amp;filter=' . $type . '&amp;limit=' . $curr_page . '&amp;year=' . $year . '" title="' . __('Delete tag as filter','teachpress') . '"><strong>' . stripslashes($temp["name"]) . '</strong></a>, ';
                         }
                         else {
-                           $tag_string = $tag_string . '<a href="admin.php?page=' . $page . '&amp;search=' . $search . '&amp;filter=' . $filter . '&amp;tag=' . $temp["tag_id"] . '" title="' . __('Show all publications which have a relationship to this tag','teachpress') . '">' . stripslashes($temp["name"]) . '</a>, ';
+                           $tag_string = $tag_string . '<a href="admin.php?page=' . $page . '&amp;search=' . $search . '&amp;filter=' . $type . '&amp;tag=' . $temp["tag_id"] . '&amp;year=' . $year . '" title="' . __('Show all publications which have a relationship to this tag','teachpress') . '">' . stripslashes($temp["name"]) . '</a>, ';
                         }
                      }
                   }
@@ -278,7 +284,7 @@ function teachpress_publications_page() {
       <div class="tablenav"><div class="tablenav-pages" style="float:right;">
       <?php 
       if ($test > $number_messages) {
-         echo tp_admin_page_menu ($test, $number_messages, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search&amp;filter=$filter&amp;tag=$tag_id", 'bottom');
+         echo tp_admin_page_menu ($test, $number_messages, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search&amp;filter=$type&amp;tag=$tag_id&amp;year=$year", 'bottom');
       } 
       else {
          if ($test == 1) {

@@ -1,8 +1,10 @@
 <?php
-/* Tag management
- * @param $search (String) - Suchergebnis
- * @param $tag_id (INT) - ID eines zu bearbeitenden Tags
-*/ 
+/**
+ * Tag management page
+ * @global class $wpdb
+ * @global string $teachpress_relation
+ * @global string $teachpress_tags
+ */ 
 function teachpress_tags_page(){ 
     ?> 
     <div class="wrap" style="max-width:650px;">
@@ -13,9 +15,9 @@ function teachpress_tags_page(){
     global $teachpress_relation;
     global $teachpress_tags;
     // form data
-    $action = isset( $_GET['action'] ) ? $action = htmlspecialchars($_GET['action']) : '';
-    $search = isset( $_GET['search'] ) ? $search = htmlspecialchars($_GET['search']) : '';
-    $checkbox = isset( $_GET['checkbox'] ) ? $checkbox = $_GET['checkbox'] : '';
+    $action = isset( $_GET['action'] ) ? htmlspecialchars($_GET['action']) : '';
+    $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
+    $checkbox = isset( $_GET['checkbox'] ) ? $_GET['checkbox'] : array();
     $page = 'teachpress/tags.php';
     $number_messages = 50;
     // Handle limits
@@ -32,8 +34,8 @@ function teachpress_tags_page(){
     }
 
     // actions
-    // Delete publications - part 1
-    if ( $action == "delete" ) {
+    // Delete tags - part 1
+    if ( $action === 'delete' ) {
         echo '<div class="teachpress_message">
             <p class="teachpress_message_headline">' . __('Are you sure to delete the selected elements?','teachpress') . '</p>
             <p><input name="delete_ok" type="submit" class="button-secondary" value="' . __('Delete','teachpress') . '"/>
@@ -45,20 +47,20 @@ function teachpress_tags_page(){
         tp_delete_tags($checkbox);
         get_tp_message( __('Removing successful','teachpress') );
     }
-    if ( isset( $_POST['tp_edit_tag_submit'] )) {
-        $name = htmlspecialchars($_POST['tp_edit_tag_name']);
-        $tag_id = intvar($_POST['tp_edit_tag_ID']);
+    if ( isset( $_GET['tp_edit_tag_submit'] )) {
+        $name = htmlspecialchars($_GET['tp_edit_tag_name']);
+        $tag_id = intval($_GET['tp_edit_tag_ID']);
         tp_edit_tag($tag_id, $name);
         get_tp_message( __('Tag saved','teachpress') );
     }
     
     // if the user use the search
-    if ($search != "") {
-        $sql = "SELECT * FROM " . $teachpress_tags . " WHERE `name` like '%$search%' OR `tag_id` = '$search'";	
+    if ($search != '') {
+        $sql = "SELECT * FROM $teachpress_tags WHERE `name` like '%$search%' OR `tag_id` = '$search'";	
     }
     // normal sql statement
     else {
-        $sql = "SELECT * FROM " . $teachpress_tags . " ORDER BY `name`";
+        $sql = "SELECT * FROM $teachpress_tags ORDER BY `name`";
     }				
     $test = $wpdb->query($sql);
     $sql = $sql . " LIMIT $entry_limit, $number_messages";
@@ -90,13 +92,12 @@ function teachpress_tags_page(){
         </tr>
         </thead> 
         <?php
-        if ($test == 0) {
+        if ($test === 0) {
             echo '<tr><td colspan="4"><strong>' . __('Sorry, no entries matched your criteria.','teachpress') . '</strong></td></tr>';
         }
         else {
-            $sql2 = "SELECT * FROM $teachpress_relation";
-            $row = $wpdb->get_results($sql2);
-            $z=0;
+            $row = $wpdb->get_results("SELECT * FROM $teachpress_relation");
+            $z = 0;
             foreach ($row as $row) {
                 $daten[$z][0] = $row->pub_id;
                 $daten[$z][1] = $row->tag_id;
@@ -133,21 +134,30 @@ function teachpress_tags_page(){
             }
         } ?>
     </table>
-    <div class="tablenav"><div class="tablenav-pages" style="float:right;">
-      <?php 
-      if ($test > $number_messages) {
-         echo tp_admin_page_menu ($test, $number_messages, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search", 'bottom');
-      } 
-      else {
-         if ($test == 1) {
-            echo '' . $test . ' ' . __('entry','teachpress') . '';
-         }
-         else {
-            echo '' . $test . ' ' . __('entries','teachpress') . '';
-         }
-      }
-      ?>
-    </div></div>
+    <div class="tablenav bottom">
+        <div class="alignleft actions">
+            <select name="action">
+                <option value="">- <?php _e('Bulk actions','teachpress'); ?> -</option>
+                <option value="delete"><?php _e('Delete','teachpress'); ?></option>
+            </select>
+            <input name="OK" value="OK" type="submit" class="button-secondary"/>
+        </div>
+        <div class="tablenav-pages" style="float:right;">
+        <?php 
+        if ($test > $number_messages) {
+           echo tp_admin_page_menu ($test, $number_messages, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search", 'bottom');
+        } 
+        else {
+           if ($test === 1) {
+              echo $test . ' ' . __('entry','teachpress');
+           }
+           else {
+              echo $test . ' ' . __('entries','teachpress');
+           }
+        }
+        ?>
+        </div>
+    </div>
     </div>
     </form>
     </div>

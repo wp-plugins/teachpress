@@ -94,7 +94,7 @@ function tp_show_single_course_page() {
    }
    ?>
    <h2 style="padding-top:5px;"><?php echo $parent_name . stripslashes($daten["name"]) . ' ' . $daten["semester"]; ?> <span class="tp_break">|</span> <small><a href="admin.php?page=teachpress/teachpress.php&amp;course_ID=<?php echo $course_ID; ?>&amp;sem=<?php echo $sem; ?>&amp;search=<?php echo $search; ?>&amp;action=edit" class="teachpress_link" style="cursor:pointer;"><?php _e('Edit','teachpress'); ?></a></small></h2>
-   <div style="min-width:780px; width:100%; max-width:1100px;">
+   <div style="min-width:780px; width:100%;">
    <div style="width:24%; float:right; padding-left:1%; padding-bottom:1%;">
    <table border="1" cellspacing="0" cellpadding="0" class="widefat" id="teachpress_edit">
        <thead>
@@ -173,7 +173,7 @@ function tp_show_single_course_page() {
          </thead>
    </table>
    </div>
-   <div style="min-width:780px; width:100%; max-width:1100px; float: left; margin-top: 12px;">
+   <div style="min-width:780px; width:100%; float: left; margin-top: 12px;">
    <div class="tp_actions">
         <span style="margin-right:15px;">
         <select name="reg_action">

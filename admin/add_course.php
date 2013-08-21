@@ -116,7 +116,7 @@ function tp_add_course_page() {
      <input name="search" type="hidden" value="<?php echo $search; ?>" />
      <input name="ref" type="hidden" value="<?php echo $ref; ?>" />
      <input name="upload_mode" id="upload_mode" type="hidden" value="" />
-     <div style="min-width:780px; width:100%; max-width:1100px;">
+     <div style="min-width:780px; width:100%;">
      <div style="width:30%; float:right; padding-right:2%; padding-left:1%;">   
      <table class="widefat" style="margin-bottom:15px;">
         <thead>
