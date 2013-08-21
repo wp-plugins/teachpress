@@ -215,6 +215,7 @@ function tp_date_shortcode($attr) {
  * @since 2.0.0
 */ 
 function tp_single_shortcode ($atts) {
+    global $tp_single_publication;
     extract(shortcode_atts(array(
        'id' => 0,
        'key' => '',
@@ -236,11 +237,74 @@ function tp_single_shortcode ($atts) {
     else {
         $publication = get_tp_publication($id, ARRAY_A);
     }
+    $tp_single_publication = $publication;
     
     $author = tp_bibtex::parse_author($publication['author'], $settings['author_name']);
 
     $asg = '<div class="tp_single_publication"><span class="tp_single_author">' . stripslashes($author) . '</span><span class="tp_single_year"> (' . $publication['year'] . ')</span>: <span class="tp_single_title">' . stripslashes($publication['title']) . '</span>. <span class="tp_single_additional">' . tp_bibtex::single_publication_meta_row($publication, $settings) . '</span></div>';
     return $asg;
+}
+
+/** 
+ * Shorcode for the BibTeX of a single publication
+ * 
+ * possible values of $atts:
+ *  id (INT)                --> id of a publication
+ *  key (STRING)            --> bibtex key of a publication 
+ * If neither is given, the publication of the most recent [tpsingle] will be reused
+ * 
+ * @param array $atts
+ * @return string
+ * @since 4.2.0
+*/ 
+function tp_bibtex_shortcode ($atts) {
+    global $tp_single_publication;
+    extract(shortcode_atts(array(
+       'id' => 0,
+       'key' => '',
+    ), $atts));
+
+    if ( $key != '' ) {
+        $publication = get_tp_publication_by_key($key, ARRAY_A);
+    } elseif ( $id != 0 ) {
+        $publication = get_tp_publication($id, ARRAY_A);
+    } else {
+        $publication = $tp_single_publication;
+    }
+    return '<h2 class="tp_bibtex">BibTeX (<a href="' . plugins_url('export.php', dirname(__FILE__)) . '?key=' . $publication['bibtex'] . '">Download</a>)</h2><pre class="tp_bibtex">' . tp_bibtex::get_single_publication_bibtex($publication) . '</pre>';
+}
+
+/** 
+ * Shorcode for the abstract of a single publication
+ * 
+ * possible values of $atts:
+ *  id (INT)                --> id of a publication
+ *  key (STRING)            --> bibtex key of a publication 
+ * If neither is given, the publication of the most recent [tpsingle] will be reused
+ * 
+ * @param array $atts
+ * @return string
+ * @since 4.2.0
+*/ 
+function tp_abstract_shortcode ($atts) {
+    global $tp_single_publication;
+    extract(shortcode_atts(array(
+       'id' => 0,
+       'key' => '',
+    ), $atts));
+
+    if ( $key != '' ) {
+        $publication = get_tp_publication_by_key($key, ARRAY_A);
+    } elseif ( $id != 0 ) {
+        $publication = get_tp_publication($id, ARRAY_A);
+    } else {
+        $publication = $tp_single_publication;
+    }
+
+    if ( isset($publication['abstract']) ) {
+        return '<h2 class="tp_abstract">Abstract</h2><p class="tp_abstract">' . htmlspecialchars_decode($publication['abstract']) . '</p>';
+    } 
+    return;
 }
 
 /**
@@ -265,7 +329,7 @@ function tp_sort_pub_table($tparray, $headlines, $args) {
         }
         foreach ( $headlines as $key => $value ) {
             if ( $value != '' ) {
-                $line_title = $args['headline'] == 1 ? $key : tp_translate_pub_type($key, 'pl');
+                $line_title = ( $args['headline'] == 1 ) ? $key : tp_translate_pub_type($key, 'pl');
                 $publications .=  '<tr><td' . $args['colspan'] . '><h3 class="tp_h3">' . $line_title . '</h3></td></tr>';
                 $publications .=  $value;
             }
@@ -340,9 +404,9 @@ function tp_generate_pub_table($tparray, $args ) {
  * Publication list with tag cloud
  * 
  * Parameters for the array $atts:
- *   user (INT)             --> the id of on or more users (separated by comma)
- *   tag (INT)              --> NOT IMPLEMENTED
- *   year (INT)             --> NOT IMPLEMENTED
+ *   user (STRING)          --> the id of on or more users (separated by comma)
+ *   tag (STRING)           --> NOT IMPLEMENTED
+ *   year (STRING)          --> NOT IMPLEMENTED
  *   type (STRING)          --> the publication types you want to show (separated by comma)
  *   exclude (INT)          --> one or more IDs of publications you don't want to show (separated by comma)
  *   order (STRING)         --> name, year, bibtex or type, default: date DESC
@@ -355,7 +419,7 @@ function tp_generate_pub_table($tparray, $args ) {
  *   anchor (INT)           --> 0 (false) or 1 (true), default: 1
  *   author_name (STRING)   --> simple, last, initials or old, default: last
  *   editor_name (STRING)   --> simple, last, initials or old, default: last
- *   style (STRING)         --> simple or std, default: std
+ *   style (STRING)         --> simple, numbered, numbered_desc or std, default: std
  *   link_style (STRING)    --> inline or images, default: inline
  *   date_format (STRING)   --> the format for date; needed for the types: presentations, online; default: d.m.Y
  * 
@@ -565,16 +629,18 @@ function tp_cloud_shortcode($atts) {
    $row = get_tp_publications( array('tag' => $tgid, 'year' => $yr, 'type' => $type, 'user' => $user, 'order' => $order, 'output_type' => ARRAY_A) );
    $all_tags = get_tp_tags( array('output_type' => ARRAY_A) );
    $tpz = 0;
+   $count = count($row);
    $colspan = '';
    $tparray = '';
-   if ($settings['image']== 'left' || $settings['image']== 'right') {
+   if ($settings['image'] == 'left' || $settings['image'] == 'right') {
       $settings['pad_size'] = $image_size + 5;
       $colspan = ' colspan="2"';
    }
    // Create array of publications
    foreach ($row as $row) {
+      $number = ( $style === 'numbered_desc' ) ? $count - $tpz : $tpz + 1 ;
       $tparray[$tpz][0] = $row['year'] ;
-      $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row, $all_tags, $permalink, $settings, $tpz);
+      $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row, $all_tags, $permalink, $settings, $number);
       if ( $headline === 2 || $headline === 3 ) {
           $tparray[$tpz][2] = $row['type'] ;
       }
@@ -601,19 +667,19 @@ function tp_cloud_shortcode($atts) {
  * Publication list without tag cloud
  * 
  * possible values for $atts:
- *   user (INT)             --> 0 for all publications of all users, default: 0
- *   tag (INT)              --> tag-ID, default: 0
+ *   user (STRING)          --> user_ids (separated by comma)
+ *   tag (STRING)           --> tag_ids (separated by comma)
  *   type (STRING)          --> publication types (separated by comma)
  *   exclude (STRING)       --> a string with one or more IDs of publication you don't want to display
  *   include (STRING)       --> a string with one or more IDs of publication you want to display
- *   year (INT)             --> default: 0 (=show all years)
+ *   year (STRING)          --> the publication years (separated by comma)
  *   order (STRING)         --> name, year, bibtex or type, default: date DESC
  *   headline (INT)         --> show headlines with years(1), with publication types(2), with both(3) or not(0), default: 1
  *   image (STRING)         --> none, left, right or bottom, default: none 
  *   image_size (INT)       --> max. Image size, default: 0
  *   author_name (STRING)   --> last, initials or old, default: last
  *   editor_name (STRING)   --> last, initials or old, default: last
- *   style (STRING)         --> simple, numbered or std, default: std
+ *   style (STRING)         --> simple, numbered, numbered_desc or std, default: std
  *   link_style (STRING)    --> inline or images, default: inline
  *   date_format (STRING)   --> the format for date; needed for the types: presentations, online; default: d.m.Y
  *   pagination (INT)       --> activate pagination (1) or not (0), default: 0
@@ -624,12 +690,12 @@ function tp_cloud_shortcode($atts) {
 */
 function tp_list_shortcode($atts){
     extract(shortcode_atts(array(
-       'user' => 0,
-       'tag' => 0,
+       'user' => '',
+       'tag' => '',
        'type' => '',
        'exclude' => '',
        'include' => '',
-       'year' => 0,
+       'year' => '',
        'order' => 'date DESC',
        'headline' => 1,
        'image' => 'none',
@@ -697,9 +763,11 @@ function tp_list_shortcode($atts){
     $args = array('tag' => $tag, 'year' => $year, 'type' => $type, 'user' => $user, 'order' => $order, 'exclude' => $exclude, 'include' => $include, 'output_type' => ARRAY_A, 'limit' => $limit);
     $row = get_tp_publications( $args );
     $number_entries = ( $pagination === 1 ) ? get_tp_publications($args, true) : 0;
+    $count = count($row);
     foreach ($row as $row) {
+       $number = ( $style === 'numbered_desc' ) ? $count - $tpz : $tpz + 1 ;
        $tparray[$tpz][0] = $row['year'];
-       $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row,'', '', $settings, $tpz + 1);
+       $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row,'', '', $settings, $number);
        if ( $headline === 2 || $headline === 3 ) {
            $tparray[$tpz][2] = $row['type'];
        }
@@ -725,6 +793,8 @@ function tp_list_shortcode($atts){
  * tpsearch: Frontend search function for publications
  *
  * possible values for $atts:
+ *   user (STRING)          --> user_ids (separated by comma)
+ *   tag (STRING)           --> tag_ids (separated by comma)
  *   entries_per_page (INT) --> number of entries per page (default: 20)
  *   image (STRING)         --> none, left, right or bottom, default: none 
  *   image_size (INT)       --> max. Image size, default: 0
@@ -741,6 +811,8 @@ function tp_list_shortcode($atts){
  */
 function tp_search_shortcode ($atts) {
     extract(shortcode_atts(array(
+       'user' => '',
+       'tag' => '',
        'entries_per_page' => 20,
        'image' => 'none',
        'image_size' => 0,
@@ -802,7 +874,9 @@ function tp_search_shortcode ($atts) {
     if ( $search != "" || $as_filter != 'false' ) {
         // get results
         $tpz = 0;
-        $args = array ('search' => $search, 
+        $args = array ('user' => $user,
+                       'tag' => $tag,
+                       'search' => $search, 
                        'limit' => $entry_limit . ',' .  $entries_per_page,
                        'output_type' => ARRAY_A);
         $results = get_tp_publications( $args );

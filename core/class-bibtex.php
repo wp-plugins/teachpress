@@ -197,9 +197,9 @@ class tp_bibtex {
             $a2 = $abstract . '<a onclick="teachpress_pub_showhide(' . $str . $row['pub_id'] . $str . ',' . $str . 'tp_bibtex' . $str . ')" style="cursor:pointer;" title="' . __('Show BibTeX entry','teachpress') . '">' . __('BibTeX','teachpress') . '</a>' . $tag_string . $url;
         }
         // different styles: simple and normal
-        if ($settings['style'] == 'simple' || $settings['style'] == 'numbered') {
+        if ($settings['style'] === 'simple' || $settings['style'] === 'numbered' || $settings['style'] === 'numbered_desc' ) {
             $a1 = '<tr class="tp_publication_simple">';
-            if ( $settings['style'] == 'numbered' ) {
+            if ( $settings['style'] === 'numbered' || $settings['style'] === 'numbered_desc' ) {
                 $a1 = $a1 . '<td class="tp_pub_number">' . $tpz . '.</td>';
             }
             $a1 = $a1 . $td_left;
@@ -479,7 +479,15 @@ class tp_bibtex {
                 if ( $tags != '' ) {
                     $tags = str_replace (array("\r\n", "\n", "\r"), ' ', $tags);
                 }
-                $entries[$i]['entry_id'] = tp_add_publication($entries[$i], $tags, ''); 
+                // update/overwrite existing publication
+                $check = true;
+                if ( $settings['overwrite'] === true ) {
+                    $entries[$i]['entry_id'] = tp_change_publication_by_key($entries[$i]['bibtex'], $entries[$i], $tags);
+                    $check = ( $entries[$i]['entry_id'] === false ) ? false : true;
+                }
+                if ( $settings['overwrite'] === false || $check === false ) {
+                    $entries[$i]['entry_id'] = tp_add_publication($entries[$i], $tags, '');
+                }    
             }
         }
         return $entries;

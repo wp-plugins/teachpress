@@ -201,7 +201,7 @@ function get_tp_single_table_row_course ($course, $checkbox, $static, $parent_co
  * @return string
  * @since 4.1.0
  */
-function get_tp_publication_form_field ($name, $title, $label, $field_type, $pub_type, $pub_value, $availabe_for, $tabindex, $style = '') {
+function get_tp_admin_form_field ($name, $title, $label, $field_type, $pub_type, $pub_value, $availabe_for, $tabindex, $style = '') {
     $display = ( in_array($pub_type, $availabe_for) ) ? 'style="display:block;"' : 'style="display:none;"';
     if ( $field_type === 'textarea' ) {
         $field = '<textarea name="' . $name . '" id="' . $name . '" wrap="virtual" style="' . $style . '" tabindex="' . $tabindex . '" title="' . $title . '">' . stripslashes($pub_value) . '</textarea>';
@@ -215,9 +215,98 @@ function get_tp_publication_form_field ($name, $title, $label, $field_type, $pub
     return $a;
 }
 
-/***********/
-/* Courses */
-/***********/
+/**
+ * Returns a checkbox for admin/settings screens
+ * @param string $name
+ * @param string $title
+ * @param string $value
+ * @return string
+ * @since 4.2.0
+ */
+function get_tp_admin_checkbox($name, $title, $value, $disabled = false) {
+    $checked = ( $value == '1' ) ? 'checked="checked"' : '';
+    $disabled = ( $disabled === true ) ? ' disabled="disabled"' : '';
+    return '<input name="' . $name . '" id="' . $name . '" type="checkbox" value="1" ' . $checked . $disabled .'/> <label for="' . $name . '">' . $title . '</label>';
+}
+
+/**
+ * Gets a box for editing some options (terms|type|studies) for courses
+ * @global class $wpdb
+ * @global string $teachpress_settings
+ * @global string $teachpress_courses
+ * @global string $teachpress_stud
+ * @param string $title
+ * @param string $type
+ * @param array $options
+ * @since 4.2.0
+ */
+function get_tp_admin_course_option_box ( $title, $type, $options = array() ) {
+    global $wpdb;
+    global $teachpress_settings;
+    global $teachpress_courses;
+    global $teachpress_stud;
+    echo '<h4><strong>' . $title . '</strong></h4>';
+    echo '<table border="0" cellspacing="0" cellpadding="0" class="widefat">';
+    echo '<thead>';
+    echo '<tr>';
+    echo '<th width="10">&nbsp;</th>';
+    echo '<th>' . $options['element_title'] . '</th>';
+    echo '<th width="150">' . $options['count_title'] . '</th>';
+    echo '</tr>';
+    echo '</thead>';
+    echo '<tbody>';
+    
+    if ( $type === 'term' ) {
+        $sql = "SELECT number, value, setting_id FROM ( SELECT COUNT(v.semester) as number, e.variable AS value,  e.setting_id as setting_id, e.category as category FROM $teachpress_settings e LEFT JOIN $teachpress_courses v ON e.variable = v.semester GROUP BY e.variable ORDER BY number DESC ) AS temp WHERE category = 'semester' ORDER BY setting_id";
+    }
+    elseif ( $type === 'type' ) {
+        $sql = "SELECT number, value, setting_id FROM ( SELECT COUNT(v.type) as number, e.value AS value,  e.setting_id as setting_id, e.category as category FROM $teachpress_settings e LEFT JOIN $teachpress_courses v ON e.value = v.type GROUP BY e.value ORDER BY number DESC ) AS temp WHERE category = 'course_type' ORDER BY value";
+    }
+    elseif ( $type === 'studies' ) {
+        $sql = "SELECT number, value, setting_id FROM ( SELECT COUNT(s.course_of_studies) as number, e.value AS value,  e.setting_id as setting_id, e.category as category FROM $teachpress_settings e LEFT JOIN $teachpress_stud s ON e.value = s.course_of_studies GROUP BY e.value ORDER BY number DESC ) AS temp WHERE category = 'course_of_studies' ORDER BY value";
+    }
+    else {
+        exit('Wrong Type selected');
+    }
+               
+    $row = $wpdb->get_results($sql);
+    
+    foreach ($row as $row) { 
+        echo '<tr>';
+        echo '<td><a title="' . $options['delete_title'] . '" href="options-general.php?page=teachpress/settings.php&amp;delete=' . $row->setting_id . '&amp;tab=courses" class="teachpress_delete">X</a></td>';
+        echo '<td>' . stripslashes($row->value) . '</td>';
+        echo '<td>' . $row->number . '</td>';    
+        echo '</tr>';              
+    }
+    
+    echo '<tr>';
+    echo '<td></td>';
+    echo '<td colspan="2"><input name="newsem" type="text" id="newsem" size="30" value="' . $options['add_title'] . '" onblur="if(this.value==' . "''" .') this.value='. "'" . $options['add_title'] . "'" . ';" onfocus="if(this.value=='. "'" . $options['add_title'] . "'" . ') this.value=' . "''" . ';"/> <input name="addsem" type="submit" class="button-secondary" value="' . __('Create','teachpress') . '"/></td>';
+    echo '</tr>'; 
+    
+    echo '</tbody>';
+    echo '</table>';     
+}
+
+/**
+ * 
+ * @since 4.2.0
+ */
+function tp_add_publication_as_post ($title, $bibtex_key, $date, $post_type = 'post', $tags = '', $category = '') {
+    $content = str_replace('[key]', 'key="' . $bibtex_key . '"', get_tp_option('auto_post_template') );
+     
+    $post_id = wp_insert_post(array(
+      'post_title' => $title,
+      'post_content' => $content,
+      'tags_input' => $tags,
+      'post_date' => $date . " 12:00:00",
+      'post_date_gmt' => $date . " 12:00:00",
+      'post_type' => $post_type,
+      'post_status' => 'publish',
+      'post_category' => $category,
+      ));
+    return $post_id;
+}
 
 /** 
  * Copy courses
