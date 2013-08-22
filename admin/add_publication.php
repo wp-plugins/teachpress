@@ -91,8 +91,7 @@ function teachpress_addpublications_page() {
    // if publication was saved
    if ( isset($_POST['speichern']) ) {
       tp_change_publication($pub_ID, $data, $bookmark, $delbox, $tags);
-      $message = __('Changes successful','teachpress');
-      get_tp_message($message);
+      get_tp_message( __('Saved') );
    }
 
    if ( $pub_ID != '' && !isset($_POST['erstellen']) ) {

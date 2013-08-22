@@ -61,14 +61,16 @@ function tp_add_menu2() {
     global $tp_admin_page3;
     global $tp_admin_page4;
     global $tp_admin_page5;
+    global $tp_admin_page6;
     $tp_admin_page3 = add_menu_page (__('Publications','teachpress'), __('Publications','teachpress'), 'use_teachpress', 'publications.php', 'teachpress_publications_page', plugins_url() . '/teachpress/images/logo_small.png');
     $tp_admin_page4 = add_submenu_page('publications.php',__('Your publications','teachpress'), __('Your publications','teachpress'),'use_teachpress','teachpress/publications.php','teachpress_publications_page');
     $tp_admin_page5 = add_submenu_page('publications.php',__('Add New', 'teachpress'), __('Add New','teachpress'),'use_teachpress','teachpress/addpublications.php','teachpress_addpublications_page');
-    add_submenu_page('publications.php',__('Import/Export'), __('Import/Export'), 'use_teachpress', 'teachpress/import.php','teachpress_import_page');
+    $tp_admin_page6 = add_submenu_page('publications.php',__('Import/Export'), __('Import/Export'), 'use_teachpress', 'teachpress/import.php','teachpress_import_page');
     add_submenu_page('publications.php',__('Tags'),__('Tags'),'use_teachpress','teachpress/tags.php','teachpress_tags_page');
     add_action("load-$tp_admin_page3", 'tp_show_publications_page_help');
     add_action("load-$tp_admin_page4", 'tp_show_publications_page_help');
     add_action("load-$tp_admin_page5", 'tp_add_publication_page_help');
+    add_action("load-$tp_admin_page6", 'tp_import_page_help_tab');
 }
 // Settings
 function tp_add_menu_settings() {
@@ -237,7 +239,7 @@ function get_tp_mimetype_images($url) {
 function tp_translate_pub_type($string, $num = 'sin') {
     $t = get_tp_publication_types();
     $tr = '';
-    $num = $num == 'sin' ? 1 : 2;
+    $num = ( $num === 'sin' ) ? 1 : 2;
     for ( $i=1; $i <= count($t) - 1; $i++ ) {
         if ( $string == $t[$i][0] ) {
             $tr = $t[$i][$num];
@@ -338,7 +340,7 @@ function get_tp_var_types($type) {
  * @return string
 */
 function get_tp_version(){
-    return '4.1.1';
+    return '4.1.1e';
 }
 
 /** 
@@ -456,8 +458,8 @@ class tp_books_widget extends WP_Widget {
 
 /** Database update manager */
 function tp_db_update() {
-   include_once('core/update.php');
-   tp_db_update_function();
+   include_once('core/class-update.php');
+   tp_update_db::force_update();
 }
 
 /**
@@ -580,26 +582,32 @@ function tp_install() {
         $sql = "CREATE TABLE $teachpress_settings (
                     `setting_id` INT UNSIGNED AUTO_INCREMENT ,
                     `variable` VARCHAR (100) ,
-                    `value` VARCHAR (100) ,
+                    `value` TEXT ,
                     `category` VARCHAR (100) ,
                     PRIMARY KEY (setting_id)
                     ) $charset_collate;";
         dbDelta($sql);
-        // Default settings		
-        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('sem', 'Example term', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('db-version', '4.1.1', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('sign_out', '0', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('login', 'std', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('stylesheet', '1', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('regnum', '0', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('studies', '0', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('termnumber', '0', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('birthday', '1', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('rel_page_courses', 'page', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('rel_page_publications', 'page', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('Example term', 'Example term', 'semester')");									
-        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('Example', 'Example', 'course_of_studies')");	
-        $wpdb->query("INSERT INTO $teachpress_settings (variable, value, category) VALUES ('Lecture', 'Lecture', 'course_type')");
+        // Default settings
+        $value = '[tpsingle [key]]<!--more-->' . "\n\n[tpabstract]\n\n[tpbibtex]";
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('sem', 'Example term', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('db-version', '4.1.1', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('sign_out', '0', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('login', 'std', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('stylesheet', '1', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('regnum', '0', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('studies', '0', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('termnumber', '0', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('birthday', '1', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('rel_page_courses', 'page', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('rel_page_publications', 'page', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('auto_post', '0', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('auto_post_template', 'page', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('auto_post_category', '$value', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('import_overwrite', '0', 'system')");
+        
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('Example term', 'Example term', 'semester')");
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('Example', 'Example', 'course_of_studies')");	
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('Lecture', 'Lecture', 'course_type')");
     }
     //teachpress_pub
     $table_name = $teachpress_pub;
@@ -767,5 +775,7 @@ if ( !defined('TP_PUBLICATION_SYSTEM') ) {
     add_shortcode('tpcloud', 'tp_cloud_shortcode');
     add_shortcode('tplist', 'tp_list_shortcode');
     add_shortcode('tpsingle','tp_single_shortcode');
+    add_shortcode('tpbibtex','tp_bibtex_shortcode');
+    add_shortcode('tpabstract','tp_abstract_shortcode');
 }
 ?>

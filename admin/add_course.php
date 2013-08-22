@@ -84,7 +84,7 @@ function tp_add_course_page() {
    }
    if ( isset($_POST['save']) ) {
         tp_change_course($course_ID, $data);
-        $message = __('Changes successful','teachpress');
+        $message = __('Saved');
         get_tp_message($message, '');
    }
    if ( $course_ID != 0 ) {

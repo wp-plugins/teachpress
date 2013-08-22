@@ -107,12 +107,10 @@ function tp_import_tab () {
                 </tr>
                 <tr>
                     <td>
-                        <?php if ( get_tp_option('import_overwrite') === '1' ) { ?>
-                        <p><strong><label for="overwrite"><?php _e('Overwrite Publications','teachpress'); ?></label></strong></p>
-                        <?php echo get_tp_admin_checkbox('overwrite', __('Update publications with a similar BibTeX key','teachpress'), ''); 
-                        } ?>
-                        <p><strong><label for="keyword_option"><?php _e('Add as Post','teachpress'); ?></label></strong></p>
-                        <?php echo get_tp_admin_checkbox('add_as_post', __('Create a post for each publication','teachpress'), ''); ?>
+                    <?php if ( get_tp_option('import_overwrite') === '1' ) { ?>
+                    <p><strong><label for="overwrite"><?php _e('Overwrite Publications','teachpress'); ?></label></strong></p>
+                    <?php echo get_tp_admin_checkbox('overwrite', __('Update publications with a similar BibTeX key','teachpress'), ''); 
+                    } ?>
                     </td>
                 </tr>
                 <tr style="text-align:center;">

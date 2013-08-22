@@ -523,17 +523,16 @@ class tp_update_db {
     /**
      * Database upgrade to teachPress 4.2.0 structure
      * @global class $wpdb
-     * @global string $teachpress_pub
+     * @global string $teachpress_settings
      * @param string $charset_collate
      * @since 4.2.0
      */
     private static function upgrade_to_42 ($charset_collate) {
         global $wpdb;
         global $teachpress_settings;
-        global $teachpress_pub;
         // expand char limit for tp_settings::value
         if ($wpdb->query("SHOW COLUMNS FROM $teachpress_settings LIKE 'value'") == '1') {
-            $wpdb->query("ALTER TABLE $teachpress_pub CHANGE `value` `value` VARCHAR( 400 ) $charset_collate NULL DEFAULT NULL");
+            $wpdb->query("ALTER TABLE $teachpress_settings CHANGE `value` `value` TEXT $charset_collate NULL DEFAULT NULL");
         }
     }
 
@@ -542,6 +541,7 @@ class tp_update_db {
      * Add possible missing options
      * @global class $wpdb
      * @global string $teachpress_settings
+     * @since 4.2.0
      */
     private static function add_options () {
         global $wpdb;
@@ -595,6 +595,10 @@ class tp_update_db {
         if ($wpdb->query("SELECT value FROM $teachpress_settings WHERE `variable` = 'auto_post'") == '0') {
             $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('auto_post', '0', 'system')"); 
         }
+        // add option value auto_post
+        if ($wpdb->query("SELECT value FROM $teachpress_settings WHERE `variable` = 'auto_post_category'") == '0') {
+            $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('auto_post_category', '', 'system')"); 
+        }
         // add option value import_overwrite
         if ($wpdb->query("SELECT value FROM $teachpress_settings WHERE `variable` = 'import_overwrite'") == '0') {
             $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('import_overwrite', '0', 'system')"); 
@@ -605,6 +609,7 @@ class tp_update_db {
      * Update version information in the database
      * @global class $wpdb
      * @global string $teachpress_settings
+     * @since 4.2.0
      */
     private static function finalize_update ($version) {
         global $wpdb;

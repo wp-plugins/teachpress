@@ -59,7 +59,8 @@ function teachpress_admin_settings() {
         tp_change_option('import_overwrite', $checkbox_import_overwrite, 'checkbox');
         tp_change_option('auto_post', $checkbox_auto_post, 'checkbox');
         tp_change_option('auto_post_template', $_POST['auto_post_template']);
-        get_tp_message('Saved');
+        tp_change_option('auto_post_category', $_POST['auto_post_category']);
+        get_tp_message(__('Saved'));
     }
     if (isset( $_POST['addstud'] ) && $name != __('Add course of studies','teachpress')) {
        tp_add_option($name, 'course_of_studies');
@@ -167,7 +168,7 @@ function teachpress_admin_settings() {
                    }
                    ?>
                     </select>
-                    <label for="rel_page_courses" title="<?php _e('for courses','teachpress');?>"><?php _e('for courses','teachpress');?></label></p>
+                    <label for="rel_page_courses"><?php _e('for courses','teachpress');?></label></p>
                     <p><select name="rel_page_publications" id="rel_page_publications" title="<?php _e('for publications','teachpress');?>">
                         <?php $value = get_tp_option('rel_page_publications'); ?>
                         <option value="page" <?php if ($value == 'page') { echo 'selected="selected"'; } ?>><?php _e('Pages');?></option>
@@ -183,7 +184,7 @@ function teachpress_admin_settings() {
                             echo '<option value="'. $post_type->name . '" ' . $current . '>'. $post_type->label. '</option>';
                         }
                         ?>
-                    </select> <label for="rel_page_publications" title="<?php _e('for publications','teachpress');?>"><?php _e('for publications','teachpress');?></label></p>
+                    </select> <label for="rel_page_publications"><?php _e('for publications','teachpress');?></label></p>
                 </td>
                 <td><?php _e('If you create a course or a publication you can define a related page. It is kind of a "more information link", which helps you to connect a course/publication with a page. If you want to use custom post types instead of pages, so you can set it here.','teachpress'); ?></td>
               </tr>
@@ -368,14 +369,23 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
                 <td></td>
             </tr>
             <tr>
-                <th><?php _e('Create auto post','teachpress'); ?></th>
-                <td><?php echo get_tp_admin_checkbox('auto_post', __('Create an auto post for each publication, which is created','teachpress'), get_tp_option('auto_post')); ?></td>
+                <th><?php _e('Automatic related post','teachpress'); ?></th>
+                <td><?php echo get_tp_admin_checkbox('auto_post', __('Create an automatic related post with every new publication','teachpress'), get_tp_option('auto_post')); ?></td>
                 <td></td>
             </tr>
             <tr>
-                <th><?php _e('Define template for auto post','teachpress'); ?></th>
+                <th><?php _e('Template for related posts','teachpress'); ?></th>
                 <td><textarea name="auto_post_template" id="auto_post_template" style="width:100%;" rows="5"><?php echo get_tp_option('auto_post_template'); ?></textarea></td>
                 <td></td>
+            </tr>
+            <tr>
+                <th><?php _e('Default category for related posts','teachpress'); ?></th>
+                <td>
+                    <?php 
+                    wp_dropdown_categories(array('hide_empty' => 0, 'name' => 'auto_post_category', 'orderby' => 'name', 'selected' => get_tp_option('auto_post_category'), 'hierarchical' => true, 'show_option_none' => __('None'))); 
+                    ?>
+                    <em><?php _e('If the post type for related pages is set on "Posts"','teachpress'); ?></em>
+                </td>
             </tr>
     	<tr>
           <th><?php _e('RSS feed addresses','teachpress'); ?></th>

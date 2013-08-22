@@ -192,9 +192,8 @@ function teachpress_edit_student_page() {
             'birth_year' => intval($_POST['birth_year']),
             'email' => htmlspecialchars($_POST['email'])
         );
-        $message = __('Changes successful','teachpress');
         tp_change_student($student, $data, $user_ID);
-        get_tp_message($message, '');
+        get_tp_message( __('Saved') );
     }
     
     echo '<div class="wrap">';
