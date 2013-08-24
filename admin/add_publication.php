@@ -82,13 +82,17 @@ function teachpress_addpublications_page() {
    <div class="wrap">
    <form name="form1" method="post" action="<?php echo $_SERVER['REQUEST_URI']; ?>" id="form1">
    <?php
-   // if publications was created
+   // create related content (post/page/...)
+   if ( isset($_POST['create_rel_content']) ) {
+      $data['rel_page'] = tp_add_publication_as_post( $data['title'], $data['bibtex'], $data['date'], get_tp_option('rel_page_publications'), $tags, array(get_tp_option('auto_post_category')) );
+        }
+   // create publication and related page
    if ( isset($_POST['erstellen']) ) {
       $pub_ID = tp_add_publication($data, $tags, $bookmark);
       $message = __('Publication added','teachpress') . ' <a href="admin.php?page=teachpress/addpublications.php">' . __('Add New','teachpress') . '</a>';
       get_tp_message($message);
    }
-   // if publication was saved
+   // save publication
    if ( isset($_POST['speichern']) ) {
       tp_change_publication($pub_ID, $data, $bookmark, $delbox, $tags);
       get_tp_message( __('Saved') );
@@ -226,7 +230,7 @@ function teachpress_addpublications_page() {
      <table class="widefat">
         <thead>
         <tr>
-            <th><?php _e('Image &amp; Related page','teachpress'); ?></th>
+            <th><?php _e('Image &amp; Related content','teachpress'); ?></th>
         </tr>
         <tr>
             <td>
@@ -236,14 +240,15 @@ function teachpress_addpublications_page() {
             <p><label for="image_url" title="<?php _e('With the image field you can add an image to a publication. You can display images in all publication lists','teachpress'); ?>"><strong><?php _e('Image URL','teachpress'); ?></strong></label></p>
             <input name="image_url" id="image_url" class="upload" type="text" title="<?php _e('With the image field you can add an image to a publication. You can display images in all publication lists','teachpress'); ?>" style="width:90%;" value="<?php echo $daten["image_url"]; ?>"/>
             <a class="upload_button_image" title="<?php _e('Add Image','teachpress'); ?>" style="cursor:pointer; border:none;"><img src="images/media-button-image.gif" alt="<?php _e('Add Image','teachpress'); ?>" /></a>
-            <p><label for="rel_page" title="<?php _e('With the related page you can link a publication with a normal post/page.','teachpress'); ?>"><strong><?php _e('Related page','teachpress'); ?></strong></label></p>
+            <p><label for="rel_page" title="<?php _e('Select a post/page with releated content.','teachpress'); ?>"><strong><?php _e('Related content','teachpress'); ?></strong></label></p>
             <div style="overflow:hidden;">
-            <select name="rel_page" id="rel_page" title="<?php _e('With the related page you can link a publication with a normal post/page.','teachpress'); ?>" style="width:90%;">
+            <select name="rel_page" id="rel_page" title="<?php _e('Select a post/page with releated content.','teachpress'); ?>" style="width:90%;">
             <?php
             $post_type = get_tp_option('rel_page_publications');
             get_tp_wp_pages("menu_order","ASC",$daten["rel_page"],$post_type,0,0); 
             ?>
             </select>
+            <p style="padding:5px 0 0 5px;"><?php echo get_tp_admin_checkbox('create_rel_content', __('Create related content','teachpress'), '0'); ?></p>
             </div>
             </td>
         </tr>
@@ -277,8 +282,8 @@ function teachpress_addpublications_page() {
                     </select>
                 </td>
                 <td style="border:none; padding:0 0 0 0; margin: 0 0 0 0;">
-                    <p><label for="bibtex" title="<?php _e('A simple unique key without spaces','teachpress'); ?>"><strong><?php _e('BibTex-Key','teachpress'); ?></strong></label></p>
-                    <input name="bibtex" id="bibtex" type="text" title="<?php _e('A simple unique key without spaces','teachpress'); ?>" value="<?php echo stripslashes($daten["bibtex"]); ?>" tabindex="3" />
+                    <p><label for="bibtex" title="<?php _e('A simple unique key without spaces','teachpress'); ?>"><strong><?php _e('BibTeX Key','teachpress'); ?></strong></label></p>
+                    <input name="bibtex" id="bibtex" type="text" title="<?php _e('A simple unique key without spaces','teachpress'); ?>" value="<?php echo stripslashes($daten["bibtex"]); ?>" tabindex="3" /> <a href="javascript:teachpress_generate_bibtex_key();" style="border:none;" title="<?php _e('Generate BibTeX key','teachPress') ?>"><img src="<?php echo plugins_url() . '/teachpress/images/view-refresh-3.png'; ?>" alt=""/></a>
                 </td>
                 </tr>
               </table>

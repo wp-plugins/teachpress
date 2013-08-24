@@ -7,11 +7,11 @@
 class tp_export {
 
     /**
-    * Print html table with registrations
-    * @param int $course_ID
-    * @param array $option
-    * @param int $waitinglist 
-    */
+     * Print html table with registrations
+     * @param int $course_ID
+     * @param array $option
+     * @param int $waitinglist 
+     */
     static function get_course_registration_table($course_ID, $option, $waitinglist = '') {
         $row = get_tp_course_signups( array('course' => $course_ID, 'waitinglist' => $waitinglist, 'output_type' => ARRAY_A, 'order' => 'st.lastname ASC') );
         echo '<table border="1" cellpadding="5" cellspacing="0">';
@@ -55,9 +55,9 @@ class tp_export {
     }
 
     /**
-    * Export course data in xls format
-    * @param int $course_ID 
-    */
+     * Export course data in xls format
+     * @param int $course_ID 
+     */
     static function get_course_xls($course_ID) {
         global $wpdb;
         global $teachpress_courses;
@@ -117,10 +117,10 @@ class tp_export {
     }
 
     /**
-    * Export course data in csv format
-    * @param int $course_ID
-    * @param array $options 
-    */
+     * Export course data in csv format
+     * @param int $course_ID
+     * @param array $options 
+     */
     static function get_course_csv($course_ID) {
         // load settings
         $option['regnum'] = get_tp_option('regnum');
@@ -146,11 +146,12 @@ class tp_export {
     }
 
     /**
-    * Export publications
-    * @param int $user_ID 
-    * @param string $format - bibtex or rtf
-    */
-    public static function get_publication($user_ID, $format = 'bibtex') {
+     * Export publications
+     * @param int $user_ID 
+     * @param string $format - bibtex or rtf
+     * @sinsce 4.2.0 
+     */
+    public static function get_publications($user_ID, $format = 'bibtex') {
         global $wpdb;
         global $teachpress_tags;
         global $teachpress_relation;
@@ -167,12 +168,23 @@ class tp_export {
             echo tp_export::rtf($row);
         }
     }
+    
+    /**
+     * Export a single publication
+     * @param string $bibtex_key
+     * @since 4.2.0
+     */
+    public static function get_publication_by_key($bibtex_key) {
+        $row = get_tp_publication_by_key($bibtex_key, ARRAY_A);
+        $tags = get_tp_tags( array( 'pub_id' => $row['pub_id'], 'output_type' => ARRAY_A ) );
+        echo tp_bibtex::get_single_publication_bibtex($row, $tags);
+    }
 
     /**
-    * Generate rtf document format
-    * @param array $row
-    * @return string
-    */
+     * Generate rtf document format
+     * @param array $row
+     * @return string
+     */
     static function rtf ($row) {
         $head = '{\rtf1';
         $line = '';

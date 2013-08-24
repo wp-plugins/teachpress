@@ -150,7 +150,7 @@ function teachpress_admin_settings() {
                 </td>
             </tr> 
             <tr>
-                <th><?php _e('Related pages (Post type)','teachpress'); ?></th>
+                <th><?php _e('Related content','teachpress'); ?></th>
                 <td>
                    <?php $value = get_tp_option('rel_page_courses'); ?>
                    <p><select name="rel_page_courses" id="rel_page_courses" title="<?php _e('for courses','teachpress');?>">
@@ -186,7 +186,7 @@ function teachpress_admin_settings() {
                         ?>
                     </select> <label for="rel_page_publications"><?php _e('for publications','teachpress');?></label></p>
                 </td>
-                <td><?php _e('If you create a course or a publication you can define a related page. It is kind of a "more information link", which helps you to connect a course/publication with a page. If you want to use custom post types instead of pages, so you can set it here.','teachpress'); ?></td>
+                <td  style="vertical-align: top;"><?php _e('If you create a course or a publication you can define a link to related content. It is kind of a "more information link", which helps you to connect a course/publication with a page. If you want to use custom post types instead of pages, so you can set it here.','teachpress'); ?></td>
               </tr>
               <tr>
               	<th><label for="stylesheet"><?php _e('Frontend styles','teachpress'); ?></label></th>
@@ -369,22 +369,22 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
                 <td></td>
             </tr>
             <tr>
-                <th><?php _e('Automatic related post','teachpress'); ?></th>
+                <th><?php _e('Automatic related content','teachpress'); ?></th>
                 <td><?php echo get_tp_admin_checkbox('auto_post', __('Create an automatic related post with every new publication','teachpress'), get_tp_option('auto_post')); ?></td>
                 <td></td>
             </tr>
             <tr>
-                <th><?php _e('Template for related posts','teachpress'); ?></th>
+                <th><?php _e('Template for related content','teachpress'); ?></th>
                 <td><textarea name="auto_post_template" id="auto_post_template" style="width:100%;" rows="5"><?php echo get_tp_option('auto_post_template'); ?></textarea></td>
                 <td></td>
             </tr>
             <tr>
-                <th><?php _e('Default category for related posts','teachpress'); ?></th>
+                <th><?php _e('Default category for related content','teachpress'); ?></th>
                 <td>
                     <?php 
                     wp_dropdown_categories(array('hide_empty' => 0, 'name' => 'auto_post_category', 'orderby' => 'name', 'selected' => get_tp_option('auto_post_category'), 'hierarchical' => true, 'show_option_none' => __('None'))); 
                     ?>
-                    <em><?php _e('If the post type for related pages is set on "Posts"','teachpress'); ?></em>
+                    <em><?php _e('Used if the related content post type for publicaitons is set on "Posts"','teachpress'); ?></em>
                 </td>
             </tr>
     	<tr>

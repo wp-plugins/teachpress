@@ -271,7 +271,10 @@ function tp_bibtex_shortcode ($atts) {
     } else {
         $publication = $tp_single_publication;
     }
-    return '<h2 class="tp_bibtex">BibTeX (<a href="' . plugins_url('export.php', dirname(__FILE__)) . '?key=' . $publication['bibtex'] . '">Download</a>)</h2><pre class="tp_bibtex">' . tp_bibtex::get_single_publication_bibtex($publication) . '</pre>';
+    
+    $tags = get_tp_tags( array('pub_id' => $publication['pub_id'], 'output_type' => ARRAY_A) );
+    
+    return '<h2 class="tp_bibtex">BibTeX (<a href="' . plugins_url('export.php', dirname(__FILE__)) . '?key=' . $publication['bibtex'] . '">Download</a>)</h2><pre class="tp_bibtex">' . tp_bibtex::get_single_publication_bibtex($publication, $tags) . '</pre>';
 }
 
 /** 

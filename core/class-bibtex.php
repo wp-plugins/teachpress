@@ -204,8 +204,8 @@ class tp_bibtex {
             }
             $a1 = $a1 . $td_left;
             $a1 = $a1 . '<td class="tp_pub_info_simple">';
-            $a1 = $a1 . '<span class="tp_pub_author_simple">' . stripslashes($all_authors) . '</span> ';
-            $a1 = $a1 . '<span class="tp_pub_year_simple">(' . $row['year'] . ')</span>: ';
+            $a1 = $a1 . '<span class="tp_pub_author_simple">' . stripslashes($all_authors) . '</span>';
+            $a1 = $a1 . '<span class="tp_pub_year_simple"> (' . $row['year'] . ')</span>: ';
             $a1 = $a1 . '<span class="tp_pub_title_simple">' . stripslashes($name) . '</span>. ';
             $a1 = $a1 . '<span class="tp_pub_additional_simple">' . tp_bibtex::single_publication_meta_row($row, $settings) . '</span>';
             $a2 = ' <span class="tp_pub_tags_simple">(' . __('Type') . ': <span class="tp_pub_typ_simple">' . stripslashes($type) . '</span> | ' . $a2 . ')</span>';

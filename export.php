@@ -41,17 +41,17 @@ elseif ( is_user_logged_in() && current_user_can('use_teachpress') ) {
             header("Content-Disposition: attachment; filename=" . $filename . ".bib");
             echo '% This file was created with teachPress ' . get_tp_version() . chr(13) . chr(10);
             echo '% Encoding: UTF-8' . chr(13) . chr(10) . chr(13) . chr(10);
-            tp_export::get_publication($user_ID,'bibtex');
+            tp_export::get_publications($user_ID,'bibtex');
         }
         if ( $format === 'txt' ) {
             header('Content-Type: text/plain; charset=utf-8' );
             header("Content-Disposition: attachment; filename=" . $filename . ".txt");
-            tp_export::get_publication($user_ID,'bibtex');
+            tp_export::get_publications($user_ID,'bibtex');
         }
         if ( $format === 'rtf' ) {
             header('Content-Type: text/plain; charset=utf-8' );
             header("Content-Disposition: attachment; filename=" . $filename . ".rtf");
-            tp_export::get_publication($user_ID,'rtf');
+            tp_export::get_publications($user_ID,'rtf');
         }
         if ( $format === 'rss' ) {
             if ( $user_ID == 0 ) {

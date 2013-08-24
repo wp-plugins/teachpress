@@ -292,7 +292,7 @@ function get_tp_admin_course_option_box ( $title, $type, $options = array() ) {
  * 
  * @since 4.2.0
  */
-function tp_add_publication_as_post ($title, $bibtex_key, $date, $post_type = 'post', $tags = '', $category = '') {
+function tp_add_publication_as_post ($title, $bibtex_key, $date, $post_type = 'post', $tags = '', $category = array()) {
     $content = str_replace('[key]', 'key="' . $bibtex_key . '"', get_tp_option('auto_post_template') );
      
     $post_id = wp_insert_post(array(

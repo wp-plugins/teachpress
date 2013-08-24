@@ -1,6 +1,11 @@
 // teachPress javascript for the admin menu
 
-// for selecting all checkboxes on an admin page
+/**
+ * for selecting all checkboxes on an admin page
+ * @param {string} element_names
+ * @param {string} checkbox_id
+ * @since 3.0.0
+ */
 function teachpress_checkboxes(element_names, checkbox_id) {
     var switch_box = document.getElementById(checkbox_id);
     var checkbox = document.getElementsByName(element_names);
@@ -17,24 +22,52 @@ function teachpress_checkboxes(element_names, checkbox_id) {
     }
 }
 
-// for jumpmenu
+/**
+ * for jumpmenu
+ * @param {string} targ
+ * @param {string} selObj
+ * @param {string} restore
+ * @since 1.0.0
+ */
 function teachpress_jumpMenu(targ,selObj,restore){
     eval(targ+".location='"+selObj.options[selObj.selectedIndex].value+"'");
     if (restore) selObj.selectedIndex=0;
 }
 
-// for adding new tags
+/**
+ * for adding new tags
+ * @param {string} tag
+ * @since 4.2.0
+ * @version 2
+ */
 function teachpress_inserttag(tag) {
-    if (document.getElementsByName("tags")[0].value === "") {
+    var old = document.getElementsByName("tags")[0].value;
+    if ( old === "") {
         document.getElementsByName("tags")[0].value = tag;
     }
     else {
-        document.getElementsByName("tags")[0].value = document.getElementsByName("tags")[0].value+', '+tag;
-        document.getElementsByName("tags")[0].value = document.getElementsByName("tags")[0].value;
+        old = old + ', ' + tag;
+        document.getElementsByName("tags")[0].value = old;
     }	
 }
 
-// for changing the color of a label
+/**
+ * trim a string
+ * @param {string} input
+ * @returns {string}
+ * @since 4.2.0
+ */
+function teachpress_trim (input) {
+    input = input.replace(/^\s*(.*)/, "$1");
+    input = input.replace(/(.*?)\s*$/, "$1");
+    return input;
+}
+
+/**
+ * for changing the color of a label
+ * @param {int} id
+ * @since 1.0.0
+ */
 function teachpress_change_label_color(id) {
     checkbox = "checkbox_" + id;
     label = "tag_label_" + id;
@@ -46,13 +79,61 @@ function teachpress_change_label_color(id) {
     }
 }
 
-// for show/hide buttons
+/**
+ * Generates a simple bibtex key
+ * @since 4.2.0
+ */
+function teachpress_generate_bibtex_key() {
+    var author = document.getElementById("author").value;
+    var editor = document.getElementById("editor").value;
+    var year = document.getElementById("date").value.substr(0,4);
+    if ( author === '' ) {
+        if ( editor === '' ) {
+            alert('Please enter an author before!');
+            return;
+        }
+        else {
+            author = editor;
+        }
+    }
+    if ( isNaN(year) ) {
+        alert('Please enter the date before!');
+        return;
+    }
+    // split author string
+    author = author.split(" and ");
+    
+    // split name of first author
+    var name = author[0].split(",");
+    name[0] = teachpress_trim(name[0]);
+    name = name[0].split(" ");
+    
+    var count = name.length;
+    var prefix = "";
+    var first_char = "";
+    // Search surname titles like 'van der', 'von den', 'del la',...
+    for ( i = 0; i < count; i++ ) {
+        name[i] = teachpress_trim(name[i]);
+        first_char = name[i].charCodeAt(0);
+        if ( first_char >= 97 && first_char <= 122 ) {
+            prefix = prefix + name[i];
+        }
+    }
+    var last_name = prefix + name[count - 1];
+    document.getElementById("bibtex").value = last_name + year;
+}
+
+/**
+ * for show/hide buttons
+ * @param {string} where
+ * @since 1.0.0
+ */
 function teachpress_showhide(where) {
     var mode = "block";
     if (where === "show_all_fields" || where === "show_recommend_fields") {
         mode = "inline";
     }
-    if (document.getElementById(where).style.display != mode) {
+    if (document.getElementById(where).style.display !== mode) {
     	document.getElementById(where).style.display = mode;
     }
     else {
@@ -60,7 +141,11 @@ function teachpress_showhide(where) {
     }
 }
 
-// for edit tags
+/**
+ * for edit tags
+ * @param {int} tag_ID
+ * @since 1.0.0
+ */
 function teachpress_editTags(tag_ID) {
     var parent = "tp_tag_row_" + tag_ID;
     var message_text_field = "tp_tag_row_name_" + tag_ID;
@@ -107,7 +192,10 @@ function teachpress_editTags(tag_ID) {
     }
 }
 
-// validate forms
+/**
+ * validate forms
+ * @since 1.0.0
+ */
 function teachpress_validateForm() {
   if (document.getElementById){
     var i,p,q,nm,test,num,min,max,errors='',args=teachpress_validateForm.arguments;
@@ -125,7 +213,11 @@ function teachpress_validateForm() {
     document.teachpress_returnValue = (errors === '');
 } }
 
-// for show/hide bibtex fields
+/**
+ * for show/hide bibtex fields
+ * @param {string} mode
+ * @since 2.0.0
+ */
 function teachpress_publicationFields(mode) {
     if ( mode === "std" || mode === "std2" ) {
         if ( mode === "std2" ) {
@@ -282,7 +374,9 @@ function teachpress_publicationFields(mode) {
     }
 }
 
-// Make it possible to use the wordpress media uploader
+/**
+ * Make it possible to use the wordpress media uploader
+ */
 jQuery(document).ready(function() {
     var uploadID = '';
     var old = '';

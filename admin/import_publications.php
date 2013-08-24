@@ -109,7 +109,7 @@ function tp_import_tab () {
                     <td>
                     <?php if ( get_tp_option('import_overwrite') === '1' ) { ?>
                     <p><strong><label for="overwrite"><?php _e('Overwrite Publications','teachpress'); ?></label></strong></p>
-                    <?php echo get_tp_admin_checkbox('overwrite', __('Update publications with a similar BibTeX key','teachpress'), ''); 
+                    <?php echo get_tp_admin_checkbox('overwrite', __('Overwrite existing publications with a similar BibTeX key','teachpress'), ''); 
                     } ?>
                     </td>
                 </tr>

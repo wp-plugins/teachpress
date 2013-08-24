@@ -301,8 +301,8 @@ function tp_add_course_page() {
                 </select>
                 <p><label for="comment" title="<?php _e('For parent courses the comment is showing in the overview and for child courses in the enrollments system.','teachpress'); ?>"><strong><?php _e('Comment or Description','teachpress'); ?></strong></label></p>
                 <textarea name="comment" cols="75" rows="3" id="comment" title="<?php _e('For parent courses the comment is showing in the overview and for child courses in the enrollments system.','teachpress'); ?>" tabindex="9" style="width:95%;"><?php echo stripslashes($daten["comment"]); ?></textarea>
-                <p><label for="rel_page" title="<?php _e('If you will connect a course with a page (it is used as link in the courses overview) so you can do this here','teachpress'); ?>"><strong><?php _e('Related page','teachpress'); ?></strong></label></p>
-                <select name="rel_page" id="rel_page" title="<?php _e('If you will connect a course with a page (it is used as link in the courses overview) so you can do this here','teachpress'); ?>" tabindex="10">
+                <p><label for="rel_page" title="<?php _e('If you will connect a course with a page (it is used as link in the courses overview) so you can do this here','teachpress'); ?>"><strong><?php _e('Related content','teachpress'); ?></strong></label></p>
+                <select name="rel_page" id="rel_page" title="<?php _e('If you will connect a course with a post or page (it is used as link in the courses overview) so you can do this here','teachpress'); ?>" tabindex="10">
                     <?php 
                     $post_type = get_tp_option('rel_page_courses');
                     get_tp_wp_pages("menu_order","ASC",$daten["rel_page"],$post_type,0,0); 
