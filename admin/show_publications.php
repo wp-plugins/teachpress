@@ -1,4 +1,21 @@
 <?php
+function tp_show_publications_page_screen_options() {
+    global $tp_admin_all_pub_page;
+    global $tp_admin_your_pub_page;
+    $screen = get_current_screen();
+ 
+    if(!is_object($screen) || ( $screen->id != $tp_admin_all_pub_page && $screen->id != $tp_admin_your_pub_page ) ) {
+        return;
+    }
+
+    $args = array(
+        'label' => __('Items per page', 'teachpress'),
+        'default' => 50,
+        'option' => 'tp_pubs_per_page'
+    );
+    add_screen_option( 'per_page', $args );
+}
+
 /**
  * Add help tab for show publications page
  */
@@ -27,6 +44,13 @@ function teachpress_publications_page() {
     get_currentuserinfo();
     // parameters from form
     global $pagenow;
+     // Get screen options
+    $screen = get_current_screen();
+    $screen_option = $screen->get_option('per_page', 'option');
+    $per_page = get_user_meta($current_user->ID, $screen_option, true);
+    if ( empty ( $per_page) || $per_page < 1 ) {
+        $per_page = $screen->get_option( 'per_page', 'default' );
+    }
 
     $checkbox = isset( $_GET['checkbox'] ) ? $_GET['checkbox'] : '';
     $action = isset( $_GET['action'] ) ? $_GET['action'] : '';
@@ -38,7 +62,7 @@ function teachpress_publications_page() {
     $user = ( $page !== 'publications.php' ) ? $current_user->ID : '';
 
     // Page menu
-    $number_messages = 50;
+    $number_messages = $per_page;
     // Handle limits
     if ( isset($_GET['limit']) ) {
         $curr_page = intval($_GET['limit']);

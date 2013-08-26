@@ -231,8 +231,23 @@ function tp_add_publication($data, $tags, $bookmark) {
     ); 
     $data = wp_parse_args( $data, $defaults );
     extract( $data, EXTR_SKIP );
+    
+    // intercept wrong values for dates
     $urldate = ( $urldate == 'JJJJ-MM-TT' ) ? '0000-00-00' : $urldate;
     $date = ( $date == 'JJJJ-MM-TT' ) ? '0000-00-00' : $date;
+    
+    // check if bibtex_key is unique; if not make him unique
+    $check = $wpdb->get_var("SELECT COUNT('pub_id') FROM $teachpress_pub WHERE `bibtex` = '" . esc_sql($bibtex) . "'");
+    if ( intval($check) > 0 ) {
+        $alphabet = range('a', 'z');
+        if ( $check <= 25 ) {
+            $bibtex .= $alphabet[$check];
+        }
+        else {
+            $bibtex .= '_' . $check;
+        }
+    }
+    
     $wpdb->insert( $teachpress_pub, array( 'title' => $title, 'type' => $type, 'bibtex' => $bibtex, 'author' => $author, 'editor' => $editor, 'isbn' => $isbn, 'url' => $url, 'date' => $date, 'urldate' => $urldate, 'booktitle' => $booktitle, 'issuetitle' => $issuetitle, 'journal' => $journal, 'volume' => $volume, 'number' => $number, 'pages' => $pages , 'publisher' => $publisher, 'address' => $address, 'edition' => $edition, 'chapter' => $chapter, 'institution' => $institution, 'organization' => $organization, 'school' => $school, 'series' => $series, 'crossref' => $crossref, 'abstract' => $abstract, 'howpublished' => $howpublished, 'key' => $key, 'techtype' => $techtype, 'comment' => $comment, 'note' => $note, 'image_url' => $image_url, 'is_isbn' => $is_isbn, 'rel_page' => $rel_page ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d' ) );
      $pub_ID = $wpdb->insert_id;
      // Bookmarks

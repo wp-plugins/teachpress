@@ -1,11 +1,40 @@
 <?php
+
+/**
+ * Defines the screen options for edit_tags page
+ * @global object $tp_admin_edit_tags_page
+ */
+function tp_edit_tags_page_screen_options () {
+    global $tp_admin_edit_tags_page;
+    $screen = get_current_screen();
+ 
+    if(!is_object($screen) || $screen->id != $tp_admin_edit_tags_page) {
+        return;
+    }
+
+    $args = array(
+        'label' => __('Items per page', 'teachpress'),
+        'default' => 50,
+        'option' => 'tp_tags_per_page'
+    );
+    add_screen_option( 'per_page', $args );
+}
+
 /**
  * Tag management page
  * @global class $wpdb
  * @global string $teachpress_relation
  * @global string $teachpress_tags
  */ 
-function teachpress_tags_page(){ 
+function teachpress_tags_page(){
+    // Get screen options
+    $user = get_current_user_id();
+    $screen = get_current_screen();
+    $screen_option = $screen->get_option('per_page', 'option');
+    $per_page = get_user_meta($user, $screen_option, true);
+    if ( empty ( $per_page) || $per_page < 1 ) {
+        $per_page = $screen->get_option( 'per_page', 'default' );
+    }
     ?> 
     <div class="wrap" style="max-width:650px;">
     <form id="form1" name="form1" method="get" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
@@ -19,7 +48,7 @@ function teachpress_tags_page(){
     $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
     $checkbox = isset( $_GET['checkbox'] ) ? $_GET['checkbox'] : array();
     $page = 'teachpress/tags.php';
-    $number_messages = 50;
+    $number_messages = $per_page;
     // Handle limits
     if (isset($_GET['limit'])) {
         $curr_page = (int)$_GET['limit'] ;

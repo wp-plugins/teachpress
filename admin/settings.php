@@ -7,7 +7,7 @@ function teachpress_admin_settings() {
     global $wpdb;
     global $teachpress_stud; 
      
-    $checkbox_auto_post = isset( $_POST['auto_post'] ) ? 1 : '';
+    $checkbox_rel_content_auto = isset( $_POST['rel_content_auto'] ) ? 1 : '';
     $checkbox_import_overwrite = isset( $_POST['import_overwrite'] ) ? 1 : '';
     $checkbox_matriculation_number = isset( $_POST['matriculation_number_field'] ) ? 1 : '';
     $checkbox_course_of_studies = isset( $_POST['course_of_studies_field'] ) ? 1 : '';
@@ -57,9 +57,9 @@ function teachpress_admin_settings() {
     }
     if ( isset($_POST['save_pub']) ) {
         tp_change_option('import_overwrite', $checkbox_import_overwrite, 'checkbox');
-        tp_change_option('auto_post', $checkbox_auto_post, 'checkbox');
-        tp_change_option('auto_post_template', $_POST['auto_post_template']);
-        tp_change_option('auto_post_category', $_POST['auto_post_category']);
+        tp_change_option('rel_content_auto', $checkbox_rel_content_auto, 'checkbox');
+        tp_change_option('rel_content_template', $_POST['rel_content_template']);
+        tp_change_option('rel_content_category', $_POST['rel_content_category']);
         get_tp_message(__('Saved'));
     }
     if (isset( $_POST['addstud'] ) && $name != __('Add course of studies','teachpress')) {
@@ -370,21 +370,21 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
             </tr>
             <tr>
                 <th><?php _e('Automatic related content','teachpress'); ?></th>
-                <td><?php echo get_tp_admin_checkbox('auto_post', __('Create an automatic related post with every new publication','teachpress'), get_tp_option('auto_post')); ?></td>
+                <td><?php echo get_tp_admin_checkbox('rel_content_auto', __('Create an automatic related content with every new publication','teachpress'), get_tp_option('rel_content_auto')); ?></td>
                 <td></td>
             </tr>
             <tr>
                 <th><?php _e('Template for related content','teachpress'); ?></th>
-                <td><textarea name="auto_post_template" id="auto_post_template" style="width:100%;" rows="5"><?php echo get_tp_option('auto_post_template'); ?></textarea></td>
+                <td><textarea name="rel_content_template" id="rel_content_template" style="width:100%;" rows="5"><?php echo get_tp_option('rel_content_template'); ?></textarea></td>
                 <td></td>
             </tr>
             <tr>
                 <th><?php _e('Default category for related content','teachpress'); ?></th>
                 <td>
                     <?php 
-                    wp_dropdown_categories(array('hide_empty' => 0, 'name' => 'auto_post_category', 'orderby' => 'name', 'selected' => get_tp_option('auto_post_category'), 'hierarchical' => true, 'show_option_none' => __('None'))); 
+                    wp_dropdown_categories(array('hide_empty' => 0, 'name' => 'rel_content_category', 'orderby' => 'name', 'selected' => get_tp_option('rel_content_category'), 'hierarchical' => true, 'show_option_none' => __('None'))); 
                     ?>
-                    <em><?php _e('Used if the related content post type for publicaitons is set on "Posts"','teachpress'); ?></em>
+                    <em><?php _e('Used if the related content type for publicaitons is set on "Posts"','teachpress'); ?></em>
                 </td>
             </tr>
     	<tr>

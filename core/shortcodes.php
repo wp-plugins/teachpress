@@ -305,9 +305,43 @@ function tp_abstract_shortcode ($atts) {
     }
 
     if ( isset($publication['abstract']) ) {
-        return '<h2 class="tp_abstract">Abstract</h2><p class="tp_abstract">' . htmlspecialchars_decode($publication['abstract']) . '</p>';
+        return '<h2 class="tp_abstract">' . __('Abstract','teachpress') . '</h2><p class="tp_abstract">' . htmlspecialchars_decode($publication['abstract']) . '</p>';
     } 
     return;
+}
+
+/**
+ * Shortcode for the related websites (url) of a publication 
+ * 
+ * possible values of $atts:
+ *  id (INT)                --> id of a publication
+ *  key (STRING)            --> bibtex key of a publication 
+ * If neither is given, the publication of the most recent [tpsingle] will be reused
+ * 
+ * @param array $atts
+ * @return string
+ * @scine 4.2.0
+ */
+function tp_links_shortcode ($atts) {
+    global $tp_single_publication;
+    extract(shortcode_atts(array(
+       'id' => 0,
+       'key' => '',
+    ), $atts));
+    
+    if ( $key != '' ) {
+        $publication = get_tp_publication_by_key($key, ARRAY_A);
+    } elseif ( $id != 0 ) {
+        $publication = get_tp_publication($id, ARRAY_A);
+    } else {
+        $publication = $tp_single_publication;
+    }
+    
+    if ( isset($publication['url']) ) {
+        return '<h2 class="tp_links">' . __('Links','teachpress') . '</h2><p class="tp_abstract">' . tp_bibtex::prepare_url($publication['url'], 'list') . '</p>';
+    } 
+    return;
+    
 }
 
 /**

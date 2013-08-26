@@ -585,21 +585,20 @@ class tp_update_db {
         
         /**** since version 4.2.0 ****/
         
-        // add option value auto_post_template
-        
-        if ($wpdb->query("SELECT value FROM $teachpress_settings WHERE `variable` = 'auto_post_template'") == '0') {
+        // rel_content_template
+        if ($wpdb->query("SELECT value FROM $teachpress_settings WHERE `variable` = 'rel_content_template'") == '0') {
             $value = '[tpsingle [key]]<!--more-->' . "\n\n[tpabstract]\n\n[tpbibtex]";
-            $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('auto_post_template', '$value', 'system')"); 
+            $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('rel_content_template', '$value', 'system')"); 
         }
-        // add option value auto_post
-        if ($wpdb->query("SELECT value FROM $teachpress_settings WHERE `variable` = 'auto_post'") == '0') {
-            $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('auto_post', '0', 'system')"); 
+        // rel_content_auto
+        if ($wpdb->query("SELECT value FROM $teachpress_settings WHERE `variable` = 'rel_content_auto'") == '0') {
+            $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('rel_content_auto', '0', 'system')"); 
         }
-        // add option value auto_post
-        if ($wpdb->query("SELECT value FROM $teachpress_settings WHERE `variable` = 'auto_post_category'") == '0') {
-            $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('auto_post_category', '', 'system')"); 
+        // rel_content_category
+        if ($wpdb->query("SELECT value FROM $teachpress_settings WHERE `variable` = 'rel_content_category'") == '0') {
+            $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('rel_content_category', '', 'system')"); 
         }
-        // add option value import_overwrite
+        // import_overwrite
         if ($wpdb->query("SELECT value FROM $teachpress_settings WHERE `variable` = 'import_overwrite'") == '0') {
             $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('import_overwrite', '0', 'system')"); 
         }

@@ -84,7 +84,7 @@ function teachpress_addpublications_page() {
    <?php
    // create related content (post/page/...)
    if ( isset($_POST['create_rel_content']) ) {
-      $data['rel_page'] = tp_add_publication_as_post( $data['title'], $data['bibtex'], $data['date'], get_tp_option('rel_page_publications'), $tags, array(get_tp_option('auto_post_category')) );
+      $data['rel_page'] = tp_add_publication_as_post( $data['title'], $data['bibtex'], $data['date'], get_tp_option('rel_page_publications'), $tags, array(get_tp_option('rel_content_category')) );
         }
    // create publication and related page
    if ( isset($_POST['erstellen']) ) {
@@ -248,7 +248,12 @@ function teachpress_addpublications_page() {
             get_tp_wp_pages("menu_order","ASC",$daten["rel_page"],$post_type,0,0); 
             ?>
             </select>
-            <p style="padding:5px 0 0 5px;"><?php echo get_tp_admin_checkbox('create_rel_content', __('Create related content','teachpress'), '0'); ?></p>
+            <p style="padding:5px 0 0 5px;">
+                <?php 
+                $value = ( get_tp_option('rel_content_auto') == '1' ) ? '1' : '0';
+                echo get_tp_admin_checkbox('create_rel_content', __('Create related content','teachpress'), $value); 
+                ?>
+            </p>
             </div>
             </td>
         </tr>

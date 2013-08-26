@@ -642,7 +642,7 @@ class tp_bibtex {
      * @return string
      * @since 3.0.0
      */
-    private static function prepare_url($url, $mode = 'list') {
+    public static function prepare_url($url, $mode = 'list') {
         $end = '';
         $url = explode(chr(13) . chr(10), $url);
         foreach ($url as $url) {

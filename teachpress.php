@@ -46,36 +46,68 @@ $teachpress_user = $wpdb->prefix . 'teachpress_user';           // Relationship 
 /*************/
 /* Add menus */
 /*************/
-// Courses and students
+
+/**
+ * Add menu for courses and students
+ * @global object $tp_admin_show_courses_page
+ * @global object $tp_admin_add_course_page
+ * @since 0.1.0
+ */
 function tp_add_menu() {
-    global $tp_admin_page;
-    global $tp_admin_page2;
-    $tp_admin_page2 = add_menu_page(__('Course','teachpress'), __('Course','teachpress'),'use_teachpress', __FILE__, 'teachpress_show_courses_page', plugins_url() . '/teachpress/images/logo_small.png');
-    $tp_admin_page = add_submenu_page('teachpress/teachpress.php',__('Add New','teachpress'), __('Add New', 'teachpress'),'use_teachpress','teachpress/add_course.php','tp_add_course_page');
+    global $tp_admin_show_courses_page;
+    global $tp_admin_add_course_page;
+    $tp_admin_show_courses_page = add_menu_page(__('Course','teachpress'), __('Course','teachpress'),'use_teachpress', __FILE__, 'teachpress_show_courses_page', plugins_url() . '/teachpress/images/logo_small.png');
+    $tp_admin_add_course_page = add_submenu_page('teachpress/teachpress.php',__('Add New','teachpress'), __('Add New', 'teachpress'),'use_teachpress','teachpress/add_course.php','tp_add_course_page');
     add_submenu_page('teachpress/teachpress.php',__('Students','teachpress'), __('Students','teachpress'),'use_teachpress', 'teachpress/students.php', 'teachpress_students_page');
-    add_action("load-$tp_admin_page", 'tp_add_course_page_help');
-    add_action("load-$tp_admin_page2", 'tp_show_course_page_help');
+    add_action("load-$tp_admin_add_course_page", 'tp_add_course_page_help');
+    add_action("load-$tp_admin_show_courses_page", 'tp_show_course_page_help');
 }
-// Publications
+
+/**
+ * Add menu for publications
+ * @global object $tp_admin_all_pub_page
+ * @global object $tp_admin_your_pub_page
+ * @global object $tp_admin_add_pub_page
+ * @global object $tp_admin_import_page
+ * @global object $tp_admin_edit_tags_page
+ * @since 0.9.0
+ */
 function tp_add_menu2() {
-    global $tp_admin_page3;
-    global $tp_admin_page4;
-    global $tp_admin_page5;
-    global $tp_admin_page6;
-    $tp_admin_page3 = add_menu_page (__('Publications','teachpress'), __('Publications','teachpress'), 'use_teachpress', 'publications.php', 'teachpress_publications_page', plugins_url() . '/teachpress/images/logo_small.png');
-    $tp_admin_page4 = add_submenu_page('publications.php',__('Your publications','teachpress'), __('Your publications','teachpress'),'use_teachpress','teachpress/publications.php','teachpress_publications_page');
-    $tp_admin_page5 = add_submenu_page('publications.php',__('Add New', 'teachpress'), __('Add New','teachpress'),'use_teachpress','teachpress/addpublications.php','teachpress_addpublications_page');
-    $tp_admin_page6 = add_submenu_page('publications.php',__('Import/Export'), __('Import/Export'), 'use_teachpress', 'teachpress/import.php','teachpress_import_page');
-    add_submenu_page('publications.php',__('Tags'),__('Tags'),'use_teachpress','teachpress/tags.php','teachpress_tags_page');
-    add_action("load-$tp_admin_page3", 'tp_show_publications_page_help');
-    add_action("load-$tp_admin_page4", 'tp_show_publications_page_help');
-    add_action("load-$tp_admin_page5", 'tp_add_publication_page_help');
-    add_action("load-$tp_admin_page6", 'tp_import_page_help_tab');
+    global $tp_admin_all_pub_page;
+    global $tp_admin_your_pub_page;
+    global $tp_admin_add_pub_page;
+    global $tp_admin_import_page;
+    global $tp_admin_edit_tags_page;
+    $tp_admin_all_pub_page = add_menu_page (__('Publications','teachpress'), __('Publications','teachpress'), 'use_teachpress', 'publications.php', 'teachpress_publications_page', plugins_url() . '/teachpress/images/logo_small.png');
+    $tp_admin_your_pub_page = add_submenu_page('publications.php',__('Your publications','teachpress'), __('Your publications','teachpress'),'use_teachpress','teachpress/publications.php','teachpress_publications_page');
+    $tp_admin_add_pub_page = add_submenu_page('publications.php',__('Add New', 'teachpress'), __('Add New','teachpress'),'use_teachpress','teachpress/addpublications.php','teachpress_addpublications_page');
+    $tp_admin_import_page = add_submenu_page('publications.php',__('Import/Export'), __('Import/Export'), 'use_teachpress', 'teachpress/import.php','teachpress_import_page');
+    $tp_admin_edit_tags_page = add_submenu_page('publications.php',__('Tags'),__('Tags'),'use_teachpress','teachpress/tags.php','teachpress_tags_page');
+    add_action("load-$tp_admin_all_pub_page", 'tp_show_publications_page_help');
+    add_action("load-$tp_admin_all_pub_page", 'tp_show_publications_page_screen_options');
+    add_action("load-$tp_admin_your_pub_page", 'tp_show_publications_page_help');
+    add_action("load-$tp_admin_your_pub_page", 'tp_show_publications_page_screen_options');
+    add_action("load-$tp_admin_add_pub_page", 'tp_add_publication_page_help');
+    add_action("load-$tp_admin_import_page", 'tp_import_page_help_tab');
+    add_action("load-$tp_admin_edit_tags_page", 'tp_edit_tags_page_screen_options');
 }
-// Settings
+
+/**
+ * Add option screen
+ */
 function tp_add_menu_settings() {
     add_options_page(__('teachPress Settings','teachpress'),'teachPress','administrator','teachpress/settings.php', 'teachpress_admin_settings');
 }
+
+/**
+ * Set screen options
+ */
+function tp_set_screen_option($status, $option, $value) {
+    if ( 'tp_pubs_per_page' == $option || 'tp_tags_per_page' == $option ) { 
+        return $value; 
+    }
+}
+add_filter('set-screen-option', 'tp_set_screen_option', 10, 3);
 
 /************/
 /* Includes */
@@ -148,10 +180,12 @@ function tp_datesplit($datum) {
 
 /** 
  * Gives an array with all publication types
- * Definition of array $pub_types:
+ * 
+ * Definition of array[] $pub_types:
  *      $pub_types[x][0] ==> BibTeX key
  *      $pub_types[x][1] ==> i18n string (singular)
  *      $pub_types[x][2] ==> i18n string (plural)
+ * 
  * @return array
 */ 
 function get_tp_publication_types() {
@@ -181,7 +215,7 @@ function get_tp_publication_types() {
  * get the path to a mimetype image
  * @param string $url   --> the URL of a file
  * @return string 
- * @since version 3.1.0
+ * @since 3.1.0
  */
 function get_tp_mimetype_images($url) {
     $mimetype = substr($url,-4,4);
@@ -340,7 +374,7 @@ function get_tp_var_types($type) {
  * @return string
 */
 function get_tp_version(){
-    return '4.1.1e';
+    return '4.2.0pre';
 }
 
 /** 
@@ -600,9 +634,9 @@ function tp_install() {
         $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('birthday', '1', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('rel_page_courses', 'page', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('rel_page_publications', 'page', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('auto_post', '0', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('auto_post_template', 'page', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('auto_post_category', '$value', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('rel_content_auto', '0', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('rel_content_template', 'page', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('rel_content_category', '$value', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('import_overwrite', '0', 'system')");
         
         $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('Example term', 'Example term', 'semester')");
@@ -774,8 +808,9 @@ if ( !defined('TP_PUBLICATION_SYSTEM') ) {
     add_action('admin_menu', 'tp_add_menu2');
     add_shortcode('tpcloud', 'tp_cloud_shortcode');
     add_shortcode('tplist', 'tp_list_shortcode');
-    add_shortcode('tpsingle','tp_single_shortcode');
-    add_shortcode('tpbibtex','tp_bibtex_shortcode');
-    add_shortcode('tpabstract','tp_abstract_shortcode');
+    add_shortcode('tpsingle', 'tp_single_shortcode');
+    add_shortcode('tpbibtex', 'tp_bibtex_shortcode');
+    add_shortcode('tpabstract', 'tp_abstract_shortcode');
+    add_shortcode('tplinks', 'tp_links_shortcode');
 }
 ?>
