@@ -209,6 +209,10 @@ function tp_date_shortcode($attr) {
  *  author_name (STRING)    --> last, initials or old, default: simple
  *  author_name (STRING)    --> last, initials or old, default: last
  *  date_format (STRING)    --> the format for date; needed for the types: presentations, online; default: d.m.Y
+ *  image (STRING)          --> none, left or right; default: none
+ *  image_size (STRING)     --> image width in px; default: 0
+ *  link (STRING)           --> Set it to "true" if you want to show a link in addition of the publication title. 
+ *                              If there are more than one link, the first one is used.
  * 
  * @param array $atts
  * @return string
@@ -221,7 +225,10 @@ function tp_single_shortcode ($atts) {
        'key' => '',
        'author_name' => 'simple',
        'editor_name' => 'last',
-       'date_format' => 'd.m.Y'
+       'date_format' => 'd.m.Y',
+       'image' => 'none',
+       'image_size' => 0,
+       'link' => ''
     ), $atts));
 
     $settings = array(
@@ -240,8 +247,27 @@ function tp_single_shortcode ($atts) {
     $tp_single_publication = $publication;
     
     $author = tp_bibtex::parse_author($publication['author'], $settings['author_name']);
-
-    $asg = '<div class="tp_single_publication"><span class="tp_single_author">' . stripslashes($author) . '</span><span class="tp_single_year"> (' . $publication['year'] . ')</span>: <span class="tp_single_title">' . stripslashes($publication['title']) . '</span>. <span class="tp_single_additional">' . tp_bibtex::single_publication_meta_row($publication, $settings) . '</span></div>';
+    $image_size = intval($image_size);
+    
+    $asg = '<div class="tp_single_publication">';
+    // add image
+    if ( ( $image === 'left' || $image === 'right' ) && $publication['image_url'] != '' ) {
+        $class = ( $image === 'left' ) ? 'tp_single_image_left' : 'tp_single_image_right';
+        $asg .= '<div class="' . $class . '"><img name="' . $publication['title'] . '" src="' . $publication['image_url'] . '" width="' . $image_size .'" alt="" /></div>';
+    }
+    // define title
+    if ( $link !== '' && $publication['url'] !== '' ) {
+        // Use the first link in url field without the original title
+        $url = explode(chr(13) . chr(10), $publication['url']);
+        $parts = explode(', ',$url[0]);
+        $parts[0] = trim( $parts[0] );
+        $title = '<a href="' . $parts[0] . '">' . stripslashes($publication['title']) . '</a>';
+    }
+    else {
+        $title = stripslashes($publication['title']);
+    }
+    $asg .= '<span class="tp_single_author">' . stripslashes($author) . '</span><span class="tp_single_year"> (' . $publication['year'] . ')</span>: <span class="tp_single_title">' . $title . '</span>. <span class="tp_single_additional">' . tp_bibtex::single_publication_meta_row($publication, $settings) . '</span>';
+    $asg .= '</div>';
     return $asg;
 }
 
@@ -305,7 +331,7 @@ function tp_abstract_shortcode ($atts) {
     }
 
     if ( isset($publication['abstract']) ) {
-        return '<h2 class="tp_abstract">' . __('Abstract','teachpress') . '</h2><p class="tp_abstract">' . htmlspecialchars_decode($publication['abstract']) . '</p>';
+        return '<h2 class="tp_abstract">' . __('Abstract','teachpress') . '</h2><p class="tp_abstract">' . tp_bibtex::prepare_text_for_html($publication['abstract']) . '</p>';
     } 
     return;
 }

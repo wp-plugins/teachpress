@@ -66,6 +66,10 @@ class tp_bibtex {
                         $string = $string . 'type = {' . $row[$pub_fields[$i]] . '},' . chr(13) . chr(10);
                     }
                 }
+                // abstract
+                elseif ( $pub_fields[$i] == 'abstract' ) {
+                    $string = $string . tp_bibtex::prepare_text($row[$pub_fields[$i]], $pub_fields[$i]);
+                }
                 // normal case
                 else {
                     $string = $string . tp_bibtex::prepare_bibtex_line($row[$pub_fields[$i]],$pub_fields[$i]);
@@ -232,7 +236,7 @@ class tp_bibtex {
         // div abstract
         if ( $row['abstract'] != '' ) {
             $a3 = $a3 . '<div class="tp_abstract" id="tp_abstract_' . $row['pub_id'] . '" style="display:none;">';
-            $a3 = $a3 . '<div class="tp_abstract_entry">' . nl2br(stripslashes($row['abstract'])) . '</div>';
+            $a3 = $a3 . '<div class="tp_abstract_entry">' . tp_bibtex::prepare_text_for_html($row['abstract']) . '</div>';
             $a3 = $a3 . '<p class="tp_close_menu"><a class="tp_close" onclick="teachpress_pub_showhide(' . $str . $row['pub_id'] . $str . ',' . $str . 'tp_abstract' . $str . ')">' . __('Close','teachpress') . '</a></p>';
             $a3 = $a3 . '</div>';
         }
@@ -521,10 +525,10 @@ class tp_bibtex {
 
     /**
      * Replace some BibTeX special chars with the UTF-8 versions and secure the parameter
-     * @access public
      * @param string $input
      * @return string
      * @since 3.0.0
+     * @access public
      */
     public static function replace_bibtex_chars ($input) {
         // return the input if there are no bibtex chars
@@ -587,9 +591,74 @@ class tp_bibtex {
     }
     
     /**
+     * Prepare an (html) input for bibtex and replace expressions for bold, italic, lists, etc. with their latex equivalents
+     * @param string $text      The (html) input
+     * @param string $fieldname The bibtex field name
+     * @return string
+     * @since 4.2.0
+     */
+    public static function prepare_text($text, $fieldname = 'abstract') {
+        if ($text != '') {
+	    $text = htmlspecialchars_decode($text);
+            // Replace expressions
+            $search = array ('/<sub>/i', '/<sup>/i',
+                             '/<i>/i', '/<b>/i', '/<em>/i', 
+                             '/<\/(sub|sup|i|b|em)>/i',
+                             '/<ul>/i', '/<\/ul>/i',
+                             '/<ol>/i', '/<\/ol>/i',
+                             '/<li>/i', '/<\/li>/i');
+            $replace = array ('_{', '^{',
+                              '\textit{', '\textbf{', '\emph{',
+                              '}',
+                              '\begin{itemize}', '\end{itemize}' . "\n",
+                              '\begin{enumerate}', '\end{enumerate} . "\n"',
+                              '\item ', '');
+	    $text = preg_replace($search, $replace, $text);
+            // Add wordwrap if necessary
+            if (strpos($text, "\n") === false ) {
+                $text = wordwrap($text, 80, "\r\n");
+            }
+            return tp_bibtex::prepare_bibtex_line($text, $fieldname, false);
+        }
+        else {
+            return '';
+        }
+    }
+    
+    /**
+     * Prepare a text for normal html output. Works like htmlspecialchars_decode, but with a white list
+     * @param string $input
+     * @return string
+     * @since 4.2.0
+     * @access public
+     */
+    public static function prepare_text_for_html($input) {
+        $search = array('&lt;sub&gt;', '&lt;/sub&gt;',
+                        '&lt;sup&gt;', '&lt;/sup&gt;',
+                        '&lt;i&gt;', '&lt;/i&gt;',
+                        '&lt;b&gt;', '&lt;/b&gt;',
+                        '&lt;em&gt;', '&lt;/em&gt;',
+                        '&lt;u&gt;', '&lt;/u&gt;',
+                        '&lt;ul&gt;', '&lt;/ul&gt;', 
+                        '&lt;li&gt;', '&lt;/li&gt;', 
+                        '&lt;ol&gt;', '&lt;/ol&gt;' );
+        $replace = array('<sub>', '</sub>', 
+                         '<sup>', '</sup>',
+                         '<i>', '</i>',
+                         '<b>', '</b>', 
+                         '<em>', '</em>', 
+                         '<u>', '</u>', 
+                         '<ul>', '</ul>', 
+                         '<li>', '</li>', 
+                         '<ol>', '</ol>' );
+        $input = str_replace($search, $replace, $input);
+        return nl2br(stripslashes($input));
+    }
+
+        /**
      * Prepare a page number
      * @access public
-     * @param strin $input
+     * @param string $input
      * @return string
      * @since 4.0.0
      */
@@ -604,14 +673,16 @@ class tp_bibtex {
 
     /**
      * Prepare a single BibTeX line with the input from onde publication field
-     * @param string $input - the value of the publication field
-     * @param string $fieldname - the name of the publication field
-     * @return string $input - the line
+     * @param string    $input          The value of the publication field
+     * @param string    $fieldname      The name of the publication field
+     * @param boolean   $stripslashes   Strip slashes (true) or not (false); default is true; since 4.2.0
+     * @return string
      * @since 3.0.0
      */
-    public static function prepare_bibtex_line($input, $fieldname) {
+    public static function prepare_bibtex_line($input, $fieldname, $stripslashes = true) {
         if ($input != '') {
-            return '' . $fieldname . ' = {' . stripslashes($input) . '},' . chr(13) . chr(10);
+            $input = ( $stripslashes === true ) ? stripslashes($input) : $input;
+            return '' . $fieldname . ' = {' . $input . '},' . chr(13) . chr(10);
         }
         else {
             return '';

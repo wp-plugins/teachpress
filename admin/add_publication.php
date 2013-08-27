@@ -288,7 +288,7 @@ function teachpress_addpublications_page() {
                 </td>
                 <td style="border:none; padding:0 0 0 0; margin: 0 0 0 0;">
                     <p><label for="bibtex" title="<?php _e('A simple unique key without spaces','teachpress'); ?>"><strong><?php _e('BibTeX Key','teachpress'); ?></strong></label></p>
-                    <input name="bibtex" id="bibtex" type="text" title="<?php _e('A simple unique key without spaces','teachpress'); ?>" value="<?php echo stripslashes($daten["bibtex"]); ?>" tabindex="3" /> <a href="javascript:teachpress_generate_bibtex_key();" style="border:none;" title="<?php _e('Generate BibTeX key','teachPress') ?>"><img src="<?php echo plugins_url() . '/teachpress/images/view-refresh-3.png'; ?>" alt=""/></a>
+                    <input name="bibtex" id="bibtex" type="text" title="<?php _e('A simple unique key without spaces','teachpress'); ?>" value="<?php echo stripslashes($daten["bibtex"]); ?>" tabindex="3" /> <a href="javascript:teachpress_generate_bibtex_key();" style="border:none;" title="<?php _e('Generate BibTeX key','teachpress') ?>"><img src="<?php echo plugins_url() . '/teachpress/images/view-refresh-3.png'; ?>" alt=""/></a>
                 </td>
                 </tr>
               </table>

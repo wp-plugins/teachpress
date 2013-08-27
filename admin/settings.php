@@ -135,7 +135,7 @@ function teachpress_admin_settings() {
                 $course_system = ( defined('TP_COURSE_SYSTEM') ) ? '<span style="color:#FF0000;">' . __('inactive','teachpress') . '</span>' : '<span style="color:#01DF01;">' . __('active','teachpress') . '</span>';
                 echo 'Course system: ' . $course_system;
                 echo '<br/>';
-                $pub_system = ( defined('TP_PUBLICATION_SYSTEM') ) ? '<span style="color:#FF0000;">' . __('inactive','teachPress') . '</span>' : '<span style="color:#01DF01;">' . __('active','teachpress') . '</span>';
+                $pub_system = ( defined('TP_PUBLICATION_SYSTEM') ) ? '<span style="color:#FF0000;">' . __('inactive','teachpress') . '</span>' : '<span style="color:#01DF01;">' . __('active','teachpress') . '</span>';
                 echo 'Publication system: ' . $pub_system;
                 ?>
                 </td>

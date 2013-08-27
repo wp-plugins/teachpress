@@ -587,7 +587,7 @@ class tp_update_db {
         
         // rel_content_template
         if ($wpdb->query("SELECT value FROM $teachpress_settings WHERE `variable` = 'rel_content_template'") == '0') {
-            $value = '[tpsingle [key]]<!--more-->' . "\n\n[tpabstract]\n\n[tpbibtex]";
+            $value = '[tpsingle [key]]<!--more-->' . "\n\n[tpabstract]\n\n[tplinks]\n\n[tpbibtex]";
             $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('rel_content_template', '$value', 'system')"); 
         }
         // rel_content_auto
