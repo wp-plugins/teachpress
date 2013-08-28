@@ -468,8 +468,6 @@ function tp_generate_pub_table($tparray, $args ) {
  * 
  * Parameters for the array $atts:
  *   user (STRING)          --> the id of on or more users (separated by comma)
- *   tag (STRING)           --> NOT IMPLEMENTED
- *   year (STRING)          --> NOT IMPLEMENTED
  *   type (STRING)          --> the publication types you want to show (separated by comma)
  *   exclude (INT)          --> one or more IDs of publications you don't want to show (separated by comma)
  *   order (STRING)         --> name, year, bibtex or type, default: date DESC
@@ -477,6 +475,7 @@ function tp_generate_pub_table($tparray, $args ) {
  *   maxsize (INT)          --> maximal font size for the tag cloud, default: 35
  *   minsize (INT)          --> minimal font size for the tag cloud, default: 11
  *   limit (INT)            --> Number of tags, default: 30
+ *   hide_tags (STRING)     --> ids of the tags you want to hide from your users (separated by comma)
  *   image (STRING)         --> none, left, right or bottom, default: none 
  *   image_size (INT)       --> max. Image size, default: 0
  *   anchor (INT)           --> 0 (false) or 1 (true), default: 1
@@ -495,8 +494,6 @@ function tp_generate_pub_table($tparray, $args ) {
 function tp_cloud_shortcode($atts) {
    extract(shortcode_atts(array(
       'user' => '',
-      'tag' => '',
-      'year' => '',
       'type' => '',
       'exclude' => '', 
       'order' => 'date DESC',
@@ -504,6 +501,7 @@ function tp_cloud_shortcode($atts) {
       'maxsize' => 35,
       'minsize' => 11,
       'limit' => 30,
+      'hide_tags' => '',
       'image' => 'none',
       'image_size' => 0,
       'anchor' => 1,
@@ -515,8 +513,6 @@ function tp_cloud_shortcode($atts) {
    ), $atts));
    $user = intval($user);
    $sort_type = htmlspecialchars($type);
-   $tag = htmlspecialchars($tag);
-   $year = htmlspecialchars($year);
    
    $tgid = isset ($_GET['tgid']) ? intval($_GET['tgid']) : '';
    $yr = isset ($_GET['yr']) ? intval($_GET['yr']) : '';
@@ -526,7 +522,7 @@ function tp_cloud_shortcode($atts) {
    // if author is set by shortcode parameter
    if ($user != 0) {
       $author = $user;
-   }
+   }   
    
    // secure parameters
    $exclude = htmlspecialchars($exclude);
@@ -562,8 +558,9 @@ function tp_cloud_shortcode($atts) {
    /*************/
    
    $temp = get_tp_tag_cloud( array('user' => $user, 
-                                   'type' => $sort_type, 
-                                   'number_tags' => $limit, 
+                                   'type' => $sort_type,
+                                   'exclude' => $hide_tags,
+                                   'number_tags' => $limit,
                                    'output_type' => ARRAY_A) );
    $asg = '';
    $min = $temp["info"]->min;
@@ -689,8 +686,8 @@ function tp_cloud_shortcode($atts) {
         $order = "year DESC , type ASC , date DESC";
     }
    
-   $row = get_tp_publications( array('tag' => $tgid, 'year' => $yr, 'type' => $type, 'user' => $user, 'order' => $order, 'output_type' => ARRAY_A) );
-   $all_tags = get_tp_tags( array('output_type' => ARRAY_A) );
+   $row = get_tp_publications( array('tag' => $tgid, 'year' => $yr, 'type' => $type, 'user' => $user, 'order' => $order, 'exclude' => $exclude, 'output_type' => ARRAY_A) );
+   $all_tags = get_tp_tags( array('exclude' => $hide_tags, 'output_type' => ARRAY_A) );
    $tpz = 0;
    $count = count($row);
    $colspan = '';

@@ -84,13 +84,23 @@ function get_tp_publications($args = array(), $count = false) {
 
     // define basics
     $select = "SELECT DISTINCT p.pub_id, p.title, p.type, p.bibtex, p.author, p.editor, p.date, DATE_FORMAT(p.date, '%Y') AS year, p.urldate, p.isbn , p.url, p.booktitle, p.issuetitle, p.journal, p.volume, p.number, p.pages, p.publisher, p.address, p.edition, p.chapter, p.institution, p.organization, p.school, p.series, p.crossref, p.abstract, p.howpublished, p.key, p.techtype, p.note, p.is_isbn, p.image_url, p.rel_page FROM $teachpress_pub p ";
-    $join = "";
-    $where = "";
-    $order = "";
-    $having ="";
+    $join = '';
+    $where = '';
+    $order = '';
+    $having ='';
     $output_type = esc_sql($output_type);
     $search = esc_sql($search);
     $limit = esc_sql($limit);
+    
+    // define where, having and limit clause
+    $exclude = tp_generate_where_clause($exclude, "p.pub_id", "AND", "!=");
+    $include = tp_generate_where_clause($include, "p.pub_id", "OR", "=");
+    $type = tp_generate_where_clause($type, "p.type", "OR", "=");
+    $user = tp_generate_where_clause($user, "u.user", "OR", "=");
+    $tag = tp_generate_where_clause($tag, "b.tag_id", "OR", "=");
+    $year = tp_generate_where_clause($year, "year", "OR", "=");
+    $author = tp_generate_where_clause($author, "p.author", "OR", "LIKE", '%');
+    $editor = tp_generate_where_clause($editor, "p.editor", "OR", "LIKE", '%');
 
     // additional joins
     if ( $user != '' ) {
@@ -119,49 +129,39 @@ function get_tp_publications($args = array(), $count = false) {
     }
 
     // define global search
-    if ( $search != "" ) {
+    if ( $search != '' ) {
         $search = "p.title LIKE '%$search%' OR p.author LIKE '%$search%' OR p.editor LIKE '%$search%' OR p.isbn LIKE '%$search%' OR p.booktitle LIKE '%$search%' OR p.issuetitle LIKE '%$search%' OR p.journal LIKE '%$search%' OR p.date LIKE '%$search%'";
     }
 
-    // define where, having and limit clause
-    $ex = tp_generate_where_clause($exclude, "p.pub_id", "AND", "!=");
-    $includes = tp_generate_where_clause($include, "p.pub_id", "OR", "=");
-    $types = tp_generate_where_clause($type, "p.type", "OR", "=");
-    $users = tp_generate_where_clause($user, "u.user", "OR", "=");
-    $tags = tp_generate_where_clause($tag, "b.tag_id", "OR", "=");
-    $years = tp_generate_where_clause($year, "year", "OR", "=");
-    $authors = tp_generate_where_clause($author, "p.author", "OR", "LIKE", '%');
-    $editors = tp_generate_where_clause($editor, "p.editor", "OR", "LIKE", '%');
-
-    if ( $ex != '' ) {
-        $where = $where != "" ? $where . " AND $ex " : $ex;
+    if ( $exclude != '' ) {
+        $where = $where != '' ? $where . " AND $exclude " : $exclude;
     }
-    if ( $includes != '' ) {
-        $where = $where != "" ? $where . " AND $includes " : $includes;
+    if ( $include != '' ) {
+        $where = $where != '' ? $where . " AND $include " : $include;
     }
-    if ( $types != '') {
-        $where = $where != "" ? $where . " AND ( $types )" : $types;
+    if ( $type != '') {
+        $where = $where != '' ? $where . " AND ( $type )" : $type;
     }
-    if ( $users != '') {
-        $where = $where != "" ? $where . " AND ( $users )" : $users;
+    if ( $user != '') {
+        $where = $where != '' ? $where . " AND ( $user )" : $user;
     }
-    if ( $tags != '') {
-        $where = $where != "" ? $where . " AND ( $tags )" : $tags;
+    if ( $tag != '') {
+        $where = $where != '' ? $where . " AND ( $tag )" : $tag;
     }
-    if ( $authors != '') {
-        $where = $where != "" ? $where . " AND ( $authors )" : $authors;
+    if ( $author != '') {
+        $where = $where != '' ? $where . " AND ( $author )" : $author;
     }
-    if ( $editors != '') {
-        $where = $where != "" ? $where . " AND ( $editors )" : $editors;
+    if ( $editor != '') {
+        $where = $where != '' ? $where . " AND ( $editor )" : $editor;
     }
     if ( $search != '') {
-        $where = $where != "" ? $where . " AND ( $search )" : $search ;
+        $where = $where != '' ? $where . " AND ( $search )" : $search ;
     }
     if ( $where != '' ) {
         $where = " WHERE $where";
     }
-    if ( $years != '' ) {
-        $having = " HAVING $years";
+    if ( $year != '' ) {
+        $having = " HAVING $year";
     }
     if ( $limit != '' ) {
         $limit = "LIMIT $limit";
@@ -410,18 +410,18 @@ function get_tp_publication_years( $args = array() ) {
     global $teachpress_pub;
     global $teachpress_user;
     
-    $join = "";
-    $where = "";
+    $join = '';
+    $where = '';
     $order = esc_sql($order);
     $output_type = esc_sql($output_type);
-    $types = tp_generate_where_clause($type, "p.type", "OR", "=");
-    $users = tp_generate_where_clause($user, "u.user", "OR", "=");
+    $type = tp_generate_where_clause($type, "p.type", "OR", "=");
+    $user = tp_generate_where_clause($user, "u.user", "OR", "=");
     
-    if ( $types != '') {
-        $where = $where != "" ? $where . " AND ( $types )" : $types;
+    if ( $type != '') {
+        $where = $where != '' ? $where . " AND ( $type )" : $type;
     }
-    if ( $users != '') {
-        $where = $where != "" ? $where . " AND ( $users )" : $users;
+    if ( $user != '') {
+        $where = $where != '' ? $where . " AND ( $user )" : $user;
         $join = "INNER JOIN $teachpress_user u ON u.pub_id=p.pub_id";
     }
     if ( $where != '' ) {
@@ -472,14 +472,14 @@ function get_tp_publication_used_types( $args = array() ) {
     global $teachpress_pub;
     global $teachpress_user;
     $output_type = esc_sql($output_type);
-    $users = tp_generate_where_clause($user, "u.user", "OR", "=");
+    $user = tp_generate_where_clause($user, "u.user", "OR", "=");
     if ( $user == '' ) {
         $result = $wpdb->get_results("SELECT DISTINCT p.type FROM $teachpress_pub p ORDER BY p.type ASC", $output_type);
     }    
     else {
         $result = $wpdb->get_results("SELECT DISTINCT p.type from $teachpress_pub p 
                                       INNER JOIN $teachpress_user u ON u.pub_id=p.pub_id 
-                                      WHERE $users 
+                                      WHERE $user 
                                       ORDER BY p.type ASC", $output_type);
     }
     return $result;
@@ -498,6 +498,7 @@ function get_tp_publication_used_types( $args = array() ) {
  * Possible values for $args:
  *  pub_id          --> publication IDs (separated by comma)
  *  user            --> user IDs (separated by comma)
+ *  exclude         --> tag IDs you want to exclude from result (separated by comma)
  *  order           --> ASC or DESC; default is ASC
  *  limit           --> the sql search limit, example: 0,30
  *  group by        --> boolean flag for the group by clause
@@ -511,6 +512,7 @@ function get_tp_tags( $args = array() ) {
     $defaults = array(
         'pub_id' => '',
         'user' => '',
+        'exclude' => '',
         'order' => 'ASC',
         'limit' => '',
         'group_by' => false, 
@@ -525,14 +527,15 @@ function get_tp_tags( $args = array() ) {
     global $teachpress_user;
     $limit = esc_sql($limit);
     $order = esc_sql($order);
-    $users = tp_generate_where_clause($user, "u.user", "OR", "=");
-    $publications = tp_generate_where_clause($pub_id, "r.pub_id", "OR", "=");
+    $user = tp_generate_where_clause($user, "u.user", "OR", "=");
+    $pub_id = tp_generate_where_clause($pub_id, "r.pub_id", "OR", "=");
+    $exclude = tp_generate_where_clause($exclude, "r.tag_id", "AND", "!=");
     $output_type = esc_sql($output_type);
     
     // Define basics
     $select = "SELECT DISTINCT t.name, r.tag_id, r.pub_id, r.con_id FROM $teachpress_relation r INNER JOIN $teachpress_tags t ON t.tag_id = r.tag_id";
-    $join = "";
-    $where = "";
+    $join = '';
+    $where = '';
     
     // Additional tables
     if ( $user != '' ) {
@@ -540,11 +543,14 @@ function get_tp_tags( $args = array() ) {
     }
     
     // WHERE clause
-    if ( $publications != '') {
-        $where = ( $where != "" ) ? $where . " AND ( $publications )" : $publications;
+    if ( $pub_id != '') {
+        $where = ( $where != '' ) ? $where . " AND ( $pub_id )" : $pub_id;
     }
     if ( $user != '' ) {
-        $where = ( $where != "" ) ? $where . " AND ( $users )" : $users;
+        $where = ( $where != '' ) ? $where . " AND ( $user )" : $user;
+    }
+    if ( $exclude != '' ) {
+        $where = ( $where != '' ) ? $where . " AND ( $exclude )" : $exclude;
     }
     if ( $where != '' ) {
         $where = " WHERE $where";
@@ -556,10 +562,11 @@ function get_tp_tags( $args = array() ) {
     }
     
     // GROUP BY clause
-    $group_by = $group_by === true ? " GROUP BY t.name" : "";
+    $group_by = $group_by === true ? " GROUP BY t.name" : '';
 
     // End
     $sql = $select . $join . $where . $group_by . " ORDER BY t.name $order $limit";
+    // echo $sql;
     $sql = $wpdb->get_results($sql, $output_type);
     return $sql;
 }
@@ -571,12 +578,12 @@ function get_tp_tags( $args = array() ) {
  *      'tags'  => it's an array or object with tags, including following keys: tagPeak, name, tag_id
  *      'info'  => it's an object which includes information about the frequency of tags, including following keys: max, min
  * 
- * @global type $wpdb
- * @global type $teachpress_tags
- * @global type $teachpress_relation
- * @global type $teachpress_user
- * @global type $teachpress_pub
- * @param type $args
+ * @global class $wpdb
+ * @global string $teachpress_tags
+ * @global string $teachpress_relation
+ * @global string $teachpress_user
+ * @global string $teachpress_pub
+ * @param array $args
  * @since 4.0.0
  */
 function get_tp_tag_cloud ( $args = array() ) {
@@ -584,6 +591,7 @@ function get_tp_tag_cloud ( $args = array() ) {
         'user' => '',
         'type' => '',
         'number_tags' => '',
+        'exclude' => '',
         'output_type' => OBJECT
     ); 
     $args = wp_parse_args( $args, $defaults );
@@ -595,31 +603,35 @@ function get_tp_tag_cloud ( $args = array() ) {
     global $teachpress_user;
     global $teachpress_pub;
 
-    $where = "";
+    $where = '';
     $number_tags = intval($number_tags);
     $output_type = esc_sql($output_type);
-    $types = tp_generate_where_clause($type, "p.type", "OR", "=");
-    $users = tp_generate_where_clause($user, "u.user", "OR", "=");
+    $type = tp_generate_where_clause($type, "p.type", "OR", "=");
+    $user = tp_generate_where_clause($user, "u.user", "OR", "=");
+    $exclude = tp_generate_where_clause($exclude, "r.tag_id", "AND", "!=");
     $join1 = "LEFT JOIN $teachpress_tags t ON r.tag_id = t.tag_id";
     $join2 = "INNER JOIN $teachpress_pub p ON p.pub_id = r.pub_id";
     $join3 = "INNER JOIN $teachpress_user u ON u.pub_id = p.pub_id";
 
-    if ( $users == '' && $types == '' ) {
-        $join1 = "";
-        $join2 = "";
-        $join3 = "";
+    if ( $user == '' && $type == '' ) {
+        $join1 = '';
+        $join2 = '';
+        $join3 = '';
 
     }
-    if ( $users == '' && $types != '' ) {
-        $join3 = "";
+    if ( $user == '' && $type != '' ) {
+        $join3 = '';
     }
 
     // WHERE clause
-    if ( $types != '') {
-        $where = $where != "" ? $where . " AND ( $types )" : $types;
+    if ( $type != '') {
+        $where = $where != '' ? $where . " AND ( $type )" : $type;
     }
-    if ( $users != '') {
-        $where = $where != "" ? $where . " AND ( $users )" : $users;
+    if ( $user != '') {
+        $where = $where != '' ? $where . " AND ( $user )" : $user;
+    }
+    if ( $exclude != '' ) {
+        $where = $where != '' ? $where . " AND ( $exclude )" : $exclude;
     }
     if ( $where != '' ) {
         $where = " WHERE $where";
@@ -901,7 +913,7 @@ function get_tp_courses ( $args = array() ) {
             FROM ( SELECT t.course_id AS course_id, t.name AS name, t.type AS type, t.lecturer AS lecturer, t.date AS date, t.room As room, t.places AS places, t.start AS start, t.end As end, t.semester AS semester, t.parent As parent, t.visible AS visible, t.rel_page AS rel_page, t.comment AS comment, p.name AS parent_name 
                 FROM $teachpress_courses t 
                 LEFT JOIN $teachpress_courses p ON t.parent = p.course_id ) AS temp";
-    $where = "";
+    $where = '';
     $order = esc_sql($order);
     $limit = esc_sql($limit);
     $output_type = esc_sql($output_type);
@@ -916,20 +928,20 @@ function get_tp_courses ( $args = array() ) {
     }
 
     if ( $exclude != '' ) {
-        $where = $where != "" ? $where . " AND $exclude " : $exclude;
+        $where = $where != '' ? $where . " AND $exclude " : $exclude;
     }
     if ( $semester != '') {
-        $where = $where != "" ? $where . " AND ( $semester )" : $semester;
+        $where = $where != '' ? $where . " AND ( $semester )" : $semester;
     }
     if ( $visibility != '') {
-        $where = $where != "" ? $where . " AND ( $visibility )" : $visibility;
+        $where = $where != '' ? $where . " AND ( $visibility )" : $visibility;
     }
     if ( $search != '') {
-        $where = $where != "" ? $where . " AND ( $search )" : $search ;
+        $where = $where != '' ? $where . " AND ( $search )" : $search ;
     }
     if ( $parent !== '' ) {
         $parent = intval($parent);
-        $where = $where != "" ? $where . " AND ( `parent` = '$parent' )" : "`parent` = '$parent'" ;
+        $where = $where != '' ? $where . " AND ( `parent` = '$parent' )" : "`parent` = '$parent'" ;
     }
     if ( $where != '' ) {
         $where = " WHERE $where";
@@ -1136,7 +1148,7 @@ function tp_delete_signup($checkbox, $move_up = true) {
                 $sql = "SELECT `con_id` FROM $teachpress_signup WHERE `course_id` = '" . $row1->course_id . "' AND `waitinglist` = '1' ORDER BY `con_id` ASC LIMIT 0, 1";
                 $con_id = $wpdb->get_var($sql);
                 // if is true subscribe the first one in the waiting list for the course
-                if ($con_id != 0 && $con_id != "") {
+                if ($con_id != 0 && $con_id != '') {
                     $wpdb->query( "UPDATE $teachpress_signup SET `waitinglist` = '0' WHERE `con_id` = '$con_id'" );
                 }	
             }
@@ -1204,14 +1216,14 @@ function get_tp_students ( $args = array() ) {
     global $teachpress_stud;
     
     $select = "SELECT * FROM $teachpress_stud";
-    $where = "";
+    $where = '';
     $order = htmlspecialchars($order);
     $limit = htmlspecialchars($limit);
     $output_type = htmlspecialchars($output_type);
     $search = esc_sql(htmlspecialchars($search));
     
     // define global search
-    if ( $search != "" ) {
+    if ( $search != '' ) {
         $search = "`matriculation_number` like '%$search%' OR `wp_id` like '%$search%' OR `firstname` LIKE '%$search%' OR `lastname` LIKE '%$search%' OR `userlogin` LIKE '%$search%'";
     }
     
@@ -1224,10 +1236,10 @@ function get_tp_students ( $args = array() ) {
     $course_of_studies = tp_generate_where_clause($course_of_studies, "course_of_studies", "OR", "=");
 
     if ( $course_of_studies != '') {
-        $where = $where != "" ? $where . " AND ( $course_of_studies )" : $course_of_studies;
+        $where = $where != '' ? $where . " AND ( $course_of_studies )" : $course_of_studies;
     }
     if ( $search != '') {
-        $where = $where != "" ? $where . " AND ( $search )" : $search ;
+        $where = $where != '' ? $where . " AND ( $search )" : $search ;
     }
     if ( $where != '' ) {
         $where = " WHERE $where";
@@ -1327,7 +1339,7 @@ function tp_delete_student($checkbox, $user_ID){
             $sql = "SELECT `con_id` FROM $teachpress_signup WHERE `course_id` = '" . $row1->course_id . "' AND `waitinglist` = '1' ORDER BY `con_id` ASC LIMIT 0, 1";
             $con_id = $wpdb->get_var($sql);
             // if is true subscribe the first one in the waiting list for the course
-            if ($con_id != 0 && $con_id != "") {
+            if ($con_id != 0 && $con_id != '') {
                 $wpdb->query( "UPDATE $teachpress_signup SET `waitinglist` = '0' WHERE `con_id` = '$con_id'" );
             }
         }
@@ -1359,12 +1371,12 @@ function tp_is_user_subscribed ($course_id, $consider_childcourses = false) {
     }
     // consider child courses
     if ( $consider_childcourses == true ) {
-        $where = "";
+        $where = '';
         $courses = $wpdb->get_results("SELECT `course_id` FROM $teachpress_courses WHERE `parent` = '$course_id'");
         foreach ( $courses as $row ) {
-            $where = $where == "" ? "`course_id` = '$row->course_id'" : $where . " OR `course_id` = '$row->course_id'";
+            $where = $where == '' ? "`course_id` = '$row->course_id'" : $where . " OR `course_id` = '$row->course_id'";
         }
-        if ( $where != "" ) {
+        if ( $where != '' ) {
             $where = " WHERE `wp_id` = '$user_ID' AND `waitinglist` = '0' AND ( $where OR `course_id` = '$course_id' )";
             $test = $wpdb->query("SELECT `con_id` FROM $teachpress_signup $where");
         }
@@ -1474,15 +1486,15 @@ function tp_change_option ($variable, $value, $type = 'normal') {
  * @return string
  * @since 3.1.8
  */
-function tp_generate_where_clause($input, $column, $connector = "AND", $operator = "=", $pattern = "") {
-    $end = "";
-    if ($input != "") {
+function tp_generate_where_clause($input, $column, $connector = 'AND', $operator = '=', $pattern = '') {
+    $end = '';
+    if ($input != '') {
         $array = explode(",", $input);
         foreach ( $array as $element ) {
             $element = esc_sql( htmlspecialchars( trim($element) ) );
-            if ( $element != "" ) {
-                if ( $pattern != "" ) { $element = $pattern . $element . $pattern; }
-                $end = $end == "" ? "$column $operator '$element'" : $end . " $connector $column $operator '$element'";
+            if ( $element != '' ) {
+                if ( $pattern != '' ) { $element = $pattern . $element . $pattern; }
+                $end = ( $end == '' ) ? "$column $operator '$element'" : $end . " $connector $column $operator '$element'";
             }
         }
     }
