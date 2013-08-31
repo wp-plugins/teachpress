@@ -11,7 +11,7 @@ class tp_update_db {
         $update_level = '0';
         
         // if is the current one
-        if ($db_version === $software_version) {
+        if ( $db_version === $software_version ) {
             get_tp_message( __('An update is not necessary.','teachpress') );
             return;
         }

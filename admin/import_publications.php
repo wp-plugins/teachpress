@@ -53,13 +53,25 @@ function teachpress_import_page() {
             }
         }
         if ( $file_name !== '' || $bibtex_area !== '' ) {
-            $bibtex = $bibtex_area !== '' ? $bibtex_area : utf8_encode( file_get_contents ( $file_name ) );
+            if ( $file_name !== '' ) {
+                $bibtex =  file_get_contents ( $file_name );
+                // Check if string is utf8 or not
+                if ( tp_bibtex::is_utf8($bibtex) === false ) {
+                    $bibtex = utf8_encode($bibtex);
+                }
+            }
+            else {
+                $bibtex = $bibtex_area;
+            }
+            
             $settings = array(
                 'keyword_separator' => htmlspecialchars($_POST['keyword_option']),
                 'author_format' => htmlspecialchars($_POST['author_format']),
                 'overwrite' => isset( $_POST['overwrite']) ? true : false
             );
+
             // echo $bibtex;
+            // add publications to database
             $entries = tp_bibtex::import_bibtex($bibtex, $settings);
         }
         // if there is no import
@@ -187,6 +199,7 @@ function tp_import_show_results($entries) {
     }
     foreach ( $entries as $entry ) {
         $value = ( isset($_POST['tp_submit']) && isset ($_POST['bibtex_area']) ) ? intval($entry['entry_id']) : intval($entry['pub_id']);
+        $author = ( array_key_exists('author', $entry) === true ) ? $entry['author'] : '';
         echo '<tr>';
         if ( tp_check_bookmark($value, $current_user->ID) === true ) {
             echo '<th></th>';
@@ -197,7 +210,7 @@ function tp_import_show_results($entries) {
         echo '<td><a href="admin.php?page=teachpress/addpublications.php&amp;pub_ID=' . $value . '" class="teachpress_link" title="' . __('Click to edit','teachpress') . '" target="_blank">' . $entry['title'] . '</a></td>';
         echo '<td>' . $value . '</td>';
         echo '<td>' . tp_translate_pub_type( $entry['type'] ) . '</td>';
-        echo '<td>' . $entry['author'] . '</td>';
+        echo '<td>' . $author . '</td>';
         echo '<td>' . $entry['year'] . '</td>';
         echo '</tr>';
         $array_id .= $value . ',';

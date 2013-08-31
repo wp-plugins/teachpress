@@ -511,14 +511,14 @@ class tp_bibtex {
                          '&eacute;','&egrave;','&Egrave;','&Eacute;',
                          '&sect;','&copy;','&reg;','&pound;','&yen;',
                          '&szlig;','&micro;','&amp;',
-                         '&nbsp;','&ndash;','&rdquo;','&ldquo;','&raquo;','&laquo;','&shy;');
+                         '&nbsp;','&ndash;','&rdquo;','&ldquo;','&raquo;','&laquo;','&shy;','&quot;');
         $array_2 = array('Ü','ü',
                          'Ö','ö','ò','ó','Ò','Ó',
                          'Ä','ä','á','à','À','Á',
                          'é','è','È','É',
                          '§','©','®','£','¥',
                          'ß','µ','&',
-                         ' ','-','”','“','»','«','­');
+                         ' ','-','”','“','»','«','­','"');
         $input = str_replace($array_1, $array_2, $input);
         return $input;
     }
@@ -537,6 +537,7 @@ class tp_bibtex {
         $array_a = array('\ss','\O','\o','\AE','\ae','\OE','\oe','\textendash','\textemdash',chr(92));
         $array_b = array('ß','Ø','ø','Æ','æ','Œ','œ','–','—','');
         $input = str_replace( $array_a , $array_b ,$input);
+        
         // Step 2: All over special chars 
         $array_1 = array('"{a}','"{A}','`{a}','`{A}',"'{a}","'{A}",'~{a}','~{A}','={a}','={A}','^{a}','^{A}','.{a}','.{A}','u{a}','u{A}','k{a}','k{A}','r{a}','r{A}',
                          '.{b}','.{B}',
@@ -802,6 +803,42 @@ class tp_bibtex {
             $all_authors = str_replace(' and ', ', ', $input);
         }
         return $all_authors;
+    }
+    
+    /**
+     * Checks if a string is encoded with UTF-8 or not
+     * from http://floern.com/webscripting/is-utf8-auf-utf-8-prüfen
+     * 
+     * @param string $string
+     * @return boolean
+     * @since 4.2.0
+     */
+    public static function is_utf8 ($string) {
+        $strlen = strlen($string);
+        for($i = 0; $i < $strlen; $i++) {
+            $ord = ord($string[$i]);
+            if($ord < 0x80) { 
+                continue;
+            }
+            elseif( ($ord&0xE0) === 0xC0 && $ord > 0xC1 ) { 
+                $n = 1;
+            } 
+            elseif( ($ord&0xF0) === 0xE0 ) { 
+                $n = 2;
+            }
+            elseif( ($ord&0xF8) === 0xF0 && $ord < 0xF5 ) {
+                $n = 3;
+            }
+            else {
+                return false;
+            } 
+            for($c = 0; $c < $n; $c++) {
+                if( ++$i === $strlen || ( ord($string[$i])&0xC0 ) !== 0x80 ) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }
 ?>

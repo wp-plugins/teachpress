@@ -163,7 +163,7 @@ function teachpress_publications_page() {
       <h2><?php echo $title; ?></h2>
       <div id="searchbox" style="float:right; padding-bottom:5px;">
          <?php if ($search != "") { 
-                 echo '<a href="admin.php?page=' . $page . '&amp;filter=' . $type . '&amp;tag=' . $tag_id . '" style="font-size:14px; font-weight:bold; text-decoration:none; padding-right:3px;" title="' . __('Cancel the search','teachpress') . '">X</a>';
+                 echo '<a href="admin.php?page=' . $page . '&amp;filter=' . $type . '&amp;tag=' . $tag_id . '&amp;year=' . $year . '" style="font-size:14px; font-weight:bold; text-decoration:none; padding-right:3px;" title="' . __('Cancel the search','teachpress') . '">X</a>';
          } ?>
          <input type="text" name="search" id="pub_search_field" value="<?php echo $search; ?>"/>
          <input type="submit" name="pub_search_button" id="pub_search_button" value="<?php _e('Search','teachpress'); ?>" class="button-secondary"/>

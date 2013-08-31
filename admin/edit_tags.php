@@ -44,7 +44,16 @@ function teachpress_tags_page(){
     global $teachpress_relation;
     global $teachpress_tags;
     // form data
-    $action = isset( $_GET['action'] ) ? htmlspecialchars($_GET['action']) : '';
+    if ( isset( $_GET['action1'] ) ) {
+        $action = htmlspecialchars($_GET['action1']);
+    }
+    else if ( isset( $_GET['action2'] ) ) {
+        $action = htmlspecialchars($_GET['action2']);
+    }
+    else {
+        $action = '';
+    }
+    
     $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
     $checkbox = isset( $_GET['checkbox'] ) ? $_GET['checkbox'] : array();
     $page = 'teachpress/tags.php';
@@ -101,7 +110,7 @@ function teachpress_tags_page(){
         <input type="submit" name="button" id="button" value="<?php _e('Search','teachpress'); ?>" class="button-secondary"/>
     </div>
     <div class="tablenav" style="padding-bottom:5px;"> 
-        <select name="action">
+        <select name="action1">
             <option value="">- <?php _e('Bulk actions','teachpress'); ?> -</option>
             <option value="delete"><?php _e('Delete','teachpress'); ?></option>
         </select>
@@ -165,7 +174,7 @@ function teachpress_tags_page(){
     </table>
     <div class="tablenav bottom">
         <div class="alignleft actions">
-            <select name="action">
+            <select name="action2">
                 <option value="">- <?php _e('Bulk actions','teachpress'); ?> -</option>
                 <option value="delete"><?php _e('Delete','teachpress'); ?></option>
             </select>
