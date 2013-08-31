@@ -3,8 +3,8 @@ Contributors: Michael Winkler
 Tags: management, publications, enrollments, teachpress, education, course management, BibTeX, bibliography
 License: GPLv2 or later
 Requires at least: 3.3
-Tested up to: 3.5.2
-Stable tag: 4.1.1
+Tested up to: 3.6
+Stable tag: 4.2.0
 
 With this plugin you can easy manage courses, enrollments and publications.
 
@@ -14,22 +14,24 @@ The plugin unites a course management system (with enrollments) and a BibTeX com
 For more information see [here](http://www.mtrv.wordpress.com/teachpress/).
 
 = Features: =
-* BibTeX compatible publication management
+* BibTeX compatible multi user publication management
 * BibTeX import for publications
 * BibTeX and RTF export for publications
 * RSS feed for publications
 * Course management with an integrated enrollment system
 * XLS/CSV export for course lists
-* Widget for displaying books in the sidebar
-* Many shortcodes for an easy using of publication lists, enrollments and course overviews
+* Widget for displaying books in a sidebar
+* Many shortcodes for an easy using of publication lists, publication searches, enrollments and course overviews
 
 = Supported Languages =
 * English 
 * German
-* Italian
-* Portuguese (Brazil)
-* Slovak
-* Spanish
+* Italian (o)
+* Portuguese (Brazil) (o)
+* Slovak (o)
+* Spanish (o)
+
+(o) Outdated language files
 
 = Disclaimer =  
 Use at your own risk. No warranty expressed or implied is provided.  
@@ -54,6 +56,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 = Licence information of external resources =
 * Graphics for mimetypes by Oxygen Icons 4.3.1 http://www.oxygen-icons.org/ (Licence: LPGL)
+* view-refresh-3.png by GNOME Icon Theme 2.26.0 http://art.gnome.org (License: GPLv2)
 * bibtexParse by Mark Grimshaw & Guillaume Gardey (Licence: GPL)
 
 = Thanks =
@@ -82,6 +85,7 @@ I would like to thank the team of [CBIS, Chemnitz University of Technology](http
 == Screenshots ==
 1. Add publication menu
 2. Add course menu
+3. Example for a publication list created with [tpcloud]
  
 
 == Frequently Asked Questions ==
@@ -112,6 +116,29 @@ define ('TP_PUBLICATION_SYSTEM','disable');
 If you save plugins outside the normal path (/wp-content/plugins/), the plugin can't load required WordPress files in some cases. Solution: Change the path in the following plugin files: export.php (line 9) / feed.php (line 7).
 
 == Changelog ==
+= 4.2.0 - (31.08.2013) =
+* New: Shortcodes [tplinks], [tpbibtex], [tpabstract] added
+* New: More filters for publications on admin screens
+* New: Export for .bib files added
+* New: Import for .bib and .txt files added
+* New: Import option for forcing updates of existing publications added
+* New: Simple generator for bibtex keys added
+* New: Auto correction for spaces in bibtex keys added
+* New: Support for some html expressions (b,i,u,sup,sub,u,ul,li) and the conversion to their latex equivalents in abtracts added.
+* New: Screen options for some admin screens added
+* New: [tplist], [tpcloud]: Style option "numbered_desc" added
+* New: [tpcloud]: New parameter "hide_tags" added
+* New: [tpsearch]: New parameters "user" and "tag" added
+* New: [tpsingle]: New parameters "image", "image_size" and "link" added
+* New: Parameters "user" and "exclude" for get_tp_tags() added
+* New: Parameter "exclude" for get_tp_tag_cloud() added
+* Bugfix: Fixed a problem with the return of get_tp_publications() if the function was used in count mode and publications were filtered by year
+* Bugfix: Editorials were not identified correctly
+* Bugfix: Tags were not editable (tag management page)
+* Bugfix: [tpcloud]: A list in "numbered" style started with 0
+* Bugfix: [tpcloud]: "Exclude" parameter was ignored
+* Bugfix: [tpsearch]: Impossible to use the search if WordPress uses no permalink structure
+* Bugfix: [tplist]: Useless default values for "user" and "tag" removed
 = 4.1.1 - (06.07.2013) =
 * Bugfix: Fixed an division through zero problem in teachpress_addpublications_page()
 * Bugfix: Fixed an improper presentation of meta information in some cases if the publication type is presentation
@@ -123,7 +150,7 @@ If you save plugins outside the normal path (/wp-content/plugins/), the plugin c
 * New: [tplist]: New headline option added (sort by year and type)
 * New: Publication type "periodical" added
 * New: Field "issuetitle" added for publications with the type "periodical"
-* Bugfix: [tpcloud]: Changing of the "order" parameter has not worked
+* Bugfix: [tpcloud]: Changing of the "order" parameter was not working
 * Bugfix: Fixed a bug which prevents adding of publications
 * Bugfix: Unable to delete all databases with tp_uninstall()
 = 4.0.5 - (05.05.2013) =
@@ -434,7 +461,7 @@ If you save plugins outside the normal path (/wp-content/plugins/), the plugin c
 * New: Copy function for courses
 * New: Simple CSV-export for enrollments
 * New: Free selectable names for child courses
-* New: More parameters for the `[tpcloud]` shortcode
+* New: More parameters for the [tpcloud] shortcode
 * New: Using wpdb->prefix for database names
 * Changed: Order of courses in the backend overview
 * Changed: Structure of registration form

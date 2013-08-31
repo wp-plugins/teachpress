@@ -3,11 +3,11 @@
 Plugin Name: teachPress
 Plugin URI: http://mtrv.wordpress.com/teachpress/
 Description: With teachPress you can easy manage courses, enrollments and publications.
-Version: 4.1.1
+Version: 4.2.0
 Author: Michael Winkler
 Author URI: http://mtrv.wordpress.com/
 Min WP Version: 3.3
-Max WP Version: 3.5.2
+Max WP Version: 3.6.0
 */
 
 /*
@@ -94,6 +94,7 @@ function tp_add_menu2() {
 
 /**
  * Add option screen
+ * @since 4.2.0
  */
 function tp_add_menu_settings() {
     add_options_page(__('teachPress Settings','teachpress'),'teachPress','administrator','teachpress/settings.php', 'teachpress_admin_settings');
@@ -101,6 +102,7 @@ function tp_add_menu_settings() {
 
 /**
  * Set screen options
+ * @since 4.2.0
  */
 function tp_set_screen_option($status, $option, $value) {
     if ( 'tp_pubs_per_page' == $option || 'tp_tags_per_page' == $option ) { 
@@ -373,8 +375,8 @@ function get_tp_var_types($type) {
  * Returns the current teachPress version
  * @return string
 */
-function get_tp_version(){
-    return '4.2.0pre';
+function get_tp_version() {
+    return '4.2.0';
 }
 
 /** 
@@ -622,9 +624,9 @@ function tp_install() {
                     ) $charset_collate;";
         dbDelta($sql);
         // Default settings
-        $value = '[tpsingle [key]]<!--more-->' . "\n\n[tpabstract]\n\n[tpbibtex]";
+        $value = '[tpsingle [key]]<!--more-->' . "\n\n[tpabstract]\n\n[tplinks]\n\n[tpbibtex]";
         $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('sem', 'Example term', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('db-version', '4.1.1', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('db-version', '4.2.0', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('sign_out', '0', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('login', 'std', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('stylesheet', '1', 'system')");
