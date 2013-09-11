@@ -204,7 +204,7 @@ class tp_bibtex {
         if ($settings['style'] === 'simple' || $settings['style'] === 'numbered' || $settings['style'] === 'numbered_desc' ) {
             $a1 = '<tr class="tp_publication_simple">';
             if ( $settings['style'] === 'numbered' || $settings['style'] === 'numbered_desc' ) {
-                $a1 = $a1 . '<td class="tp_pub_number">' . $tpz . '.</td>';
+                $a1 = $a1 . '<td class="tp_pub_number_simple">' . $tpz . '.</td>';
             }
             $a1 = $a1 . $td_left;
             $a1 = $a1 . '<td class="tp_pub_info_simple">';
@@ -216,6 +216,9 @@ class tp_bibtex {
         }
         else {
             $a1 = '<tr class="tp_publication">';
+            if ( $settings['style'] === 'std_num' || $settings['style'] === 'std_num_desc' ) {
+                $a1 = $a1 . '<td class="tp_pub_number">' . $tpz . '.</td>';
+            }
             $a1 = $a1 . $td_left;
             $a1 = $a1 . '<td class="tp_pub_info">';
             $a1 = $a1 . '<p class="tp_pub_author">' . stripslashes($all_authors) . '</p>';
@@ -588,7 +591,7 @@ class tp_bibtex {
                          'ÿ','Ÿ','ý','Ý','ŷ','Ŷ',
                          'ź','Ź','ž','Ž','ż','Ż');
         $return = str_replace($array_1, $array_2, $input);
-        return htmlspecialchars($return);
+        return htmlspecialchars($return, ENT_NOQUOTES);
     }
     
     /**
@@ -615,10 +618,11 @@ class tp_bibtex {
                               '\begin{enumerate}', '\end{enumerate} . "\n"',
                               '\item ', '');
 	    $text = preg_replace($search, $replace, $text);
-            // Add wordwrap if necessary
+            /* Add wordwrap if necessary
+             * Disabled since 4.2.1
             if (strpos($text, "\n") === false ) {
                 $text = wordwrap($text, 80, "\r\n");
-            }
+            } */
             return tp_bibtex::prepare_bibtex_line($text, $fieldname, false);
         }
         else {

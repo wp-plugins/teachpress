@@ -698,7 +698,7 @@ function tp_cloud_shortcode($atts) {
    }
    // Create array of publications
    foreach ($row as $row) {
-      $number = ( $style === 'numbered_desc' ) ? $count - $tpz : $tpz + 1 ;
+      $number = ( $style === 'numbered_desc' || $style === 'std_num_desc' ) ? $count - $tpz : $tpz + 1 ;
       $tparray[$tpz][0] = $row['year'] ;
       $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row, $all_tags, $permalink, $settings, $number);
       if ( $headline === 2 || $headline === 3 ) {
@@ -825,7 +825,7 @@ function tp_list_shortcode($atts){
     $number_entries = ( $pagination === 1 ) ? get_tp_publications($args, true) : 0;
     $count = count($row);
     foreach ($row as $row) {
-       $number = ( $style === 'numbered_desc' ) ? $count - $tpz : $tpz + 1 ;
+       $number = ( $style === 'numbered_desc' || $style === 'std_num_desc' ) ? $count - $tpz : $tpz + 1 ;
        $tparray[$tpz][0] = $row['year'];
        $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row,'', '', $settings, $number);
        if ( $headline === 2 || $headline === 3 ) {

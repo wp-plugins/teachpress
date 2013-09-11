@@ -79,7 +79,7 @@ td.tp_pub_info_simple {border-bottom:1px solid silver; vertical-align:top; paddi
 .tp_pub_tags_simple a:hover {color:#AAAAAA; text-decoration:none;}
 .tp_pub_typ_simple {}
 /* numbered style */
-td.tp_pub_number {vertical-align: top; padding: 8px; border-bottom: 1px solid silver;}
+td.tp_pub_number, td.tp_pub_number_simple {vertical-align: top; padding: 8px; border-bottom: 1px solid silver;}
 /* abstract, bibtex, link boxes */
 .tp_bibtex_entry, .tp_abstract_entry, .tp_links_entry{padding:8px 8px 8px 8px;}
 .tp_close_menu {margin-top:1px; margin-bottom:1px;}

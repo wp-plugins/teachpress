@@ -3,7 +3,7 @@
 Plugin Name: teachPress
 Plugin URI: http://mtrv.wordpress.com/teachpress/
 Description: With teachPress you can easy manage courses, enrollments and publications.
-Version: 4.2.0
+Version: 4.2.1
 Author: Michael Winkler
 Author URI: http://mtrv.wordpress.com/
 Min WP Version: 3.3
@@ -376,7 +376,7 @@ function get_tp_var_types($type) {
  * @return string
 */
 function get_tp_version() {
-    return '4.2.0';
+    return '4.2.1';
 }
 
 /** 
@@ -626,7 +626,7 @@ function tp_install() {
         // Default settings
         $value = '[tpsingle [key]]<!--more-->' . "\n\n[tpabstract]\n\n[tplinks]\n\n[tpbibtex]";
         $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('sem', 'Example term', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('db-version', '4.2.0', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('db-version', '4.2.1', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('sign_out', '0', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('login', 'std', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('stylesheet', '1', 'system')");
@@ -766,11 +766,12 @@ function tp_backend_scripts() {
 
 /** Adds files to the WordPress Frontend Admin Header */ 
 function tp_frontend_scripts() {
-    echo chr(13) . chr(10) . '<!-- teachPress ' . get_tp_version() . ' -->' . chr(13) . chr(10);
-    echo '<script type="text/javascript" src="' . plugins_url() . '/teachpress/js/frontend.js"></script>' . chr(13) . chr(10);
+    $version = get_tp_version();
+    echo chr(13) . chr(10) . '<!-- teachPress ' . $version . ' -->' . chr(13) . chr(10);
+    echo '<script type="text/javascript" src="' . plugins_url() . '/teachpress/js/frontend.js?ver=' . $version . '"></script>' . chr(13) . chr(10);
     $value = get_tp_option('stylesheet');
     if ($value == '1') {
-        echo '<link type="text/css" href="' . plugins_url() . '/teachpress/styles/teachpress_front.css" rel="stylesheet" />' . chr(13) . chr(10);
+        echo '<link type="text/css" href="' . plugins_url() . '/teachpress/styles/teachpress_front.css?ver=' . $version . '" rel="stylesheet" />' . chr(13) . chr(10);
     }
     echo '<!-- END teachPress -->' . chr(13) . chr(10);
 }
