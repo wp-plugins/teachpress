@@ -281,7 +281,7 @@ function get_tp_admin_course_option_box ( $title, $type, $options = array() ) {
     
     echo '<tr>';
     echo '<td></td>';
-    echo '<td colspan="2"><input name="newsem" type="text" id="newsem" size="30" value="' . $options['add_title'] . '" onblur="if(this.value==' . "''" .') this.value='. "'" . $options['add_title'] . "'" . ';" onfocus="if(this.value=='. "'" . $options['add_title'] . "'" . ') this.value=' . "''" . ';"/> <input name="addsem" type="submit" class="button-secondary" value="' . __('Create','teachpress') . '"/></td>';
+    echo '<td colspan="2"><input name="new_' . $type . '" type="text" id="newsem" size="30" value="' . $options['add_title'] . '" onblur="if(this.value==' . "''" .') this.value='. "'" . $options['add_title'] . "'" . ';" onfocus="if(this.value=='. "'" . $options['add_title'] . "'" . ') this.value=' . "''" . ';"/> <input name="add_' . $type . '" type="submit" class="button-secondary" value="' . __('Create','teachpress') . '"/></td>';
     echo '</tr>'; 
     
     echo '</tbody>';

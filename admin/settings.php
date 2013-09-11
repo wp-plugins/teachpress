@@ -22,9 +22,10 @@ function teachpress_admin_settings() {
     $option_login = isset( $_POST['login'] ) ? htmlspecialchars($_POST['login']) : '';
     $option_userrole = isset( $_POST['userrole'] ) ? $_POST['userrole'] : '';
 
-    $name = isset( $_POST['name'] ) ? htmlspecialchars($_POST['name']) : '';
-    $typ = isset( $_POST['typ'] ) ? htmlspecialchars($_POST['typ']) : '';
-    $newsem = isset( $_POST['newsem'] ) ? htmlspecialchars($_POST['newsem']) : '';
+    $new_term = isset( $_POST['new_term'] ) ? htmlspecialchars($_POST['new_term']) : '';
+    $new_type = isset( $_POST['new_type'] ) ? htmlspecialchars($_POST['new_type']) : '';
+    $new_studies = isset( $_POST['new_studies'] ) ? htmlspecialchars($_POST['new_studies']) : '';
+	
     $site = 'options-general.php?page=teachpress/settings.php';
     $tab = isset( $_GET['tab'] ) ? $_GET['tab'] : 'general';
     
@@ -62,14 +63,14 @@ function teachpress_admin_settings() {
         tp_change_option('rel_content_category', $_POST['rel_content_category']);
         get_tp_message(__('Saved'));
     }
-    if (isset( $_POST['addstud'] ) && $name != __('Add course of studies','teachpress')) {
-       tp_add_option($name, 'course_of_studies');
+    if (isset( $_POST['add_studies'] ) && $new_studies != __('Add course of studies','teachpress')) {
+       tp_add_option($new_studies, 'course_of_studies');
     }
-    if (isset( $_POST['addtyp'] ) && $typ != __('Add type','teachpress')) {
-       tp_add_option($typ, 'course_type');
+    if (isset( $_POST['add_type'] ) && $new_type != __('Add type','teachpress')) {
+       tp_add_option($new_type, 'course_type');
     }
-    if (isset( $_POST['addsem'] ) && $newsem != __('Add term','teachpress')) {
-       tp_add_option($newsem, 'semester');
+    if (isset( $_POST['add_term'] ) && $new_term != __('Add term','teachpress')) {
+       tp_add_option($new_term, 'semester');
     }
     if ( isset( $_GET['delete'] ) ) {
        tp_delete_option($_GET['delete']);
