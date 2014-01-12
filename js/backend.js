@@ -254,7 +254,7 @@ function teachpress_publicationFields(mode) {
             document.getElementById("div_pages").style.display = "none";
         }
         // address field
-        if (test === "book" || test === "booklet" || test === "collection" || test === "conference" || test === "inbook" || test === "incollection" || test === "inproceedings" || test === "manual" || test === "masterthesis" || test === "phdthesis" || test === "proceedings" || test === "techreport") {
+        if (test === "book" || test === "booklet" || test === "collection" || test === "conference" || test === "inbook" || test === "incollection" || test === "inproceedings" || test === "manual" || test === "mastersthesis" || test === "phdthesis" || test === "proceedings" || test === "techreport") {
             document.getElementById("div_address").style.display = "block";
         }
         else {
@@ -275,7 +275,7 @@ function teachpress_publicationFields(mode) {
             document.getElementById("div_institution").style.display = "none";
         }
         // school field
-        if (test === "masterthesis" || test === "phdthesis") {
+        if (test === "mastersthesis" || test === "phdthesis") {
             document.getElementById("div_school").style.display = "block";
         }
         else {
@@ -310,7 +310,7 @@ function teachpress_publicationFields(mode) {
             document.getElementById("div_organization").style.display = "none";
         }
         // techtype field
-        if (test === "inbook" || test === "incollection" || test === "masterthesis" || test === "phdthesis" || test === "techreport" ) {
+        if (test === "inbook" || test === "incollection" || test === "mastersthesis" || test === "phdthesis" || test === "techreport" ) {
             document.getElementById("div_techtype").style.display = "block";
         }
         else {

@@ -19,7 +19,7 @@ elseif ( is_user_logged_in() && current_user_can('use_teachpress') ) {
     $course_ID = isset ( $_GET['course_ID'] ) ? intval($_GET['course_ID']) : 0;
     $user_ID = isset ( $_POST['tp_user'] ) ? intval($_POST['tp_user']) : 0;
     $format = isset ( $_POST['tp_format'] ) ?  htmlspecialchars($_POST['tp_format']) : '';
-    $filename = 'teachpress_' . date('dmY');
+    $filename = 'teachpress_course_' . $course_ID . '_' . date('dmY');
 
     // Export courses
     if ($type === "xls" && $course_ID != 0) {
