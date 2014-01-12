@@ -5,16 +5,17 @@
 class tp_mail {
      
     /**
-    * Send E-Mail
-    * @param STRING $from
-    * @param STRING $to
-    * @param STRING $subject
-    * @param STRING $message
-    * @param ARRAY $options
-    * @param STRING $attachments
-    * @return BOOLEAN
-    */
-    function sendMail($from, $to, $subject, $message, $options, $attachments = '') {
+     * Send E-Mail
+     * @global string $current_user
+     * @param string $from
+     * @param string $to
+     * @param string $subject
+     * @param string $message
+     * @param string $options
+     * @param string $attachments
+     * @return boolean
+     */
+    static function sendMail($from, $to, $subject, $message, $options, $attachments = '') {
         global $current_user;
         get_currentuserinfo();
         $message = htmlspecialchars($message);
@@ -23,29 +24,31 @@ class tp_mail {
             return false;
         }
 
-        // Prepare header attribute: From
-        if ( $from == 'currentuser' ) {
-            $headers = 'From: ' . $current_user->display_name . ' <' . $current_user->user_email . '>' . "\r\n";
-        }
-        else {
-            $headers = 'From: ' . get_bloginfo('name') . ' <' . get_bloginfo('admin_email') . '>' . "\r\n";
-        }
+        // Send mail
+        // Use the normal wp_mail()
+        // The Return-Path seems to be useless, I'm no sure why
+            // Prepare header attributes
+            if ( $from === 'currentuser' ) {
+                $headers[] = 'From: ' . $current_user->display_name . ' <' . $current_user->user_email . '>';
+                $headers[] = 'Return-Path: ' . $current_user->user_email;
+            }
+            else {
+                $headers[] = 'From: ' . get_bloginfo('name') . ' <' . get_bloginfo('admin_email') . '>';
+                $headers[] = 'Return-Path: ' . get_bloginfo('admin_email');
+            }
+            
+            // Preprare header attribute: Bcc
+            if ( $options['recipients'] === 'Bcc' ) {
+                $headers[] = tp_mail::prepareBCC($to);
+                $to = $current_user->user_email;
+            }
+            
+            // Send backup mail
+            if ( $options['backup_mail'] == 'backup' ) {
+                wp_mail($current_user->user_email, $subject, $message, '', $attachments);
+            }
+            $ret = wp_mail($to, $subject, $message, $headers, $attachments);
 
-        // Preprare header attribute: Bcc, Cc
-        if ( $options['recipients'] == 'Bcc' ) {
-            $headers = $headers . tp_mail::prepareBCC($to);
-            $to = $current_user->user_email;
-        }
-        else {
-            $headers = $headers . 'Cc: ' . $current_user->user_email . "\r\n";
-        }
-
-        // Send user a backup e-mail if he want
-        if ( $options['backup_mail'] == 'backup' ) {
-            wp_mail($current_user->user_email, $subject, $message, '', $attachments);
-        }
-
-        $ret = wp_mail($to, $subject, $message, $headers, $attachments);
         return $ret;
     }
 

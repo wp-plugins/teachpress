@@ -475,7 +475,7 @@ function get_tp_publication_user( $args = array() ) {
 function get_tp_publication_used_types( $args = array() ) {
     $defaults = array(
         'user' => '',
-        'output_type' => OBJECT
+        'output_type' => ARRAY_A
     ); 
     $args = wp_parse_args( $args, $defaults );
     extract( $args, EXTR_SKIP );
@@ -739,6 +739,52 @@ function tp_add_tag_relation($pub_id, $tag_id) {
     global $teachpress_relation;
     $wpdb->insert($teachpress_relation, array('pub_id' => $pub_id, 'tag_id' => $tag_id), array('%d', '%d'));
     return $wpdb->insert_id;
+}
+
+/**
+ * Change tag relations for more than one publication
+ * @global class $wpdb
+ * @global string $teachpress_tags
+ * @global string $teachpress_relation
+ * @param array $publications       --> Array of publication IDs
+ * @param string $new_tags          --> New tags separated by comma
+ * @param array $delete             --> Array of tag IDs whose relations with publications (given in the first parameter) should be deleted
+ * @since 4.3.0
+ */
+function tp_change_tag_relations ($publications, $new_tags, $delete) {
+    global $wpdb;
+    global $teachpress_tags;
+    global $teachpress_relation;
+    $array = explode(",",$new_tags);
+    $max = count( $publications );
+    $max_delete = count ( $delete );
+    
+    for( $i = 0; $i < $max; $i++ ) {
+        $publication = intval($publications[$i]);
+        // Delete tags
+        for ( $j = 0; $j < $max_delete; $j++ ) {
+            $delete[$j] = intval($delete[$j]);
+            $wpdb->query( "DELETE FROM $teachpress_relation WHERE `pub_id` = '$publication' AND `tag_id` = '$delete[$j]'" );
+        }
+        
+        // Add tags
+        foreach($array as $element) {
+            $element = trim($element);
+            if ($element != '') {
+                $element = htmlspecialchars($element);
+                $check = $wpdb->get_var("SELECT `tag_id` FROM $teachpress_tags WHERE `name` = '$element'");
+                // if tag not exist
+                if ( $check === NULL ){
+                    $check = tp_add_tag($element);
+                }
+                // add releation between publication and tag
+                $test = $wpdb->query("SELECT `pub_id` FROM $teachpress_relation WHERE `pub_id` = '$publication' AND `tag_id` = '$check'");
+                if ($test === 0) {
+                    tp_add_tag_relation($publications[$i], $check);
+                }
+            }	
+        }  
+    } 
 }
 
 /*************/

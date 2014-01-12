@@ -381,25 +381,38 @@ function tp_links_shortcode ($atts) {
  */
 function tp_sort_pub_table($tparray, $headlines, $args) {
     $publications = '';
-    $field = $args['headline'] == 2 ? 2 : 0;
+    $field = $args['headline'] === 2 ? 2 : 0;
     $tpz = $args['number_publications'];
     
     // with headlines
-    if ( $args['headline'] == 1 || $args['headline'] == 2 ) {
+    if ( $args['headline'] === 1 || $args['headline'] === 2 ) {
         for ($i = 0; $i < $tpz; $i++) {
             $key = $tparray[$i][$field];
             $headlines[$key] .= $tparray[$i][1];
         }
+        // custom sort order
+        if ( $args['sort_list'] !== '' ) {
+            $args['sort_list'] = str_replace(' ', '', $args['sort_list']);
+            $sort_list = explode(',', $args['sort_list']);
+            $max = count($sort_list);
+            $sorted = array();
+            for ($i = 0; $i < $max; $i++) {
+                if (array_key_exists($sort_list[$i], $headlines) ) {
+                    $sorted[$sort_list[$i]] = $headlines[$sort_list[$i]];
+                }
+            }
+            $headlines = $sorted;
+        }
         foreach ( $headlines as $key => $value ) {
             if ( $value != '' ) {
-                $line_title = ( $args['headline'] == 1 ) ? $key : tp_translate_pub_type($key, 'pl');
+                $line_title = ( $args['headline'] === 1 ) ? $key : tp_translate_pub_type($key, 'pl');
                 $publications .=  '<tr><td' . $args['colspan'] . '><h3 class="tp_h3">' . $line_title . '</h3></td></tr>';
                 $publications .=  $value;
             }
         }
     }
     // with healines grouped by year then by type
-    else if ($args['headline'] == 3) {
+    else if ($args['headline'] === 3) {
         $yearHeadlines = array();
         for ($i = 0; $i < $tpz; $i++) {
             $keyYear = $tparray[$i][0];
@@ -451,7 +464,7 @@ function tp_generate_pub_table($tparray, $args ) {
         $pubs = tp_sort_pub_table($tparray, $headlines , $args);
     }
     elseif ( $args['headline'] == 2 ) {
-        $pub_types = get_tp_publication_used_types( array('user' => $args['user'], 'output_type' => ARRAY_A) );
+        $pub_types = get_tp_publication_used_types( array('user' => $args['user'] ) );
         foreach( $pub_types as $row ) {
             $headlines[$row['type']] = '';
         }
@@ -484,8 +497,11 @@ function tp_generate_pub_table($tparray, $args ) {
  *   style (STRING)         --> simple, numbered, numbered_desc or std, default: std
  *   link_style (STRING)    --> inline or images, default: inline
  *   date_format (STRING)   --> the format for date; needed for the types: presentations, online; default: d.m.Y
+ *   pagination (INT)       --> activate pagination (1) or not (0), default: 0
+ *   entries_per_page (INT) --> number of publications per page (pagination must be set to 1), default: 30
+ *   sort_list (STRING)     --> a list of publication types (separated by comma) which overwrites the default sort order for headline = 2 
  * 
- *   WARNING: id has been removed with teachPress 4.0.0, please use user instead!
+ *   WARNING: id has been removed with teachPress 4.0.0, please use "user" instead!
  * 
  * GET-Parameter: $yr (Year, int), $type (Type, string), $auth (Author, int), $tg (tag id, int)
  * @param array atts
@@ -500,7 +516,7 @@ function tp_cloud_shortcode($atts) {
       'headline' => '1', 
       'maxsize' => 35,
       'minsize' => 11,
-      'limit' => 30,
+      'tag_limit' => 30,
       'hide_tags' => '',
       'image' => 'none',
       'image_size' => 0,
@@ -510,6 +526,9 @@ function tp_cloud_shortcode($atts) {
       'style' => 'std',
       'link_style' => 'inline',
       'date_format' => 'd.m.Y',
+      'pagination' => '0',
+      'entries_per_page' => 30,
+      'sort_list' => '',
    ), $atts));
    $user = intval($user);
    $sort_type = htmlspecialchars($type);
@@ -530,9 +549,13 @@ function tp_cloud_shortcode($atts) {
    $anchor = intval($anchor);
    $headline = intval($headline);
    $order = htmlspecialchars($order);
-   $limit = intval($limit);
+   $tag_limit = intval($tag_limit);
    $maxsize = intval($maxsize);
    $minsize = intval($minsize);
+   $pagination = intval($pagination);
+   $entries_per_page = intval($entries_per_page);
+   $sort_list = htmlspecialchars($sort_list);
+   $permalink = ( get_option('permalink_structure') ) ? get_permalink() . "?" : get_permalink() . "&amp;";
    $settings = array(
        'author_name' => htmlspecialchars($author_name),
        'editor_name' => htmlspecialchars($editor_name),
@@ -544,14 +567,19 @@ function tp_cloud_shortcode($atts) {
        'date_format' => htmlspecialchars($date_format)
    );
    
-   // Permalinks
-   // Link structure
-   if ( get_option('permalink_structure') ) {
-      $permalink = get_permalink() . "?";
-   }
-   else {
-      $permalink = get_permalink() . "&amp;";
-   }
+   // Handle limits for pagination
+   if ( isset( $_GET['limit'] ) ) {
+        $current_page = intval( $_GET['limit'] );
+        if ( $current_page <= 0 ) {
+            $current_page = 1;
+        }
+        $entry_limit = ( $current_page - 1 ) * $entries_per_page;
+    }
+    else {
+        $entry_limit = 0;
+        $current_page = 1;
+    }
+    $page_limit = ( $pagination === 1 ) ? $entry_limit . ',' .  $entries_per_page : ''; 
 
    /*************/
    /* Tag cloud */
@@ -560,7 +588,7 @@ function tp_cloud_shortcode($atts) {
    $temp = get_tp_tag_cloud( array('user' => $user, 
                                    'type' => $sort_type,
                                    'exclude' => $hide_tags,
-                                   'number_tags' => $limit,
+                                   'number_tags' => $tag_limit,
                                    'output_type' => ARRAY_A) );
    $asg = '';
    $min = $temp["info"]->min;
@@ -596,6 +624,7 @@ function tp_cloud_shortcode($atts) {
       
       // define url
       $link_url .= "yr=$yr&amp;type=$type&amp;auth=$author" . $settings['html_anchor'];
+      $link_attributes = "tgid=$tgid&amp;yr=$yr&amp;type=$type&amp;auth=$author" . $settings['html_anchor'];
       
       $asg .= '<span style="font-size:' . $size . 'px;"><a href="' . $link_url . '" title="' . $link_title . '" class="' . $link_class . '">' . stripslashes($tagcloud['name']) . '</a></span> ';
    }
@@ -627,8 +656,8 @@ function tp_cloud_shortcode($atts) {
       $current = '';	
       $options = '';
       foreach ($row as $row) {
-          $current = ($row->type == $type && $type != '0') ? 'selected="selected"' : '';
-          $options = $options . '<option value = "' . $permalink . 'tgid=' . $tgid . '&amp;yr=' . $yr . '&amp;type=' . $row->type . '&amp;auth=' . $author . $settings['html_anchor'] . '" ' . $current . '>' . tp_translate_pub_type($row->type, 'pl') . '</option>';
+          $current = ($row['type'] == $type && $type != '0') ? 'selected="selected"' : '';
+          $options = $options . '<option value = "' . $permalink . 'tgid=' . $tgid . '&amp;yr=' . $yr . '&amp;type=' . $row['type'] . '&amp;auth=' . $author . $settings['html_anchor'] . '" ' . $current . '>' . tp_translate_pub_type($row['type'], 'pl') . '</option>';
       }
       $filter2 ='<span style="padding-left:10px; padding-right:10px;"><select name="type" id="type" onchange="teachpress_jumpMenu(' . $str . 'parent' . $str . ',this,0)">
                    <option value="' . $permalink . 'tgid=' . $tgid . '&amp;yr=' . $yr . '&amp;auth=' . $author . $settings['html_anchor'] . '">' . __('All types','teachpress') . '</option>
@@ -671,7 +700,7 @@ function tp_cloud_shortcode($atts) {
     $showall ='<a href="' . $permalink . $settings['html_anchor'] . '" title="' . __('Show all','teachpress') . '">' . __('Show all','teachpress') . '</a>';
    }
    // complete the header (tag cloud + filter)
-   $asg1 = '<a name="tppubs" id="tppubs"></a><div class="teachpress_cloud">' . $asg . '</div><div class="teachpress_filter">' . $filter1 . '' .   $filter2 . '' . $filter3 . '</div><p align="center">' . $showall . '</p>';
+   $part1 = '<a name="tppubs" id="tppubs"></a><div class="teachpress_cloud">' . $asg . '</div><div class="teachpress_filter">' . $filter1 . '' .   $filter2 . '' . $filter3 . '</div><p align="center">' . $showall . '</p>';
 
    /************************/
    /* List of publications */
@@ -682,12 +711,27 @@ function tp_cloud_shortcode($atts) {
       $user = $author;
    }
    
+   // Handle headline/order settings
+   if ( $headline === 2 ) {
+        $order = "type ASC, date DESC"; 
+   }
    if ( $headline === 3  ) {
         $order = "year DESC , type ASC , date DESC";
-    }
+   }
    
-   $row = get_tp_publications( array('tag' => $tgid, 'year' => $yr, 'type' => $type, 'user' => $user, 'order' => $order, 'exclude' => $exclude, 'output_type' => ARRAY_A) );
+   $args = array(
+       'tag' => $tgid, 
+       'year' => $yr, 
+       'type' => $type, 
+       'user' => $user, 
+       'order' => $order, 
+       'exclude' => $exclude,
+       'limit' => $page_limit,
+       'output_type' => ARRAY_A);
+   
    $all_tags = get_tp_tags( array('exclude' => $hide_tags, 'output_type' => ARRAY_A) );
+   $number_entries = ( $pagination === 1 ) ? get_tp_publications($args, true) : 0;
+   $row = get_tp_publications( $args );
    $tpz = 0;
    $count = count($row);
    $colspan = '';
@@ -708,19 +752,24 @@ function tp_cloud_shortcode($atts) {
    }
    // Sort the array
    // If there are publications
-   if ( $tpz != 0 ) {  
-      $asg2 = tp_generate_pub_table($tparray, array('number_publications' => $tpz, 
+   if ( $tpz != 0 ) {
+      $part2 = '';
+      $menu = ( $pagination === 1 ) ? tp_admin_page_menu($number_entries, $entries_per_page, $current_page, $entry_limit, $permalink, $link_attributes, 'bottom') : '';
+      $part2 .= $menu;
+      $part2 .= tp_generate_pub_table($tparray, array('number_publications' => $tpz, 
                                                    'headline' => $headline,
                                                    'years' => $row_year,
                                                    'colspan' => $colspan,
-                                                   'user' => $user));  
+                                                   'user' => $user,
+                                                   'sort_list' => $sort_list));
+      $part2 .= $menu;
    }
    // If there are no publications founded
    else {
-      $asg2 = '<div class="teachpress_list"><p class="teachpress_mistake">' . __('Sorry, no publications matched your criteria.','teachpress') . '</p></div>';
+      $part2 = '<div class="teachpress_list"><p class="teachpress_mistake">' . __('Sorry, no publications matched your criteria.','teachpress') . '</p></div>';
    }
    // Return
-   return $asg1 . $asg2;
+   return $part1 . $part2;
 }
 
 /** 
@@ -744,6 +793,7 @@ function tp_cloud_shortcode($atts) {
  *   date_format (STRING)   --> the format for date; needed for the types: presentations, online; default: d.m.Y
  *   pagination (INT)       --> activate pagination (1) or not (0), default: 0
  *   entries_per_page (INT) --> number of publications per page (pagination must be set to 1), default: 30
+ *   sort_list (STRING)     --> a list of publication types (separated by comma) which overwrites the default sort order for headline = 2 
  * 
  * @param array $atts
  * @return string
@@ -767,6 +817,7 @@ function tp_list_shortcode($atts){
        'date_format' => 'd.m.Y',
        'pagination' => 0,
        'entries_per_page' => 30,
+       'sort_list' => ''
     ), $atts));
 
     $tparray = '';
@@ -776,6 +827,7 @@ function tp_list_shortcode($atts){
     $image_size = intval($image_size);
     $pagination = intval($pagination);
     $entries_per_page = intval($entries_per_page);
+    $sort_list = htmlspecialchars($sort_list);
 
     $settings = array(
         'author_name' => htmlspecialchars($author_name),
@@ -844,7 +896,8 @@ function tp_list_shortcode($atts){
                                                 'headline' => $headline,
                                                 'years' => $row_year,
                                                 'colspan' => $colspan,
-                                                'user' => $user));
+                                                'user' => $user,
+                                                'sort_list' => $sort_list ));
     $r .= $menu;
     return $r;
 }
@@ -978,7 +1031,7 @@ function tp_search_shortcode ($atts) {
 function tp_post_shortcode ($atts, $content) {
     extract(shortcode_atts(array('id' => 0), $atts));
     $id = intval($id);
-    $test = tp_is_user_subscribed($id, true);
+    $test = tp_is_student_subscribed($id, true);
     if ($test == true) {
         return $content;
     }

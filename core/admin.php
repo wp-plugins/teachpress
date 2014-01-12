@@ -40,20 +40,12 @@ function tp_admin_page_menu ($number_entries, $entries_per_page, $current_page, 
             $next_links = '<a class="next-page disabled">&rsaquo;</a> <a class="last-page disabled">&raquo;</a> ';
         }
 
-        // for displaying number of entries
-        if ($entry_limit + $entries_per_page > $number_entries) {
-            $anz2 = $number_entries;
-        }
-        else {
-            $anz2 = $entry_limit + $entries_per_page;
-        }
-
         // return
         if ($type == 'top') {
-            return '<div class="tablenav-pages"><span class="displaying-num">' . ($entry_limit + 1) . ' - ' . $anz2 . ' ' . __('of','teachpress') . ' ' . $number_entries . ' ' . __('entries','teachpress') . '</span> ' . $back_links . '' . $page_input . '' . $next_links . '</div>';
+            return '<div class="tablenav-pages"><span class="displaying-num">' . $number_entries . ' ' . __('entries','teachpress') . '</span> ' . $back_links . '' . $page_input . '' . $next_links . '</div>';
         }
         else {
-            return '<div class="tablenav"><div class="tablenav-pages"><span class="displaying-num">' . ($entry_limit + 1) . ' - ' . $anz2 . ' ' . __('of','teachpress') . ' ' . $number_entries . ' ' . __('entries','teachpress') . '</span> ' . $back_links . ' ' . $current_page . ' ' . __('of','teachpress') . ' ' . $num_pages . ' ' . $next_links . '</div></div>';
+            return '<div class="tablenav"><div class="tablenav-pages"><span class="displaying-num">' . $number_entries . ' ' . __('entries','teachpress') . '</span> ' . $back_links . ' ' . $current_page . ' ' . __('of','teachpress') . ' ' . $num_pages . ' ' . $next_links . '</div></div>';
         }	
     }
 }	
@@ -146,11 +138,11 @@ function get_tp_single_table_row_course ($course, $checkbox, $static, $parent_co
 
     if ( $type == 'child' || $type == 'search' ) {
         if ( $course['name'] != $parent_course_name ) {
-            $course['name'] = $parent_course_name . ' ' . $course['name'];
+            $course['name'] = $parent_course_name . ' - ' . $course['name'];
         }
     }
     // complete the row
-    $a1 = '<tr>
+    $a1 = '<tr' . $static['tr_class'] . '>
         <th class="check-column"><input name="checkbox[]" type="checkbox" value="' . $course['course_id'] . '"' . $check . '/></th>
         <td' . $class . '>
                 <a href="admin.php?page=teachpress/teachpress.php&amp;course_ID=' . $course['course_id'] . '&amp;sem=' . $static['sem'] . '&amp;search=' . $static['search'] . '&amp;action=show" class="teachpress_link" title="' . __('Click to show','teachpress') . '"><strong>' . $course['name'] . '</strong></a>
@@ -237,7 +229,7 @@ function get_tp_admin_checkbox($name, $title, $value, $disabled = false) {
  * @global string $teachpress_stud
  * @param string $title
  * @param string $type
- * @param array $options
+ * @param array $options (element_title|add_title|delete_title|count_title|tab)
  * @since 4.2.0
  */
 function get_tp_admin_course_option_box ( $title, $type, $options = array() ) {
@@ -251,7 +243,9 @@ function get_tp_admin_course_option_box ( $title, $type, $options = array() ) {
     echo '<tr>';
     echo '<th width="10">&nbsp;</th>';
     echo '<th>' . $options['element_title'] . '</th>';
+    if ( $type === 'term' || $type === 'course_of_studies' || $type === 'type' ) {
     echo '<th width="150">' . $options['count_title'] . '</th>';
+    }
     echo '</tr>';
     echo '</thead>';
     echo '<tbody>';
@@ -262,26 +256,28 @@ function get_tp_admin_course_option_box ( $title, $type, $options = array() ) {
     elseif ( $type === 'type' ) {
         $sql = "SELECT number, value, setting_id FROM ( SELECT COUNT(v.type) as number, e.value AS value,  e.setting_id as setting_id, e.category as category FROM $teachpress_settings e LEFT JOIN $teachpress_courses v ON e.value = v.type GROUP BY e.value ORDER BY number DESC ) AS temp WHERE category = 'course_type' ORDER BY value";
     }
-    elseif ( $type === 'studies' ) {
+    elseif ( $type === 'course_of_studies' ) {
         $sql = "SELECT number, value, setting_id FROM ( SELECT COUNT(s.course_of_studies) as number, e.value AS value,  e.setting_id as setting_id, e.category as category FROM $teachpress_settings e LEFT JOIN $teachpress_stud s ON e.value = s.course_of_studies GROUP BY e.value ORDER BY number DESC ) AS temp WHERE category = 'course_of_studies' ORDER BY value";
     }
     else {
-        exit('Wrong Type selected');
+        $sql = "SELECT * FROM $teachpress_settings WHERE `category` = '$type' ORDER BY setting_id ASC";
     }
                
     $row = $wpdb->get_results($sql);
     
     foreach ($row as $row) { 
         echo '<tr>';
-        echo '<td><a title="' . $options['delete_title'] . '" href="options-general.php?page=teachpress/settings.php&amp;delete=' . $row->setting_id . '&amp;tab=courses" class="teachpress_delete">X</a></td>';
+        echo '<td><a title="' . $options['delete_title'] . '" href="options-general.php?page=teachpress/settings.php&amp;delete=' . $row->setting_id . '&amp;tab=' . $options['tab'] . '" class="teachpress_delete">X</a></td>';
         echo '<td>' . stripslashes($row->value) . '</td>';
-        echo '<td>' . $row->number . '</td>';    
+        if ( $type === 'term' || $type === 'course_of_studies' || $type === 'type' ) {
+            echo '<td>' . $row->number . '</td>';
+        }
         echo '</tr>';              
     }
     
     echo '<tr>';
     echo '<td></td>';
-    echo '<td colspan="2"><input name="new_' . $type . '" type="text" id="newsem" size="30" value="' . $options['add_title'] . '" onblur="if(this.value==' . "''" .') this.value='. "'" . $options['add_title'] . "'" . ';" onfocus="if(this.value=='. "'" . $options['add_title'] . "'" . ') this.value=' . "''" . ';"/> <input name="add_' . $type . '" type="submit" class="button-secondary" value="' . __('Create','teachpress') . '"/></td>';
+    echo '<td colspan="2"><input name="new_' . $type . '" type="text" id="new_' . $type . '" size="30" value="' . $options['add_title'] . '" onblur="if(this.value==' . "''" .') this.value='. "'" . $options['add_title'] . "'" . ';" onfocus="if(this.value=='. "'" . $options['add_title'] . "'" . ') this.value=' . "''" . ';"/> <input name="add_' . $type . '" type="submit" class="button-secondary" value="' . __('Create','teachpress') . '"/></td>'; 
     echo '</tr>'; 
     
     echo '</tbody>';
@@ -289,7 +285,14 @@ function get_tp_admin_course_option_box ( $title, $type, $options = array() ) {
 }
 
 /**
- * 
+ * Add publication as post
+ * @param string $title
+ * @param string $bibtex_key
+ * @param string $date
+ * @param string $post_type (default is "post")
+ * @param string $tags (separated by comma)
+ * @param array $category
+ * @return int
  * @since 4.2.0
  */
 function tp_add_publication_as_post ($title, $bibtex_key, $date, $post_type = 'post', $tags = '', $category = array()) {
