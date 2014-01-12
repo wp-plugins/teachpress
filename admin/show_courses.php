@@ -50,16 +50,16 @@ function teachpress_show_courses_page() {
      // Event Handler
      $action = isset( $_GET['action'] ) ? htmlspecialchars($_GET['action']) : '';
      
-     if ($action == 'edit') {
+     if ( $action === 'edit' ) {
           tp_add_course_page();
      }
-     elseif ($action == 'show') {
+     elseif ( $action === 'show' || $action === 'assessments' || $action === 'enrollments' ) {
           tp_show_single_course_page();
      }
-     elseif ($action == 'list') {
+     elseif ( $action === 'list' ) {
           tp_lists_page();
      }
-     elseif ($action == 'mail') {
+     elseif ( $action === 'mail' ) {
           tp_show_mail_page();
      }
      else {
@@ -162,7 +162,7 @@ function teachpress_show_courses_page() {
           </select>
          <input type="submit" name="start" value="<?php _e('Show','teachpress'); ?>" id="teachpress_submit" class="button-secondary"/>
       </div>
-     <table cellpadding="5" cellspacing="0" border="1" class="widefat">
+     <table class="widefat">
         <thead>
         <tr>
             <th class="check-column"><input name="tp_check_all" id="tp_check_all" type="checkbox" value="" onclick="teachpress_checkboxes('checkbox[]','tp_check_all');" /></th>
@@ -222,9 +222,21 @@ function teachpress_show_courses_page() {
                  $z++;
              }
              // display courses
+             $class_alternate = true;
              for ($i=0; $i<$z; $i++) {
+                 
+                 // normal table design
                  if ($search == "") {
                      if ($courses[$i]['parent'] == 0) {
+                         // alternate table rows
+                         if ( $class_alternate === true ) {
+                             $static['tr_class'] = ' class="alternate"';
+                             $class_alternate = false;
+                         }
+                         else {
+                             $static['tr_class'] = '';
+                             $class_alternate = true;
+                         }
                          echo get_tp_single_table_row_course ($courses[$i], $checkbox, $static);
                          // Search childs
                          for ($j=0; $j<$z; $j++) {
@@ -235,7 +247,7 @@ function teachpress_show_courses_page() {
                          // END search childs
                      }	
                  }
-                 // if the user is using the search
+                 // table design for searches
                  else {
                      if ($courses[$i]['parent'] != 0) {
                          $parent_name = get_tp_course_data($courses[$i]['parent'], 'name'); 

@@ -39,7 +39,7 @@ function teachpress_students_page() {
         $subject = isset ( $_POST['subject'] ) ? htmlspecialchars($_POST['subject']) : '';
         $text = isset ( $_POST['text'] ) ? htmlspecialchars($_POST['text']) : '';
         $attachments = isset ( $_POST['attachments'] ) ? $_POST['attachments'] : '';
-        tp_mail::sendMail($from, $to, $recipients_option, $subject, $text, $attachments);
+        tp_mail::sendMail($from, $to, $subject, $text, $recipients_option, $attachments);
         $message = __('E-Mail sent','teachpress');
         get_tp_message($message);
     }
@@ -109,7 +109,7 @@ function teachpress_students_page() {
         // Page Menu
         echo tp_admin_page_menu ($number_entries, $entries_per_page, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search&amp;students_group=$students_group"); ?>
     </div>
-    <table border="1" cellpadding="5" cellspacing="0" class="widefat">
+    <table class="widefat">
         <thead>
         <tr>
             <th class="check-column">
@@ -144,8 +144,17 @@ function teachpress_students_page() {
             echo '<tr><td colspan="9"><strong>' . __('Sorry, no entries matched your criteria.','teachpress') . '</strong></td></tr>';
         }
         else {
-            foreach($students as $row3) { 
-                echo '<tr>';
+			$class_alternate = true;
+            foreach($students as $row3) {
+				if ( $class_alternate === true ) {
+                    $tr_class = 'class="alternate"';
+                    $class_alternate = false;
+                }
+                else {
+                    $tr_class = '';
+                    $class_alternate = true;
+                }
+                echo '<tr ' . $tr_class . '>';
                 echo '<th class="check-column"><input type="checkbox" name="checkbox[]" id="checkbox" value="' . $row3->wp_id . '"';
                 if ( $bulk == "delete") { 
                     for( $i = 0; $i < count( $checkbox ); $i++ ) { 

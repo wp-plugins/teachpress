@@ -330,7 +330,7 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
               'delete_title' => __('Delete course of studies','teachpress'),
               'add_title' => __('Add course of studies','teachpress')
               );
-          get_tp_admin_course_option_box(__('Courses of studies','teachpress'), 'studies', $args1);
+          get_tp_admin_course_option_box(__('Courses of studies','teachpress'), 'course_of_studies', $args1);
           ?>
         </div>
         <div style="width:48%; float:left; padding-left:2%;">

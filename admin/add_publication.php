@@ -332,7 +332,7 @@ function teachpress_addpublications_page() {
              echo get_tp_admin_form_field('publisher', __('The names of publisher','teachpress'),__('publisher','teachpress'),'input',$daten["type"],$daten["publisher"],array('book','collection','conference','inbook','incollection','inproceedings','proceedings'),12,'width:95%;');
              
              // address
-             echo get_tp_admin_form_field('address', __('The address of the publisher or the place of confernece','teachpress'),__('address','teachpress'),'input',$daten["type"],$daten["address"],array('book','booklet','collection','conference','inbook','incollection','inproceedings','manual','masterthesis','phdthesis','proceedings','techreport'),13,'width:95%;');
+             echo get_tp_admin_form_field('address', __('The address of the publisher or the place of confernece','teachpress'),__('address','teachpress'),'input',$daten["type"],$daten["address"],array('book','booklet','collection','conference','inbook','incollection','inproceedings','manual','mastersthesis','phdthesis','proceedings','techreport'),13,'width:95%;');
              
              // edition
              echo get_tp_admin_form_field('edition', __('The edition of a book','teachpress'),__('edition','teachpress'),'input',$daten["type"],$daten["edition"],array('book','collection','inbook','incollection','manual'),14);
@@ -347,7 +347,7 @@ function teachpress_addpublications_page() {
              echo get_tp_admin_form_field('organization', __('The names of a sponsoring organization','teachpress'),__('organization','teachpress'),'input',$daten["type"],$daten["organization"],array('conference','inproceedings','manual','proceedings','online'),17,'width:95%;');
              
              // school
-             echo get_tp_admin_form_field('school', __('The names of the academic instituion where a thesis was written','teachpress'),__('school','teachpress'),'input',$daten["type"],$daten["school"],array('masterthesis','phdthesis'),18,'width:95%;');
+             echo get_tp_admin_form_field('school', __('The names of the academic instituion where a thesis was written','teachpress'),__('school','teachpress'),'input',$daten["type"],$daten["school"],array('mastersthesis','phdthesis'),18,'width:95%;');
             
              // series
              echo get_tp_admin_form_field('series', __('The name of a series','teachpress'),__('series','teachpress'),'input',$daten["type"],$daten["series"],array('book','collection','conference','inbook','incollection','inproceedings','periodical','proceedings'),19);
@@ -365,7 +365,7 @@ function teachpress_addpublications_page() {
              echo get_tp_admin_form_field('key', __('If there is no author or editor given, so this field is used for the sorting.','teachpress'),__('Key','teachpress'),'input','nothing',$daten["key"],array(''),23);
              
              // techtype
-             echo get_tp_admin_form_field('techtype', __('The type of a technical report, thesis, incollection or inbook.','teachpress'),__('Type'),'input',$daten["type"],$daten["techtype"],array('inbook','incollection','masterthesis','phdthesis','techreport'),24);
+             echo get_tp_admin_form_field('techtype', __('The type of a technical report, thesis, incollection or inbook.','teachpress'),__('Type'),'input',$daten["type"],$daten["techtype"],array('inbook','incollection','mastersthesis','phdthesis','techreport'),24);
              
              ?>
              <div id="div_isbn">

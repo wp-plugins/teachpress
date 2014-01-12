@@ -142,8 +142,17 @@ function teachpress_tags_page(){
                 $z++;
             }
             $row2 = $wpdb->get_results($sql);
+            $class_alternate = true;
             foreach ($row2 as $row2) {
-                echo '<tr>';
+                if ( $class_alternate === true ) {
+                    $tr_class = 'class="alternate"';
+                    $class_alternate = false;
+                }
+                else {
+                    $tr_class = '';
+                    $class_alternate = true;
+                }
+                echo '<tr ' . $tr_class . '>';
                 $checked = '';
                 $str = "'";
                 if ( $action == "delete") { 
