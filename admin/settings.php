@@ -20,7 +20,8 @@ function teachpress_admin_settings() {
     $option_stylesheet = isset( $_POST['stylesheet'] ) ? intval($_POST['stylesheet']) : '';
     $option_sign_out = isset( $_POST['sign_out'] ) ? intval($_POST['sign_out']) : '';
     $option_login = isset( $_POST['login'] ) ? htmlspecialchars($_POST['login']) : '';
-    $option_userrole = isset( $_POST['userrole'] ) ? $_POST['userrole'] : '';
+    $option_userrole_publications = isset( $_POST['userrole_publications'] ) ? $_POST['userrole_publications'] : '';
+    $option_userrole_courses = isset( $_POST['userrole_courses'] ) ? $_POST['userrole_courses'] : '';
 
     $new_term = isset( $_POST['new_term'] ) ? htmlspecialchars($_POST['new_term']) : '';
     $new_type = isset( $_POST['new_type'] ) ? htmlspecialchars($_POST['new_type']) : '';
@@ -52,7 +53,8 @@ function teachpress_admin_settings() {
            tp_change_option('termnumber', $checkbox_semesternumber, 'checkbox');
            tp_change_option('birthday', $checkbox_birthday, 'checkbox');
            tp_change_option('login', $option_login);
-           tp_update_userrole($option_userrole);
+           tp_update_userrole($option_userrole_courses, 'use_teachpress_courses');
+           tp_update_userrole($option_userrole_publications, 'use_teachpress');
        }
        get_tp_message( __('Settings are changed. Please note that access changes are visible, until you have reloaded this page a secont time.','teachpress') );
     }
@@ -208,15 +210,32 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
                 </td>
                 <td><?php _e('Select which style sheet you will use. teachpress_front.css is the teachPress default style. If you have created your own style in the default style sheet of your theme, you can activate this here.','teachpress'); ?></td>
               </tr>
-              <tr>
-              	<th><label for="userrole"><?php _e('Backend access for','teachpress'); ?></label></th>
+             <tr>
+              	<th><label for="userrole_publications"><?php _e('Backend access for publication system','teachpress'); ?></label></th>
                 <td style="vertical-align: top;">
-                    <select name="userrole[]" id="userrole" multiple="multiple" style="height:80px;" title="<?php _e('Backend access for','teachpress'); ?>">
+                    <select name="userrole_publications[]" id="userrole" multiple="multiple" style="height:120px;" title="<?php _e('Backend access for publication system','teachpress'); ?>">
                     <?php
                     global $wp_roles;
                     foreach ($wp_roles->role_names as $roledex => $rolename){
                        $role = $wp_roles->get_role($roledex);
                        $select = $role->has_cap('use_teachpress') ? 'selected="selected"' : '';
+                       echo '<option value="'.$roledex.'" '.$select.'>'.$rolename.'</option>';
+                    }
+                    ?>
+                    </select>
+					
+                </td>
+                <td style="vertical-align: top;"><?php _e('Select which userrole your users must have to use the teachPress backend.','teachpress'); ?><br /><?php _e('use &lt;Ctrl&gt; key to select multiple roles','teachpress'); ?></td>
+              </tr>
+              <tr>
+              	<th><label for="userrole_courses"><?php _e('Backend access for course system','teachpress'); ?></label></th>
+                <td style="vertical-align: top;">
+                    <select name="userrole_courses[]" id="userrole" multiple="multiple" style="height:120px;" title="<?php _e('Backend access for course system','teachpress'); ?>">
+                    <?php
+                    global $wp_roles;
+                    foreach ($wp_roles->role_names as $roledex => $rolename){
+                       $role = $wp_roles->get_role($roledex);
+                       $select = $role->has_cap('use_teachpress_courses') ? 'selected="selected"' : '';
                        echo '<option value="'.$roledex.'" '.$select.'>'.$rolename.'</option>';
                     }
                     ?>

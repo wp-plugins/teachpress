@@ -34,6 +34,9 @@ class tp_update_db {
         if ( !$role->has_cap('use_teachpress') ) {
             $wp_roles->add_cap('administrator', 'use_teachpress');
         }
+		if ( !$role->has_cap('use_teachpress_courses') ) {
+            $wp_roles->add_cap('administrator', 'use_teachpress_courses');
+        }
         
         // force updates to reach structure of teachPress 2.0.0
         if ( $db_version[0] === '0' || $db_version[0] === '1' ) {

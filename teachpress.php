@@ -3,7 +3,7 @@
 Plugin Name: teachPress
 Plugin URI: http://mtrv.wordpress.com/teachpress/
 Description: With teachPress you can easy manage courses, enrollments and publications.
-Version: 4.3.0
+Version: 4.3.1
 Author: Michael Winkler
 Author URI: http://mtrv.wordpress.com/
 Min WP Version: 3.3
@@ -58,9 +58,9 @@ function tp_add_menu() {
     
     $logo = (version_compare($wp_version, '3.8', '>=')) ? plugins_url() . '/teachpress/images/logo_small.png' : plugins_url() . '/teachpress/images/logo_small_black.png';
     
-    $tp_admin_show_courses_page = add_menu_page(__('Course','teachpress'), __('Course','teachpress'),'use_teachpress', __FILE__, 'teachpress_show_courses_page', $logo);
-    $tp_admin_add_course_page = add_submenu_page('teachpress/teachpress.php',__('Add New','teachpress'), __('Add New', 'teachpress'),'use_teachpress','teachpress/add_course.php','tp_add_course_page');
-    add_submenu_page('teachpress/teachpress.php',__('Students','teachpress'), __('Students','teachpress'),'use_teachpress', 'teachpress/students.php', 'teachpress_students_page');
+    $tp_admin_show_courses_page = add_menu_page(__('Course','teachpress'), __('Course','teachpress'),'use_teachpress_courses', __FILE__, 'teachpress_show_courses_page', $logo);
+    $tp_admin_add_course_page = add_submenu_page('teachpress/teachpress.php',__('Add New','teachpress'), __('Add New', 'teachpress'),'use_teachpress_courses','teachpress/add_course.php','tp_add_course_page');
+    add_submenu_page('teachpress/teachpress.php',__('Students','teachpress'), __('Students','teachpress'),'use_teachpress_courses', 'teachpress/students.php', 'teachpress_students_page');
     add_action("load-$tp_admin_add_course_page", 'tp_add_course_page_help');
     add_action("load-$tp_admin_show_courses_page", 'tp_show_course_page_help');
 }
@@ -378,14 +378,17 @@ function get_tp_var_types($type) {
  * @return string
 */
 function get_tp_version() {
-    return '4.3.0';
+    return '4.3.1';
 }
 
 /** 
  * Define who can use teachPress
- * @param ARRAY $roles
+ * @param array $roles
+ * @param string $capability
+ * @since 1.0
+ * @version 2
  */
-function tp_update_userrole($roles) {
+function tp_update_userrole($roles, $capability) {
     global $wp_roles;
 
     if ( empty($roles) || ! is_array($roles) ) { 
@@ -394,10 +397,10 @@ function tp_update_userrole($roles) {
     $who_can = $roles;
     $who_cannot = array_diff( array_keys($wp_roles->role_names), $roles);
     foreach ($who_can as $role) {
-        $wp_roles->add_cap($role, 'use_teachpress');
+        $wp_roles->add_cap($role, $capability);
     }
     foreach ($who_cannot as $role) {
-        $wp_roles->remove_cap($role, 'use_teachpress');
+        $wp_roles->remove_cap($role, $capability);
     }
 }
 
@@ -543,6 +546,9 @@ function tp_install() {
     if ( !$role->has_cap('use_teachpress') ) {
         $wp_roles->add_cap('administrator', 'use_teachpress');
     }
+	if ( !$role->has_cap('use_teachpress_courses') ) {
+        $wp_roles->add_cap('administrator', 'use_teachpress_courses');
+    }
 
     // charset & collate like WordPress
     $charset_collate = '';
@@ -628,7 +634,7 @@ function tp_install() {
         // Default settings
         $value = '[tpsingle [key]]<!--more-->' . "\n\n[tpabstract]\n\n[tplinks]\n\n[tpbibtex]";
         $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('sem', 'Example term', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('db-version', '4.3.0', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('db-version', '4.3.1', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('sign_out', '0', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('login', 'std', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('stylesheet', '1', 'system')");

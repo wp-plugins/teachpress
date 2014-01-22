@@ -118,19 +118,23 @@ If you save plugins outside the normal path (/wp-content/plugins/), the plugin c
 
 == Changelog ==
 
+= 4.3.1 =
+* *22.01.2014*
+* New: Access control is now editable for courses and for publications separately
+
 = 4.3.0 =
-* *06.01.2014*
-* *New:* Bulk edit for publications in admin menu
-* *New:* [tplist], [tpcloud]: Support for custom sort orders for publication lists added (if headline = 2 is used)
-* *New:* [tpcloud]: Pagination added
-* *New:* [tpcloud]: New parameters "pagination", "entries_per_page" and "sort_order" added
-* *Changed:* [tpcloud]: Parameter "limit" is now "tag_limit"
-* *Changed:* BibTeX type "masterthesis" is now "mastersthesis"
-* *Bugfix:* The original content of a mail was replaced with the header
+* *12.01.2014*
+* New: Bulk edit for publications in admin menu
+* New: [tplist], [tpcloud]: Support for custom sort orders for publication lists added (if headline = 2 is used)
+* New: [tpcloud]: Pagination added
+* New: [tpcloud]: New parameters "pagination", "entries_per_page" and "sort_order" added
+* Changed: [tpcloud]: Parameter "limit" is now "tag_limit"
+* Changed: BibTeX type "masterthesis" is now "mastersthesis"
+* Bugfix: The original content of a mail was replaced with the header
 
 = 4.2.2 =
 * *11.09.2013*
-* *Bugfix:* Fixed a bug which prevent adding of terms, course types and courses of studies
+* Bugfix: Fixed a bug which prevent adding of terms, course types and courses of studies
 
 = 4.2.1 - (11.09.2013) =
 * New: [tpcloud], [tplist], [tpsearch]: Style option "std_num" added
