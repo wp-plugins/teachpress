@@ -487,8 +487,9 @@ function tp_generate_pub_table($tparray, $args ) {
  *   headline (INT)         --> show headlines with years(1) with publication types(2) or not(0), default: 1
  *   maxsize (INT)          --> maximal font size for the tag cloud, default: 35
  *   minsize (INT)          --> minimal font size for the tag cloud, default: 11
- *   limit (INT)            --> Number of tags, default: 30
+ *   limit (INT)            --> number of tags, default: 30
  *   hide_tags (STRING)     --> ids of the tags you want to hide from your users (separated by comma)
+ *   exclude_tags (STRING)  --> similar to hide_tags but with influence on publications; if exclude_tags is defined hide_tags will be ignored
  *   image (STRING)         --> none, left, right or bottom, default: none 
  *   image_size (INT)       --> max. Image size, default: 0
  *   anchor (INT)           --> 0 (false) or 1 (true), default: 1
@@ -518,6 +519,7 @@ function tp_cloud_shortcode($atts) {
       'minsize' => 11,
       'tag_limit' => 30,
       'hide_tags' => '',
+      'exclude_tags' => '',
       'image' => 'none',
       'image_size' => 0,
       'anchor' => 1,
@@ -545,6 +547,8 @@ function tp_cloud_shortcode($atts) {
    
    // secure parameters
    $exclude = htmlspecialchars($exclude);
+   $hide_tags = htmlspecialchars($hide_tags);
+   $exclude_tags = htmlspecialchars($exclude_tags);
    $image_size = intval($image_size);
    $anchor = intval($anchor);
    $headline = intval($headline);
@@ -580,6 +584,11 @@ function tp_cloud_shortcode($atts) {
         $current_page = 1;
     }
     $page_limit = ( $pagination === 1 ) ? $entry_limit . ',' .  $entries_per_page : ''; 
+
+   // ignore hide_tags if exclude_tags is given 
+   if ( $exclude_tags != '' ) {
+       $hide_tags = $exclude_tags;
+   }
 
    /*************/
    /* Tag cloud */
@@ -726,6 +735,7 @@ function tp_cloud_shortcode($atts) {
        'user' => $user, 
        'order' => $order, 
        'exclude' => $exclude,
+       'exclude_tags' => $exclude_tags,
        'limit' => $page_limit,
        'output_type' => ARRAY_A);
    

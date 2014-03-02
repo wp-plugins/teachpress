@@ -44,8 +44,9 @@ function get_tp_publication_by_key($key, $output_type = OBJECT) {
  *  year            --> years (separated by comma)
  *  author          --> author name (separated by comma)
  *  editor          --> editor name (separated by comma)
- *  exclude         --> the id of the publication you want to exclude
- *  include         --> the id of the publication you want to include
+ *  exclude         --> the ids of the publications you want to exclude (separated by comma)
+ *  include         --> the ids of the publications you want to include (separated by comma)
+ *  exclude_tags    --> use it to exclude publications via tag IDs (separated by comma)
  *  order           --> the order of the list
  *  limit           --> the sql search limit, ie: 0,30
  *  search          --> the search string
@@ -66,6 +67,7 @@ function get_tp_publications($args = array(), $count = false) {
         'editor' => '',
         'include' => '',
         'exclude' => '',
+        'exclude_tags' => '',
         'order' => 'date DESC',
         'limit' => '',
         'search' => '',
@@ -91,6 +93,17 @@ function get_tp_publications($args = array(), $count = false) {
     $output_type = esc_sql($output_type);
     $search = esc_sql($search);
     $limit = esc_sql($limit);
+    
+    // exclude publications via tag_id
+    if ( $exclude_tags != '' ) {
+        $extend = '';
+        $exclude_tags = tp_generate_where_clause($exclude_tags , "tag_id", "OR", "=");
+        $exclude_publications = $wpdb->get_results("SELECT DISTINCT pub_id FROM $teachpress_relation WHERE $exclude_tags ORDER BY pub_id ASC", ARRAY_A);
+        foreach ($exclude_publications as $row) {
+            $extend = $extend . $row['pub_id'] . ',';
+        }
+        $exclude = $extend . $exclude;
+    }
     
     // define where, having and limit clause
     $exclude = tp_generate_where_clause($exclude, "p.pub_id", "AND", "!=");
@@ -177,7 +190,7 @@ function get_tp_publications($args = array(), $count = false) {
     else {
         $sql = "SELECT COUNT( DISTINCT pub_id ) AS `count` FROM ( $select $join $where $having) p ";
     }
-    // echo $sql;
+    // echo $sql . '<br/><br/>';
     $sql = $count != true ? $wpdb->get_results($sql, $output_type): $wpdb->get_var($sql);
     return $sql;
 }

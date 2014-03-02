@@ -5,7 +5,7 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 3.3
 Tested up to: 3.8
-Stable tag: 4.3.1
+Stable tag: 4.3.2
 
 With this plugin you can easy manage courses, enrollments and publications.
 
@@ -117,6 +117,10 @@ define ('TP_PUBLICATION_SYSTEM','disable');
 If you save plugins outside the normal path (/wp-content/plugins/), the plugin can't load required WordPress files in some cases. Solution: Change the path in the following plugin files: export.php (line 9) / feed.php (line 7).
 
 == Changelog ==
+
+= 4.3.2 =
+* *03.03.2014*
+* New: [tpcloud]: New parameter "exclude_tags" added
 
 = 4.3.1 =
 * *22.01.2014*
