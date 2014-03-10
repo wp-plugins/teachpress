@@ -1,19 +1,12 @@
 <?php
-/*
- * Setting page
-*/ 
+/**
+ * teachPress settings menu: controller
+ * @since 1.0.0
+ */
 function teachpress_admin_settings() {
-
-    global $wpdb;
-    global $teachpress_stud; 
-     
-    $checkbox_rel_content_auto = isset( $_POST['rel_content_auto'] ) ? 1 : '';
-    $checkbox_import_overwrite = isset( $_POST['import_overwrite'] ) ? 1 : '';
-    $checkbox_matriculation_number = isset( $_POST['matriculation_number_field'] ) ? 1 : '';
-    $checkbox_course_of_studies = isset( $_POST['course_of_studies_field'] ) ? 1 : '';
-    $checkbox_semesternumber = isset( $_POST['semesternumber_field'] ) ? 1 : '';
-    $checkbox_birthday = isset( $_POST['birthday_field'] ) ? 1 : '';
-     
+    
+    echo '<div class="wrap">';
+    
     $option_semester = isset( $_POST['semester'] ) ? htmlspecialchars($_POST['semester']) : '';
     $option_rel_page_courses = isset( $_POST['rel_page_courses'] ) ? htmlspecialchars($_POST['rel_page_courses']) : '';
     $option_rel_page_publications = isset( $_POST['rel_page_publications'] ) ? htmlspecialchars($_POST['rel_page_publications']) : '';
@@ -23,10 +16,6 @@ function teachpress_admin_settings() {
     $option_userrole_publications = isset( $_POST['userrole_publications'] ) ? $_POST['userrole_publications'] : '';
     $option_userrole_courses = isset( $_POST['userrole_courses'] ) ? $_POST['userrole_courses'] : '';
 
-    $new_term = isset( $_POST['new_term'] ) ? htmlspecialchars($_POST['new_term']) : '';
-    $new_type = isset( $_POST['new_type'] ) ? htmlspecialchars($_POST['new_type']) : '';
-    $new_studies = isset( $_POST['new_studies'] ) ? htmlspecialchars($_POST['new_studies']) : '';
-	
     $site = 'options-general.php?page=teachpress/settings.php';
     $tab = isset( $_GET['tab'] ) ? $_GET['tab'] : 'general';
     
@@ -37,6 +26,7 @@ function teachpress_admin_settings() {
     if ( isset($_GET['ins']) ) {
        tp_install();
     }
+    
     if (isset( $_POST['einstellungen'] )) {
 
        if ($_POST['drop_tp'] == '1') {
@@ -48,88 +38,82 @@ function teachpress_admin_settings() {
            tp_change_option('rel_page_publications', $option_rel_page_publications);
            tp_change_option('stylesheet', $option_stylesheet);
            tp_change_option('sign_out', $option_sign_out);
-           tp_change_option('regnum', $checkbox_matriculation_number, 'checkbox');
-           tp_change_option('studies', $checkbox_course_of_studies, 'checkbox');
-           tp_change_option('termnumber', $checkbox_semesternumber, 'checkbox');
-           tp_change_option('birthday', $checkbox_birthday, 'checkbox');
            tp_change_option('login', $option_login);
            tp_update_userrole($option_userrole_courses, 'use_teachpress_courses');
            tp_update_userrole($option_userrole_publications, 'use_teachpress');
        }
        get_tp_message( __('Settings are changed. Please note that access changes are visible, until you have reloaded this page a secont time.','teachpress') );
     }
-    if ( isset($_POST['save_pub']) ) {
-        tp_change_option('import_overwrite', $checkbox_import_overwrite, 'checkbox');
-        tp_change_option('rel_content_auto', $checkbox_rel_content_auto, 'checkbox');
-        tp_change_option('rel_content_template', $_POST['rel_content_template']);
-        tp_change_option('rel_content_category', $_POST['rel_content_category']);
-        get_tp_message(__('Saved'));
-    }
-    if (isset( $_POST['add_studies'] ) && $new_studies != __('Add course of studies','teachpress')) {
-       tp_add_option($new_studies, 'course_of_studies');
-    }
-    if (isset( $_POST['add_type'] ) && $new_type != __('Add type','teachpress')) {
-       tp_add_option($new_type, 'course_type');
-    }
-    if (isset( $_POST['add_term'] ) && $new_term != __('Add term','teachpress')) {
-       tp_add_option($new_term, 'semester');
-    }
+    
     if ( isset( $_GET['delete'] ) ) {
        tp_delete_option($_GET['delete']);
-    }?>
-<div class="wrap">
-    <h2 style="padding-bottom:0px;"><?php _e('teachPress settings','teachpress'); ?></h2>
-    <?php
-     // Site menu
-     $set_menu_1 = ( $tab === "general" || $tab === "" ) ? "nav-tab nav-tab-active" : "nav-tab";
-     $set_menu_2 = ( $tab === "courses" ) ? "nav-tab nav-tab-active" : "nav-tab";
-     $set_menu_3 = ( $tab === "publications" ) ? "nav-tab nav-tab-active" : "nav-tab";
-    ?>
-    <h3 class="nav-tab-wrapper"><?php 
-    echo '<a href="' . $site . '&amp;tab=general" class="' . $set_menu_1 . '" title="' . __('General','teachpress') . '" >' . __('General','teachpress') . '</a>';
+    }
+    
+    // test if database is installed
+    $test = get_tp_option('db-version');
+    if ($test !== '') {
+       $version = get_tp_version();
+       if ($test !== $version) { 
+           get_tp_message( __('A database update is necessary','teachpress') . '. <a href="options-general.php?page=teachpress/settings.php&up=1">' . __('Update to','teachpress') . ' ' . $version . '</a>.' );
+       }
+    }
+    else {
+        get_tp_message( '<a href="options-general.php?page=teachpress/settings.php&ins=1">' . __('Install database','teachpress') . '</a>' );
+    }
+    
+    
+    echo '<h2 style="padding-bottom:0px;">' . __('teachPress settings','teachpress') . '</h2>';
+    
+    // Site menu
+    $set_menu_1 = ( $tab === "general" || $tab === "" ) ? "nav-tab nav-tab-active" : "nav-tab";
+    $set_menu_2 = ( $tab === "courses" ) ? "nav-tab nav-tab-active" : "nav-tab";
+    $set_menu_4 = ( $tab === "course_data" ) ? "nav-tab nav-tab-active" : "nav-tab";
+    $set_menu_3 = ( $tab === "publications" ) ? "nav-tab nav-tab-active" : "nav-tab";
+    
+    echo '<h3 class="nav-tab-wrapper">'; 
+    echo '<a href="' . $site . '&amp;tab=general" class="' . $set_menu_1 . '">' . __('General','teachpress') . '</a>';
     if ( !defined('TP_COURSE_SYSTEM') ) {
-       echo '<a href="' . $site . '&amp;tab=courses" class="' . $set_menu_2 . '" title="' . __('Courses','teachpress') . '">' . __('Courses','teachpress') . '</a>';
+       echo '<a href="' . $site . '&amp;tab=courses" class="' . $set_menu_2 . '">' . __('Courses','teachpress') . ' 1</a>';
+       echo '<a href="' . $site . '&amp;tab=course_data" class="' . $set_menu_4 . '">' . __('Courses','teachpress') . ' 2</a>';
     }
     if ( !defined('TP_PUBLICATION_SYSTEM') ) {	
-       echo '<a href="' . $site . '&amp;tab=publications" class="' . $set_menu_3 . '" title="' . __('Publications','teachpress') . '">' . __('Publications','teachpress') . '</a>'; 
+       echo '<a href="' . $site . '&amp;tab=publications" class="' . $set_menu_3 . '">' . __('Publications','teachpress') . '</a>'; 
     }
-    ?></h3>
+    echo '</h3>';
   
-    <form id="form1" name="form1" method="post" action="<?php echo $_SERVER['REQUEST_URI'] ?>">
-    <input name="page" type="hidden" value="teachpress/settings.php" />
-    <input name="tab" type="hidden" value="<?php echo $tab; ?>" />
-    <?php
-     /***********/
-     /* General */
-     /***********/
-     if ($tab == '' || $tab == 'general') {?>
+    echo '<form id="form1" name="form1" method="post" action="' . $_SERVER['REQUEST_URI'] . '">';
+    echo '<input name="page" type="hidden" value="teachpress/settings.php" />';
+    echo '<input name="tab" type="hidden" value="<?php echo $tab; ?>" />';
+    
+    /* General */
+    if ($tab == '' || $tab == 'general') {
+        tp_admin_settings_general();
+    }
+    /* Courses */
+    if ( $tab === 'courses' ) { 
+        tp_admin_settings_courses1();
+    }
+    /* Course data */
+    if ( $tab === 'course_data' ) {
+        tp_admin_settings_courses2();
+    }
+    /* Publications */
+    if ( $tab === 'publications' ) {
+        tp_admin_settings_publications();
+    }
+    
+    echo '</form>';
+    echo '</div>';
+}
+
+function tp_admin_settings_general() {
+    ?>
      <table class="form-table">
         <thead>
             <tr>
                 <th width="160"><?php _e('teachPress version','teachpress'); ?></th>
-                <td width="210"><?php 
-                // test if database is installed
-                $test = get_tp_option('db-version');
-                if ($test != '') {
-                   // test if the database needs an update
-                   $version = get_tp_version();
-                   if ($test == $version) { 
-                      echo $version . ' <span style="color:#01DF01; font-weight:bold;">&radic;</span>';
-                   } 
-                   else {
-                      echo $test . ' <span style="color:#FF0000; font-weight:bold;">X</span> <a href="options-general.php?page=teachpress/settings.php&up=1"><strong>' . __('Update to','teachpress') . ' ' . $version . '</strong></a>';
-                   }
-                }
-                else {
-                   if ( $wpdb->query("SHOW COLUMNS FROM $teachpress_stud LIKE 'wp_id'") != 0 ) {
-                      echo '<a href="options-general.php?page=teachpress/settings.php&up=1"><strong>' . __('Update','teachpress') . '</strong></a>';
-                   }
-                   else {
-                      echo '<a href="options-general.php?page=teachpress/settings.php&ins=1"><strong>' . __('install','teachpress') . '</strong></a>';
-                   }
-                } ?>
-                </td>
-                <td><?php _e('Shows the teachPress database version and available database updates','teachpress'); ?></td>
+                <td width="210"><?php echo get_tp_option('db-version'); ?></td>
+                <td></td>
             </tr>
             <tr>
                 <th><?php _e('Components','teachpress'); ?></th>
@@ -210,7 +194,7 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
                 </td>
                 <td><?php _e('Select which style sheet you will use. teachpress_front.css is the teachPress default style. If you have created your own style in the default style sheet of your theme, you can activate this here.','teachpress'); ?></td>
               </tr>
-             <tr>
+              <tr>
               	<th><label for="userrole_publications"><?php _e('Backend access for publication system','teachpress'); ?></label></th>
                 <td style="vertical-align: top;">
                     <select name="userrole_publications[]" id="userrole" multiple="multiple" style="height:120px;" title="<?php _e('Backend access for publication system','teachpress'); ?>">
@@ -298,30 +282,6 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
               </select></td>
               <td><?php _e('Prevent sign out for your users','teachpress'); ?></td>
               </tr>
-              <tr>
-              	<th><?php _e('User data fields','teachpress'); ?></th>
-                <td>
-                 <?php
-                 echo get_tp_admin_checkbox('matriculation_number_field', __('Matr. number','teachpress'), get_tp_option('regnum'));
-                 echo '<br />';
-                 echo get_tp_admin_checkbox('firstname_field', __('First name','teachpress'), '1', true);
-                 echo '<br />';
-                 echo get_tp_admin_checkbox('lastname_field', __('Last name','teachpress'), '1', true);
-                 echo '<br />';
-                 echo get_tp_admin_checkbox('course_of_studies_field', __('Course of studies','teachpress'), get_tp_option('studies'));
-                 echo '<br />';
-                 echo get_tp_admin_checkbox('semesternumber_field', __('Number of terms','teachpress'), get_tp_option('termnumber'));
-                 echo '<br />';
-                 echo get_tp_admin_checkbox('userid_field', __('User account','teachpress'), '1', true);
-                 echo '<br />';
-                 echo get_tp_admin_checkbox('birthday_field', __('Date of birth','teachpress'), get_tp_option('birthday'));
-                 echo '<br />';
-                 echo get_tp_admin_checkbox('email_field', __('E-Mail'), '1', true);
-                 echo '<br />';
-                 ?>
-                </td>
-                <td style="vertical-align: top;"><?php _e('Define which fields for the registration form you will use. Some are required.','teachpress'); ?></td>
-              </tr>
              </thead> 
 			</table>
             <h3><?php _e('Uninstalling','teachpress'); ?></h3> 
@@ -332,55 +292,171 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
             <label for="drop_tp_1"><?php _e('no','teachpress'); ?></label>
            
             <p><input name="einstellungen" type="submit" id="teachpress_settings" value="<?php _e('Save'); ?>" class="button-primary" /></p>
-              <?php
-	}
-	
-    /***********/
-    /* Courses */
-    /***********/
-        
-    if ( $tab === 'courses' ) { ?>
+    <?php
+}
+
+/**
+ * teachPress settings menu: tab for courses (1)
+ * @since 4.3.0
+ */
+function tp_admin_settings_courses1() {
+    $new_term = isset( $_POST['new_term'] ) ? htmlspecialchars($_POST['new_term']) : ''; 
+    $new_type = isset( $_POST['new_type'] ) ? htmlspecialchars($_POST['new_type']) : '';
+    
+    if (isset( $_POST['add_type'] ) && $new_type != __('Add type','teachpress')) {
+       tp_add_option($new_type, $new_type, 'course_type');
+    }
+    if (isset( $_POST['add_term'] ) && $new_term != __('Add term','teachpress')) {
+       tp_add_option($new_term, $new_term, 'semester');
+    }
+    
+    echo '<div style="min-width:780px; width:100%;">';
+    echo '<div style="width:48%; float:left; padding-right:2%;">';
+    
+    $args2 = array ( 
+        'element_title' => __('Term','teachpress'),
+        'count_title' => __('Number of courses','teachpress'),
+        'delete_title' => __('Delete term','teachpress'),
+        'add_title' => __('Add term','teachpress'),
+        'tab' => 'courses'
+        );
+    get_tp_admin_course_option_box(__('Term','teachpress'), 'term', $args2);
+    
+    echo '</div>';
+    echo '<div style="width:48%; float:left; padding-left:2%;">';
+          
+    $args3 = array ( 
+        'element_title' => __('Type'),
+        'count_title' => __('Number of courses','teachpress'),
+        'delete_title' => __('Delete type','teachpress'),
+        'add_title' => __('Add type','teachpress'),
+        'tab' => 'coures'
+        );
+    get_tp_admin_course_option_box(__('Types of courses','teachpress'), 'type', $args3);
+    
+    echo '</div>';
+    echo '</div>';
+}
+
+function tp_admin_settings_courses2() {
+    if ( isset($_POST['add_field']) ) {
+        global $teachpress_stud; 
+        $forbidden_names = array('system', 'teachpress_stud', 'course_type', 'semester');
+        $field_name = isset( $_POST['field_name'] ) ? htmlspecialchars($_POST['field_name']) : '';
+        $data['title'] = isset( $_POST['field_label'] ) ? htmlspecialchars($_POST['field_label']) : '';
+        $data['type'] = isset( $_POST['field_type'] ) ? htmlspecialchars($_POST['field_type']) : '';
+        $data['admin_visibility'] = isset( $_POST['admin_visibility'] ) ? 'true' : 'false';
+        $data['required'] = isset( $_POST['is_required'] ) ? 'true' : 'false';
+        $data['unique'] = isset( $_POST['is_unique'] ) ? 'true' : 'false';
+        if ( !in_array($field_name, $forbidden_names) ) {
+            tp_register_column('teachpress_stud', $field_name, $data);
+            if ( $data['type'] == 'TEXTAREA' || $data['type'] == 'SELECT' ) {
+                $data['type'] = 'TEXT';
+            }
+            tp_db_add_column($teachpress_stud, $field_name, $data['type']);
+        }
+        else {
+            get_tp_message(  _('Warning: This field name is not possible.','teachpress') );
+        }
+    }
+    $select_fields = array();
+        ?>
         <div style="min-width:780px; width:100%;">
         <div style="width:48%; float:left; padding-right:2%;">
-        <?php
-          $args1 = array ( 
-              'element_title' => __('Name','teachpress'),
-              'count_title' => __('Number of students','teachpress'),
-              'delete_title' => __('Delete course of studies','teachpress'),
-              'add_title' => __('Add course of studies','teachpress')
-              );
-          get_tp_admin_course_option_box(__('Courses of studies','teachpress'), 'course_of_studies', $args1);
-          ?>
+        <h3>Student data fields</h3>
+        <table class="widefat">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Field name</th>
+                    <th>Properties</th>
+                </tr>
+            </thead>
+            <?php
+            // Default fields
+            $default_fields = array('wp_id', 'firstname', 'lastname', 'userlogin', 'email');
+            for ( $i = 0; $i < 5; $i++ ) {
+                echo '<tr>';
+                echo '<td></td>';
+                echo '<td>' . $default_fields[$i]. '</td>';
+                echo '<td>' . __('Default field. Not editable.','teachpress') . '</td>';
+                echo '</tr>';
+            }
+            $fields = get_tp_options('teachpress_stud','`setting_id` ASC');
+            foreach ($fields as $field) {
+                $data = tp_extract_column_data($field->value);
+                if ( $data['type'] === 'SELECT' ) {
+                    array_push($select_fields, $field->variable);
+                    // search for select options and add it
+                    if ( isset( $_POST['add_' . $field->variable] ) && $_POST['new_' . $field->variable] != __('Add element','teachpress') ) {
+                        tp_add_option($_POST['new_' . $field->variable], $_POST['new_' . $field->variable], $field->variable);
+                    }
+                }
+                echo '<tr>
+                    <td><a class="teachpress_delete" href="options-general.php?page=teachpress/settings.php&amp;delete=' . $field->setting_id . '&amp;tab=course_data">X</a></td>
+                    <td>' . $field->variable . '</td>
+                    <td>Label: <b>' . $data['title'] . '</b><br/> 
+                        Type: <b>' . $data['type'] . '</b><br/>
+                        Admin-visibility: <b>' . $data['admin_visibility'] . '</b><br/>
+                        Unique: <b>' . $data['unique'] . '</b><br/>
+                        Required: <b>' . $data['required'] . '</b></td>
+                    </tr>';
+            }
+            ?>
+            <tr>
+                <td></td>
+                <td colspan="2">
+                    <h4>Add new field</h4>
+                    <?php
+                    echo '<p><input name="field_name" type="text" id="field_name" size="30" value="' . __('Name') . '" onblur="if(this.value==' . "''" .') this.value='. "'" . __('Name') . "'" . ';" onfocus="if(this.value=='. "'" . __('Name') . "'" . ') this.value=' . "''" . ';"/></p>';
+                    echo '<p><input name="field_label" type="text" id="field_name" size="30" value="' . __('Label') . '" onblur="if(this.value==' . "''" .') this.value='. "'" . __('Label') . "'" . ';" onfocus="if(this.value=='. "'" . __('Label') . "'" . ') this.value=' . "''" . ';"/></p>';
+                    ?>
+                    <p><label for="field_type">Field type:</label> <select name="field_type" id="field_type">
+                        <option value="TEXT">TEXT</option>
+                        <option value="TEXTAREA">TEXTAREA</option>
+                        <option value="INT">INT</option>
+                        <option value="DATE">DATE</option>
+                        <option value="SELECT">SELECT</option>
+                    </select></p>
+                    <p><input type="checkbox" name="admin_visibility" id="admin_visibility" value="true"/> <label for="admin_visibility"><?php _e('Show field in admin interfaces','teachpress'); ?></label></p>
+                    <p><input type="checkbox" name="is_unique" id="is_unique" value="true"/> <label for="is_unique"><?php _e('Allow only unique values (only for the types INT and TEXT).','teachpress'); ?></label></p>
+                    <p><input type="checkbox" name="is_required" id="is_required" value="true"/> <label for="is_required"><?php _e('Select, if you want a required field.','teachpress'); ?></label></p>
+                    <p><input type="submit" name="add_field" class="button-secondary" value="<?php _e('Create','teachpress'); ?>"/></p>
+                </td>
+            </tr>
+        </table>
         </div>
         <div style="width:48%; float:left; padding-left:2%;">
-          <?php
-          $args2 = array ( 
-              'element_title' => __('Term','teachpress'),
-              'count_title' => __('Number of courses','teachpress'),
-              'delete_title' => __('Delete term','teachpress'),
-              'add_title' => __('Add term','teachpress')
-              );
-          get_tp_admin_course_option_box(__('Term','teachpress'), 'term', $args2);
-          ?>
+        <?php
+        foreach ( $select_fields as $elem ) {
+            $args1 = array ( 
+                 'element_title' => __('Name','teachpress'),
+                 'count_title' => __('Number of students','teachpress'),
+                 'delete_title' => __('Delete elemtent','teachpress'),
+                 'add_title' => __('Add element','teachpress'),
+                 'tab' => 'course_data'
+                 );
+             get_tp_admin_course_option_box($elem, $elem, $args1);
+        }
+        ?>
+        </div> <?php
+}
 
-          <?php
-          $args3 = array ( 
-              'element_title' => __('Type'),
-              'count_title' => __('Number of courses','teachpress'),
-              'delete_title' => __('Delete type','teachpress'),
-              'add_title' => __('Add type','teachpress')
-              );
-          get_tp_admin_course_option_box(__('Types of courses','teachpress'), 'type', $args3);
-          ?>
-       </div>    
-       </div>       
-    <?php
+/**
+ * teachPress settings menu: tab for publications
+ * @since 4.3.0
+ */
+function tp_admin_settings_publications() {
+    if ( isset($_POST['save_pub']) ) {
+        $checkbox_import_overwrite = isset( $_POST['import_overwrite'] ) ? 1 : '';
+        $checkbox_rel_content_auto = isset( $_POST['rel_content_auto'] ) ? 1 : '';
+        tp_change_option('import_overwrite', $checkbox_import_overwrite, 'checkbox');
+        tp_change_option('rel_content_auto', $checkbox_rel_content_auto, 'checkbox');
+        tp_change_option('rel_content_template', $_POST['rel_content_template']);
+        tp_change_option('rel_content_category', $_POST['rel_content_category']);
+        get_tp_message(__('Saved'));
     }
-
-     /****************/
-     /* Publications */
-     /****************/
-     if ( $tab === 'publications' ) {?>
+    ?>
     <table class="form-table">
     	<thead>
             <tr>
@@ -422,8 +498,6 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
     </table>
     <input type="submit" class="button-primary" name="save_pub" value="<?php _e('Save'); ?>"/>
     <?php
-	}
-	?>   
-    </form>
-</div>
-<?php } ?>
+}
+
+?>

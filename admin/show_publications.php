@@ -81,6 +81,8 @@ function teachpress_publications_page() {
         $array_variables['curr_page'] = 1;
     }
     
+    echo '<div class="wrap">';
+    
     // test if teachpress database is up to date
     $test = get_tp_option('db-version');
     $version = get_tp_version();
@@ -135,6 +137,8 @@ function teachpress_publications_page() {
     else {
         tp_show_publications_page_main_screen($user, $array_variables);
     }
+    
+    echo '</div>';
 }
 
 /**
@@ -269,7 +273,6 @@ function tp_show_publications_page_bulk_edit_screen($array_variables) {
  */
 function tp_show_publications_page_main_screen($user, $array_variables) {
     ?>
-    <div class="wrap">
     <form id="showlvs" name="form1" method="get" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
     <input type="hidden" name="page" id="page" value="<?php echo $array_variables['page']; ?>" />
     <input type="hidden" name="tag" id="tag" value="<?php echo $array_variables['tag_id']; ?>" />
@@ -489,7 +492,6 @@ function tp_show_publications_page_main_screen($user, $array_variables) {
   
      </form>
     
-     </div>
 <?php } 
 
 ?>

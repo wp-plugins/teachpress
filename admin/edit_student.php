@@ -11,6 +11,8 @@ function teachpress_show_student_page() {
    $search = htmlspecialchars($_GET['search']);
    $entry_limit = intval($_GET['limit']);
    
+   $fields = get_tp_options('teachpress_stud','`setting_id` ASC');
+   
    ?> 
    <div class="wrap">
    <?php
@@ -30,49 +32,34 @@ function teachpress_show_student_page() {
    <input name="search" type="hidden" value="<?php echo $search; ?>" />
    <input name="limit" type="hidden" value="<?php echo $entry_limit; ?>" />
    <?php
-      $row3 = get_tp_student($student);
+      $row3 = get_tp_student($student, ARRAY_A);
    ?>
- <h2 style="padding-top:0px;"><?php echo stripslashes($row3->firstname); ?> <?php echo stripslashes($row3->lastname); ?> <span class="tp_break">|</span> <small><a href="<?php echo 'admin.php?page=teachpress/students.php&amp;student_ID=' . $student . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $entry_limit . '&amp;action=edit'; ?>" id="daten_aendern"><?php _e('Edit','teachpress'); ?> </a></small></h2>
+ <h2 style="padding-top:0px;"><?php echo stripslashes($row3['firstname']); ?> <?php echo stripslashes($row3['lastname']); ?> <span class="tp_break">|</span> <small><a href="<?php echo 'admin.php?page=teachpress/students.php&amp;student_ID=' . $student . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $entry_limit . '&amp;action=edit'; ?>" id="daten_aendern"><?php _e('Edit','teachpress'); ?> </a></small></h2>
      <div style="width:55%; padding-bottom:10px;">
      <table border="0" cellpadding="0" cellspacing="5" class="widefat">
         <thead>
         <?php
         echo '<tr>';
         echo '<td width="130"><strong>' . __('WordPress User-ID','teachpress') . '</strong></td>';
-        echo '<td style="vertical-align:middle;">' . $row3->wp_id . '</td>';
+        echo '<td style="vertical-align:middle;">' . $row3['wp_id'] . '</td>';
         echo '</tr>';
-        if (get_tp_option('regnum') == '1') {
-            echo '<tr>';
-            echo '<td><strong>' . __('Matr. number','teachpress') . '</strong></td>';
-            echo '<td style="vertical-align:middle;">' . $row3->matriculation_number . '</td>';
-            echo '</tr>';
-        }
-        if (get_tp_option('studies') == '1') {
-            echo '<tr>';
-            echo '<td><strong>' . __('Course of studies','teachpress') . '</strong></td>';
-            echo '<td style="vertical-align:middle;">' . stripslashes($row3->course_of_studies) . '</td>';
-            echo '</tr>';
-        }
-        if (get_tp_option('termnumber') == '1') { 
-            echo '<tr>';
-            echo '<td><strong>' . __('Number of terms','teachpress') . '</strong></td>';
-            echo '<td style="vertical-align:middle;">' . $row3->semesternumber . '</td>';
-            echo '</tr>';
-        }
-        if (get_tp_option('birthday') == '1') {
-            echo '<tr>';
-            echo '<td><strong>' . __('Date of birth','teachpress') . '</strong></td>';
-            echo '<td style="vertical-align:middle;">' . $row3->birthday . '</td>';
-            echo '</tr>';
-        }
         echo '<tr>';
-        echo '<td><strong>' . __('User account','teachpress') . '</strong></td>';
-        echo '<td style="vertical-align:middle;">' . $row3->userlogin . '</td>';
+        echo '<tr>';
+        echo '<td width="130"><strong>' . __('User account','teachpress') . '</strong></td>';
+        echo '<td style="vertical-align:middle;">' . $row3['userlogin'] . '</td>';
         echo '</tr>';
         echo '<tr>';
         echo'<td><strong>' . __('E-Mail') . '</strong></td>';
-        echo '<td style="vertical-align:middle;"><a href="admin.php?page=teachpress/teachpress.php&amp;student_ID=' . $row3->wp_id . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $entry_limit . '&amp;action=mail&amp;single=' . $row3->email . '" title="' . __('Send E-Mail to','teachpress') . ' ' . $row3->firstname . ' ' . $row3->lastname . '">' . $row3->email . '</a></td>';
+        echo '<td style="vertical-align:middle;"><a href="admin.php?page=teachpress/teachpress.php&amp;student_ID=' . $row3['wp_id'] . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $entry_limit . '&amp;action=mail&amp;single=' . $row3['email'] . '" title="' . __('Send E-Mail to','teachpress') . ' ' . $row3['firstname'] . ' ' . $row3['lastname'] . '">' . $row3['email'] . '</a></td>';
         echo '</tr>';
+        foreach ($fields as $row) {
+            $data = tp_extract_column_data($row->value);
+            echo '<tr>';
+            echo '<td><strong>' . $data['title'] . '</strong></td>';
+            echo '<td style="vertical-align:middle;">' . $row3[$row->variable] . '</td>';
+            echo '</tr>';
+           
+        }
         ?>
       </thead>   
      </table>
@@ -97,9 +84,8 @@ function teachpress_show_student_page() {
     <tbody>
     <?php
         // get signups
-        $row = get_tp_student_signups($student, 'reg');
-        if ( count($row) != 0) {	
-            $row = get_tp_student_signups($student, 'reg');
+        $row = get_tp_student_signups( array('wp_id' => $student, 'mode' => 'reg'));
+        if ( count($row) != 0) {
             foreach($row as $row) {
                 if ($row->parent_name != "") {
                     $row->parent_name = $row->parent_name . " ";
@@ -123,7 +109,7 @@ function teachpress_show_student_page() {
     </tbody>
    </table>
    <?php
-   $row = get_tp_student_signups($student, 'wtl');
+   $row = get_tp_student_signups( array('wp_id' => $student, 'mode' => 'wtl') );
    if ( count($row) != 0 ) {
         echo '<h3>' . __('Waitinglist','teachpress') . '</h3>';
         ?>
@@ -172,6 +158,10 @@ function teachpress_show_student_page() {
    </div>
 <?php } 
 
+/**
+ * Edit student UI
+ * @global type $user_ID
+ */
 function teachpress_edit_student_page() {
     global $user_ID;
     $student = htmlspecialchars($_GET['student_ID']);

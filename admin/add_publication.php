@@ -128,11 +128,11 @@ function teachpress_addpublications_page() {
           <?php 
              if ($pub_ID != '') {
                    $test = tp_check_bookmark($pub_ID, $user);
-                   if ($test != '0') {
-                           echo '<p><input type="checkbox" name="bookmark[]" id="bookmark" disabled="disabled"/> <label for="bookmark">' . __('add to your own list','teachpress') . '</label></p>';
+                   if ($test === true) {
+                        echo '<p><input type="checkbox" name="bookmark[]" id="bookmark" disabled="disabled"/> <label for="bookmark">' . __('add to your own list','teachpress') . '</label></p>';
                    }
                    else {
-                           echo '<p><input type="checkbox" name="bookmark[]" id="bookmark" value="' . $user . '" title="' . __('Click to add the publication in your own list','teachpress') . '"/> <label for="bookmark" title="' . __('Click to add the publication in your own list','teachpress') . '">' . __('add to your own list','teachpress') . '</label></p>';
+                        echo '<p><input type="checkbox" name="bookmark[]" id="bookmark" value="' . $user . '" title="' . __('Click to add the publication in your own list','teachpress') . '"/> <label for="bookmark" title="' . __('Click to add the publication in your own list','teachpress') . '">' . __('add to your own list','teachpress') . '</label></p>';
                    }
              }	
              else {
@@ -192,9 +192,9 @@ function teachpress_addpublications_page() {
             $current_tags = get_tp_tags( array('pub_id' => $pub_ID) );
             if ($current_tags != '') {
                 echo '<p><strong>' . __('Current','teachpress') . '</strong></p>';
+                $s = "'";
                 foreach ($current_tags as $row3){
-                    $s = "'";
-                    echo'<input name="delbox[]" type="checkbox" value="' . $row3->con_id . '" title="Tag &laquo;' . $row3->name . '&raquo; ' . __('Delete','teachpress') . '" id="checkbox_' . $row3->con_id . '" onclick="teachpress_change_label_color(' . $s . $row3->con_id . $s . ')"/> <span style="font-size:12px;" ><label for="checkbox_' . $row3->con_id . '" title="Tag &laquo;' . $row3->name . '&raquo; ' . __('Delete','teachpress') . '" id="tag_label_' . $row3->con_id . '">' . $row3->name . '</label></span> | ';
+                    echo'<input name="delbox[]" type="checkbox" value="' . $row3->con_id . '" id="checkbox_' . $row3->con_id . '" onclick="teachpress_change_label_color(' . $s . $row3->con_id . $s . ')"/> <label for="checkbox_' . $row3->con_id . '" title="Tag &laquo;' . $row3->name . '&raquo; ' . __('Delete','teachpress') . '" id="tag_label_' . $row3->con_id . '">' . $row3->name . '</label> | ';
                 } 
             }	
             }?>  

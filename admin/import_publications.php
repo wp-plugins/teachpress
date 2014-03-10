@@ -85,7 +85,7 @@ function teachpress_import_page() {
         $set_menu_2 = $tab === 'export' ? 'nav-tab nav-tab-active' : 'nav-tab';
         echo '<div class="wrap">';
         echo '<h2>' . __('Publications','teachpress') . '</h2>';
-        echo '<h3 class="nav-tab-wrapper"><a href="admin.php?page=teachpress/import.php&amp;tab=import" class="' . $set_menu_1 .'" title="' . __('Import') . '" >' . __('Import') . '</a> <a href="admin.php?page=teachpress/import.php&amp;tab=export" class="' . $set_menu_2 . '" title="' . __('Export') . '">' . __('Export') . '</a></h3>';
+        echo '<h3 class="nav-tab-wrapper"><a href="admin.php?page=teachpress/import.php&amp;tab=import" class="' . $set_menu_1 .'">' . __('Import') . '</a> <a href="admin.php?page=teachpress/import.php&amp;tab=export" class="' . $set_menu_2 . '">' . __('Export') . '</a></h3>';
         
         // Import
         if ($tab === '' || $tab === 'import') {

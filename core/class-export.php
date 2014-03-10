@@ -19,14 +19,15 @@ class tp_export {
         echo '<tr>';
         echo '<th>' . __('Last name','teachpress') . '</th>';
         echo '<th>' . __('First name','teachpress') . '</th>';
-        if ($option['regnum'] == '1') {
-            echo '<th>' . __('Matr. number','teachpress') . '</th>';
-        }
-        if ($option['studies'] == '1') {
-            echo '<th>' . __('Course of studies','teachpress') . '</th>';
-        }
         echo '<th>' . __('User account','teachpress') . '</th>';
         echo '<th>' . __('E-Mail') . '</th>';
+        $fields = get_tp_options('teachpress_stud','`setting_id` ASC');
+        foreach ( $fields as $field ) {
+            $data = tp_extract_column_data($field->value);
+            if ( $data['admin_visibility'] === 'true') {
+                echo '<th>' . stripslashes(utf8_decode($data['title'])) . '</th>';
+            }
+        }
         echo '<th>' . __('Registered at','teachpress') . '</th>';
         echo '</tr>';
         echo '</thead>';  
@@ -38,14 +39,14 @@ class tp_export {
             echo '<tr>';
             echo '<td>' . stripslashes(utf8_decode($row['lastname'])) . '</td>';
             echo '<td>' . stripslashes(utf8_decode($row['firstname'])) . '</td>';
-            if ($option['regnum'] == '1') {
-                echo '<td>' . $row['matriculation_number'] . '</td>';
-            }
-            if ($option['studies'] == '1') {
-                echo '<td>' . stripslashes(utf8_decode($row['course_of_studies'])) . '</td>';
-            }
-            echo '<td>' . $row['userlogin'] . '</td>';
+            echo '<td>' . stripslashes(utf8_decode($row['userlogin'])) . '</td>';
             echo '<td>' . $row['email'] . '</td>';
+            foreach ( $fields as $field ) {
+                $data = tp_extract_column_data($field->value);
+                if ( $data['admin_visibility'] === 'true') {
+                    echo '<td>' . stripslashes( utf8_decode( tp_export::decode($row[$field->variable]) ) ) . '</td>';
+                }
+            }
             echo '<td>' . $row['date'] . '</td>';
             echo '</tr>';
 
@@ -126,22 +127,27 @@ class tp_export {
         $option['regnum'] = get_tp_option('regnum');
         $option['studies'] = get_tp_option('studies');
         $row = get_tp_course_signups( array('course' => $course_ID, 'waitinglist' => 0, 'output_type' => ARRAY_A, 'order' => 'st.lastname ASC') );
+        $fields = get_tp_options('teachpress_stud','`setting_id` ASC');
+        
+        $extra_headlines = '';
+        foreach ( $fields as $field ) {
+            $data = tp_extract_column_data($field->value);
+            $extra_headlines .= '"' . stripslashes( utf8_decode( $data['title'] ) ) . '";';
+        }
 
-        if ($option['regnum'] == '1') { $matr = "" . __('Matr. number','teachpress') . ";"; } else { $matr = ""; }
-        if ($option['studies'] == '1') { $cos = "" . __('Course of studies','teachpress') . ";"; } else { $cos = ""; }
-
-        $headline = "" . __('Last name','teachpress') . ";" . __('First name','teachpress') . ";" . $matr . "" . $cos . "" . __('User account','teachpress') . ";" . __('E-Mail') . ";" . __('Registered at','teachpress') . ";" . __('Record-ID','teachpress') . ";" . __('Waiting list','teachpress') . "\r\n";
+        $headline = '"' . __('Last name','teachpress') . '";"' . __('First name','teachpress') . '";"' . __('User account','teachpress') . '";"' . __('E-Mail') . '";' . $extra_headlines . '"' . __('Registered at','teachpress') . '";"' . __('Record-ID','teachpress') . '";"' . __('Waiting list','teachpress') . '"' . "\r\n";
         $headline = tp_export::decode($headline);
         echo $headline;
         foreach($row as $row) {
             $row['firstname'] = tp_export::decode($row['firstname']);
             $row['lastname'] = tp_export::decode($row['lastname']);
-            $row['course_of_studies'] = tp_export::decode($row['course_of_studies']);
+            
+            $values = '';
+            foreach ( $fields as $field ) {
+                $values .= '"' . stripslashes( utf8_decode( tp_export::decode($row[$field->variable]) ) ) . '";';
+            }
 
-            if ($option['regnum'] == '1') { $matr = "" . $row['matriculation_number'] . ";"; } else { $matr = ""; }
-            if ($option['studies'] == '1') { $cos = "" . stripslashes(utf8_decode($row['course_of_studies'])) . ";"; } else { $cos = ""; }
-
-            echo "" . stripslashes(utf8_decode($row['lastname'])) . ";" . stripslashes(utf8_decode($row['firstname'])) . ";" . $matr . "" . $cos . "" . $row['userlogin'] . ";" . $row['email'] . ";" . $row['date'] . ";" . $row['con_id'] . ";" . $row['waitinglist']. "\r\n";
+            echo '"' . stripslashes(utf8_decode($row['lastname'])) . '";"' . stripslashes(utf8_decode($row['firstname'])) . '";"' . stripslashes(utf8_decode($row['userlogin'])) . '";"' . $row['email'] . '";' . $values . '"' . $row['date'] . '";"' . $row['con_id'] . '";"' . $row['waitinglist'] . '"' . "\r\n";
         }
     }
 

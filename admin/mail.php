@@ -46,7 +46,7 @@ function tp_show_mail_page() {
     <div class="wrap">
         <?php
         if ( isset( $_GET['course_ID'] ) ) {
-            $return_url = "admin.php?page=teachpress/teachpress.php&amp;course_ID=$course_ID&amp;sem=$sem&amp;search=$search&amp;redirect=$redirect&amp;action=show";
+            $return_url = "admin.php?page=teachpress/teachpress.php&amp;course_ID=$course_ID&amp;sem=$sem&amp;search=$search&amp;redirect=$redirect&amp;action=enrollments";
         }
         if ( isset( $_GET['student_ID'] ) ) {
             $return_url = "admin.php?page=teachpress/students.php&amp;student_ID=$student_ID&amp;search=$search&amp;students_group=$students_group&amp;limit=$limit";

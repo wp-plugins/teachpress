@@ -484,7 +484,7 @@ function tp_enrollments_shortcode($atts) {
                           <th>' . __('Term','teachpress') . '</th>
                          </tr>';
              // Select all courses where user is registered
-             $row1 = get_tp_student_signups($row->wp_id, 'reg');
+             $row1 = get_tp_student_signups( array('wp_id' => $student, 'mode' => 'reg') );
              if ( $wpdb->num_rows != 0 ) {
                foreach($row1 as $row1) {
                    $row1->parent_name = stripslashes($row1->parent_name);
@@ -509,7 +509,7 @@ function tp_enrollments_shortcode($atts) {
              }
              $rtn = $rtn . '</table>';
              // all courses where user is registered in a waiting list
-             $row1 = get_tp_student_signups($row->wp_id, 'wtl');
+             $row1 = get_tp_student_signups( array('wp_id' => $student, 'mode' => 'wtl') );
              if ( count($row1) != 0 ) {
                 $rtn = $rtn . '<p><strong>' . __('Waiting list','teachpress') . '</strong></p>
                               <table class="teachpress_enr_old" border="1" cellpadding="5" cellspacing="0">

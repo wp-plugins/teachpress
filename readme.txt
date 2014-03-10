@@ -2,10 +2,9 @@
 Contributors: Michael Winkler
 Tags: management, publications, enrollments, teachpress, education, course management, BibTeX, bibliography
 License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 3.3
-Tested up to: 3.8
-Stable tag: 4.3.3
+Tested up to: 3.6
+Stable tag: 4.2.1
 
 With this plugin you can easy manage courses, enrollments and publications.
 
@@ -56,8 +55,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 = Licence information of external resources =
-* Graphics for mimetypes by Oxygen Icons 4.3.1 http://www.oxygen-icons.org/ (Licence: LPGL)
+* Graphics for mimetypes, folder-new-7.png and document-new-6.png by Oxygen Icons 4.3.1 http://www.oxygen-icons.org/ (Licence: LPGL)
 * view-refresh-3.png by GNOME Icon Theme 2.26.0 http://art.gnome.org (License: GPLv2)
+* bookmark-new-4.png by Tango Icon Library (License: Public Domain)
 * bibtexParse by Mark Grimshaw & Guillaume Gardey (Licence: GPL)
 
 = Thanks =
@@ -118,25 +118,24 @@ If you save plugins outside the normal path (/wp-content/plugins/), the plugin c
 
 == Changelog ==
 
-= 4.3.3 - (10.03.2014) =
-* New: [tpcloud, tplist]: New headline option (headline = 4: sort by type and year) added (Thanks to Ellie)
+* Bugfix: Reenable xls export (5.0.0)
 
-= 4.3.2 - (03.03.2014) =
-* New: [tpcloud]: New parameter "exclude_tags" added
-
-= 4.3.1 - (22.01.2014) =
+= 4.3.1 =
+* *22.01.2014*
 * New: Access control is now editable for courses and for publications separately
 
-= 4.3.0 - (12.01.2014) =
+= 4.3.0 =
+* *12.01.2014*
 * New: Bulk edit for publications in admin menu
 * New: [tplist], [tpcloud]: Support for custom sort orders for publication lists added (if headline = 2 is used)
 * New: [tpcloud]: Pagination added
-* New: [tpcloud]: New parameters "pagination", "entries_per_page" and "sort_order" added
+* New: [tpcloud]: New parameters "pagination", "entries_per_page" and "sort_list" added
 * Changed: [tpcloud]: Parameter "limit" is now "tag_limit"
 * Changed: BibTeX type "masterthesis" is now "mastersthesis"
 * Bugfix: The original content of a mail was replaced with the header
 
-= 4.2.2 - (11.09.2013) =
+= 4.2.2 =
+* *11.09.2013*
 * Bugfix: Fixed a bug which prevent adding of terms, course types and courses of studies
 
 = 4.2.1 - (11.09.2013) =

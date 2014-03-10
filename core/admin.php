@@ -383,4 +383,15 @@ function tp_copy_course($checkbox, $copysem) {
      }
 }
 
+/**
+ * Set screen options
+ * @since 4.2.0
+ */
+function tp_set_screen_option($status, $option, $value) {
+    if ( 'tp_pubs_per_page' == $option || 'tp_tags_per_page' == $option ) { 
+        return $value; 
+    }
+}
+add_filter('set-screen-option', 'tp_set_screen_option', 10, 3);
+
 ?>

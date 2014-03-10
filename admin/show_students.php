@@ -75,10 +75,22 @@ function teachpress_students_page() {
             get_tp_message($message);
         }
         // Load data
-        $field1 = get_tp_option('regnum');
-        $field2 = get_tp_option('studies');
-        $students = get_tp_students( array('course_of_studies' => $students_group, 'search' => $search, 'limit' => $entry_limit . ',' . $entries_per_page, 'output_type' => OBJECT ) );
         $number_entries = get_tp_students( array('course_of_studies' => $students_group, 'search' => $search, 'output_type' => OBJECT, 'count' => true ) );
+        $students = get_tp_students( array('course_of_studies' => $students_group, 'search' => $search, 'limit' => $entry_limit . ',' . $entries_per_page, 'output_type' => ARRAY_A ) );
+        
+        // field options
+        $fields = get_tp_options('teachpress_stud','`setting_id` ASC');
+        $visible_fields = array();
+        $select_fields = array();
+        foreach ($fields as $row) {
+            $data = tp_extract_column_data($row->value);
+            if ( $data['admin_visibility'] === 'true') {
+                array_push($visible_fields, $row->variable);
+            }
+            if ( $data['admin_visibility'] === 'true' && $data['type'] === 'SELECT' ) {
+                array_push($select_fields, $row->variable);
+            }
+        }
         ?>
         <h2><?php _e('Students','teachpress'); ?> <a class="add-new-h2" href="admin.php?page=teachpress/students.php&amp;action=add"><?php _e('Add student','teachpress'); ?></a></h2>
         <div id="searchbox" style="float:right; padding-bottom:5px;">  
@@ -89,23 +101,26 @@ function teachpress_students_page() {
         <input name="go" type="submit" value="<?php _e('Search','teachpress'); ?>" id="teachpress_search_senden" class="button-secondary"/>
     </div>
     <div class="tablenav" style="padding-bottom:5px;">
-    <select name="bulk" id="bulk">
-        <option>- <?php _e('Bulk actions','teachpress'); ?> -</option>
-        <option value="delete"><?php _e('Delete','teachpress'); ?></option>
-    </select>
-    <input type="submit" name="teachpress_submit" value="<?php _e('OK','teachpress'); ?>" id="doaction" class="button-secondary"/>
-    <?php if ($field2 == '1') { ?>
-        <select name="students_group" id="students_group">
-            <option value="">- <?php _e('All students','teachpress'); ?> -</option>
-            <?php
-            $row = get_tp_options('course_of_studies', 'value ASC');
-            foreach($row as $row){
-                $current = $row->value == $students_group ? ' selected="selected"' : '';
-                echo'<option value="' . $row->value . '"' . $current . '>' . $row->value . '</option>';
-            } ?>
+        <select name="bulk" id="bulk">
+            <option>- <?php _e('Bulk actions','teachpress'); ?> -</option>
+            <option value="delete"><?php _e('Delete','teachpress'); ?></option>
         </select>
-        <input name="anzeigen" type="submit" id="teachpress_search_senden" value="<?php _e('Show','teachpress'); ?>" class="button-secondary"/>
-        <?php }
+        <input type="submit" name="teachpress_submit" value="<?php _e('OK','teachpress'); ?>" id="doaction" class="button-secondary"/>
+        <?php 
+        $selects = false;
+        for ($i = 0; $i< count($select_fields); $i++) {
+            echo '<select name="' . $select_fields[$i] . '">';
+            echo '<option value="">- ' . __('All','teachpress') . ' -</option>';
+            $options = get_tp_options($select_fields[$i]);
+            foreach ( $options as $option ) {
+                echo '<option>' . $option->value  . '</option>';
+            }
+            echo '</select>';
+            $selects = true;
+        }
+        if ( $selects === true ) {
+            echo ' <input name="anzeigen" type="submit" id="teachpress_search_senden" value="' . __('Show','teachpress') . '" class="button-secondary"/>';
+        }
         // Page Menu
         echo tp_admin_page_menu ($number_entries, $entries_per_page, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search&amp;students_group=$students_group"); ?>
     </div>
@@ -118,22 +133,14 @@ function teachpress_students_page() {
             <?php
             echo '<th>' . __('Last name','teachpress') . '</th>';
             echo '<th>' . __('First name','teachpress') . '</th>'; 
-            if ($field1 == '1') {
-                echo '<th>' .  __('Matr. number','teachpress') . '</th>';
-            }
-            if ($field2 == '1') {
-                echo '<th>' .  __('Course of studies','teachpress') . '</th>';
-            }
-            $field3 = get_tp_option('termnumber');
-            if ($field3 == '1') {
-                echo '<th>' .  __('Number of terms','teachpress') . '</th>';
-            }
-            $field4 = get_tp_option('birthday');
-            if ($field4 == '1') {
-                echo '<th>' .  __('Date of birth','teachpress') . '</th>';
-            }
-            echo '<th>' . __('User account','teachpress') . '</th>';
+            echo '<th>' . __('User account','teachpress') . '</th>'; 
             echo '<th>' . __('E-Mail') . '</th>';
+            foreach ($fields as $row) {
+                $data = tp_extract_column_data($row->value);
+                if ( $data['admin_visibility'] === 'true' ) {
+                    echo '<th>' . $data['title'] . '</th>';
+                }
+            }
             ?>
         </tr>
         </thead>
@@ -144,9 +151,9 @@ function teachpress_students_page() {
             echo '<tr><td colspan="9"><strong>' . __('Sorry, no entries matched your criteria.','teachpress') . '</strong></td></tr>';
         }
         else {
-			$class_alternate = true;
-            foreach($students as $row3) {
-				if ( $class_alternate === true ) {
+            $class_alternate = true;
+            foreach($students as $row3) { 
+                if ( $class_alternate === true ) {
                     $tr_class = 'class="alternate"';
                     $class_alternate = false;
                 }
@@ -155,29 +162,21 @@ function teachpress_students_page() {
                     $class_alternate = true;
                 }
                 echo '<tr ' . $tr_class . '>';
-                echo '<th class="check-column"><input type="checkbox" name="checkbox[]" id="checkbox" value="' . $row3->wp_id . '"';
+                echo '<th class="check-column"><input type="checkbox" name="checkbox[]" id="checkbox" value="' . $row3['wp_id'] . '"';
                 if ( $bulk == "delete") { 
                     for( $i = 0; $i < count( $checkbox ); $i++ ) { 
-                        if ( $row3->wp_id == $checkbox[$i] ) { echo 'checked="checked"';} 
+                        if ( $row3['wp_id'] == $checkbox[$i] ) { echo 'checked="checked"';} 
                     } 
                 }
                 echo '/></th>';
-                echo '<td><a href="admin.php?page=teachpress/students.php&amp;student_ID=' . $row3->wp_id . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $curr_page . '&amp;action=show" class="teachpress_link" title="' . __('Click to edit','teachpress') . '"><strong>' . stripslashes($row3->lastname) . '</strong></a></td>';
-                echo '<td>' . stripslashes($row3->firstname) . '</td>';
-                if ($field1 == '1') {
-                    echo '<td>' . $row3->matriculation_number . '</td>';
+                $link_name = ( $row3['lastname'] !== '' ) ? stripslashes($row3['lastname']) : '[' . __('empty','teachpress') . ']';
+                echo '<td><a href="admin.php?page=teachpress/students.php&amp;student_ID=' . $row3['wp_id'] . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $curr_page . '&amp;action=show" class="teachpress_link" title="' . __('Click to edit','teachpress') . '"><strong>' . $link_name . '</strong></a></td>';
+                echo '<td>' . stripslashes($row3['firstname']) . '</td>';
+                echo '<td>' . stripslashes($row3['userlogin']) . '</td>';
+                echo '<td><a href="admin.php?page=teachpress/teachpress.php&amp;student_ID=' . $row3['wp_id'] . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $curr_page . '&amp;action=mail&amp;single=' . $row3['email'] . '" title="' . __('send E-Mail','teachpress') . '">' . $row3['email'] . '</a></td>';
+                for ($i = 0; $i< count($visible_fields); $i++) {
+                    echo '<td>' . $row3[$visible_fields[$i]] . '</td>';
                 }
-                if ($field2 == '1') {
-                    echo '<td>' . stripslashes($row3->course_of_studies) . '</td>';
-                } 
-                if ($field3 == '1') {
-                    echo '<td>' . $row3->semesternumber . '</td>';
-                } 
-                if ($field4 == '1') {
-                    echo '<td>' . $row3->birthday . '</td>';
-                }
-                echo '<td>' . $row3->userlogin . '</td>';
-                echo '<td><a href="admin.php?page=teachpress/teachpress.php&amp;student_ID=' . $row3->wp_id . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $curr_page . '&amp;action=mail&amp;single=' . $row3->email . '" title="' . __('send E-Mail','teachpress') . '">' . $row3->email . '</a></td>';
                 echo '</tr>';
             } 
         }

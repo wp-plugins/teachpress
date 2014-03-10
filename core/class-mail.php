@@ -27,6 +27,7 @@ class tp_mail {
         // Send mail
         // Use the normal wp_mail()
         // The Return-Path seems to be useless, I'm no sure why
+        if ( !defined('TP_MAIL_SYSTEM') ) {
             // Prepare header attributes
             if ( $from === 'currentuser' ) {
                 $headers[] = 'From: ' . $current_user->display_name . ' <' . $current_user->user_email . '>';
@@ -48,7 +49,35 @@ class tp_mail {
                 wp_mail($current_user->user_email, $subject, $message, '', $attachments);
             }
             $ret = wp_mail($to, $subject, $message, $headers, $attachments);
-
+        }
+        /**
+         * @expectedException used at tuc servers
+         */
+        else {
+            require_once('php/mail.inc');
+            
+            // Set from info
+            $from = ( $from === 'currentuser' ) ? $current_user->display_name . ' <' . $current_user->user_email . '>' : get_bloginfo('name') . ' <' . get_bloginfo('admin_email') . '>';
+            
+            // Set Bcc info
+            if ( $options['recipients'] === 'Bcc' ) {
+                $to = explode(',', $to);
+            }
+            
+            // Send mail
+            $ret = tuc_mail($to, $from, $subject, $message, '');
+            
+            // Display errors
+            if ( $ret !== true ) {
+                get_tp_message( htmlspecialchars($ret) );
+            }
+            else {
+                // Send backup mail
+                if ( $options['backup_mail'] == 'backup' ) {
+                    tuc_mail($current_user->user_email, get_bloginfo('admin_email'), $subject, $message, '');
+                }
+            }
+        }
         return $ret;
     }
 
