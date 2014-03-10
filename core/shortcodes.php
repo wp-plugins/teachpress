@@ -332,7 +332,7 @@ function tp_abstract_shortcode ($atts) {
 
     if ( isset($publication['abstract']) ) {
         return '<h2 class="tp_abstract">' . __('Abstract','teachpress') . '</h2><p class="tp_abstract">' . tp_bibtex::prepare_text_for_html($publication['abstract']) . '</p>';
-    } 
+    }
     return;
 }
 
@@ -411,7 +411,7 @@ function tp_sort_pub_table($tparray, $headlines, $args) {
             }
         }
     }
-    // with healines grouped by year then by type
+    // with headlines grouped by year then by type
     else if ($args['headline'] === 3) {
         $yearHeadlines = array();
         for ($i = 0; $i < $tpz; $i++) {
@@ -427,12 +427,40 @@ function tp_sort_pub_table($tparray, $headlines, $args) {
         }
         
         foreach ( $yearHeadlines as $year => $typeHeadlines ) {
-            $publications .=  '<tr><td' . $args['colspan'] . '><h3 class="tp_h3">' . $year . '</h3></td></tr>';
+            $publications .=  '<tr><td' . $args['colspan'] . '><h3 class="tp_h3" id="' . $year . '">' . $year . '</h3></td></tr>';
             foreach($typeHeadlines as $type => $value) {
                 if ($value != '' ) {
                     $type_title = tp_translate_pub_type($type, 'pl');
                     $publications .=  '<tr><td' . $args['colspan'] . '><h4 class="tp_h3">' . $type_title . '</h4></td></tr>';
                     $publications .=  $value;
+                }
+            }
+        }
+    }
+    // with headlines grouped by type then by year
+    else if ($args['headline'] === 4) {
+        $typeHeadlines = array();
+        for ($i = 0; $i < $tpz; $i++) {
+            $keyYear = $tparray[$i][0];
+            $keyType = $tparray[$i][2];
+            $pubVal  = $tparray[$i][1];
+            if(!array_key_exists($keyType, $typeHeadlines)) {
+                $typeHeadlines[$keyType] = array($keyYear => $pubVal); 
+            }
+            if(!array_key_exists($keyYear, $typeHeadlines[$keyType])) {
+                $typeHeadlines[$keyType][$keyYear] = $pubVal;
+            }
+            else {
+                $typeHeadlines[$keyType][$keyYear] .= $pubVal;
+            }
+        }
+        
+        foreach ( $typeHeadlines as $type => $yearHeadlines ) {
+            $publications .=  '<tr><td' . $args['colspan'] . '><h3 class="tp_h3" id="' . $type . '">' . tp_translate_pub_type($type, 'pl') . '</h3></td></tr>';
+            foreach($yearHeadlines as $year => $pubValue) {
+                if ($pubValue != '' ) {
+                    $publications .=  '<tr><td' . $args['colspan'] . '><h4 class="tp_h3">' . $year . '</h4></td></tr>';
+                    $publications .=  $pubValue;
                 }
             }
         }
@@ -484,7 +512,7 @@ function tp_generate_pub_table($tparray, $args ) {
  *   type (STRING)          --> the publication types you want to show (separated by comma)
  *   exclude (INT)          --> one or more IDs of publications you don't want to show (separated by comma)
  *   order (STRING)         --> name, year, bibtex or type, default: date DESC
- *   headline (INT)         --> show headlines with years(1) with publication types(2) or not(0), default: 1
+ *   headline (INT)         --> show headlines with years(1), with publication types(2), with years and types (3), with types and years (4) or not(0), default: 1
  *   maxsize (INT)          --> maximal font size for the tag cloud, default: 35
  *   minsize (INT)          --> minimal font size for the tag cloud, default: 11
  *   limit (INT)            --> number of tags, default: 30
@@ -543,7 +571,7 @@ function tp_cloud_shortcode($atts) {
    // if author is set by shortcode parameter
    if ($user != 0) {
       $author = $user;
-   }   
+   }
    
    // secure parameters
    $exclude = htmlspecialchars($exclude);
@@ -578,13 +606,13 @@ function tp_cloud_shortcode($atts) {
             $current_page = 1;
         }
         $entry_limit = ( $current_page - 1 ) * $entries_per_page;
-    }
-    else {
+   }
+   else {
         $entry_limit = 0;
         $current_page = 1;
-    }
-    $page_limit = ( $pagination === 1 ) ? $entry_limit . ',' .  $entries_per_page : ''; 
-
+   }
+   $page_limit = ( $pagination === 1 ) ? $entry_limit . ',' .  $entries_per_page : ''; 
+    
    // ignore hide_tags if exclude_tags is given 
    if ( $exclude_tags != '' ) {
        $hide_tags = $exclude_tags;
@@ -697,7 +725,7 @@ function tp_cloud_shortcode($atts) {
       $filter3 ='<select name="pub-author" id="pub-author" onchange="teachpress_jumpMenu(' . $str . 'parent' . $str . ',this,0)">
                   <option value="' . $permalink . 'tgid=' . $tgid . '&amp;yr=' . $yr . '&amp;type=' . $type . $settings['html_anchor'] . '">' . __('All authors','teachpress') . '</option>
                          ' . $options . '
-                </select>';	
+                </select>';
    }
    // end filter author
 
@@ -724,8 +752,8 @@ function tp_cloud_shortcode($atts) {
    if ( $headline === 2 ) {
         $order = "type ASC, date DESC"; 
    }
-   if ( $headline === 3  ) {
-        $order = "year DESC , type ASC , date DESC";
+   if ( $headline === 3 || $headline === 4 ) {
+        $order = "year DESC, type ASC , date DESC";
    }
    
    $args = array(
@@ -755,7 +783,7 @@ function tp_cloud_shortcode($atts) {
       $number = ( $style === 'numbered_desc' || $style === 'std_num_desc' ) ? $count - $tpz : $tpz + 1 ;
       $tparray[$tpz][0] = $row['year'] ;
       $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row, $all_tags, $permalink, $settings, $number);
-      if ( $headline === 2 || $headline === 3 ) {
+      if ( 2 <= $headline && $headline <= 4 ) {
           $tparray[$tpz][2] = $row['type'] ;
       }
       $tpz++;
@@ -793,7 +821,7 @@ function tp_cloud_shortcode($atts) {
  *   include (STRING)       --> a string with one or more IDs of publication you want to display
  *   year (STRING)          --> the publication years (separated by comma)
  *   order (STRING)         --> name, year, bibtex or type, default: date DESC
- *   headline (INT)         --> show headlines with years(1), with publication types(2), with both(3) or not(0), default: 1
+ *   headline (INT)         --> show headlines with years(1), with publication types(2), with years and types (3), with types and years (4) or not(0), default: 1
  *   image (STRING)         --> none, left, right or bottom, default: none 
  *   image_size (INT)       --> max. Image size, default: 0
  *   author_name (STRING)   --> last, initials or old, default: last
@@ -869,9 +897,9 @@ function tp_list_shortcode($atts){
          $order = 'date DESC, ' . $order;
     }
     if ( $headline === 2 ) {
-        $order = "type ASC, date DESC"; 
+        $order = "type ASC, date DESC";
     }
-    if ( $headline === 3  ) {
+    if ( $headline === 3 || $headline === 4  ) {
         $order = "year DESC , type ASC , date DESC ";
     }
 
@@ -890,10 +918,10 @@ function tp_list_shortcode($atts){
        $number = ( $style === 'numbered_desc' || $style === 'std_num_desc' ) ? $count - $tpz : $tpz + 1 ;
        $tparray[$tpz][0] = $row['year'];
        $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row,'', '', $settings, $number);
-       if ( $headline === 2 || $headline === 3 ) {
+       if ( 2 <= $headline && $headline <= 4 ) {
            $tparray[$tpz][2] = $row['type'];
        }
-       $tpz++;			
+       $tpz++;
     }
     
     // menu

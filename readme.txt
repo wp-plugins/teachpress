@@ -5,7 +5,7 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 3.3
 Tested up to: 3.8
-Stable tag: 4.3.2
+Stable tag: 4.3.3
 
 With this plugin you can easy manage courses, enrollments and publications.
 
@@ -118,16 +118,16 @@ If you save plugins outside the normal path (/wp-content/plugins/), the plugin c
 
 == Changelog ==
 
-= 4.3.2 =
-* *03.03.2014*
+= 4.3.3 - (10.03.2014) =
+* New: [tpcloud, tplist]: New headline option (headline = 4: sort by type and year) added (Thanks to Ellie)
+
+= 4.3.2 - (03.03.2014) =
 * New: [tpcloud]: New parameter "exclude_tags" added
 
-= 4.3.1 =
-* *22.01.2014*
+= 4.3.1 - (22.01.2014) =
 * New: Access control is now editable for courses and for publications separately
 
-= 4.3.0 =
-* *12.01.2014*
+= 4.3.0 - (12.01.2014) =
 * New: Bulk edit for publications in admin menu
 * New: [tplist], [tpcloud]: Support for custom sort orders for publication lists added (if headline = 2 is used)
 * New: [tpcloud]: Pagination added
@@ -136,8 +136,7 @@ If you save plugins outside the normal path (/wp-content/plugins/), the plugin c
 * Changed: BibTeX type "masterthesis" is now "mastersthesis"
 * Bugfix: The original content of a mail was replaced with the header
 
-= 4.2.2 =
-* *11.09.2013*
+= 4.2.2 - (11.09.2013) =
 * Bugfix: Fixed a bug which prevent adding of terms, course types and courses of studies
 
 = 4.2.1 - (11.09.2013) =

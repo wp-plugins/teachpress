@@ -3,7 +3,7 @@
 Plugin Name: teachPress
 Plugin URI: http://mtrv.wordpress.com/teachpress/
 Description: With teachPress you can easy manage courses, enrollments and publications.
-Version: 4.3.2
+Version: 4.3.3
 Author: Michael Winkler
 Author URI: http://mtrv.wordpress.com/
 Min WP Version: 3.3
@@ -378,7 +378,7 @@ function get_tp_var_types($type) {
  * @return string
 */
 function get_tp_version() {
-    return '4.3.2';
+    return '4.3.3';
 }
 
 /** 
@@ -634,7 +634,7 @@ function tp_install() {
         // Default settings
         $value = '[tpsingle [key]]<!--more-->' . "\n\n[tpabstract]\n\n[tplinks]\n\n[tpbibtex]";
         $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('sem', 'Example term', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('db-version', '4.3.2', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('db-version', '4.3.3', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('sign_out', '0', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('login', 'std', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('stylesheet', '1', 'system')");
