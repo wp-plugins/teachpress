@@ -31,7 +31,7 @@ function teachpress_show_courses_page() {
      if ($test != $version) {
            $message = __('An database update is necessary.','teachpress') . ' <a href="options-general.php?page=teachpress/settings.php&amp;up=1">' . __('Update','teachpress') . '</a>';
            echo '<div class="wrap">';
-           get_tp_message($message, '');
+           get_tp_message($message);
            echo '</div>';
      }
      
@@ -55,7 +55,7 @@ function teachpress_show_courses_page() {
      if ( $action === 'edit' ) {
           tp_add_course_page();
      }
-     elseif ( $action === 'show' || $action === 'assessments' || $action === 'enrollments' || $action === 'access' ) {
+     elseif ( $action === 'show' || $action === 'assessments' || $action === 'enrollments' || $action === 'capabilites' ) {
           tp_show_single_course_page();
      }
      elseif ( $action === 'list' ) {

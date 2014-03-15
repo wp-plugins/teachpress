@@ -1,4 +1,22 @@
 <?php
+
+/************************/
+/* DEPRECATED FUNCTIONS */
+/************************/
+
+/**
+ * This function is an alias of tp_tags::get_tags and returns an array of all used tags
+ * 
+ * @param array $args
+ * @return array|object
+ * @since 4.0.0
+ * @deprecated since version 5.0.0
+ * @todo Delete function with teachPress 5.1 or later
+ */
+function get_tp_tags( $args = array() ) {
+    return tp_tags::get_tags($args);
+}
+
 /****************/
 /* Publications */
 /****************/
@@ -257,33 +275,53 @@ function tp_add_publication($data, $tags, $bookmark) {
     
     $wpdb->insert( TEACHPRESS_PUB, array( 'title' => $title, 'type' => $type, 'bibtex' => $bibtex, 'author' => $author, 'editor' => $editor, 'isbn' => $isbn, 'url' => $url, 'date' => $date, 'urldate' => $urldate, 'booktitle' => $booktitle, 'issuetitle' => $issuetitle, 'journal' => $journal, 'volume' => $volume, 'number' => $number, 'pages' => $pages , 'publisher' => $publisher, 'address' => $address, 'edition' => $edition, 'chapter' => $chapter, 'institution' => $institution, 'organization' => $organization, 'school' => $school, 'series' => $series, 'crossref' => $crossref, 'abstract' => $abstract, 'howpublished' => $howpublished, 'key' => $key, 'techtype' => $techtype, 'comment' => $comment, 'note' => $note, 'image_url' => $image_url, 'is_isbn' => $is_isbn, 'rel_page' => $rel_page ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d' ) );
      $pub_ID = $wpdb->insert_id;
-     // Bookmarks
-     if ( $bookmark != '' ) {
+     
+    // Bookmarks
+    if ( $bookmark != '' ) {
         $max = count( $bookmark );
         for( $i = 0; $i < $max; $i++ ) {
            if ($bookmark[$i] != '' || $bookmark[$i] != 0) {
                tp_add_bookmark($pub_ID, $bookmark[$i]);
            }
         }
-     }
-     $array = explode(",",$tags);
-     foreach($array as $element) {
+    }
+    // Tags
+    $array_tags = explode(",",$tags);
+    foreach($array_tags as $element) {
         $element = trim($element);
         if ($element != '') {
             $element = esc_sql($element);
             $check = $wpdb->get_var("SELECT `tag_id` FROM " . TEACHPRESS_TAGS . " WHERE `name` = '$element'");
             // if tag not exist
             if ($check == 0){
-                $check = tp_add_tag($element);
+                $check = tp_tags::add_tag($element);
             }
             // add releation between publication and tag
             $test = $wpdb->query("SELECT `pub_id` FROM " . TEACHPRESS_RELATION . " WHERE `pub_id` = '$pub_ID' AND `tag_id` = '$check'");
             if ($test == 0) {
-                tp_add_tag_relation($pub_ID, $check);
+                tp_tags::add_tag_relation($pub_ID, $check);
             }
         }	
-     }
-     return $pub_ID;
+    }
+    // Authors
+    $array_author = explode(" and ", $author);
+    foreach($array_author as $element) {
+        $element = trim($element);
+        if ($element != '') {
+            $element = esc_sql($element);
+            $check = $wpdb->get_var("SELECT `author_id` FROM " . TEACHPRESS_AUTHORS . " WHERE `name` = '$element'");
+            // if author not exist
+            if ($check == 0){
+                $check = tp_authors::add_author($element);
+            }
+            // add releation between publication and author
+            $test = $wpdb->query("SELECT `pub_id` FROM " . TEACHPRESS_REL_PUB_AUTH . " WHERE `pub_id` = '$pub_ID' AND `author_id` = '$check'");
+            if ($test == 0) {
+                tp_authors::add_author_relation($pub_ID, $check, 1, 0);
+            }
+        }
+    }
+    return $pub_ID;
 }
 
 /** 
@@ -329,7 +367,7 @@ function tp_change_publication($pub_ID, $data, $bookmark, $delbox, $tags) {
     }
     // Delete tag relations
     if ($delbox != '') {
-        tp_delete_tag_relation($delbox);
+        tp_tags::delete_tag_relation($delbox);
     }
     $array = explode(",",$tags);
     foreach($array as $element) {
@@ -339,12 +377,12 @@ function tp_change_publication($pub_ID, $data, $bookmark, $delbox, $tags) {
             $check = $wpdb->get_var("SELECT `tag_id` FROM " . TEACHPRESS_TAGS . " WHERE `name` = '$element'");
             // if tag not exist
             if ( $check === NULL ){
-                $check = tp_add_tag($element);
+                $check = tp_tags::add_tag($element);
             }
             // add releation between publication and tag
             $test = $wpdb->query("SELECT `pub_id` FROM " . TEACHPRESS_RELATION . " WHERE `pub_id` = '$pub_ID' AND `tag_id` = '$check'");
             if ($test == 0) {
-                tp_add_tag_relation($pub_ID, $check);
+                tp_tags::add_tag_relation($pub_ID, $check);
             }
         }	
     }
@@ -382,12 +420,12 @@ function tp_change_publication_by_key($key, $data, $tags) {
             $check = $wpdb->get_var("SELECT `tag_id` FROM " . TEACHPRESS_TAGS ." WHERE `name` = '$element'");
             // if tag not exist
             if ( $check === NULL ){
-                $check = tp_add_tag($element);
+                $check = tp_tags::add_tag($element);
             }
             // add releation between publication and tag
             $test = $wpdb->query("SELECT `pub_id` FROM " . TEACHPRESS_RELATION . " WHERE `pub_id` = '$pub_ID' AND `tag_id` = '$check'");
             if ($test == 0) {
-                tp_add_tag_relation($pub_ID, $check);
+                tp_tags::add_tag_relation($pub_ID, $check);
             }
         }	
     }
@@ -488,85 +526,6 @@ function get_tp_publication_used_types( $args = array() ) {
 /********/
 /* Tags */
 /********/
-    
-/**
- * Returns an array of all used tags based on the publication tag relation
- * 
- * Note: If you only need a list of used tags, set group_by to true.
- * In this case you should ignore the columns con_id and pub_id from return
- * 
- * Possible values for $args:
- *  pub_id          --> publication IDs (separated by comma)
- *  user            --> user IDs (separated by comma)
- *  exclude         --> tag IDs you want to exclude from result (separated by comma)
- *  order           --> ASC or DESC; default is ASC
- *  limit           --> the sql search limit, example: 0,30
- *  group by        --> boolean flag for the group by clause
- *  output type     --> OBJECT, ARRAY_A, ARRAY_N 
- * 
- * @param array $args
- * @return array|object
- * @since 4.0.0
- */
-function get_tp_tags( $args = array() ) {
-    $defaults = array(
-        'pub_id' => '',
-        'user' => '',
-        'exclude' => '',
-        'order' => 'ASC',
-        'limit' => '',
-        'group_by' => false, 
-        'output_type' => OBJECT
-    ); 
-    $args = wp_parse_args( $args, $defaults );
-    extract( $args, EXTR_SKIP );
-
-    global $wpdb;
-    $limit = esc_sql($limit);
-    $order = esc_sql($order);
-    $user = tp_generate_where_clause($user, "u.user", "OR", "=");
-    $pub_id = tp_generate_where_clause($pub_id, "r.pub_id", "OR", "=");
-    $exclude = tp_generate_where_clause($exclude, "r.tag_id", "AND", "!=");
-    $output_type = esc_sql($output_type);
-    
-    // Define basics
-    $select = "SELECT DISTINCT t.name, r.tag_id, r.pub_id, r.con_id FROM " . TEACHPRESS_RELATION . " r INNER JOIN " . TEACHPRESS_TAGS . " t ON t.tag_id = r.tag_id";
-    $join = '';
-    $where = '';
-    
-    // Additional tables
-    if ( $user != '' ) {
-        $join .= " INNER JOIN " . TEACHPRESS_USER . " u ON u.pub_id = r.pub_id ";
-    }
-    
-    // WHERE clause
-    if ( $pub_id != '') {
-        $where = ( $where != '' ) ? $where . " AND ( $pub_id )" : $pub_id;
-    }
-    if ( $user != '' ) {
-        $where = ( $where != '' ) ? $where . " AND ( $user )" : $user;
-    }
-    if ( $exclude != '' ) {
-        $where = ( $where != '' ) ? $where . " AND ( $exclude )" : $exclude;
-    }
-    if ( $where != '' ) {
-        $where = " WHERE $where";
-    }
-    
-    // LIMIT clause
-    if ( $limit != '' ) {
-        $limit = "LIMIT $limit";
-    }
-    
-    // GROUP BY clause
-    $group_by = $group_by === true ? " GROUP BY t.name" : '';
-
-    // End
-    $sql = $select . $join . $where . $group_by . " ORDER BY t.name $order $limit";
-    // echo $sql;
-    $sql = $wpdb->get_results($sql, $output_type);
-    return $sql;
-}
 
 /**
  * Returns a special array for creating tag clouds
@@ -653,113 +612,6 @@ function get_tp_tag_cloud ( $args = array() ) {
     $result["tags"] = $wpdb->get_results($sql, $output_type);
     $result["info"] = $cloud_info;
     return $result;
-}
-
-/**
- * Add a tag
- * @param string $name          --> the new tag
- * @return int                  --> the id of the created element
- * @since 3.1.7
- */
-function tp_add_tag($name) {
-    global $wpdb;
-    $wpdb->insert(TEACHPRESS_TAGS, array('name' => $name), array('%s'));
-    return $wpdb->insert_id;
-}
-
-/** 
- * Delete tags
- * @param array $checkbox       --> an array with tag IDs
- * @since 3.1.7
-*/
-function tp_delete_tags($checkbox) {
-    global $wpdb;
-    for( $i = 0; $i < count( $checkbox ); $i++ ) {
-        $checkbox[$i] = intval($checkbox[$i]);
-        $wpdb->query( "DELETE FROM " . TEACHPRESS_RELATION . " WHERE `tag_id` = $checkbox[$i]" );
-        $wpdb->query( "DELETE FROM " . TEACHPRESS_TAGS . " WHERE `tag_id` = $checkbox[$i]" );
-    }
-}
-
-/** 
- * Edit a tag
- * @param int $tag_id 
- * @param string $name
- * @since 4.0.0
-*/
-function tp_edit_tag($tag_id, $name) {
-    global $wpdb;
-    $wpdb->update( TEACHPRESS_TAGS, array( 'name' => $name ), array( 'tag_id' => $tag_id ), array( '%s' ), array( '%d' ) );
-}
-
-/**
- * Delete relations between tags ans publications
- * @param array $delbox
- * @since 3.1.7
- */
-function tp_delete_tag_relation($delbox) {
-    global $wpdb;
-    for ( $i = 0; $i < count($delbox); $i++ ) {
-        $delbox[$i] = intval($delbox[$i]);
-        $wpdb->query( "DELETE FROM " . TEACHPRESS_RELATION .  " WHERE `con_id` = $delbox[$i]" );
-    }
-}
-
-/**
- * Add a relation between a tag and a publication
- * @param int $pub_id
- * @param int $tag_id
- * @return int
- * @since 3.1.7
- */
-function tp_add_tag_relation($pub_id, $tag_id) {
-    global $wpdb;
-    $wpdb->insert(TEACHPRESS_RELATION, array('pub_id' => $pub_id, 'tag_id' => $tag_id), array('%d', '%d'));
-    return $wpdb->insert_id;
-}
-
-/**
- * Change tag relations for more than one publication
- * @global class $wpdb
- * @global string $teachpress_tags
- * @global string $teachpress_relation
- * @param array $publications       --> Array of publication IDs
- * @param string $new_tags          --> New tags separated by comma
- * @param array $delete             --> Array of tag IDs whose relations with publications (given in the first parameter) should be deleted
- * @since 4.3.0
- */
-function tp_change_tag_relations ($publications, $new_tags, $delete) {
-    global $wpdb;
-    $array = explode(",",$new_tags);
-    $max = count( $publications );
-    $max_delete = count ( $delete );
-    
-    for( $i = 0; $i < $max; $i++ ) {
-        $publication = intval($publications[$i]);
-        // Delete tags
-        for ( $j = 0; $j < $max_delete; $j++ ) {
-            $delete[$j] = intval($delete[$j]);
-            $wpdb->query( "DELETE FROM " . TEACHPRESS_RELATION . " WHERE `pub_id` = '$publication' AND `tag_id` = '$delete[$j]'" );
-        }
-        
-        // Add tags
-        foreach($array as $element) {
-            $element = trim($element);
-            if ($element != '') {
-                $element = htmlspecialchars($element);
-                $check = $wpdb->get_var("SELECT `tag_id` FROM " . TEACHPRESS_TAGS . " WHERE `name` = '$element'");
-                // if tag not exist
-                if ( $check === NULL ){
-                    $check = tp_add_tag($element);
-                }
-                // add releation between publication and tag
-                $test = $wpdb->query("SELECT `pub_id` FROM " . TEACHPRESS_RELATION . " WHERE `pub_id` = '$publication' AND `tag_id` = '$check'");
-                if ($test === 0) {
-                    tp_add_tag_relation($publications[$i], $check);
-                }
-            }	
-        }  
-    } 
 }
 
 /*************/
@@ -933,8 +785,8 @@ function get_tp_courses ( $args = array() ) {
     global $wpdb;
     
     // Define basics
-    $sql = "SELECT course_id, name, type, lecturer, date, room, places, start, end, semester, parent, visible, rel_page, comment, parent_name
-            FROM ( SELECT t.course_id AS course_id, t.name AS name, t.type AS type, t.lecturer AS lecturer, t.date AS date, t.room As room, t.places AS places, t.start AS start, t.end As end, t.semester AS semester, t.parent As parent, t.visible AS visible, t.rel_page AS rel_page, t.comment AS comment, p.name AS parent_name 
+    $sql = "SELECT course_id, name, type, lecturer, date, room, places, start, end, semester, parent, visible, rel_page, comment, image_url, strict_signup, use_capabilites, parent_name
+            FROM ( SELECT t.course_id AS course_id, t.name AS name, t.type AS type, t.lecturer AS lecturer, t.date AS date, t.room As room, t.places AS places, t.start AS start, t.end As end, t.semester AS semester, t.parent As parent, t.visible AS visible, t.rel_page AS rel_page, t.comment AS comment, t.image_url AS image_url, t.strict_signup AS strict_signup, t.use_capabilites AS use_capabilites, p.name AS parent_name 
                 FROM " . TEACHPRESS_COURSES . " t 
                 LEFT JOIN " . TEACHPRESS_COURSES . " p ON t.parent = p.course_id ) AS temp";
     $where = '';
@@ -991,8 +843,14 @@ function tp_add_course($data) {
     global $wpdb;
     $data['start'] = $data['start'] . ' ' . $data['start_hour'] . ':' . $data['start_minute'] . ':00';
     $data['end'] = $data['end'] . ' ' . $data['end_hour'] . ':' . $data['end_minute'] . ':00';
-    $wpdb->insert( TEACHPRESS_COURSES, array( 'name' => $data['name'], 'type' => $data['type'], 'room' => $data['room'], 'lecturer' => $data['lecturer'], 'date' => $data['date'], 'places' => $data['places'], 'start' => $data['start'], 'end' => $data['end'], 'semester' => $data['semester'], 'comment' => $data['comment'], 'rel_page' => $data['rel_page'], 'parent' => $data['parent'], 'visible' => $data['visible'], 'waitinglist' => $data['waitinglist'], 'image_url' => $data['image_url'], 'strict_signup' => $data['strict_signup'] ), array( '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%d' ) );
-    return $wpdb->insert_id;
+    $wpdb->insert( TEACHPRESS_COURSES, array( 'name' => $data['name'], 'type' => $data['type'], 'room' => $data['room'], 'lecturer' => $data['lecturer'], 'date' => $data['date'], 'places' => $data['places'], 'start' => $data['start'], 'end' => $data['end'], 'semester' => $data['semester'], 'comment' => $data['comment'], 'rel_page' => $data['rel_page'], 'parent' => $data['parent'], 'visible' => $data['visible'], 'waitinglist' => $data['waitinglist'], 'image_url' => $data['image_url'], 'strict_signup' => $data['strict_signup'], 'use_capabilites' => $data['use_capabilites'] ), array( '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%d', '%d' ) );
+    $course_id = $wpdb->insert_id;
+    // add capability
+    if ( $data['use_capabilites'] == 1 ) {
+        global $current_user;
+        tp_capabilites::add_capability($course_id, $current_user->ID, 'owner');
+    }
+    return $course_id;
 }
 	
 /**
@@ -1056,7 +914,7 @@ function tp_change_course($course_ID, $data){
 
     $data['start'] = $data['start'] . ' ' . $data['start_hour'] . ':' . $data['start_minute'] . ':00';
     $data['end'] = $data['end'] . ' ' . $data['end_hour'] . ':' . $data['end_minute'] . ':00';
-    $wpdb->update( TEACHPRESS_COURSES, array( 'name' => $data['name'], 'type' => $data['type'], 'room' => $data['room'], 'lecturer' => $data['lecturer'], 'date' => $data['date'], 'places' => $data['places'], 'start' => $data['start'], 'end' => $data['end'], 'semester' => $data['semester'], 'comment' => $data['comment'], 'rel_page' => $data['rel_page'], 'parent' => $data['parent'], 'visible' => $data['visible'], 'waitinglist' => $data['waitinglist'], 'image_url' => $data['image_url'], 'strict_signup' => $data['strict_signup'] ), array( 'course_id' => $course_ID ), array( '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%d' ), array( '%d' ) );
+    $wpdb->update( TEACHPRESS_COURSES, array( 'name' => $data['name'], 'type' => $data['type'], 'room' => $data['room'], 'lecturer' => $data['lecturer'], 'date' => $data['date'], 'places' => $data['places'], 'start' => $data['start'], 'end' => $data['end'], 'semester' => $data['semester'], 'comment' => $data['comment'], 'rel_page' => $data['rel_page'], 'parent' => $data['parent'], 'visible' => $data['visible'], 'waitinglist' => $data['waitinglist'], 'image_url' => $data['image_url'], 'strict_signup' => $data['strict_signup'], 'use_capabilites' => $data['use_capabilites'] ), array( 'course_id' => $course_ID ), array( '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%d', '%d' ), array( '%d' ) );
 }
 
 /***************/
@@ -1245,7 +1103,7 @@ function get_tp_students ( $args = array() ) {
     }
     
     // if the user needs only the number of rows
-    if ( $count == true ) {
+    if ( $count === true ) {
         $select = "SELECT COUNT(`wp_id`) AS `count` FROM " . TEACHPRESS_STUD;
     }
 
@@ -1267,7 +1125,7 @@ function get_tp_students ( $args = array() ) {
 
     // End
     $sql = $select . $where . " ORDER BY $order $limit";
-    $sql = $count == false ? $wpdb->get_results($sql, $output_type): $wpdb->get_var($sql);
+    $sql = $count === false ? $wpdb->get_results($sql, $output_type): $wpdb->get_var($sql);
     return $sql;
 }
 
@@ -1548,55 +1406,12 @@ function tp_generate_where_clause($input, $column, $connector = 'AND', $operator
 
 // Artefacts
 
-/**
- * Get artefact by id
- * @global class $wpdb
- * @param int $artefact_id
- * @param string $output_type
- * @return array|object
- * @since 5.0.0
- */
-function get_tp_artefact ($artefact_id, $output_type = ARRAY_A) {
-    global $wpdb;
-    $artefact_id = intval($artefact_id);
-    return $wpdb->get_results("SELECT * FROM " . TEACHPRESS_ARTEFACTS . " WHERE `artefact_id` = '$artefact_id'", $output_type);
-}
-
 function get_tp_artefacts ($course_id, $parent_id , $output_type = ARRAY_A) {
     global $wpdb;
     $course_id = intval($course_id);
     $parent_id = intval($parent_id);
     return $wpdb->get_results("SELECT * FROM " . TEACHPRESS_ARTEFACTS . " WHERE `course_id` = '$course_id' AND `parent_id` = '$parent_id'", $output_type);
     return;
-}
-
-/**
- * Add a new artefact
- * @global class $wpdb
- * @param array_a $data
- * @return int
- * @since 5.0.0
- */
-function tp_add_artefact ($data) {
-    global $wpdb;
-    $wpdb->insert(TEACHPRESS_ARTEFACTS, array('parent_id' => $data['parent_id'], 'course_id' => $data['course_id'], 'title' => $data['title'], 'scale' => $data['scale'], 'passed' => $data['passed'], 'max_value' => $data['max_value']), array('%d', '%d', '%s', '%s', '%d', '%s'));
-    return $wpdb->insert_id;
-}
-
-function tp_edit_artefact () {
-    
-}
-
-/**
- * Delete artefact
- * @global class $wpdb
- * @param int $artefact_id
- * @since 5.0.0
- */
-function tp_delete_artefact ($artefact_id) {
-    global $wpdb;
-    $artefact_id = intval($artefact_id);
-    $wpdb->query("DELETE FROM " . TEACHPRESS_ARTEFACTS . " WHERE `artefact_id` = '$artefact_id'");
 }
 
 // Assessments
@@ -1615,6 +1430,15 @@ function get_tp_assessment ($assessment_id, $output_type = ARRAY_A) {
     return $wpdb->get_row("SELECT * FROM " . TEACHPRESS_ASSESSMENTS . " WHERE `assessment_id` = '$assessment_id'", $output_type);
 }
 
+/**
+ * Get assessments
+ * @param int $wp_id
+ * @param int $artefact_id
+ * @param int $course_id
+ * @param string $output_type
+ * @return array|object
+ * @since 5.0.0
+ */
 function get_tp_assessments ($wp_id, $artefact_id = '', $course_id = '', $output_type = ARRAY_A) {
     global $wpdb;
     $wp_id = intval($wp_id);
@@ -1732,46 +1556,473 @@ function tp_db_delete_column ($table, $column) {
     $wpdb->query("ALTER TABLE `$table` DROP `$column`;" );
 }
 
-// Capabilites
-
 /**
- * Get course capabilites
- * @param int $course_id
- * @param string $output_type
- * @return array|object
+ * Database access class for course capabilites
  * @since 5.0.0
  */
-function get_tp_capabilities ($course_id, $output_type = 'ARRAY_A') {
-    global $wpdb;
-    $course_id = intval($course_id);
-    return $wpdb->get_results("SELECT * FROM " . TEACHPRESS_COURSE_CAPABILITES . " WHERE `course_id` = '$course_id'",$output_type);
+class tp_capabilites {
+    
+   /**
+    * Get course capabilites
+    * @param int $course_id
+    * @param string $output_type
+    * @return array|object
+    * @since 5.0.0
+    */
+   public static function get_capabilities ($course_id, $output_type = 'ARRAY_A') {
+       global $wpdb;
+       $course_id = intval($course_id);
+       return $wpdb->get_results("SELECT * FROM " . TEACHPRESS_COURSE_CAPABILITES . " WHERE `course_id` = '$course_id'",$output_type);
+   }
+    
+   /**
+    * Add course capability
+    * @param int $course_id
+    * @param int $user_id
+    * @param string $capability
+    * @return int
+    * @since 5.0.0
+    */
+   public static function add_capability ($course_id, $user_id, $capability) {
+       global $wpdb;
+       $course_id = intval($course_id);
+       $user_id = intval($user_id);
+       $capability = htmlspecialchars($capability);
+       $wpdb->insert(TEACHPRESS_COURSE_CAPABILITES, array('course_id' => $course_id, 'wp_id' => $user_id, 'capability' => $capability), array('%d', '%d', '%s'));
+       return $wpdb->insert_id;
+   }
+   
+   /**
+    * Delete course capability
+    * @param int $cap_id
+    * @since 5.0.0
+    */
+   public static function delete_capability ($cap_id) {
+       global $wpdb;
+       $cap_id = intval($cap_id);
+       $wpdb->query("DELETE FROM " . TEACHPRESS_COURSE_CAPABILITES . " WHERE `cap_id` = '$cap_id'");
+   }
 }
 
 /**
- * Add course capability
- * @param int $course_id
- * @param int $user_id
- * @param string $capability
- * @return int
+ * Database access class for course assessments
  * @since 5.0.0
  */
-function tp_add_capability ($course_id, $user_id, $capability) {
-    global $wpdb;
-    $course_id = intval($course_id);
-    $user_id = intval($user_id);
-    $capability = htmlspecialchars($capability);
-    $wpdb->insert(TEACHPRESS_COURSE_CAPABILITES, array('course_id' => $course_id, 'wp_id' => $user_id, 'capability' => $capability), array('%d', '%d', '%s'));
-    return $wpdb->insert_id;
+class tp_assessments {
+    
 }
 
 /**
- * Delete course capability
- * @param int $cap_id
+ * Database access class for course artefacts
  * @since 5.0.0
  */
-function tp_delete_capability ($cap_id) {
-    global $wpdb;
-    $cap_id = intval($cap_id);
-    $wpdb->query("DELETE FROM " . TEACHPRESS_COURSE_CAPABILITES . " WHERE `cap_id` = '$cap_id'");
+class tp_artefacts {
+    
+   /**
+    * Get artefact by id
+    * @global class $wpdb
+    * @param int $artefact_id
+    * @param string $output_type
+    * @return array|object
+    * @since 5.0.0
+    */
+   public static function get_artefact ($artefact_id, $output_type = ARRAY_A) {
+       global $wpdb;
+       $artefact_id = intval($artefact_id);
+       return $wpdb->get_results("SELECT * FROM " . TEACHPRESS_ARTEFACTS . " WHERE `artefact_id` = '$artefact_id'", $output_type);
+   }
+    
+   /**
+    * Add a new artefact
+    * @global class $wpdb
+    * @param array_a $data
+    * @return int
+    * @since 5.0.0
+    */
+   public static function add_artefact ($data) {
+       global $wpdb;
+       $wpdb->insert(TEACHPRESS_ARTEFACTS, array('parent_id' => $data['parent_id'], 'course_id' => $data['course_id'], 'title' => $data['title'], 'scale' => $data['scale'], 'passed' => $data['passed'], 'max_value' => $data['max_value']), array('%d', '%d', '%s', '%s', '%d', '%s'));
+       return $wpdb->insert_id;
+   }
+    
+   /**
+    * Delete artefact
+    * @global class $wpdb
+    * @param int $artefact_id
+    * @since 5.0.0
+    */
+   public static function delete_artefact ($artefact_id) {
+       global $wpdb;
+       $artefact_id = intval($artefact_id);
+       $wpdb->query("DELETE FROM " . TEACHPRESS_ARTEFACTS . " WHERE `artefact_id` = '$artefact_id'");
+   }
+    
+    public static function edit_artefact () {
+    
+    }
 }
+
+/**
+ * Database access class for publication authors
+ * @since 5.0.0
+ */
+class tp_authors  {
+   /**
+    * This function returns an array/object of authors/editors of publications
+    * 
+    * Note: If you only need a list of used tags, set group_by to true.
+    * In this case you should ignore the columns con_id and pub_id from return
+    * 
+    * Possible values for $args:
+    *  pub_id          --> publication IDs (separated by comma)
+    *  exclude         --> authors IDs you want to exclude from result (separated by comma)
+    *  order           --> ASC or DESC; default is ASC
+    *  limit           --> the sql search limit, example: 0,30
+    *  group by        --> boolean flag for the group by clause
+    *  output type     --> OBJECT, ARRAY_A, ARRAY_N 
+    * 
+    * @param array $args
+    * @return array|object
+    * @since 5.0.0
+    */
+   public static function get_authors ( $args = array() ) {
+       $defaults = array(
+           'pub_id' => '',
+           'exclude' => '',
+           'order' => 'ASC',
+           'limit' => '',
+           'group_by' => false, 
+           'output_type' => OBJECT
+       ); 
+       $args = wp_parse_args( $args, $defaults );
+       extract( $args, EXTR_SKIP );
+
+       global $wpdb;
+       $limit = esc_sql($limit);
+       $order = esc_sql($order);
+       $pub_id = tp_generate_where_clause($pub_id, "r.pub_id", "OR", "=");
+       $exclude = tp_generate_where_clause($exclude, "r.author_id", "AND", "!=");
+       $output_type = esc_sql($output_type);
+
+       // Define basics
+       $select = "SELECT DISTINCT a.name, r.author_id, r.pub_id, r.con_id, r.is_author, r.is_editor FROM " . TEACHPRESS_REL_PUB_AUTH . " r INNER JOIN " . TEACHPRESS_AUTHORS . " a ON a.author_id = r.author_id";
+       $join = '';
+       $where = '';
+
+       // WHERE clause
+       if ( $pub_id != '') {
+           $where = ( $where != '' ) ? $where . " AND ( $pub_id )" : $pub_id;
+       }
+       if ( $exclude != '' ) {
+           $where = ( $where != '' ) ? $where . " AND ( $exclude )" : $exclude;
+       }
+       if ( $where != '' ) {
+           $where = " WHERE $where";
+       }
+
+       // LIMIT clause
+       if ( $limit != '' ) {
+           $limit = "LIMIT $limit";
+       }
+
+       // GROUP BY clause
+       $group_by = $group_by === true ? " GROUP BY a.name" : '';
+
+       // End
+       $sql = $select . $join . $where . $group_by . " ORDER BY a.name $order $limit";
+       // echo $sql;
+       $sql = $wpdb->get_results($sql, $output_type);
+       return $sql;
+    }
+    
+    /**
+     * This functio adds a new author to database
+     * @param string $name
+     * @return int
+     * @since 5.0.0
+     */
+    public static function add_author ($name) {
+        global $wpdb;
+        $wpdb->insert(TEACHPRESS_AUTHORS, array('name' => $name), array('%s'));
+        return $wpdb->insert_id;
+    }
+    
+    /**
+     * This function adds a new author - publication relation to database
+     * @param int $pub_id
+     * @param int $author_id
+     * @param int $is_author    --> 1 (true) or 0 (false)
+     * @param int $is_editor    --> 1 (true) or 0 (false)
+     * @return int
+     * @since 5.0.0
+     */
+    public static function add_author_relation ($pub_id, $author_id, $is_author, $is_editor){
+        global $wpdb;
+        $wpdb->insert(TEACHPRESS_REL_PUB_AUTH, array('pub_id' => $pub_id, 'author_id' => $author_id, 'is_author' => $is_author, 'is_editor' => $is_editor), array('%d', '%d', '%d', '%d'));
+        return $wpdb->insert_id;
+    }
+    
+     /**
+     * This function returns an array|object with the name, author_id and occurence of all authors in database
+     * @param string $search            --> normal search string
+     * @param string $limit             --> SQL limit like 0,50
+     * @param string $output_type       --> ARRAY_A, ARRAY_N, OBJECT
+     * @return array|object
+     * @since 5.0.0
+     */
+    public static function count_authors ( $search = '', $limit = '', $output_type = ARRAY_A ) {
+        global $wpdb;
+        $output_type = esc_sql($output_type);
+        $search = esc_sql($search);
+        $limit = esc_sql($limit);
+        
+        // define global search
+        if ( $search != '' ) {
+            $search = "WHERE t.`name` like '%$search%'";
+        }
+        
+        // LIMIT clause
+        if ( $limit != '' ) {
+            $limit = "LIMIT $limit";
+        }
+        
+        return $wpdb->get_results("SELECT DISTINCT a.name, a.author_id, count(r.author_id) AS count FROM " . TEACHPRESS_AUTHORS . " a LEFT JOIN " . TEACHPRESS_REL_PUB_AUTH . " r ON a.author_id = r.author_id $search GROUP BY a.name ORDER BY a.name ASC $limit", $output_type);
+    }
+}
+
+/**
+ * Database access class for tags
+ * @since 5.0.0
+ */
+class tp_tags {
+    
+   /**
+    * This function returns an array of all used tags based on the publication tag relation
+    * 
+    * Note: If you only need a list of used tags, set group_by to true.
+    * In this case you should ignore the columns con_id and pub_id from return
+    * 
+    * Possible values for $args:
+    *  pub_id          --> publication IDs (separated by comma)
+    *  user            --> user IDs (separated by comma)
+    *  exclude         --> tag IDs you want to exclude from result (separated by comma)
+    *  order           --> ASC or DESC; default is ASC
+    *  limit           --> the sql limit, example: 0,30
+    *  search          --> a normal search string
+    *  group by        --> boolean flag for the group by clause
+    *  count           --> set it to true if you only need an number of tags which will be returned for your selection
+    *  output type     --> OBJECT, ARRAY_A, ARRAY_N 
+    * 
+    * @param array $args
+    * @return array|object
+    * @since 5.0.0
+    */
+   public static function get_tags( $args = array() ) {
+       $defaults = array(
+           'pub_id' => '',
+           'user' => '',
+           'exclude' => '',
+           'order' => 'ASC',
+           'limit' => '',
+           'search' => '',
+           'count' => false,
+           'group_by' => false, 
+           'output_type' => OBJECT
+       ); 
+       $args = wp_parse_args( $args, $defaults );
+       extract( $args, EXTR_SKIP );
+
+       global $wpdb;
+       $limit = esc_sql($limit);
+       $order = esc_sql($order);
+       $user = tp_generate_where_clause($user, "u.user", "OR", "=");
+       $pub_id = tp_generate_where_clause($pub_id, "r.pub_id", "OR", "=");
+       $exclude = tp_generate_where_clause($exclude, "r.tag_id", "AND", "!=");
+       $output_type = esc_sql($output_type);
+       $search = esc_sql(htmlspecialchars($search));
+
+       // Define basics
+       $select = "SELECT DISTINCT t.name, r.tag_id, r.pub_id, r.con_id FROM " . TEACHPRESS_RELATION . " r INNER JOIN " . TEACHPRESS_TAGS . " t ON t.tag_id = r.tag_id";
+       $join = '';
+       $where = '';
+
+       // define global search
+       if ( $search != '' ) {
+           $search = "`name` like '%$search%'";
+       }
+
+       // if the user needs only the number of rows
+       if ( $count === true ) {
+           $select = "SELECT COUNT(t.`tag_id`) AS `count` FROM " . TEACHPRESS_TAGS . " t";
+       }
+
+       // Additional tables
+       if ( $user != '' ) {
+           $join .= " INNER JOIN " . TEACHPRESS_USER . " u ON u.pub_id = r.pub_id ";
+       }
+
+       // WHERE clause
+       if ( $pub_id != '') {
+           $where = ( $where != '' ) ? $where . " AND ( $pub_id )" : $pub_id;
+       }
+       if ( $user != '' ) {
+           $where = ( $where != '' ) ? $where . " AND ( $user )" : $user;
+       }
+       if ( $search != '') {
+           $where = $where != '' ? $where . " AND ( $search )" : $search ;
+       }
+       if ( $exclude != '' ) {
+           $where = ( $where != '' ) ? $where . " AND ( $exclude )" : $exclude;
+       }
+       if ( $where != '' ) {
+           $where = " WHERE $where";
+       }
+
+       // LIMIT clause
+       if ( $limit != '' ) {
+           $limit = "LIMIT $limit";
+       }
+
+       // GROUP BY clause
+       $group_by = $group_by === true ? " GROUP BY t.name" : '';
+
+       // End
+       $sql = $select . $join . $where . $group_by . " ORDER BY t.name $order $limit";
+       // echo $sql . '<br/><br/>';
+       $sql = $count == false ? $wpdb->get_results($sql, $output_type): $wpdb->get_var($sql);
+       return $sql;
+   }
+   
+   /**
+    * This function adds  a tag
+    * @param string $name          --> the new tag
+    * @return int                  --> the id of the created tag
+    * @since 5.0.0
+    */
+   public static function add_tag($name) {
+       global $wpdb;
+       $wpdb->insert(TEACHPRESS_TAGS, array('name' => $name), array('%s'));
+       return $wpdb->insert_id;
+   }
+    
+   /** 
+    * Edit a tag
+    * @param int $tag_id 
+    * @param string $name
+    * @since 5.0.0
+   */
+   public static function edit_tag($tag_id, $name) {
+       global $wpdb;
+       $wpdb->update( TEACHPRESS_TAGS, array( 'name' => $name ), array( 'tag_id' => $tag_id ), array( '%s' ), array( '%d' ) );
+   }
+   
+   /**
+    * This function adds a relation between a tag and a publication
+    * @param int $pub_id
+    * @param int $tag_id
+    * @return int
+    * @since 5.0.0
+    */
+   public static function add_tag_relation($pub_id, $tag_id) {
+       global $wpdb;
+       $wpdb->insert(TEACHPRESS_RELATION, array('pub_id' => $pub_id, 'tag_id' => $tag_id), array('%d', '%d'));
+       return $wpdb->insert_id;
+   }
+   
+   /**
+    * This function changes tag relations for more than one publication
+    * @param array $publications       --> Array of publication IDs
+    * @param string $new_tags          --> New tags separated by comma
+    * @param array $delete             --> Array of tag IDs whose relations with publications (given in the first parameter) should be deleted
+    * @since 5.0.0
+    */
+   public static function change_tag_relations ($publications, $new_tags, $delete) {
+       global $wpdb;
+       $array = explode(",",$new_tags);
+       $max = count( $publications );
+       $max_delete = count ( $delete );
+
+       for( $i = 0; $i < $max; $i++ ) {
+           $publication = intval($publications[$i]);
+           // Delete tags
+           for ( $j = 0; $j < $max_delete; $j++ ) {
+               $delete[$j] = intval($delete[$j]);
+               $wpdb->query( "DELETE FROM " . TEACHPRESS_RELATION . " WHERE `pub_id` = '$publication' AND `tag_id` = '$delete[$j]'" );
+           }
+
+           // Add tags
+           foreach($array as $element) {
+               $element = trim($element);
+               if ($element != '') {
+                   $element = htmlspecialchars($element);
+                   $check = $wpdb->get_var("SELECT `tag_id` FROM " . TEACHPRESS_TAGS . " WHERE `name` = '$element'");
+                   // if tag not exist
+                   if ( $check === NULL ){
+                       $check = tp_tags::add_tag($element);
+                   }
+                   // add releation between publication and tag
+                   $test = $wpdb->query("SELECT `pub_id` FROM " . TEACHPRESS_RELATION . " WHERE `pub_id` = '$publication' AND `tag_id` = '$check'");
+                   if ($test === 0) {
+                       tp_tags::add_tag_relation($publications[$i], $check);
+                   }
+               }	
+           }  
+       } 
+   }
+   
+   /** 
+    * This function deletes tags
+    * @param array $checkbox       --> an array with tag IDs
+    * @since 5.0.0
+   */
+   public static function delete_tags($checkbox) {
+       global $wpdb;
+       for( $i = 0; $i < count( $checkbox ); $i++ ) {
+           $checkbox[$i] = intval($checkbox[$i]);
+           $wpdb->query( "DELETE FROM " . TEACHPRESS_RELATION . " WHERE `tag_id` = $checkbox[$i]" );
+           $wpdb->query( "DELETE FROM " . TEACHPRESS_TAGS . " WHERE `tag_id` = $checkbox[$i]" );
+       }
+   }
+   
+   /**
+    * This function deletes relations between tags and publications
+    * @param array $delbox
+    * @since 5.0.0
+    */
+   public static function delete_tag_relation($delbox) {
+       global $wpdb;
+       for ( $i = 0; $i < count($delbox); $i++ ) {
+           $delbox[$i] = intval($delbox[$i]);
+           $wpdb->query( "DELETE FROM " . TEACHPRESS_RELATION .  " WHERE `con_id` = $delbox[$i]" );
+       }
+   }
+    
+    /**
+     * This function returns an array|object with the name, tag_id and occurence of all_tags
+     * @param string $search            --> normal search string
+     * @param string $limit             --> SQL limit like 0,50
+     * @param string $output_type       --> ARRAY_A, ARRAY_N, OBJECT
+     * @return array|object
+     * @since 5.0.0
+     */
+    public static function count_tags ( $search = '', $limit = '', $output_type = ARRAY_A ) {
+        global $wpdb;
+        $output_type = esc_sql($output_type);
+        $search = esc_sql($search);
+        $limit = esc_sql($limit);
+        
+        // define global search
+        if ( $search != '' ) {
+            $search = "WHERE t.`name` like '%$search%'";
+        }
+        
+        // LIMIT clause
+        if ( $limit != '' ) {
+            $limit = "LIMIT $limit";
+        }
+        
+        return $wpdb->get_results("SELECT DISTINCT t.name, t.tag_id, count(r.tag_id) AS count FROM " . TEACHPRESS_TAGS . " t LEFT JOIN " . TEACHPRESS_RELATION . " r ON t.tag_id = r.tag_id $search GROUP BY t.name ORDER BY t.name ASC $limit", $output_type);
+    }
+}
+
 ?>

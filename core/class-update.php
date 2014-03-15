@@ -520,6 +520,10 @@ class tp_update_db {
         tp_tables::add_table_course_capabilites($charset);
         tp_tables::add_table_authors($charset);
         tp_tables::add_table_rel_pub_auth($charset);
+        // add column use_capabilites to table teachpress_courses
+        if ($wpdb->query("SHOW COLUMNS FROM " . TEACHPRESS_COURSES . " LIKE 'use_capabilites'") == '0') { 
+            $wpdb->query("ALTER TABLE " . TEACHPRESS_COURSES . " ADD `use_capabilites` INT( 1 ) NULL DEFAULT NULL AFTER `strict_signup`");
+        }
     }
 
 

@@ -89,7 +89,7 @@ function teachpress_publications_page() {
 
     if ($test != $version) {
         $message = __('An database update is necessary.','teachpress') . ' <a href="options-general.php?page=teachpress/settings.php&amp;up=1">' . __('Update','teachpress') . '</a>';
-        get_tp_message($message, '');
+        get_tp_message($message);
     }
     
     // Add a bookmark for the publication
@@ -126,7 +126,7 @@ function teachpress_publications_page() {
         $mass_edit = ( isset($_GET['mass_edit']) ) ? $_GET['mass_edit'] : '';
         $tags = ( isset($_GET['add_tags']) ) ? $_GET['add_tags'] : '';
         $delbox = ( isset($_GET['delbox']) ) ? $_GET['delbox'] : '';
-        tp_change_tag_relations($mass_edit, $tags, $delbox);
+        tp_tags::change_tag_relations($mass_edit, $tags, $delbox);
         get_tp_message( __('Bulk edit executed','teachpress') );
     }
     

@@ -69,6 +69,7 @@ class tp_tables {
                     `waitinglist` INT(1),
                     `image_url` VARCHAR(400),
                     `strict_signup` INT(1),
+                    `use_capabilites` INT(1),
                     PRIMARY KEY (course_id)
                 ) $charset_collate;");
     }

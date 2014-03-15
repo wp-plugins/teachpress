@@ -59,15 +59,15 @@ function tp_page_menu ($atts) {
 
 /** 
  * Print message
- * @param string $message   - Content
- * @param string $site      - Return url
+ * @param string $message   -> Content
+ * @param string $color     -> green (default), orange, red
+ * @version 2
+ * @since 5.0.0
 */ 
-function get_tp_message($message, $site = '') {
-    echo '<div class="teachpress_message">';
+function get_tp_message($message, $color = 'green') {
+    $color = htmlspecialchars($color);
+    echo '<div class="teachpress_message teachpress_message_' . $color . '">';
     echo '<strong>' . $message . '</strong>';
-    if ($site != '') {
-        echo ' <a href="' . $site . '" class="button-secondary">' . __('Resume', 'teachpress') . '</a>';
-    }
     echo '</div>';
 }
 
@@ -240,7 +240,8 @@ function get_tp_var_types($type) {
                         'visible' => '',
                         'waitinglist' => '',
                         'image_url' => '',
-                        'strict_signup' => '' );
+                        'strict_signup' => '',
+                        'use_capabilites' => '');
      }
      if ($type == 'publication_array') {
           $ret = array( 'pub_id' => '',

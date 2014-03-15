@@ -81,6 +81,7 @@ function tp_add_menu2() {
     global $tp_admin_your_pub_page;
     global $tp_admin_add_pub_page;
     global $tp_admin_import_page;
+    global $tp_admin_show_authors_page;
     global $tp_admin_edit_tags_page;
     
     $logo = (version_compare($wp_version, '3.8', '>=')) ? plugins_url() . '/teachpress/images/logo_small.png' : plugins_url() . '/teachpress/images/logo_small_black.png';
@@ -89,6 +90,7 @@ function tp_add_menu2() {
     $tp_admin_your_pub_page = add_submenu_page('publications.php',__('Your publications','teachpress'), __('Your publications','teachpress'),'use_teachpress','teachpress/publications.php','teachpress_publications_page');
     $tp_admin_add_pub_page = add_submenu_page('publications.php',__('Add New', 'teachpress'), __('Add New','teachpress'),'use_teachpress','teachpress/addpublications.php','teachpress_addpublications_page');
     $tp_admin_import_page = add_submenu_page('publications.php',__('Import/Export'), __('Import/Export'), 'use_teachpress', 'teachpress/import.php','teachpress_import_page');
+    $tp_admin_show_authors_page = add_submenu_page('publications.php',__('Authors'),__('Authors'),'use_teachpress','teachpress/authors.php','teachpress_authors_page');
     $tp_admin_edit_tags_page = add_submenu_page('publications.php',__('Tags'),__('Tags'),'use_teachpress','teachpress/tags.php','teachpress_tags_page');
     
     add_action("load-$tp_admin_all_pub_page", 'tp_show_publications_page_help');
@@ -97,6 +99,7 @@ function tp_add_menu2() {
     add_action("load-$tp_admin_your_pub_page", 'tp_show_publications_page_screen_options');
     add_action("load-$tp_admin_add_pub_page", 'tp_add_publication_page_help');
     add_action("load-$tp_admin_import_page", 'tp_import_page_help_tab');
+    add_action("load-$tp_admin_show_authors_page", 'tp_show_authors_page_screen_options');
     add_action("load-$tp_admin_edit_tags_page", 'tp_edit_tags_page_screen_options');
 }
 
@@ -125,6 +128,7 @@ if ( is_admin() ) {
     include_once("admin/show_publications.php");
     include_once("admin/add_publication.php");
     include_once("admin/edit_tags.php");
+    include_once("admin/show_authors.php");
     include_once("admin/import_publications.php");
 }
 // Core functions
@@ -152,7 +156,7 @@ if ( !class_exists( 'PARSEENTRIES' ) ) {
  * @return string
 */
 function get_tp_version() {
-    return '5.0.0a';
+    return '5.0.0b';
 }
 
 /** Function for the integrated registration mode */

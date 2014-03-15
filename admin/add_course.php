@@ -14,13 +14,25 @@ function tp_add_course_page_help () {
                         <p><strong>' . __('Strict sign up','teachpress') . '</strong></p>
                         <p>' . __('This is an option only for parent courses. If you activate it, subscribing is only possible for one of the child courses and not in all. This option has no influence on waiting lists.','teachpress') . '</p>
                         <p><strong>' . __('Terms and course types','teachpress') . '</strong></p>
-                        <p><a href="options-general.php?page=teachpress/settings.php&amp;tab=courses">' . __('Add new course types and terms','teachpress') . '</a></p>
-                        <p><strong>' . __('Visibility','teachpress') . '</strong></p>
-                        <p>' . __('You can choice between the following visibiltiy options','teachpress') . ':</p>
+                        <p><a href="options-general.php?page=teachpress/settings.php&amp;tab=courses">' . __('Add new course types and terms','teachpress') . '</a></p>'
+    ) );
+    $screen->add_help_tab( array(
+        'id'        => 'tp_add_course_help_2',
+        'title'     => __('Visibility','teachpress'),
+        'content'   => '<p>' . __('You can choice between the following visibiltiy options','teachpress') . ':</p>
                         <ul style="list-style:disc; padding-left:40px;">
                             <li><strong>' . __('normal','teachpress') . ':</strong> ' . __('The course is visible at the enrollment pages, if enrollments are justified. If it is a parent course, the course is visible at the frontend semester overview.','teachpress') . '</li>
                             <li><strong>' . __('extend','teachpress') . ' (' . __('only for parent courses','teachpress') . '):</strong> ' . __('The same as normal, but in the frontend semester overview all sub-courses will also be displayed.','teachpress') . '</li>
                             <li><strong>' . __('invisible','teachpress') . ':</strong> ' . __('The course is invisible.','teachpress') . '</li></ul>'
+    ) );
+    $screen->add_help_tab( array(
+        'id'        => 'tp_add_course_help_3',
+        'title'     => __('Capabilities','teachpress'),
+        'content'   => '<p>' . __('You can choice between the following capability options','teachpress') . ':</p>
+                        <ul style="list-style:disc; padding-left:40px;">
+                            <li><strong>' . __('Global settings','teachpress') . ':</strong> ' . __('All users, which have the minimum user role for using teachpress, can see, edit or delete the course or course data.','teachpress') . '</li>
+                            <li><strong>' . __('Local settings','teachpress') . ':</strong> ' . __('You can select which users can see, edit or delete the course or course data.','teachpress') . '</li>
+                            </ul>'
     ) );
 } 
 
@@ -35,8 +47,6 @@ function tp_add_course_page_help () {
 function tp_add_course_page() { 
 
    global $wpdb;
-   global $teachpress_courses;
-   global $teachpress_signup;
 
    $data['type'] = isset( $_POST['course_type'] ) ? htmlspecialchars($_POST['course_type']) : '';
    $data['name'] = isset( $_POST['post_title'] ) ? htmlspecialchars($_POST['post_title']) : '';
@@ -58,6 +68,7 @@ function tp_add_course_page() {
    $data['waitinglist'] = isset( $_POST['waitinglist'] ) ? intval($_POST['waitinglist']) : 0;
    $data['image_url'] = isset( $_POST['image_url'] ) ? htmlspecialchars($_POST['image_url']) : '';
    $data['strict_signup'] = isset( $_POST['strict_signup'] ) ? intval($_POST['strict_signup']) : 0;
+   $data['use_capabilites'] = isset( $_POST['use_capabilites'] ) ? intval($_POST['use_capabilites']) : 0;
 
    // Handle that the activation of strict sign up is not possible for a child course
    if ( $data['parent'] != 0) { $data['strict_signup'] = 0; }
@@ -68,7 +79,7 @@ function tp_add_course_page() {
    $ref = isset( $_GET['ref'] ) ? htmlspecialchars($_GET['ref']) : '';
 
    // possible course parents
-   $row = $wpdb->get_results("SELECT `course_id`, `name`, `semester` FROM $teachpress_courses WHERE `parent` = '0' AND `course_id` != '$course_ID' ORDER BY semester DESC, name");
+   $row = $wpdb->get_results("SELECT `course_id`, `name`, `semester` FROM " . TEACHPRESS_COURSES . " WHERE `parent` = '0' AND `course_id` != '$course_ID' ORDER BY semester DESC, name");
    $counter3 = 0;
    foreach($row as $row){
         $par[$counter3]["id"] = $row->course_id;
@@ -80,12 +91,12 @@ function tp_add_course_page() {
    if ( isset($_POST['create']) ) {
         $course_ID = tp_add_course($data);
         $message = __('Course created successful.','teachpress') . ' <a href="admin.php?page=teachpress/add_course.php">' . __('Add New','teachpress') . '</a>';
-        get_tp_message($message, '');
+        get_tp_message($message);
    }
    if ( isset($_POST['save']) ) {
         tp_change_course($course_ID, $data);
         $message = __('Saved');
-        get_tp_message($message, '');
+        get_tp_message($message);
    }
    if ( $course_ID != 0 ) {
         $daten = get_tp_course($course_ID, ARRAY_A);
@@ -136,7 +147,12 @@ function tp_add_course_page() {
                     <option value="1"<?php if ( $daten["visible"] == 1 && $course_ID != 0 ) {echo ' selected="selected"'; } ?>><?php _e('normal','teachpress'); ?></option>
                     <option value="2"<?php if ( $daten["visible"] == 2 && $course_ID != 0 ) {echo ' selected="selected"'; } ?>><?php _e('extend','teachpress'); ?></option>
                     <option value="0"<?php if ( $daten["visible"] == 0 && $course_ID != 0 ) {echo ' selected="selected"'; } ?>><?php _e('invisible','teachpress'); ?></option>
-                </select>            
+                </select> 
+                <p><label for="use_capabilites"><strong><?php _e('Capabilites','teachpress'); ?></strong></label></p>
+                <select name="use_capabilites">
+                    <option value="0"<?php if ( $daten["use_capabilites"] == 0 && $course_ID != 0 ) {echo ' selected="selected"'; } ?>><?php _e('Global settings','teachpress'); ?></option>
+                    <option value="1"<?php if ( $daten["use_capabilites"] == 1 && $course_ID != 0 ) {echo ' selected="selected"'; } ?>><?php _e('Local settings','teachpress'); ?></option>
+                </select>
                 </td>
             </tr>
             <tr>
@@ -272,7 +288,7 @@ function tp_add_course_page() {
                 <p><label for="places" title="<?php _e('The number of available places.','teachpress'); ?>"><strong><?php _e('Number of places','teachpress'); ?></strong></label></p>
                 <input name="places" type="text" id="places" title="<?php _e('The number of available places.','teachpress'); ?>" style="width:70px;" tabindex="7" value="<?php echo $daten["places"]; ?>" />
                 <?php if ($course_ID != 0) {
-					$used_places = $wpdb->get_var("SELECT COUNT(`course_id`) FROM $teachpress_signup WHERE `course_id` = '" . $daten["course_id"] . "' AND `waitinglist` = 0");
+					$used_places = $wpdb->get_var("SELECT COUNT(`course_id`) FROM " . TEACHPRESS_SIGNUP . " WHERE `course_id` = '" . $daten["course_id"] . "' AND `waitinglist` = 0");
                     echo ' | ' . __('free places','teachpress') . ': ' . ($daten["places"] - $used_places); ?>
                 <?php } ?>
                 <p><label for="parent2" title="<?php _e('Here you can connect a course with a parent one. With this function you can create courses with an hierarchical order.','teachpress'); ?>"><strong><?php _e('Parent course','teachpress'); ?></strong></label></p>
