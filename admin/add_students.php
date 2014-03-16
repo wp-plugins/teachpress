@@ -31,7 +31,7 @@ $data['email'] = isset( $_POST['email'] ) ? htmlspecialchars($_POST['email']) : 
 
 // actions
 if (isset( $_POST['insert'] ) && $wp_id != __('WordPress User-ID','teachpress') && $wp_id != '') {
-   $ret = tp_add_student($wp_id, $data);
+   $ret = tp_students::add_student($wp_id, $data);
    if ($ret != false) {
       $message = __('Registration successful','teachpress');
    }

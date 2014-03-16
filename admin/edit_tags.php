@@ -57,8 +57,9 @@ function teachpress_tags_page(){
     $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
     $checkbox = isset( $_GET['checkbox'] ) ? $_GET['checkbox'] : array();
     $page = 'teachpress/tags.php';
-    $number_messages = $per_page;
+    
     // Handle limits
+    $number_messages = $per_page;
     if (isset($_GET['limit'])) {
         $curr_page = (int)$_GET['limit'] ;
         if ( $curr_page <= 0 ) {
@@ -80,7 +81,7 @@ function teachpress_tags_page(){
             <a href="admin.php?page=' . $page . '&search=' . $search . '&amp;limit=' . $curr_page . '"> ' . __('Cancel','teachpress') . '</a></p>
             </div>';
     }
-    // delete publications - part 2
+    // delete tags - part 2
     if ( isset($_GET['delete_ok']) ) {
         tp_tags::delete_tags($checkbox);
         get_tp_message( __('Removing successful','teachpress') );
@@ -107,7 +108,7 @@ function teachpress_tags_page(){
         <input name="OK" value="OK" type="submit" class="button-secondary"/>
         <?php
         // Page Menu
-        $test = get_tp_tags( array( 'count' => true, 'search' => $search ) );
+        $test = tp_tags::get_tags( array( 'count' => true, 'search' => $search ) );
         echo tp_admin_page_menu ($test, $number_messages, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search"); ?>
     </div>
     <div style="width:700px;">

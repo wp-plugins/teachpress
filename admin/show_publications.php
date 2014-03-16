@@ -94,12 +94,12 @@ function teachpress_publications_page() {
     
     // Add a bookmark for the publication
     if ( isset( $_GET['add_id'] ) ) {
-        tp_add_bookmark( $_GET['add_id'], $current_user->ID );
+        tp_bookmarks::add_bookmark( $_GET['add_id'], $current_user->ID );
     }
     
     // Delete bookmark for the publication
     if ( isset( $_GET['del_id'] ) ) {
-        tp_delete_bookmark( $_GET['del_id'] );
+        tp_bookmarks::delete_bookmark( $_GET['del_id'] );
     }
     
     // Add a bookmark for the publication (bulk version)
@@ -107,9 +107,9 @@ function teachpress_publications_page() {
         $max = count( $array_variables['checkbox'] );
         for( $i = 0; $i < $max; $i++ ) {
             $array_variables['checkbox'][$i] = intval($array_variables['checkbox'][$i]);
-            $test = tp_check_bookmark($array_variables['checkbox'][$i], $current_user->ID);
+            $test = tp_bookmarks::bookmark_exists($array_variables['checkbox'][$i], $current_user->ID);
             if ( $test === false ) {
-                tp_add_bookmark( $array_variables['checkbox'][$i], $current_user->ID );
+                tp_bookmarks::add_bookmark( $array_variables['checkbox'][$i], $current_user->ID );
             }
         }
         get_tp_message( __('Publications added','teachpress') );
@@ -117,7 +117,7 @@ function teachpress_publications_page() {
     
     // delete publications - part 2
     if ( isset($_GET['delete_ok']) ) {
-        tp_delete_publications($array_variables['checkbox']);
+        tp_publications::delete_publications($array_variables['checkbox']);
         get_tp_message( __('Removing successful','teachpress') );
     }
     
@@ -156,7 +156,7 @@ function tp_show_publications_page_bibtex_screen($array_variables) {
         $max = count ($array_variables['checkbox']);
         for ($i=0; $i < $max; $i++) {
             $pub = intval($array_variables['checkbox'][$i]);
-            $row = get_tp_publication( $pub, ARRAY_A );
+            $row = tp_publications::get_publication( $pub, ARRAY_A );
             $tags = get_tp_tags( array('output_type' => ARRAY_A, 'pub_id' => $pub) );
             echo tp_bibtex::get_single_publication_bibtex($row, $tags);	
         }
@@ -303,7 +303,7 @@ function tp_show_publications_page_main_screen($user, $array_variables) {
     $tags = get_tp_tags( array('output_type' => ARRAY_A) );
 
     // Load bookmarks
-    $bookmarks = get_tp_bookmarks( array('user'=> $user, 'output_type' => ARRAY_A) );
+    $bookmarks = tp_bookmarks::get_bookmarks( array('user'=> $user, 'output_type' => ARRAY_A) );
         
       ?>
       <h2><?php echo $title; ?></h2>
@@ -331,7 +331,7 @@ function tp_show_publications_page_main_screen($user, $array_variables) {
             <select name="filter">
                <option value="0">- <?php _e('All types','teachpress'); ?> -</option>
                <?php 
-               $array_types = get_tp_publication_used_types( array(
+               $array_types = tp_publications::get_used_pubtypes( array(
                     'user' => ($array_variables['page'] == 'publications.php') ? '' : $user ) );
                foreach ( $array_types as $row ) {
                    $selected = ( $array_variables['type'] === $row['type'] ) ? 'selected="selected"' : '';
@@ -342,7 +342,7 @@ function tp_show_publications_page_main_screen($user, $array_variables) {
             <select name="year">
                 <option value="0">- <?php _e('All years','teachpress'); ?> -</option>
                 <?php
-                $array_years = get_tp_publication_years( array(
+                $array_years = tp_publications::get_years( array(
                     'order' => 'DESC', 
                     'user' => ($array_variables['page'] == 'publications.php') ? '' : $user) );
                 foreach ( $array_years as $row ) {

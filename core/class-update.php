@@ -525,7 +525,41 @@ class tp_update_db {
             $wpdb->query("ALTER TABLE " . TEACHPRESS_COURSES . " ADD `use_capabilites` INT( 1 ) NULL DEFAULT NULL AFTER `strict_signup`");
         }
     }
+    
+    /**
+     * Checks if the table teachpress_authors needs to be filled. Returns false if not.
+     * @return boolean
+     * @since 5.0.0
+     */
+    public static function check_table_authors () {
+        global $wpdb;
+        $test_pub = $wpdb->get_var("SELECT COUNT(`pub_id`) FROM " . TEACHPRESS_PUB);
+        $test_authors = $wpdb->get_var("SELECT COUNT(`author_id`) FROM " . TEACHPRESS_AUTHORS);
+        if ( $test_authors == 0 && $test_pub != 0 ) {
+            return true;
+        }
+        return false;
+    }
 
+    /**
+     * Use this function to fill up the table teachpress_authors with data from teachpress_pub
+     * @since 5.0.0
+     */
+    public static function fill_table_authors () {
+        global $wpdb;
+        // Try to expand the time limit for the script
+        set_time_limit(180);
+        $pubs = $wpdb->get_results("SELECT pub_id, author, editor FROM " . TEACHPRESS_PUB, ARRAY_A);
+        foreach ( $pubs as $row ) {
+            if ( $row['author'] != '' ) {
+                tp_publications::add_relation($row['pub_id'], $row['author'], ' and ', 'authors');
+            }
+            if ( $row['editor'] != '' ) {
+                tp_publications::add_relation($row['pub_id'], $row['editor'], ' and ', 'editors');
+            }
+        }
+        get_tp_message( __('Update successful','teachpress') );
+    }
 
     /**
      * Add possible missing options

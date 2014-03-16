@@ -224,9 +224,6 @@ function get_tp_admin_checkbox($name, $title, $value, $disabled = false) {
 /**
  * Gets a box for editing some options (terms|type|studies) for courses
  * @global class $wpdb
- * @global string $teachpress_settings
- * @global string $teachpress_courses
- * @global string $teachpress_stud
  * @param string $title
  * @param string $type
  * @param array $options (element_title|add_title|delete_title|count_title|tab)
@@ -234,9 +231,6 @@ function get_tp_admin_checkbox($name, $title, $value, $disabled = false) {
  */
 function get_tp_admin_course_option_box ( $title, $type, $options = array() ) {
     global $wpdb;
-    global $teachpress_settings;
-    global $teachpress_courses;
-    global $teachpress_stud;
     echo '<h4><strong>' . $title . '</strong></h4>';
     echo '<table border="0" cellspacing="0" cellpadding="0" class="widefat">';
     echo '<thead>';
@@ -251,22 +245,30 @@ function get_tp_admin_course_option_box ( $title, $type, $options = array() ) {
     echo '<tbody>';
     
     if ( $type === 'term' ) {
-        $sql = "SELECT number, value, setting_id FROM ( SELECT COUNT(v.semester) as number, e.variable AS value,  e.setting_id as setting_id, e.category as category FROM $teachpress_settings e LEFT JOIN $teachpress_courses v ON e.variable = v.semester GROUP BY e.variable ORDER BY number DESC ) AS temp WHERE category = 'semester' ORDER BY setting_id";
+        $sql = "SELECT number, value, setting_id FROM ( SELECT COUNT(v.semester) as number, e.variable AS value,  e.setting_id as setting_id, e.category as category FROM " . TEACHPRESS_SETTINGS . " e LEFT JOIN " . TEACHPRESS_COURSES . " v ON e.variable = v.semester GROUP BY e.variable ORDER BY number DESC ) AS temp WHERE category = 'semester' ORDER BY setting_id";
     }
     elseif ( $type === 'type' ) {
-        $sql = "SELECT number, value, setting_id FROM ( SELECT COUNT(v.type) as number, e.value AS value,  e.setting_id as setting_id, e.category as category FROM $teachpress_settings e LEFT JOIN $teachpress_courses v ON e.value = v.type GROUP BY e.value ORDER BY number DESC ) AS temp WHERE category = 'course_type' ORDER BY value";
+        $sql = "SELECT number, value, setting_id FROM ( SELECT COUNT(v.type) as number, e.value AS value,  e.setting_id as setting_id, e.category as category FROM " . TEACHPRESS_SETTINGS . " e LEFT JOIN " . TEACHPRESS_COURSES . " v ON e.value = v.type GROUP BY e.value ORDER BY number DESC ) AS temp WHERE category = 'course_type' ORDER BY value";
     }
     elseif ( $type === 'course_of_studies' ) {
-        $sql = "SELECT number, value, setting_id FROM ( SELECT COUNT(s.course_of_studies) as number, e.value AS value,  e.setting_id as setting_id, e.category as category FROM $teachpress_settings e LEFT JOIN $teachpress_stud s ON e.value = s.course_of_studies GROUP BY e.value ORDER BY number DESC ) AS temp WHERE category = 'course_of_studies' ORDER BY value";
+        $sql = "SELECT number, value, setting_id FROM ( SELECT COUNT(s.course_of_studies) as number, e.value AS value,  e.setting_id as setting_id, e.category as category FROM " . TEACHPRESS_SETTINGS . " e LEFT JOIN " . TEACHPRESS_STUD . " s ON e.value = s.course_of_studies GROUP BY e.value ORDER BY number DESC ) AS temp WHERE category = 'course_of_studies' ORDER BY value";
     }
     else {
-        $sql = "SELECT * FROM $teachpress_settings WHERE `category` = '$type' ORDER BY setting_id ASC";
+        $sql = "SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '$type' ORDER BY setting_id ASC";
     }
                
     $row = $wpdb->get_results($sql);
-    
-    foreach ($row as $row) { 
-        echo '<tr>';
+    $class_alternate = true;
+    foreach ($row as $row) {
+        if ( $class_alternate === true ) {
+            $tr_class = 'class="alternate"';
+            $class_alternate = false;
+        }
+        else {
+            $tr_class = '';
+            $class_alternate = true;
+        }
+        echo '<tr ' . $tr_class . '>';
         echo '<td><a title="' . $options['delete_title'] . '" href="options-general.php?page=teachpress/settings.php&amp;delete=' . $row->setting_id . '&amp;tab=' . $options['tab'] . '" class="teachpress_delete">X</a></td>';
         echo '<td>' . stripslashes($row->value) . '</td>';
         if ( $type === 'term' || $type === 'course_of_studies' || $type === 'type' ) {
@@ -323,7 +325,7 @@ function tp_copy_course($checkbox, $copysem) {
      $counter2 = 0;
      for( $i = 0; $i < count( $checkbox ); $i++ ) {
           $checkbox[$i] = intval($checkbox[$i]);
-          $row = get_tp_course($checkbox[$i]);
+          $row = tp_courses::get_course($checkbox[$i]);
           foreach ($row as $row) {
                $daten[$counter]['id'] = $row->course_id;
                $daten[$counter]['name'] = $row->name;
@@ -347,7 +349,7 @@ function tp_copy_course($checkbox, $copysem) {
           if ( $daten[$i]['parent'] == 0) {
                $merke[$counter2] = $daten[$i]['id'];
                $daten[$i]['semester'] = $copysem;
-               tp_add_course($daten[$i]);
+               tp_courses::add_course($daten[$i]);
                $counter2++;
           }
      }	
@@ -370,14 +372,14 @@ function tp_copy_course($checkbox, $copysem) {
                               $suche = $wpdb->get_var($suche);
                               $daten[$i]['parent'] = $suche;
                               $daten[$i]['semester'] = $copysem;
-                              tp_add_course($daten[$i]);					
+                              tp_courses::add_course($daten[$i]);					
                          }
                     }
                }
                // if is false: create copy directly
                else {
                     $daten[$i]['semester'] = $copysem;
-                    tp_add_course($daten[$i]);
+                    tp_courses::add_course($daten[$i]);
                }
           }
      }

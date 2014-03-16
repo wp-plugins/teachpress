@@ -28,13 +28,13 @@ function teachpress_import_page() {
         if ( $tp_bookmark !== '' && $checkbox !== '' ) {
             $max = count($checkbox);
             for ( $i = 0; $i < $max; $i++ ) {
-                tp_add_bookmark( intval($checkbox[$i]), $current_user->ID );
+                tp_bookmarks::add_bookmark( intval($checkbox[$i]), $current_user->ID );
             }
             get_tp_message( __('Publications added to your list.','teachpress') );
         }
         // delete publication
         if ( $tp_delete !== '' && $checkbox !== '' ) {
-            tp_delete_publications($_POST['checkbox']);
+            tp_publications::delete_publications($_POST['checkbox']);
             get_tp_message( __('Removing successful','teachpress') );
         }
         // error messages
@@ -201,7 +201,7 @@ function tp_import_show_results($entries) {
         $value = ( isset($_POST['tp_submit']) && isset ($_POST['bibtex_area']) ) ? intval($entry['entry_id']) : intval($entry['pub_id']);
         $author = ( array_key_exists('author', $entry) === true ) ? $entry['author'] : '';
         echo '<tr>';
-        if ( tp_check_bookmark($value, $current_user->ID) === true ) {
+        if ( tp_bookmarks::bookmark_exists($value, $current_user->ID) === true ) {
             echo '<th></th>';
         }
         else {
@@ -235,7 +235,7 @@ function tp_export_tab() {
                    <select name="tp_user" id="tp_user">
                         <option value="all"><?php _e('All','teachpress'); ?></option>
                         <?php
-                        $row = get_tp_publication_user();
+                        $row = tp_publications::get_pubusers();
                         foreach($row as $row) {
                              $user_info = get_userdata($row->user);
                              if ( $user_info != false ) { 

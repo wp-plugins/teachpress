@@ -88,13 +88,13 @@ function teachpress_addpublications_page() {
         }
    // create publication and related page
    if ( isset($_POST['erstellen']) ) {
-      $pub_ID = tp_add_publication($data, $tags, $bookmark);
+      $pub_ID = tp_publications::add_publication($data, $tags, $bookmark);
       $message = __('Publication added','teachpress') . ' <a href="admin.php?page=teachpress/addpublications.php">' . __('Add New','teachpress') . '</a>';
       get_tp_message($message);
    }
    // save publication
    if ( isset($_POST['speichern']) ) {
-      tp_change_publication($pub_ID, $data, $bookmark, $delbox, $tags);
+      tp_publications::change_publication($pub_ID, $data, $bookmark, $delbox, $tags);
       get_tp_message( __('Saved') );
    }
 
@@ -104,7 +104,7 @@ function teachpress_addpublications_page() {
    <h2><?php if ($pub_ID == '') { _e('Add a new publication','teachpress'); } else { _e('Edit publication','teachpress'); } ?></h2>
      <input name="page" type="hidden" value="teachpress/addpublications.php">
      <?php if ($pub_ID != '') { 
-          $daten = get_tp_publication($pub_ID, ARRAY_A);
+          $daten = tp_publications::get_publication($pub_ID, ARRAY_A);
           ?>
           <input type="hidden" name="pub_ID" value="<?php echo $pub_ID; ?>" />
           <input type="hidden" name="search" value="<?php echo stripslashes($search); ?>" />
@@ -127,7 +127,7 @@ function teachpress_addpublications_page() {
              <div class="bookmarks" style="background-attachment: scroll; border:1px #DFDFDF solid; display: block; height: 100px; max-height: 205px; overflow-x: auto; overflow-y: auto; padding: 6px 11px;">
           <?php 
              if ($pub_ID != '') {
-                   $test = tp_check_bookmark($pub_ID, $user);
+                   $test = tp_bookmarks::bookmark_exists($pub_ID, $user);
                    if ($test === true) {
                         echo '<p><input type="checkbox" name="bookmark[]" id="bookmark" disabled="disabled"/> <label for="bookmark">' . __('add to your own list','teachpress') . '</label></p>';
                    }
@@ -139,12 +139,12 @@ function teachpress_addpublications_page() {
                    echo '<p><input type="checkbox" name="bookmark[]" id="bookmark" value="' . $user . '" title="' . __('Click to add the publication in your own list','teachpress') . '"/> <label for="bookmark" title="' . __('Click to add the publication in your own list','teachpress') . '">' . __('add to your own list','teachpress') . '</label></p>';
                    }
              // search users with min. one bookmark
-             $row = get_tp_publication_user();
+             $row = tp_publications::get_pubusers();
              foreach($row as $row) {
                 $user_info = get_userdata($row->user);
                 if ($user != $row->user && $user_info != false) { 
                     if ($pub_ID != '') {
-                        $test = tp_check_bookmark($pub_ID, $user_info->ID);
+                        $test = tp_bookmarks::bookmark_exists($pub_ID, $user_info->ID);
                         if ($test === true) {
                             echo '<p><input type="checkbox" name="bookmark[]" id="bookmark_' . $user_info->ID . '" disabled="disabled"/> <label for="bookmark_' . $user_info->ID . '">' . $user_info->display_name . '</label></p>';
                         }

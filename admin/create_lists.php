@@ -62,7 +62,7 @@ function tp_lists_page() {
                 <?php
                 $fields = get_tp_options('teachpress_stud','`setting_id` ASC');
                 foreach ($fields as $row) {
-                    $data = tp_extract_column_data($row->value);
+                    $data = tp_db_helpers::extract_column_data($row->value);
                     echo '<option value="' . $row->variable . '">' . $data['title'] . '</option>';
                 }
                 ?>
@@ -89,10 +89,10 @@ function tp_lists_page() {
  * @since 4.3.0
  */
 function tp_create_attendance_list($course_ID, $number, $extra_fields) {
-    $row = get_tp_course($course_ID);
+    $row = tp_courses::get_course($course_ID);
     // define course name
     if ($row->parent != 0) {
-       $parent_name = get_tp_course_data($row->parent, 'name');
+       $parent_name = tp_courses::get_course_data($row->parent, 'name');
        // if parent_name == child name
        if ($parent_name == $row->name) {
            $parent_name = "";
@@ -125,7 +125,7 @@ function tp_create_attendance_list($course_ID, $number, $extra_fields) {
     $max = count($extra_fields);
     for ($i = 0; $i < $max; $i++) {
         $field_values = get_tp_option($extra_fields[$i], 'teachpress_stud');
-        $data = tp_extract_column_data($field_values);
+        $data = tp_db_helpers::extract_column_data($field_values);
         echo '<th>' . $data['title'] . '</th>';
     }
     for ($i = 1; $i <= $number; $i++ ) {
@@ -139,7 +139,7 @@ function tp_create_attendance_list($course_ID, $number, $extra_fields) {
     $count = 1;
     
     
-    $sql = get_tp_course_signups( array('course' => $course_ID, 'order' => 'st.lastname', 'waitinglist' => 0, 'output_type' => ARRAY_A ) );
+    $sql = tp_courses::get_signups( array('course' => $course_ID, 'order' => 'st.lastname', 'waitinglist' => 0, 'output_type' => ARRAY_A ) );
     foreach($sql as $row3) {
         echo '<tr>';
         echo '<td>' . $count . '</td>';

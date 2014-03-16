@@ -94,7 +94,7 @@ function tp_add_signup($checkbox, $wp_id){
    // Check if there is a strict signup
    $row1 = $wpdb->get_row("SELECT `places`, `waitinglist`, `parent` FROM $teachpress_courses WHERE `course_id` = '$checkbox'");
    if ( $row1->parent != 0 ) {
-        $check = get_tp_course_data ($row1->parent, 'strict_signup');
+        $check = tp_courses::get_course_data($row1->parent, 'strict_signup');
         if ( $check != 0 ) {
              $check2 = $wpdb->query("SELECT c.course_id FROM $teachpress_courses c INNER JOIN $teachpress_signup s ON s.course_id = c.course_id WHERE c.parent = '$row1->parent' AND s.wp_id = '$wp_id' AND s.waitinglist = '0'");
              if ( $check2 != NULL ) {
@@ -356,7 +356,7 @@ function tp_enrollments_shortcode($atts) {
         'birth_year' => isset($_POST['birth_year']) ? intval($_POST['birth_year']) : '',
         'email' => htmlspecialchars($_POST['email'])
       );    
-      $rtn = $rtn . tp_change_student($wp_id, $data2, 0);
+      $rtn = $rtn . tp_students::change_student($wp_id, $data2, 0);
    }
    // delete signup
    if ( isset( $_POST['austragen'] ) && $checkbox2 != '' ) {
@@ -368,7 +368,7 @@ function tp_enrollments_shortcode($atts) {
       for ($n = 0; $n < $max; $n++) {
          $rowr = $wpdb->get_row("SELECT `name`, `parent` FROM $teachpress_courses WHERE `course_id` = '$checkbox[$n]'");
          if ($rowr->parent != '0') {
-            $parent = get_tp_course_data ($rowr->parent, 'name');
+            $parent = tp_courses::get_course_data($rowr->parent, 'name');
             if ($rowr->name != $parent) {
                 $rowr->name = $parent . ' ' . $rowr->name; 
             }
@@ -396,8 +396,8 @@ function tp_enrollments_shortcode($atts) {
           'birth_year' => isset($_POST['birth_year']) ? intval($_POST['birth_year']) : '',
           'email' => $user_email,
           'matriculation_number' => isset($_POST['matriculation_number']) ? intval($_POST['matriculation_number']) : '',
-      );    
-      $ret = tp_add_student($wp_id, $data);
+      );
+      $ret = tp_students::add_student($wp_id, $data);
       if ($ret != false) {
          $rtn = $rtn . '<div class="teachpress_message_success"><strong>' . __('Registration successful','teachpress') . '</strong></div>';
       }
@@ -419,7 +419,7 @@ function tp_enrollments_shortcode($atts) {
       }
       else {
         // Select all user information
-        $row = get_tp_student($user_ID);
+        $row = tp_students::get_student($user_ID);
         /*
          * Menu
         */
@@ -484,7 +484,7 @@ function tp_enrollments_shortcode($atts) {
                           <th>' . __('Term','teachpress') . '</th>
                          </tr>';
              // Select all courses where user is registered
-             $row1 = get_tp_student_signups( array('wp_id' => $student, 'mode' => 'reg') );
+             $row1 = tp_students::get_signups( array('wp_id' => $student, 'mode' => 'reg') );
              if ( $wpdb->num_rows != 0 ) {
                foreach($row1 as $row1) {
                    $row1->parent_name = stripslashes($row1->parent_name);
@@ -509,7 +509,7 @@ function tp_enrollments_shortcode($atts) {
              }
              $rtn = $rtn . '</table>';
              // all courses where user is registered in a waiting list
-             $row1 = get_tp_student_signups( array('wp_id' => $student, 'mode' => 'wtl') );
+             $row1 = tp_students::get_signups( array('wp_id' => $student, 'mode' => 'wtl') );
              if ( count($row1) != 0 ) {
                 $rtn = $rtn . '<p><strong>' . __('Waiting list','teachpress') . '</strong></p>
                               <table class="teachpress_enr_old" border="1" cellpadding="5" cellspacing="0">
@@ -588,7 +588,7 @@ function tp_enrollments_shortcode($atts) {
             // define some course variables
             $date1 = $row->start;
             $date2 = $row->end;
-            $free_places = get_tp_course_free_places($row->course_id, $row->places);
+            $free_places = tp_courses::get_free_places($row->course_id, $row->places);
             if ( $free_places < 0 ) {
                 $free_places = 0;
             }
@@ -658,7 +658,7 @@ function tp_enrollments_shortcode($atts) {
             foreach ($row2 as $row2) {
                $date3 = $row2->start;
                $date4 = $row2->end;
-               $free_places = get_tp_course_free_places($row2->course_id, $row2->places);
+               $free_places = tp_courses::get_free_places($row2->course_id, $row2->places);
                if ( $free_places < 0 ) {
                    $free_places = 0;
                }

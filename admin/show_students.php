@@ -70,20 +70,20 @@ function teachpress_students_page() {
         }
         // Delete students part 2
         if ( isset($_GET['delete_ok']) ) {
-            tp_delete_student($checkbox, $user_ID);
+            tp_students::delete_student($checkbox, $user_ID);
             $message = __('Removing successful','teachpress');
             get_tp_message($message);
         }
         // Load data
-        $number_entries = get_tp_students( array('course_of_studies' => $students_group, 'search' => $search, 'output_type' => OBJECT, 'count' => true ) );
-        $students = get_tp_students( array('course_of_studies' => $students_group, 'search' => $search, 'limit' => $entry_limit . ',' . $entries_per_page, 'output_type' => ARRAY_A ) );
+        $number_entries = tp_students::get_students( array('course_of_studies' => $students_group, 'search' => $search, 'output_type' => OBJECT, 'count' => true ) );
+        $students = tp_students::get_students( array('course_of_studies' => $students_group, 'search' => $search, 'limit' => $entry_limit . ',' . $entries_per_page, 'output_type' => ARRAY_A ) );
         
         // field options
         $fields = get_tp_options('teachpress_stud','`setting_id` ASC');
         $visible_fields = array();
         $select_fields = array();
         foreach ($fields as $row) {
-            $data = tp_extract_column_data($row->value);
+            $data = tp_db_helpers::extract_column_data($row->value);
             if ( $data['admin_visibility'] === 'true') {
                 array_push($visible_fields, $row->variable);
             }
@@ -136,7 +136,7 @@ function teachpress_students_page() {
             echo '<th>' . __('User account','teachpress') . '</th>'; 
             echo '<th>' . __('E-Mail') . '</th>';
             foreach ($fields as $row) {
-                $data = tp_extract_column_data($row->value);
+                $data = tp_db_helpers::extract_column_data($row->value);
                 if ( $data['admin_visibility'] === 'true' ) {
                     echo '<th>' . $data['title'] . '</th>';
                 }

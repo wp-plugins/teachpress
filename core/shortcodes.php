@@ -82,7 +82,7 @@ function tp_courselist_shortcode($atts) {
            <input type="submit" name="start" value="' . __('Show','teachpress') . '" id="teachpress_submit" class="button-secondary"/>
     </div>';
     $rtn2 = '';
-    $row = get_tp_courses( array('semester' => $sem, 'parent' => 0, 'visibility' => '1,2') );
+    $row = tp_courses::get_courses( array('semester' => $sem, 'parent' => 0, 'visibility' => '1,2') );
     if ( count($row) != 0 ){
         foreach($row as $row) {
             $row->name = stripslashes($row->name);
@@ -117,7 +117,7 @@ function tp_courselist_shortcode($atts) {
             // handle childs
             if ($row->visible == 2) {
                $div_cl_com = "_c";
-               $row2 = get_tp_courses( array('semester' => $sem, 'parent' => $row->course_id, 'visibility' => '1,2') );
+               $row2 = tp_courses::get_courses( array('semester' => $sem, 'parent' => $row->course_id, 'visibility' => '1,2') );
                foreach ($row2 as $row2) {
                   $childs .= '<p><a href="' . get_permalink($row2->rel_page) . '" title="' . $row2->name . '">' . $row2->name . '</a></p>'; 
                }
@@ -167,7 +167,7 @@ function tp_date_shortcode($attr) {
             <table class="tpdate">';
     $id = intval($attr["id"]);
     
-    $course = get_tp_course($id);
+    $course = tp_courses::get_course($id);
     $v_test = $course->name;
     $a2 .= '<tr>
                 <td class="tp_date_type"><strong>' . stripslashes($course->type) . '</strong></td>
@@ -179,7 +179,7 @@ function tp_date_shortcode($attr) {
             </tr>';
     
     // Search the child courses
-    $row = get_tp_courses( array('parent' => $id, 'visible' => '1,2') );
+    $row = tp_courses::get_courses( array('parent' => $id, 'visible' => '1,2') );
     foreach($row as $row) {
         // if parent name = child name
         if ($v_test == $row->name) {
@@ -239,10 +239,10 @@ function tp_single_shortcode ($atts) {
     );
     
     if ( $key != '' ) {
-        $publication = get_tp_publication_by_key($key, ARRAY_A);
+        $publication = tp_publications::get_publication_by_key($key, ARRAY_A);
     }
     else {
-        $publication = get_tp_publication($id, ARRAY_A);
+        $publication = tp_publications::get_publication($id, ARRAY_A);
     }
     $tp_single_publication = $publication;
     
@@ -291,9 +291,9 @@ function tp_bibtex_shortcode ($atts) {
     ), $atts));
 
     if ( $key != '' ) {
-        $publication = get_tp_publication_by_key($key, ARRAY_A);
+        $publication = tp_publications::get_publication_by_key($key, ARRAY_A);
     } elseif ( $id != 0 ) {
-        $publication = get_tp_publication($id, ARRAY_A);
+        $publication = tp_publications::get_publication($id, ARRAY_A);
     } else {
         $publication = $tp_single_publication;
     }
@@ -323,9 +323,9 @@ function tp_abstract_shortcode ($atts) {
     ), $atts));
 
     if ( $key != '' ) {
-        $publication = get_tp_publication_by_key($key, ARRAY_A);
+        $publication = tp_publications::get_publication_by_key($key, ARRAY_A);
     } elseif ( $id != 0 ) {
-        $publication = get_tp_publication($id, ARRAY_A);
+        $publication = tp_publications::get_publication($id, ARRAY_A);
     } else {
         $publication = $tp_single_publication;
     }
@@ -356,9 +356,9 @@ function tp_links_shortcode ($atts) {
     ), $atts));
     
     if ( $key != '' ) {
-        $publication = get_tp_publication_by_key($key, ARRAY_A);
+        $publication = tp_publications::get_publication_by_key($key, ARRAY_A);
     } elseif ( $id != 0 ) {
-        $publication = get_tp_publication($id, ARRAY_A);
+        $publication = tp_publications::get_publication($id, ARRAY_A);
     } else {
         $publication = $tp_single_publication;
     }
@@ -492,7 +492,7 @@ function tp_generate_pub_table($tparray, $args ) {
         $pubs = tp_sort_pub_table($tparray, $headlines , $args);
     }
     elseif ( $args['headline'] == 2 ) {
-        $pub_types = get_tp_publication_used_types( array('user' => $args['user'] ) );
+        $pub_types = tp_publications::get_used_pubtypes( array('user' => $args['user'] ) );
         foreach( $pub_types as $row ) {
             $headlines[$row['type']] = '';
         }
@@ -675,7 +675,7 @@ function tp_cloud_shortcode($atts) {
    
    // Filter year
    $options = '';
-   $row_year = get_tp_publication_years( array( 'user' => $user, 'type' => $sort_type, 'order' => 'DESC', 'output_type' => ARRAY_A ) );
+   $row_year = tp_publications::get_years( array( 'user' => $user, 'type' => $sort_type, 'order' => 'DESC', 'output_type' => ARRAY_A ) );
    foreach ($row_year as $row) {
       if ($row['year'] != '0000') {
          $current = $row['year'] == $yr ? 'selected="selected"' : '' ;
@@ -689,7 +689,7 @@ function tp_cloud_shortcode($atts) {
    // Filter type
    $filter2 = "";
    if ($sort_type == '') {
-      $row = get_tp_publication_used_types( array('user' => $user) );
+      $row = tp_publications::get_used_pubtypes( array('user' => $user) );
       $current = '';	
       $options = '';
       foreach ($row as $row) {
@@ -709,7 +709,7 @@ function tp_cloud_shortcode($atts) {
    $filter3 = '';
    
    if ($user == '') {
-      $row = get_tp_publication_user( array('output_type' => ARRAY_A) );	 
+      $row = tp_publications::get_pubusers( array('output_type' => ARRAY_A) );	 
       foreach ($row as $row) {
          if ($row['user'] == $author) {
             $current = 'selected="selected"';
@@ -929,7 +929,7 @@ function tp_list_shortcode($atts){
     $menu = ( $pagination === 1 ) ? tp_admin_page_menu($number_entries, $entries_per_page, $current_page, $entry_limit, $page_link, '', 'bottom') : '';
     $r .= $menu;
 
-    $row_year = ( $headline === 1 ) ? get_tp_publication_years( array('output_type' => ARRAY_A, 'order' => 'DESC') ) : '';
+    $row_year = ( $headline === 1 ) ? tp_publications::get_years( array('output_type' => ARRAY_A, 'order' => 'DESC') ) : '';
     $r .= tp_generate_pub_table($tparray, array('number_publications' => $tpz, 
                                                 'headline' => $headline,
                                                 'years' => $row_year,

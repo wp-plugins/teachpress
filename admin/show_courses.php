@@ -98,7 +98,7 @@ function teachpress_show_courses_page() {
            }
            // delete a course, part 2
            if ( isset($_GET['delete_ok']) ) {
-                tp_delete_course($checkbox);
+               tp_courses::delete_courses($checkbox);
                 $message = __('Removing successful','teachpress');
                 get_tp_message($message);
            }
@@ -186,15 +186,14 @@ function teachpress_show_courses_page() {
             $order = 'semester DESC, name';	
         }
            
-        $row = get_tp_courses( array('search' => $search, 'semester' => $sem, 'order' => 'name, course_id') );
+        $row = tp_courses::get_courses( array('search' => $search, 'semester' => $sem, 'order' => 'name, course_id') );
         // is the query is empty
         if (count($row) == 0) { 
             echo '<tr><td colspan="13"><strong>' . __('Sorry, no entries matched your criteria.','teachpress') . '</strong></td></tr>';
         }
         else {
-             // free places
-             $free_places = get_tp_courses_used_places();
-             // END free places
+             // used places
+             $used_places = tp_courses::get_used_places();
              $static['bulk'] = $bulk;
              $static['sem'] = $sem;
              $static['search'] = $search;
@@ -210,8 +209,8 @@ function teachpress_show_courses_page() {
                  $courses[$z]['date'] = stripslashes($row->date);
                  $courses[$z]['places'] = $row->places;
                  // number of free places
-                 if ( array_key_exists($row->course_id, $free_places) ) {
-                     $courses[$z]['fplaces'] = $courses[$z]['places'] - $free_places[$row->course_id];
+                 if ( array_key_exists($row->course_id, $used_places) ) {
+                     $courses[$z]['fplaces'] = $courses[$z]['places'] - $used_places[$row->course_id];
                  }
                  else {
                      $courses[$z]['fplaces'] = $courses[$z]['places'];
@@ -252,7 +251,7 @@ function teachpress_show_courses_page() {
                  // table design for searches
                  else {
                      if ($courses[$i]['parent'] != 0) {
-                         $parent_name = get_tp_course_data($courses[$i]['parent'], 'name'); 
+                         $parent_name = tp_courses::get_course_data($courses[$i]['parent'], 'name'); 
                      }
                      else {
                          $parent_name = "";

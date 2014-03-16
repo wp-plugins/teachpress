@@ -489,11 +489,11 @@ class tp_bibtex {
                 // update/overwrite existing publication
                 $check = true;
                 if ( $settings['overwrite'] === true ) {
-                    $entries[$i]['entry_id'] = tp_change_publication_by_key($entries[$i]['bibtex'], $entries[$i], $tags);
+                    $entries[$i]['entry_id'] = tp_publications::change_publication_by_key($entries[$i]['bibtex'], $entries[$i], $tags);
                     $check = ( $entries[$i]['entry_id'] === false ) ? false : true;
                 }
                 if ( $settings['overwrite'] === false || $check === false ) {
-                    $entries[$i]['entry_id'] = tp_add_publication($entries[$i], $tags, '');
+                    $entries[$i]['entry_id'] = tp_publications::add_publication($entries[$i], $tags, '');
                 }    
             }
         }

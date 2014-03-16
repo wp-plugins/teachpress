@@ -156,7 +156,7 @@ if ( !class_exists( 'PARSEENTRIES' ) ) {
  * @return string
 */
 function get_tp_version() {
-    return '5.0.0b';
+    return '5.0.0c1';
 }
 
 /** Function for the integrated registration mode */
@@ -176,7 +176,7 @@ function tp_advanced_registration() {
             'userlogin' => $user->user_login,
             'email' => $user->user_email
         );
-        tp_add_student($user->ID, $data );
+        tp_students::add_student($user->ID, $data );
     }
 } 
 
@@ -184,11 +184,22 @@ function tp_advanced_registration() {
 /* Installer and Updater */
 /*************************/
 
-/** Database update manager */
+/**
+ * Database update manager
+ */
 function tp_db_update() {
    require_once("core/class-tables.php");
    require_once('core/class-update.php');
    tp_update_db::force_update();
+}
+
+/**
+ * Database synchronisation manager
+ */
+function tp_db_sync() {
+    require_once("core/class-tables.php");
+    require_once('core/class-update.php');
+    tp_update_db::fill_table_authors();
 }
 
 /**

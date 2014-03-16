@@ -32,7 +32,7 @@ function teachpress_show_student_page() {
    <input name="search" type="hidden" value="<?php echo $search; ?>" />
    <input name="limit" type="hidden" value="<?php echo $entry_limit; ?>" />
    <?php
-      $row3 = get_tp_student($student, ARRAY_A);
+      $row3 = tp_students::get_student($student, ARRAY_A);
    ?>
  <h2 style="padding-top:0px;"><?php echo stripslashes($row3['firstname']); ?> <?php echo stripslashes($row3['lastname']); ?> <span class="tp_break">|</span> <small><a href="<?php echo 'admin.php?page=teachpress/students.php&amp;student_ID=' . $student . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $entry_limit . '&amp;action=edit'; ?>" id="daten_aendern"><?php _e('Edit','teachpress'); ?> </a></small></h2>
      <div style="width:55%; padding-bottom:10px;">
@@ -53,7 +53,7 @@ function teachpress_show_student_page() {
         echo '<td style="vertical-align:middle;"><a href="admin.php?page=teachpress/teachpress.php&amp;student_ID=' . $row3['wp_id'] . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $entry_limit . '&amp;action=mail&amp;single=' . $row3['email'] . '" title="' . __('Send E-Mail to','teachpress') . ' ' . $row3['firstname'] . ' ' . $row3['lastname'] . '">' . $row3['email'] . '</a></td>';
         echo '</tr>';
         foreach ($fields as $row) {
-            $data = tp_extract_column_data($row->value);
+            $data = tp_db_helpers::extract_column_data($row->value);
             echo '<tr>';
             echo '<td><strong>' . $data['title'] . '</strong></td>';
             echo '<td style="vertical-align:middle;">' . $row3[$row->variable] . '</td>';
@@ -70,7 +70,7 @@ function teachpress_show_student_page() {
    <input name="student_ID" type="hidden" value="<?php echo $student; ?>">
    <input name="search" type="hidden" value="<?php echo $search; ?>">
    <h3><?php _e('Signups','teachpress'); ?></h3>
-   <table border="1" cellspacing="0" cellpadding="5" class="widefat">
+   <table cellpadding="5" class="widefat">
     <thead>
         <tr>
         <th>&nbsp;</th>
@@ -84,7 +84,7 @@ function teachpress_show_student_page() {
     <tbody>
     <?php
         // get signups
-        $row = get_tp_student_signups( array('wp_id' => $student, 'mode' => 'reg'));
+        $row = tp_students::get_signups( array('wp_id' => $student, 'mode' => 'reg'));
         if ( count($row) != 0) {
             foreach($row as $row) {
                 if ($row->parent_name != "") {
@@ -109,11 +109,11 @@ function teachpress_show_student_page() {
     </tbody>
    </table>
    <?php
-   $row = get_tp_student_signups( array('wp_id' => $student, 'mode' => 'wtl') );
+   $row = tp_students::get_signups( array('wp_id' => $student, 'mode' => 'wtl') );
    if ( count($row) != 0 ) {
         echo '<h3>' . __('Waitinglist','teachpress') . '</h3>';
         ?>
-        <table border="1" cellspacing="0" cellpadding="5" class="widefat">
+        <table cellpadding="5" class="widefat">
             <thead>
                 <tr>
                     <th>&nbsp;</th>
@@ -148,7 +148,7 @@ function teachpress_show_student_page() {
             </tbody>
         </table>
    <?php } ?>
-   <table border="0" cellspacing="7" cellpadding="0" id="einzel_optionen">
+   <table border="0" cellspacing="0" cellpadding="7" id="einzel_optionen">
      <tr>
         <td><?php _e('delete enrollment','teachpress'); ?></td>
         <td> <input name="delete" type="submit" value="<?php _e('Delete','teachpress'); ?>" id="teachpress_search_delete" class="button-secondary"/></td>
@@ -182,14 +182,14 @@ function teachpress_edit_student_page() {
             'birth_year' => intval($_POST['birth_year']),
             'email' => htmlspecialchars($_POST['email'])
         );
-        tp_change_student($student, $data, $user_ID);
+        tp_students::change_student($student, $data, $user_ID);
         get_tp_message( __('Saved') );
     }
     
     echo '<div class="wrap">';
     echo '<p><a href="admin.php?page=teachpress/students.php&amp;student_ID=' . $student . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $entry_limit . '&amp;action=show" class="button-secondary" title="' . __('Back','teachpress') . '">&larr; ' . __('Back','teachpress') . ' </a></p>';
     echo '<h2>Edit Student</h2>';
-    $user = get_tp_student($student, OBJECT);
+    $user = tp_students::get_student($student, OBJECT);
     echo tp_registration_form($user, 'admin');
     echo '</div>';
 }

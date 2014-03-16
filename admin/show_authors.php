@@ -28,7 +28,8 @@ function tp_show_authors_page_screen_options(){
 function teachpress_authors_page () {
     $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
     $checkbox = isset( $_GET['checkbox'] ) ? $_GET['checkbox'] : array();
-    $page = 'teachpress/tags.php';
+    $page = 'teachpress/authors.php';
+    
     // Get screen options
     $user = get_current_user_id();
     $screen = get_current_screen();
@@ -37,7 +38,54 @@ function teachpress_authors_page () {
     if ( empty ( $per_page) || $per_page < 1 ) {
         $per_page = $screen->get_option( 'per_page', 'default' );
     }
+    
+    // Handle limits
+    $number_messages = $per_page;
+    if (isset($_GET['limit'])) {
+        $curr_page = (int)$_GET['limit'] ;
+        if ( $curr_page <= 0 ) {
+            $curr_page = 1;
+        }
+        $entry_limit = ( $curr_page - 1 ) * $number_messages;
+    }
+    else {
+        $entry_limit = 0;
+        $curr_page = 1;
+    }
+    
+    // form data
+    if ( isset( $_GET['action1'] ) ) {
+        $action = htmlspecialchars($_GET['action1']);
+    }
+    else if ( isset( $_GET['action2'] ) ) {
+        $action = htmlspecialchars($_GET['action2']);
+    }
+    else if ( isset( $_GET['action'] ) ) {
+        $action = htmlspecialchars($_GET['action']);
+    }
+    else {
+        $action = '';
+    }
+    
     echo '<div class="wrap" style="max-width:700px;">';
+    echo '<form id="form1" name="form1" method="get" action="' . $_SERVER['REQUEST_URI'] . '">';
+    echo '<input name="page" type="hidden" value="' . $page . '" />';
+    
+    // actions
+    // Delete tags - part 1
+    if ( $action === 'delete' ) {
+        echo '<div class="teachpress_message teachpress_message_orange">
+            <p class="teachpress_message_headline">' . __('Are you sure to delete the selected elements?','teachpress') . '</p>
+            <p><input name="delete_ok" type="submit" class="button-secondary" value="' . __('Delete','teachpress') . '"/>
+            <a href="admin.php?page=' . $page . '&search=' . $search . '&amp;limit=' . $curr_page . '"> ' . __('Cancel','teachpress') . '</a></p>
+            </div>';
+    }
+    // delete tags - part 2
+    if ( isset($_GET['delete_ok']) ) {
+        tp_authors::delete_authors($checkbox);
+        get_tp_message( __('Removing successful','teachpress') );
+    }
+    
     echo '<h2>' . __('Authors','teachpress') . '</h2>';
     
     echo '<div id="searchbox" style="float:right; padding-bottom:10px;">';
@@ -54,6 +102,8 @@ function teachpress_authors_page () {
     echo '<option value="delete">' . __('Delete','teachpress') . '</option>';
     echo '</select>';
     echo '<input name="OK" value="OK" type="submit" class="button-secondary"/>';
+    $test = tp_authors::get_authors( array( 'count' => true, 'search' => $search ) );
+    echo tp_admin_page_menu ($test, $number_messages, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search");
     echo '</div>';
     
     echo '<table class="widefat" style="width:700px;">';
@@ -63,28 +113,61 @@ function teachpress_authors_page () {
     echo '<th>' . __('ID','teachpress') . '</th>';
     echo '<th>' . __('Number publications','teachpress') . '</th>';
     echo '</thead>';
-    
-    $class_alternate = true;
-    $row = tp_authors::count_authors($search);
-    foreach ( $row as $row ) {
-        $checked = '';
-        if ( $class_alternate === true ) {
-            $tr_class = 'class="alternate"';
-            $class_alternate = false;
+    if ($test === 0) {
+            echo '<tr><td colspan="4"><strong>' . __('Sorry, no entries matched your criteria.','teachpress') . '</strong></td></tr>';
         }
-        else {
-            $tr_class = '';
-            $class_alternate = true;
+    else {
+        $class_alternate = true;
+        $row = tp_authors::count_authors($search, $entry_limit . ',' . $number_messages);
+        foreach ( $row as $row ) {
+            $checked = '';
+            if ( $class_alternate === true ) {
+                $tr_class = 'class="alternate"';
+                $class_alternate = false;
+            }
+            else {
+                $tr_class = '';
+                $class_alternate = true;
+            }
+            if ( $action === "delete") { 
+                for( $k = 0; $k < count( $checkbox ); $k++ ) { 
+                    if ( $row['author_id'] == $checkbox[$k] ) { $checked = 'checked="checked" '; } 
+                } 
+            }
+            echo '<tr ' . $tr_class . '>';
+            echo '<th class="check-column"><input name="checkbox[]" class="tp_checkbox" type="checkbox" ' . $checked . ' type="checkbox" value="' . $row['author_id'] . '"></th>';
+            echo '<td>' . stripslashes($row['name']) . '</td>';
+            echo '<td>' . $row['author_id'] . '</td>';
+            echo '<td>' . $row['count'] . '</td>';
+            echo '<tr>';
         }
-        echo '<tr ' . $tr_class . '>';
-        echo '<th class="check-column"><input name="checkbox[]" class="tp_checkbox" type="checkbox" ' . $checked . ' type="checkbox" value="' . $row['author_id'] . '"></th>';
-        echo '<td>' . stripslashes($row['name']) . '</td>';
-        echo '<td>' . $row['author_id'] . '</td>';
-        echo '<td>' . $row['count'] . '</td>';
-        echo '<tr>';
     }
-    
     echo '</table>';
+    
+    echo '<div class="tablenav bottom">';
+    echo '<div class="alignleft actions">';
+    echo '<select name="action2">';
+    echo '<option value="">- ' . __('Bulk actions','teachpress') . ' -</option>';
+    echo '<option value="delete">' . __('Delete','teachpress') . '</option>';
+    echo '</select>';
+    echo '<input name="OK" value="OK" type="submit" class="button-secondary"/>';
+    echo '</div>';
+    echo '<div class="tablenav-pages" style="float:right;">'; 
+        if ($test > $number_messages) {
+           echo tp_admin_page_menu ($test, $number_messages, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search", 'bottom');
+        } 
+        else {
+           if ($test === 1) {
+              echo $test . ' ' . __('entry','teachpress');
+           }
+           else {
+              echo $test . ' ' . __('entries','teachpress');
+           }
+        }
+    echo '</div>';
+    echo '</div>';
+    
+    echo '</form>';
     echo '</div>';
 }
 ?>

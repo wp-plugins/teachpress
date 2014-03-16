@@ -13,7 +13,7 @@ class tp_export {
      * @param int $waitinglist 
      */
     static function get_course_registration_table($course_ID, $option, $waitinglist = '') {
-        $row = get_tp_course_signups( array('course' => $course_ID, 'waitinglist' => $waitinglist, 'output_type' => ARRAY_A, 'order' => 'st.lastname ASC') );
+        $row = tp_courses::get_signups( array('course' => $course_ID, 'waitinglist' => $waitinglist, 'output_type' => ARRAY_A, 'order' => 'st.lastname ASC') );
         echo '<table border="1" cellpadding="5" cellspacing="0">';
         echo '<thead>';
         echo '<tr>';
@@ -23,7 +23,7 @@ class tp_export {
         echo '<th>' . __('E-Mail') . '</th>';
         $fields = get_tp_options('teachpress_stud','`setting_id` ASC');
         foreach ( $fields as $field ) {
-            $data = tp_extract_column_data($field->value);
+            $data = tp_db_helpers::extract_column_data($field->value);
             if ( $data['admin_visibility'] === 'true') {
                 echo '<th>' . stripslashes(utf8_decode($data['title'])) . '</th>';
             }
@@ -42,7 +42,7 @@ class tp_export {
             echo '<td>' . stripslashes(utf8_decode($row['userlogin'])) . '</td>';
             echo '<td>' . $row['email'] . '</td>';
             foreach ( $fields as $field ) {
-                $data = tp_extract_column_data($field->value);
+                $data = tp_db_helpers::extract_column_data($field->value);
                 if ( $data['admin_visibility'] === 'true') {
                     echo '<td>' . stripslashes( utf8_decode( tp_export::decode($row[$field->variable]) ) ) . '</td>';
                 }
@@ -126,12 +126,12 @@ class tp_export {
         // load settings
         $option['regnum'] = get_tp_option('regnum');
         $option['studies'] = get_tp_option('studies');
-        $row = get_tp_course_signups( array('course' => $course_ID, 'waitinglist' => 0, 'output_type' => ARRAY_A, 'order' => 'st.lastname ASC') );
+        $row = tp_courses::get_signups( array('course' => $course_ID, 'waitinglist' => 0, 'output_type' => ARRAY_A, 'order' => 'st.lastname ASC') );
         $fields = get_tp_options('teachpress_stud','`setting_id` ASC');
         
         $extra_headlines = '';
         foreach ( $fields as $field ) {
-            $data = tp_extract_column_data($field->value);
+            $data = tp_db_helpers::extract_column_data($field->value);
             $extra_headlines .= '"' . stripslashes( utf8_decode( $data['title'] ) ) . '";';
         }
 
@@ -181,7 +181,7 @@ class tp_export {
      * @since 4.2.0
      */
     public static function get_publication_by_key($bibtex_key) {
-        $row = get_tp_publication_by_key($bibtex_key, ARRAY_A);
+        $row = tp_publications::get_publication_by_key($bibtex_key, ARRAY_A);
         $tags = get_tp_tags( array( 'pub_id' => $row['pub_id'], 'output_type' => ARRAY_A ) );
         echo tp_bibtex::get_single_publication_bibtex($row, $tags);
     }

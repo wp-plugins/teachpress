@@ -89,17 +89,17 @@ function tp_add_course_page() {
    }
    // Event handler
    if ( isset($_POST['create']) ) {
-        $course_ID = tp_add_course($data);
+        $course_ID = tp_courses::add_course($data);
         $message = __('Course created successful.','teachpress') . ' <a href="admin.php?page=teachpress/add_course.php">' . __('Add New','teachpress') . '</a>';
         get_tp_message($message);
    }
    if ( isset($_POST['save']) ) {
-        tp_change_course($course_ID, $data);
+        tp_courses::change_course($course_ID, $data);
         $message = __('Saved');
         get_tp_message($message);
    }
    if ( $course_ID != 0 ) {
-        $daten = get_tp_course($course_ID, ARRAY_A);
+        $daten = tp_courses::get_course($course_ID, ARRAY_A);
    }
    else {
         $daten = get_tp_var_types('course_array');
@@ -211,7 +211,7 @@ function tp_add_course_page() {
           <p>
           <?php 
            if ($daten["parent"] != 0) {
-              $parent_data_strict = get_tp_course_data($daten["parent"], 'strict_signup'); 
+              $parent_data_strict = tp_courses::get_course_data($daten["parent"], 'strict_signup'); 
               $check = $parent_data_strict == 1 ? 'checked="checked"' : '';
               ?>
               <input name="strict_signup_2" id="strict_signup_2" type="checkbox" value="1" tabindex="27" <?php echo $check; ?> disabled="disabled" /> <label for="strict_signup_2" title="<?php _e('This is a child course. You can only change this option in the parent course','teachpress'); ?>"><?php _e('Strict sign up','teachpress'); ?></label></p>
