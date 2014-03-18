@@ -14,7 +14,7 @@
 .ui-resizable { position: relative;}
 .ui-resizable-handle { position: absolute;font-size: 0.1px;z-index: 0 !important; display: block; }
 .ui-resizable-disabled .ui-resizable-handle, .ui-resizable-autohide .ui-resizable-handle { display: none; }
-.ui-resizable-se { cursor: se-resize; width: 12px; height: 12px; right: 8px; bottom: 20px;  }
+.ui-resizable-se { cursor: se-resize; width: 12px; height: 12px; right: 18px; bottom: 22px;  }
 .ui-icon-gripsmall-diagonal-se { width: 12px; height: 12px; background: url(../images/resize.png) no-repeat; }
 /* jquery UI autocomplete */
 .ui-autocomplete { position: absolute; cursor: default; background: #F9F9F9; border: 1px solid #DFDFDF; }

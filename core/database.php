@@ -504,7 +504,7 @@ class tp_authors  {
         
         // define global search
         if ( $search != '' ) {
-            $search = "WHERE t.`name` like '%$search%'";
+            $search = "WHERE a.`name` like '%$search%'";
         }
         
         // LIMIT clause
@@ -538,6 +538,21 @@ class tp_authors  {
            $wpdb->query( "DELETE FROM " . TEACHPRESS_REL_PUB_AUTH . " WHERE `author_id` = $checkbox[$i]" );
            $wpdb->query( "DELETE FROM " . TEACHPRESS_AUTHORS . " WHERE `author_id` = $checkbox[$i]" );
        }
+   }
+   
+   /**
+    * Returns an array or object of related publications of an author/editor
+    * @global class $wpdb
+    * @param int $author_id
+    * @param string output_type
+    * @since 5.0.0
+    */
+   public static function get_related_authors($author_id, $output_type = ARRAY_A){
+       global $wpdb;
+       $author_id = intval($author_id);
+       $output_type = esc_sql($output_type);
+       return $wpdb->get_results("SELECT DISTINCT p.pub_id, p.title, p.type, p.bibtex, p.author, p.editor, p.date, DATE_FORMAT(p.date, '%Y') AS year, p.urldate, p.isbn , p.url, p.booktitle, p.issuetitle, p.journal, p.volume, p.number, p.pages, p.publisher, p.address, p.edition, p.chapter, p.institution, p.organization, p.school, p.series, p.crossref, p.abstract, p.howpublished, p.key, p.techtype, p.note, p.is_isbn, p.image_url, p.rel_page, r.is_author, r.is_editor FROM " . TEACHPRESS_PUB .  " p INNER JOIN " . TEACHPRESS_REL_PUB_AUTH . " r ON p.pub_id = r.pub_id WHERE r.author_id = '$author_id' ORDER BY year DESC", $output_type);
+       
    }
     
 }
@@ -1121,6 +1136,7 @@ class tp_publications {
      *  user            --> user IDs (separated by comma)
      *  type            --> type name (separated by comma)
      *  tag             --> tag IDs (separated by comma)
+     *  author_id       --> author IDs (separated by comma)
      *  year            --> years (separated by comma)
      *  author          --> author name (separated by comma)
      *  editor          --> editor name (separated by comma)
@@ -1142,6 +1158,7 @@ class tp_publications {
             'user' => '',
             'type' => '',
             'tag' => '',
+            'author_id' => '',
             'year' => '',
             'author' => '',
             'editor' => '',
@@ -1187,6 +1204,7 @@ class tp_publications {
         $type = tp_db_helpers::generate_where_clause($type, "p.type", "OR", "=");
         $user = tp_db_helpers::generate_where_clause($user, "u.user", "OR", "=");
         $tag = tp_db_helpers::generate_where_clause($tag, "b.tag_id", "OR", "=");
+        $author_id = tp_db_helpers::generate_where_clause($author_id, "r.author_id", "OR", "=");
         $year = tp_db_helpers::generate_where_clause($year, "year", "OR", "=");
         $author = tp_db_helpers::generate_where_clause($author, "p.author", "OR", "LIKE", '%');
         $editor = tp_db_helpers::generate_where_clause($editor, "p.editor", "OR", "LIKE", '%');
@@ -1197,6 +1215,9 @@ class tp_publications {
         }
         if ( $tag != '' ) {
             $join .= "INNER JOIN " . TEACHPRESS_RELATION . " b ON p.pub_id = b.pub_id INNER JOIN " . TEACHPRESS_TAGS . " t ON t.tag_id = b.tag_id ";
+        }
+        if ( $author_id != '' ) {
+            $join .= "INNER JOIN " . TEACHPRESS_REL_PUB_AUTH . " r ON p.pub_id = r.pub_id ";
         }
 
         // define order_by clause
@@ -1236,6 +1257,9 @@ class tp_publications {
         }
         if ( $tag != '') {
             $where = $where != '' ? $where . " AND ( $tag )" : $tag;
+        }
+        if ( $author_id != '') {
+            $where = $where != '' ? $where . " AND ( $author_id )" : $author_id;
         }
         if ( $author != '') {
             $where = $where != '' ? $where . " AND ( $author )" : $author;
@@ -1424,9 +1448,18 @@ class tp_publications {
                 $bibtex .= '_' . $check;
             }
         }
+        
         // check if bibtex key has no spaces
         if ( strpos($bibtex, ' ') !== false ) {
             $bibtex = str_replace(' ', '', $bibtex);
+        }
+        
+        // check last chars of author/editor fields
+        if ( substr($author, -5) === ' and ' ) {
+            $author = substr($author ,0 , strlen($author) - 5);
+        }
+        if ( substr($editor, -5) === ' and ' ) {
+            $editor = substr($editor ,0 , strlen($editor) - 5);
         }
 
         $wpdb->insert( TEACHPRESS_PUB, array( 'title' => $title, 'type' => $type, 'bibtex' => $bibtex, 'author' => $author, 'editor' => $editor, 'isbn' => $isbn, 'url' => $url, 'date' => $date, 'urldate' => $urldate, 'booktitle' => $booktitle, 'issuetitle' => $issuetitle, 'journal' => $journal, 'volume' => $volume, 'number' => $number, 'pages' => $pages , 'publisher' => $publisher, 'address' => $address, 'edition' => $edition, 'chapter' => $chapter, 'institution' => $institution, 'organization' => $organization, 'school' => $school, 'series' => $series, 'crossref' => $crossref, 'abstract' => $abstract, 'howpublished' => $howpublished, 'key' => $key, 'techtype' => $techtype, 'comment' => $comment, 'note' => $note, 'image_url' => $image_url, 'is_isbn' => $is_isbn, 'rel_page' => $rel_page ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d' ) );
@@ -1448,6 +1481,9 @@ class tp_publications {
         // Authors
         tp_publications::add_relation($pub_ID, $author, ' and ', 'authors');
         
+        // Editors
+        tp_publications::add_relation($pub_ID, $editor, ' and ', 'editors');
+        
         return $pub_ID;
     }
     
@@ -1466,6 +1502,13 @@ class tp_publications {
         // check if bibtex key has no spaces
         if ( strpos($data['bibtex'], ' ') !== false ) {
             $data['bibtex'] = str_replace(' ', '', $data['bibtex']);
+        }
+        // check last chars of author/editor fields
+        if ( substr($data['author'], -5) === ' and ' ) {
+            $data['author'] = substr($data['author'] ,0 , strlen($data['author']) - 5);
+        }
+        if ( substr($data['editor'], -5) === ' and ' ) {
+            $data['editor'] = substr($data['editor'] ,0 , strlen($data['editor']) - 5);
         }
         // update row
         $wpdb->update( TEACHPRESS_PUB, array( 'title' => $data['title'], 'type' => $data['type'], 'bibtex' => $data['bibtex'], 'author' => $data['author'], 'editor' => $data['editor'], 'isbn' => $data['isbn'], 'url' => $data['url'], 'date' => $data['date'], 'urldate' => $data['urldate'], 'booktitle' => $data['booktitle'], 'issuetitle' => $data['issuetitle'], 'journal' => $data['journal'], 'volume' => $data['volume'], 'number' => $data['number'], 'pages' => $data['pages'] , 'publisher' => $data['publisher'], 'address' => $data['address'], 'edition' => $data['edition'], 'chapter' => $data['chapter'], 'institution' => $data['institution'], 'organization' => $data['organization'], 'school' => $data['school'], 'series' => $data['series'], 'crossref' => $data['crossref'], 'abstract' => $data['abstract'], 'howpublished' => $data['howpublished'], 'key' => $data['key'], 'techtype' => $data['techtype'], 'comment' => $data['comment'], 'note' => $data['note'], 'image_url' => $data['image_url'], 'is_isbn' => $data['is_isbn'], 'rel_page' => $data['rel_page'] ), array( 'pub_id' => $pub_ID ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' ,'%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ,'%d', '%d' ), array( '%d' ) );
@@ -1487,10 +1530,13 @@ class tp_publications {
             tp_publications::add_relation($pub_ID, $tags);
         }
         
-        // Handle author relations
+        // Handle author/editor relations
         tp_authors::delete_author_relations($pub_ID);
         if ( $data['author'] != '' ) {
             tp_publications::add_relation($pub_ID, $data['author'], ' and ', 'authors');
+        }
+        if ( $data['editor'] != '' ) {
+            tp_publications::add_relation($pub_ID, $data['editor'], ' and ', 'editors');
         }
     }
     
@@ -1523,6 +1569,15 @@ class tp_publications {
         // Add new tags
         if ( $tags != '' ) {
             tp_publications::add_relation($pub_ID, $tags);
+        }
+        
+        // Handle author/editor relations
+        tp_authors::delete_author_relations($pub_ID);
+        if ( $data['author'] != '' ) {
+            tp_publications::add_relation($pub_ID, $data['author'], ' and ', 'authors');
+        }
+        if ( $data['editor'] != '' ) {
+            tp_publications::add_relation($pub_ID, $data['editor'], ' and ', 'editors');
         }
         
         return $pub_ID;

@@ -293,9 +293,9 @@ function teachpress_addpublications_page() {
                 </tr>
               </table>
              <p><label for="author" title="<?php _e('The names of the authors, separate by `and`. Example: Mark Twain and Albert Einstein','teachpress'); ?>"><strong><?php _e('Author(s)','teachpress'); ?></strong></label></p>
-             <textarea name="author" wrap="virtual" id="author" title="<?php _e('The names of the authors, separate by `and`. Example: Mark Twain and Albert Einstein','teachpress'); ?>" style="width:95%" rows="3" tabindex="4"><?php echo stripslashes($daten["author"]); ?></textarea>
+             <textarea name="author" wrap="virtual" id="author" title="<?php _e('The names of the authors, separate by `and`. Example: Mark Twain and Albert Einstein','teachpress'); ?>" style="width:95%;" rows="3" tabindex="4"><?php echo stripslashes($daten["author"]); ?></textarea>
              <p><label for="editor" title="<?php _e('The names of the editors, separate by `and`. Example: Mark Twain and Albert Einstein','teachpress'); ?>"><strong><?php _e('Editor(s)','teachpress'); ?></strong></label></p>
-             <textarea name="editor" id="editor" type="text" title="<?php _e('The names of the editors, separate by `and`. Example: Mark Twain and Albert Einstein','teachpress'); ?>" style="width:95%" rows="3" tabindex="5"><?php echo stripslashes($daten["editor"]); ?></textarea>
+             <textarea name="editor" id="editor" type="text" title="<?php _e('The names of the editors, separate by `and`. Example: Mark Twain and Albert Einstein','teachpress'); ?>" style="width:95%;" rows="3" tabindex="5"><?php echo stripslashes($daten["editor"]); ?></textarea>
              <p><label for="date" title="<?php _e('date of publishing','teachpress'); ?>"><strong><?php _e('date of publishing','teachpress'); ?></strong></label></p>
              <input type="text" name="date" id="date" title="<?php _e('date of publishing','teachpress'); ?>" value="<?php if ($pub_ID != '') { echo $daten["date"]; } else {_e('JJJJ-MM-TT','teachpress'); } ?>" onblur="if(this.value==='') this.value='<?php _e('JJJJ-MM-TT','teachpress'); ?>';" onfocus="if(this.value==='<?php _e('JJJJ-MM-TT','teachpress'); ?>') this.value='';" tabindex="6"/>
            </td>
@@ -419,20 +419,46 @@ function teachpress_addpublications_page() {
          $('#urldate').datepicker({showWeek: true, changeMonth: true, changeYear: true, showOtherMonths: true, firstDay: 1, renderer: $.extend({}, $.datepicker.weekOfYearRenderer), onShow: $.datepicker.showStatus, dateFormat: 'yy-mm-dd', yearRange: '1990:c+5'});
      });
      </script>
-    <script type="text/javascript" charset="utf-8">
+     <script type="text/javascript" charset="utf-8">
 	jQuery(document).ready(function($) {
             var availableTags = [
                 <?php
                 $sql = get_tp_tags( array('group_by' => true) );
+                $start = '';
                 foreach ($sql as $row) {
-                    echo '"' . $row->name . '",';        
-                } ?>
-            ];
+                    if ( $start === '' ) {
+                        echo '"' . $row->name . '"';
+                        $start = '1';
+                    }
+                    else {
+                        echo ',"' . $row->name . '"';
+                    }
+                } ?>];
+            var availableAuthors = [
+                <?php
+                $start2 = '';
+                $sql2 = tp_authors::get_authors( array('group_by' => true) );
+                foreach ($sql2 as $row) {
+                    if ( $start2 === '' ) {
+                        echo '"' . $row->name . '"';
+                        $start2 = '1';
+                    }
+                    else {
+                        echo ',"' . $row->name . '"';
+                    }        
+                } ?>];
             function split( val ) {
                 return val.split( /,\s*/ );
             }
+            function split_authors( val ) {
+                return val.split( /\sand\s*/ );
+            }
+            
             function extractLast( term ) {
                 return split( term ).pop();
+            }
+            function extractLast_authors( term ) {
+                return split_authors( term ).pop();
             }
 
             $( "#tags" )
@@ -465,27 +491,83 @@ function teachpress_addpublications_page() {
                         return false;
                     }
                 });
+                
+                $( "#author" )
+                // don't navigate away from the field on tab when selecting an item
+                .bind( "keydown", function( event ) {
+                    if ( event.keyCode === $.ui.keyCode.TAB && $( this ).data( "autocomplete" ).menu.active ) {
+                        event.preventDefault();
+                    }
+                })
+                .autocomplete({
+                    minLength: 0,
+                    source: function( request, response ) {
+                        // delegate back to autocomplete, but extract the last term
+                        response( $.ui.autocomplete.filter(
+                            availableAuthors, extractLast_authors( request.term ) ) );
+                    },
+                    focus: function() {
+                        // prevent value inserted on focus
+                        return false;
+                    },
+                    select: function( event, ui ) {
+                        var terms = split_authors( this.value );
+                        // remove the current input
+                        terms.pop();
+                        // add the selected item
+                        terms.push( ui.item.value );
+                        // add placeholder to get the comma-and-space at the end
+                        terms.push( "" );
+                        this.value = terms.join( " and " );
+                        return false;
+                    }
+                });
+                
+                $( "#editor" )
+                // don't navigate away from the field on tab when selecting an item
+                .bind( "keydown", function( event ) {
+                    if ( event.keyCode === $.ui.keyCode.TAB && $( this ).data( "autocomplete" ).menu.active ) {
+                        event.preventDefault();
+                    }
+                })
+                .autocomplete({
+                    minLength: 0,
+                    source: function( request, response ) {
+                        // delegate back to autocomplete, but extract the last term
+                        response( $.ui.autocomplete.filter(
+                            availableAuthors, extractLast_authors( request.term ) ) );
+                    },
+                    focus: function() {
+                        // prevent value inserted on focus
+                        return false;
+                    },
+                    select: function( event, ui ) {
+                        var terms = split_authors( this.value );
+                        // remove the current input
+                        terms.pop();
+                        // add the selected item
+                        terms.push( ui.item.value );
+                        // add placeholder to get the comma-and-space at the end
+                        terms.push( "" );
+                        this.value = terms.join( " and " );
+                        return false;
+                    }
+                });
 	});
 	</script>
-	<script type="text/javascript" charset="utf-8">
-    jQuery(document).ready(function($) {
-        $('#author').resizable({handles: "se", minHeight: 55, minWidth: 400});
-    });
-    jQuery(document).ready(function($) {
-        $('#editor').resizable({handles: "se", minHeight: 55, minWidth: 400});
-    });
-    jQuery(document).ready(function($) {
-        $('#abstract').resizable({handles: "se", minHeight: 80, minWidth: 500});
-    });
-    jQuery(document).ready(function($) {
-    	$('#url').resizable({handles: "se", minHeight: 80, minWidth: 500});
-    });
-    jQuery(document).ready(function($) {
-        $('#comment').resizable({handles: "se", minHeight: 70, minWidth: 400});
-    });
-    jQuery(document).ready(function($) {
-    	$('#note').resizable({handles: "se", minHeight: 70, minWidth: 400});
-    });
-    </script>
+        <script type="text/javascript" charset="utf-8">
+            jQuery(document).ready(function($) {
+                $('#abstract').resizable({handles: "se", minHeight: 80, minWidth: 500});
+            });
+            jQuery(document).ready(function($) {
+                $('#url').resizable({handles: "se", minHeight: 80, minWidth: 500});
+            });
+            jQuery(document).ready(function($) {
+                $('#comment').resizable({handles: "se", minHeight: 70, minWidth: 400});
+            });
+            jQuery(document).ready(function($) {
+                $('#note').resizable({handles: "se", minHeight: 70, minWidth: 400});
+            });
+        </script>
    </div>
 <?php } ?>

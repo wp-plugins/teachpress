@@ -46,6 +46,17 @@ function teachpress_open_description(id, pos) {
 }
 
 /**
+ * Delele node
+ * @param {type} id
+ * @since 5.0.0
+ */
+function teachpress_del_node(id){
+    jQuery(document).ready(function($) {
+        $(id).remove();
+    });
+}
+
+/**
  * for selecting all checkboxes on an admin page
  * @param {string} element_names
  * @param {string} checkbox_id

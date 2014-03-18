@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * teachPress XLS and CSV export for courses and publications
 */
 

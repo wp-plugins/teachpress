@@ -87,7 +87,6 @@ function teachpress_authors_page () {
     }
     
     echo '<h2>' . __('Authors','teachpress') . '</h2>';
-    
     echo '<div id="searchbox" style="float:right; padding-bottom:10px;">';
     if ($search != "") {
         echo '<a href="admin.php?page=teachpress/tags.php" style="font-size:14px; font-weight:bold; text-decoration:none; padding-right:3px;" title="' . __('Cancel the search','teachpress') . '">X</a>';
@@ -107,12 +106,13 @@ function teachpress_authors_page () {
     echo '</div>';
     
     echo '<table class="widefat" style="width:700px;">';
-    echo '<thead>';
+    echo '<thead id="tp_authors_table_header">';
     echo '<th class="check-column"><input name="tp_check_all" id="tp_check_all" type="checkbox" value="" /></th>';
     echo '<th>' . __('Name','teachpress') . '</th>';
     echo '<th>' . __('ID','teachpress') . '</th>';
     echo '<th>' . __('Number publications','teachpress') . '</th>';
     echo '</thead>';
+    echo '<tbody id="tp_authors_table_content">';
     if ($test === 0) {
             echo '<tr><td colspan="4"><strong>' . __('Sorry, no entries matched your criteria.','teachpress') . '</strong></td></tr>';
         }
@@ -122,7 +122,7 @@ function teachpress_authors_page () {
         foreach ( $row as $row ) {
             $checked = '';
             if ( $class_alternate === true ) {
-                $tr_class = 'class="alternate"';
+                $tr_class = 'alternate';
                 $class_alternate = false;
             }
             else {
@@ -134,14 +134,19 @@ function teachpress_authors_page () {
                     if ( $row['author_id'] == $checkbox[$k] ) { $checked = 'checked="checked" '; } 
                 } 
             }
-            echo '<tr ' . $tr_class . '>';
+            echo '<tr class="' . $tr_class . '" id="resultbox_' . $row['author_id'] . '">';
             echo '<th class="check-column"><input name="checkbox[]" class="tp_checkbox" type="checkbox" ' . $checked . ' type="checkbox" value="' . $row['author_id'] . '"></th>';
-            echo '<td>' . stripslashes($row['name']) . '</td>';
+            echo '<td><a class="tp_show_pub_info" author_id="' . $row['author_id'] . '" title="' . __('Show publications','teachpress') . '" style_class="' . $tr_class . '" style="cursor:pointer;">' . stripslashes($row['name']) . '</a>';
+                echo '<div class="tp_row_actions">';
+                echo '<a href="admin.php?page=' . $page . '&amp;checkbox%5B%5D=' . $row['author_id'] . '&amp;search=' . $search . '&amp;action=delete' . '" style="color:red;" title="' . __('Delete','teachpress') . '">' . __('Delete', 'teachpress') . '</a>';
+                echo '</div>';
+            echo '</td>';
             echo '<td>' . $row['author_id'] . '</td>';
             echo '<td>' . $row['count'] . '</td>';
             echo '<tr>';
         }
     }
+    echo '</tbody>';
     echo '</table>';
     
     echo '<div class="tablenav bottom">';
@@ -168,6 +173,29 @@ function teachpress_authors_page () {
     echo '</div>';
     
     echo '</form>';
+    ?>
+    <script type="text/javascript" charset="utf-8">
+        jQuery(document).ready(function($) {
+            $(".tp_show_pub_info").click( function(){
+                var author_id = $(this).attr("author_id");
+                var tr_class = $(this).attr("style_class");
+                var tr = '#resultbox_' + author_id;
+                $.get("<?php echo WP_PLUGIN_URL . '/teachpress/ajax.php' ;?>?author_id=" + author_id, 
+                function(text){
+                    var ret;
+                    var current = $(tr).next();
+                    current.attr('class', tr_class);
+                    current.attr('id', 'pub_info_' + author_id);
+                    ret = ret + '<td id="pub_details_' + author_id + '" colspan="4" style="padding-left:40px;"><b><?php echo __('Publications','teachpress') ;?></b><br />' + text + '</td>';
+                    current.html(ret);
+                    $('<a class="button-secondary" style="cursor:pointer;" onclick="javascript:teachpress_del_node(' + "'#pub_info_" + author_id + "'" + ');">Close</a>').appendTo('#pub_details_' + author_id);
+                    
+                });
+            });
+            
+        });
+    </script>
+    <?php
     echo '</div>';
 }
 ?>

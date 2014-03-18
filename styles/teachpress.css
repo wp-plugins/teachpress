@@ -3,7 +3,10 @@ a.teachpress_delete {color:#d62719; text-decoration:none; font-size:12px; font-w
 a.teachpress_delete:hover {text-decoration:underline;}
 .tp_print th {border:1px solid black; padding:5px 5px 5px 5px;}
 .tp_print td {border:1px solid black; padding:5px 5px 5px 5px;}
-.teachpress_message {background-color: #fff; border-left: 4px solid #7ad03a; -webkit-box-shadow: 0 1px 1px 0 rgba(0,0,0,.1); -moz-box-shadow: 0 1px 1px 0 rgba(0,0,0,.1); box-shadow: 0 1px 1px 0 rgba(0,0,0,.1); padding: 10px 12px; margin: 5px 0 15px 0;}
+.teachpress_message {background-color: #fff; box-shadow: 0 1px 1px 0 rgba(0,0,0,.1); padding: 10px 12px; margin: 5px 0 15px 0;}
+.teachpress_message_green {border-left: 4px solid #7ad03a;}
+.teachpress_message_red {border-left: 4px solid #7ad03a;}
+.teachpress_message_orange {border-left: 4px solid orange;}
 .teachpress_message_headline {font-weight:bold;}
 .teachpress_message_text {padding-left:10px;}
 
