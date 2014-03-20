@@ -1,5 +1,13 @@
 <?php
+/**
+ * This file contains all functions for creating a database for teachpress
+ * @package teachpress/core
+ * @since 5.0.0
+ */
 
+/**
+ * This class contains all functions for creating a database for teachpress
+ */
 class tp_tables {
     
     /**
@@ -100,9 +108,7 @@ class tp_tables {
     
     /**
      * Create table teachpress_stud
-     * @global type $wpdb
      * @param string $charset_collate
-     * @return type
      * @since 5.0.0
      */
     public static function add_table_stud($charset_collate) {
@@ -130,9 +136,7 @@ class tp_tables {
     
     /**
      * Create table teachpress_signup
-     * @global type $wpdb
      * @param string $charset_collate
-     * @return type
      * @since 5.0.0
      */
     public static function add_table_signup($charset_collate) {
@@ -158,9 +162,7 @@ class tp_tables {
     
     /**
      * Create table teachpress_artefacts
-     * @global type $wpdb
      * @param string $charset_collate
-     * @return type
      * @since 5.0.0
      */
     public static function add_table_artefacts($charset_collate) {
@@ -198,9 +200,7 @@ class tp_tables {
     
     /**
      * Create table teachpress_assessments
-     * @global type $wpdb
      * @param string $charset_collate
-     * @return type
      * @since 5.0.0
      */
     public static function add_table_assessments($charset_collate) {

@@ -1,6 +1,12 @@
 <?php 
-/* 
+/**
+ * This file contains all functions for displaying the add_students page in admin menu
+ * @package teachpress/admin
+ */
+
+/**
  * Form for manual edits in the enrollment system
+ * 
  * 1. Adding new students manually:
  * @param int wp_id                 --> [$_POST] WordPress user-ID
  * @param int matriculation_number  --> [$_POST] Registration number
@@ -11,6 +17,7 @@
  * @param string uzrkurz            --> [$_POST] User name 
  * @param string birthday           --> [$_POST] Date of birth
  * @param string email              --> [$_POST] E-mail adress
+ * 
  * 2. Actions
  * @param string insert             --> [$_POST]
 */ 

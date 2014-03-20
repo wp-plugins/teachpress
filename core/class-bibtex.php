@@ -1,8 +1,17 @@
 <?php
+/**
+ * This file contains all general functions of teachpress bibtex core
+ * @package teachpress/core
+ */
 
 /**
  * teachPress BibTeX | HTML class
  *
+ * @var array $row
+ * @var array $settings
+ * @var array $all_tags
+ * @var string $url
+ * @var string $input
  * @since 3.0.0
  */
 class tp_bibtex {
@@ -93,12 +102,7 @@ class tp_bibtex {
             $string = $string . 'keywords = {}';
         }
         // Add teachPress export data
-        if ( $row['type'] == 'presentation' ) {
-            $string = $string . ",". chr(13) . chr(10) . 'tppubtype = {' . $row['type'] . '}' . chr(13) . chr(10);
-        }
-        else {
-            $string = $string . chr(13) . chr(10);
-        }
+        $string = $string . ",". chr(13) . chr(10) . 'tppubtype = {' . $row['type'] . '}' . chr(13) . chr(10);
         $string = $string . '}' . chr(13) . chr(10);
         return $string;
     }
@@ -107,13 +111,12 @@ class tp_bibtex {
      * Get a single publication in html format
      * @param array $row        --> the publication array
      * @param array $all_tags   --> array of tags
-     * @param array $url        --> the URL of the page on which the publication will be displayed
      * @param array $settings   --> array of settings
      * @param int $tpz          --> the counter for numbered publications (default: 0)
      * @return string
      * @since 3.0.0
     */
-    public static function get_single_publication_html ($row, $all_tags, $permalink, $settings, $tpz = 0) {
+    public static function get_single_publication_html ($row, $all_tags, $settings, $tpz = 0) {
         $tag_string = '';
         $str = "'";
         $keywords = '';
@@ -122,7 +125,7 @@ class tp_bibtex {
             foreach ($all_tags as $tag) {
                 if ($tag["pub_id"] == $row['pub_id']) {
                     $keywords[] = array('name' => stripslashes($tag["name"]));
-                    $tag_string = $tag_string . '<a href="' . $permalink . 'tgid=' . $tag["tag_id"] . $settings['html_anchor'] . '" title="' . __('Show all publications which have a relationship to this tag','teachpress') . '">' . stripslashes($tag["name"]) . '</a>, ';
+                    $tag_string = $tag_string . '<a href="' . $settings['permalink'] . 'tgid=' . $tag["tag_id"] . $settings['html_anchor'] . '" title="' . __('Show all publications which have a relationship to this tag','teachpress') . '">' . stripslashes($tag["name"]) . '</a>, ';
                 }
             }
             $tag_string = substr($tag_string, 0, -2);

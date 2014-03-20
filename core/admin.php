@@ -1,17 +1,18 @@
 <?php
-/****************************************/
-/* teachPress Admin Interface functions */
-/****************************************/ 
+/**
+ * This file contains all general functions for admin menu
+ * @package teachpress/core
+ */
 
 /** 
  * teachPress Admin Page Menu
- * @param int $number_entries       --> Number of all available entries
- * @param int $entries_per_page     --> Number of entries per page
- * @param int $current_page         --> current displayed page
- * @param int $entry_limit          --> SQL entry limit
- * @param string $page_link         --> the name of the page you will insert the menu
- * @param string $link_atrributes   --> the url attributes for get parameters
- * @param string $type              --> top or bottom, default: top
+ * @param int $number_entries       Number of all available entries
+ * @param int $entries_per_page     Number of entries per page
+ * @param int $current_page         current displayed page
+ * @param int $entry_limit          SQL entry limit
+ * @param string $page_link         the name of the page you will insert the menu
+ * @param string $link_attributes   the url attributes for get parameters
+ * @param string $type              top or bottom, default: top
  * @return string
 */
 function tp_admin_page_menu ($number_entries, $entries_per_page, $current_page, $entry_limit, $page_link = '', $link_attributes = '', $type = 'top') {
@@ -53,10 +54,10 @@ function tp_admin_page_menu ($number_entries, $entries_per_page, $current_page, 
 /** 
  * Get WordPress pages
  * adapted from Flexi Pages Widget Plugin
- * @param STRING $sort_column
- * @param STRING sort_order
- * @param STRING $selected
- * @param STRING $post_type
+ * @param string $sort_column
+ * @param string $sort_order
+ * @param string $selected
+ * @param string $post_type
  * @param INT $parent
  * @param INT $level
 */ 
@@ -105,15 +106,15 @@ function get_tp_wp_pages($sort_column = "menu_order", $sort_order = "ASC", $sele
 
 /** 
  * Get a single table row for show_courses.php
- * @param ARRAY_A $couse      --> course data
- * @param ARRAY $checkbox
- * @param ARRAY_A $static
-       $static['bulk']        --> copy or delete
-       $static['sem']         --> semester
-       $static['search']      --> input from search field
- * @param $parent_course_name --> the name of the parent course
- * @param $type (STRING)      --> parent or child
- * @return STRING
+ * @param array $course                     course data
+ * @param array $checkbox
+ * @param array $static
+       $static['bulk']                      copy or delete
+       $static['sem']                       semester
+       $static['search']                    input from search field
+ * @param string $parent_course_name        the name of the parent course
+ * @param string $type                      parent or child
+ * @return string
 */ 
 function get_tp_single_table_row_course ($course, $checkbox, $static, $parent_course_name = '', $type = 'parent') {
     $check = '';
@@ -183,7 +184,7 @@ function get_tp_single_table_row_course ($course, $checkbox, $static, $parent_co
  * Returns a form field for the add_publication_page()
  * @param string $name          --> field name
  * @param string $title         --> field title
- * @param string label          --> field label
+ * @param string $label         --> field label
  * @param string $field_type    --> field type (textarea|input)
  * @param string $pub_type      --> publication type of the current/visible entry
  * @param string $pub_value     --> field value of the current/visible entry
@@ -212,6 +213,7 @@ function get_tp_admin_form_field ($name, $title, $label, $field_type, $pub_type,
  * @param string $name
  * @param string $title
  * @param string $value
+ * @param boolean $disabled
  * @return string
  * @since 4.2.0
  */
@@ -315,8 +317,8 @@ function tp_add_publication_as_post ($title, $bibtex_key, $date, $post_type = 'p
 
 /** 
  * Copy courses
- * @param ARRAY $checkbox - ID of the course you want to copy
- * @param STRING $copysem - semester
+ * @param array $checkbox   ID of the course you want to copy
+ * @param string $copysem   semester
 */
 function tp_copy_course($checkbox, $copysem) {
      global $wpdb;
@@ -387,6 +389,9 @@ function tp_copy_course($checkbox, $copysem) {
 
 /**
  * Set screen options
+ * @param string $status
+ * @param string $option
+ * @param string $value
  * @since 4.2.0
  */
 function tp_set_screen_option($status, $option, $value) {

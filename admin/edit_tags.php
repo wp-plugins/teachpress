@@ -1,4 +1,8 @@
 <?php
+/**
+ * This file contains all functions for displaying the edit_tags page in admin menu
+ * @package teachpress/admin
+ */
 
 /**
  * Defines the screen options for edit_tags page

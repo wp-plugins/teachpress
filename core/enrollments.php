@@ -1,7 +1,8 @@
 <?php
-/*****************************************************/
-/* teachPress enrollment system (frontend functions) */
-/*****************************************************/
+/**
+ * This file contains frontend functions for the enrollment forms of teachpress
+ * @package teachpress/core
+ */
 
 /**
  * Get registration message

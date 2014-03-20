@@ -1,5 +1,10 @@
 <?php
 /**
+ * This file contains all functions for displaying the settings page in admin menu
+ * @package teachpress/admin
+ */
+
+/**
  * teachPress settings menu: controller
  * @since 1.0.0
  */
@@ -117,9 +122,7 @@ function teachpress_admin_settings() {
 }
 
 /**
- * 
- * @global type $wp_roles
- * @global type $wp_roles
+ * Shows the tab for general options
  */
 function tp_admin_settings_general() {
     ?>
@@ -354,7 +357,8 @@ function tp_admin_settings_courses1() {
 }
 
 /**
- * 
+ * Shows the tab for course settings (2)
+ * @since 5.0.0
  */
 function tp_admin_settings_courses2() {
     if ( isset($_POST['add_field']) ) {

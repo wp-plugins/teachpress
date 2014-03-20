@@ -1,5 +1,11 @@
 <?php
-/* Edit a student
+/**
+ * This file contains all functions for displaying the edit_student page in admin menu
+ * @package teachpress/admin
+ */
+
+/** 
+ * Edit a student
  * @param int $student_ID (GET)
  * @param string $search (GET)
  * @param string $students_group (GET)

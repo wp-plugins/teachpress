@@ -1,8 +1,13 @@
 <?php
 /**
+ * This file contains all functions for displaying the show_authors page in admin menu
+ * @package teachpress/admin
+ * @since 5.0.0
+ */
+
+/**
  * Defines the screen options for show_authors_page
- * @global type $tp_admin_show_authors_page
- * @return type
+ * @global int $tp_admin_show_authors_page
  * @since 5.0.0
  */
 function tp_show_authors_page_screen_options(){

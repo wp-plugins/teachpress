@@ -1,5 +1,11 @@
 <?php 
-/* overview for students
+/**
+ * This file contains all functions for displaying the show_students page in admin menu
+ * @package teachpress/admin
+ */
+
+/** 
+ * overview for students
  *
  * from editstudent.php (GET):
  * @param string $search

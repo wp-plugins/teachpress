@@ -1,16 +1,30 @@
 <?php
-/*********************************/
-/* teachPress Books widget class */
-/*********************************/
+/**
+ * This file contains the widget class
+ * @package teachpress/core
+ * @since 5.0.0
+ */
+
+
+/** 
+ * teachPress Books widget class 
+ */
 class tp_books_widget extends WP_Widget {
-    /** constructor */
+    /** 
+     * constructor 
+     */
     function tp_books_widget() {
         $widget_ops = array('classname' => 'widget_teachpress_books', 'description' => __('Shows a random book in the sidebar', 'teachpress') );
         $control_ops = array('width' => 400, 'height' => 300);
         parent::WP_Widget(false, $name = __('teachPress books','teachpress'), $widget_ops, $control_ops);
     }
 
-    /** @see WP_Widget::widget */
+    /** 
+     * Widget content area
+     * @see WP_Widget::widget 
+     * @param array $args
+     * @param array $instance
+     */
     function widget($args, $instance) {
         global $wpdb;
         global $teachpress_pub;	
@@ -31,12 +45,21 @@ class tp_books_widget extends WP_Widget {
         echo $after_widget;
     }
 
-    /** @see WP_Widget::update */
+    /** 
+     * Update values
+     * @see WP_Widget::update 
+     * @param array $new_instance
+     * @param array $old_instance
+     */
     function update($new_instance, $old_instance) {				
         return $new_instance;
     }
 
-    /** @see WP_Widget::form */
+    /** 
+     * Widget admin area
+     * @see WP_Widget::form 
+     * @param array $instance
+     */
     function form($instance) {
         global $wpdb;	
         global $teachpress_pub;			

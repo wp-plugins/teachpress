@@ -1,9 +1,11 @@
 <?php
 /**
+ * This file contains all functions for displaying the show_publications page in admin menu
+ * @package teachpress/admin
+ */
+
+/**
  * Add screen options for show publications page
- * @global type $tp_admin_all_pub_page
- * @global type $tp_admin_your_pub_page
- * @return type
  */
 function tp_show_publications_page_screen_options() {
     global $tp_admin_all_pub_page;

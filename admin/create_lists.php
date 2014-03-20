@@ -1,5 +1,11 @@
-<?php 
-/* Create attendance lists
+<?php
+/**
+ * This file contains all functions for displaying the create_lists page in admin menu
+ * @package teachpress/admin
+ */
+
+/** 
+ * Create attendance lists
  * @param $course_ID
  * @param $search
  * @param $sem
@@ -84,8 +90,9 @@ function tp_lists_page() {
 
 /**
  * Creates an attendance list
- * @param int $course_ID    --> ID of the course
- * @param int $number       --> number of free columns
+ * @param int $course_ID            ID of the course
+ * @param int $number               number of free columns
+ * @param string[] $extra_fields    An array of field_names which are available
  * @since 4.3.0
  */
 function tp_create_attendance_list($course_ID, $number, $extra_fields) {

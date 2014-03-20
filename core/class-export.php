@@ -1,5 +1,10 @@
 <?php
 /**
+ * This file contains all general functions for the export system
+ * @package teachpress/core
+ */
+
+/**
  * teachPress export class
  *
  * @since 3.0.0

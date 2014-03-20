@@ -1,9 +1,19 @@
 <?php
 /**
+ * This file contains all functions for updating a teachpress database
+ * @package teachpress/core
+ * @since 4.2.0
+ */
+
+/**
  * This class contains all functions for updating a teachpress database
  */
 class tp_update_db {
     
+    /**
+     * Execute this function to start a database update
+     * @since 4.2.0
+     */
     public static function force_update () {
         global $wpdb;
         $db_version = get_tp_option('db-version');
@@ -77,7 +87,6 @@ class tp_update_db {
 
    /**
     * Replace the old table "teachpress_ver" with "teachpress_courses" and copy all data
-    * @global class $wpdb
     * @param string $charset_collate
     * @since 4.2.0
     */
@@ -105,7 +114,6 @@ class tp_update_db {
     
     /**
      * Replace the old table "teachpress_beziehung" with "teachpress_relation" and copy all data
-     * @global class $wpdb
      * @param string $charset_collate
      * @since 4.2.0
      */
@@ -131,7 +139,6 @@ class tp_update_db {
     
     /**
      * Replace the old table "teachpress_kursbelegung" with "teachpress_signup" and copy all data
-     * @global class $wpdb
      * @param string $charset_collate
      * @since 4.2.0
      */
@@ -157,7 +164,6 @@ class tp_update_db {
     
     /**
      * Replace the old table "teachpress_einstellungen" with "teachpress_settings" and copy all data
-     * @global class $wpdb
      * @param string $charset_collate
      * @since 4.2.0
      */
@@ -189,7 +195,6 @@ class tp_update_db {
     
     /**
      * Upgrade table "teachPress_stud" to teachPress 2.x structure
-     * @global class $wpdb
      * @param string $charset_collate
      */
     private static function upgrade_table_teachpress_stud_to_20 ($charset_collate) {
@@ -226,7 +231,7 @@ class tp_update_db {
     
     /**
      * Upgrade table "teachPress_pub" to teachPress 0.40 structure
-     * @global class $wpdb
+     * @param string $charset_collate
      * @since 4.2.0
      */
     private static function upgrade_table_teachpress_pub_to_04 ($charset_collate) {
@@ -247,8 +252,7 @@ class tp_update_db {
     
     /**
      * Upgrade table "teachPress_pub" to teachPress 2.x structure
-     * @global class $wpdb
-     * @param type $charset_collate
+     * @param string $charset_collate
      * @since 4.2.0
      */
     private static function upgrade_table_teachpress_pub_to_20 ($charset_collate) {
@@ -390,8 +394,6 @@ class tp_update_db {
     
     /**
      * Upgrade table "teachpress_courses" to teachPress 3.0 structure
-     * @global class $wpdb
-     * @global string $teachpress_courses
      * @since 4.2.0
      */
     private static function upgrade_to_30 () {
@@ -423,7 +425,6 @@ class tp_update_db {
     
     /**
      * Database upgrade to teachPress 3.1.3 structure
-     * @global class $wpdb
      * @param string $charset_collate
      * @since 4.2.0
      */
@@ -462,7 +463,6 @@ class tp_update_db {
     
     /**
      * Database upgrade to teachPress 4.0.0 structure
-     * @global class $wpdb
      * @param string $charset_collate
      * @since 4.2.0
      */
@@ -480,7 +480,6 @@ class tp_update_db {
     
     /**
      * Database upgrade to teachPress 4.1.0 structure
-     * @global class $wpdb
      * @param string $charset_collate
      * @since 4.2.0
      */
@@ -494,8 +493,6 @@ class tp_update_db {
     
     /**
      * Database upgrade to teachPress 4.2.0 structure
-     * @global class $wpdb
-     * @global string $teachpress_settings
      * @param string $charset_collate
      * @since 4.2.0
      */
@@ -563,8 +560,6 @@ class tp_update_db {
 
     /**
      * Add possible missing options
-     * @global class $wpdb
-     * @global string $teachpress_settings
      * @since 4.2.0
      */
     private static function add_options () {
@@ -621,11 +616,12 @@ class tp_update_db {
     
     /**
      * Update version information in the database
-     * @global class $wpdb
+     * @param string $version
      * @since 4.2.0
      */
     private static function finalize_update ($version) {
         global $wpdb;
+        $version = htmlspecialchars( esc_sql( $version ) );
         $wpdb->query("UPDATE " . TEACHPRESS_SETTINGS . " SET  `value` = '$version' WHERE `variable` = 'db-version'");
         get_tp_message( __('Update successful','teachpress') );
     }

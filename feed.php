@@ -1,4 +1,8 @@
 ﻿<?php
+/**
+ * This file contains the RSS feed constructor
+ * @package teachpress
+ */
 
 /********************************/
 /* Build feeds for publications */

@@ -1,5 +1,10 @@
 <?php
 /**
+ * This file contains all functions for displaying the show_courses page in admin menu
+ * @package teachpress/admin
+ */
+
+/**
  * Add help tab for show courses page
  */
 function tp_show_course_page_help () {

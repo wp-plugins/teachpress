@@ -1,18 +1,16 @@
 <?php
 /**
+ * This file contains all functions for displaying the mail page in admin menu
+ * @package teachpress/admin
+ */
+
+/**
  * Mail form
- * 
- * @global class $wpdb
- * @global var $teachpress_stud
- * @global var $teachpress_signup
- * @global $current_user;
  * 
  * @since 3.0.0
  */
 function tp_show_mail_page() {
     global $wpdb;
-    global $teachpress_stud; 
-    global $teachpress_signup;
     global $current_user;
     get_currentuserinfo();
 
@@ -28,8 +26,8 @@ function tp_show_mail_page() {
 
     if( !isset( $_GET['single'] ) ) {
         $sql = "SELECT DISTINCT st.email 
-                FROM $teachpress_signup s 
-                INNER JOIN $teachpress_stud st ON st.wp_id=s.wp_id
+                FROM " . TEACHPRESS_SIGNUP . " s 
+                INNER JOIN " . TEACHPRESS_STUD . " st ON st.wp_id=s.wp_id
                 WHERE s.course_id = '$course_ID'";	
         // E-Mails of registered participants
         if ( $group == 'reg' ) {

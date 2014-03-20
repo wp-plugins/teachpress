@@ -1,4 +1,9 @@
-<?php 
+<?php
+/**
+ * This file contains all functions for displaying the import_publications page in admin menu
+ * @package teachpress/admin
+ */
+
 /**
  * Add help tab for import page
  */

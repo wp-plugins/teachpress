@@ -1,5 +1,10 @@
 <?php
 /**
+ * This file contains all functions for displaying the add_course page in admin menu
+ * @package teachpress\admin
+ */
+
+/**
  * Add help tab for add new courses page
  */
 function tp_add_course_page_help () {
@@ -36,7 +41,8 @@ function tp_add_course_page_help () {
     ) );
 } 
 
-/* Add new courses
+/** 
+ * Add new courses
  *
  * GET parameters:
  * @param $course_ID (INT)
@@ -47,6 +53,8 @@ function tp_add_course_page_help () {
 function tp_add_course_page() { 
 
    global $wpdb;
+   global $current_user;
+   get_currentuserinfo();
 
    $data['type'] = isset( $_POST['course_type'] ) ? htmlspecialchars($_POST['course_type']) : '';
    $data['name'] = isset( $_POST['post_title'] ) ? htmlspecialchars($_POST['post_title']) : '';
@@ -73,10 +81,11 @@ function tp_add_course_page() {
    // Handle that the activation of strict sign up is not possible for a child course
    if ( $data['parent'] != 0) { $data['strict_signup'] = 0; }
 
-   $course_ID = isset( $_REQUEST['course_ID'] ) ? (int) $_REQUEST['course_ID'] : 0;
+   $course_ID = isset( $_REQUEST['course_ID'] ) ? intval($_REQUEST['course_ID']) : 0;
    $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
    $sem = isset( $_GET['sem'] ) ? htmlspecialchars($_GET['sem']) : '';
    $ref = isset( $_GET['ref'] ) ? htmlspecialchars($_GET['ref']) : '';
+   $capability = ($course_ID !== 0) ? tp_courses::get_capability($course_ID, $current_user->ID) : 'owner';
 
    // possible course parents
    $row = $wpdb->get_results("SELECT `course_id`, `name`, `semester` FROM " . TEACHPRESS_COURSES . " WHERE `parent` = '0' AND `course_id` != '$course_ID' ORDER BY semester DESC, name");
@@ -147,9 +156,15 @@ function tp_add_course_page() {
                     <option value="1"<?php if ( $daten["visible"] == 1 && $course_ID != 0 ) {echo ' selected="selected"'; } ?>><?php _e('normal','teachpress'); ?></option>
                     <option value="2"<?php if ( $daten["visible"] == 2 && $course_ID != 0 ) {echo ' selected="selected"'; } ?>><?php _e('extend','teachpress'); ?></option>
                     <option value="0"<?php if ( $daten["visible"] == 0 && $course_ID != 0 ) {echo ' selected="selected"'; } ?>><?php _e('invisible','teachpress'); ?></option>
-                </select> 
+                </select>
+                <?php
+                $readonly = 'disabled="disabled"';
+                if ( $capability === 'owner' || $capability === 'approved' ) {
+                    $readonly = '';
+                }
+                ?>
                 <p><label for="use_capabilites"><strong><?php _e('Capabilites','teachpress'); ?></strong></label></p>
-                <select name="use_capabilites">
+                <select name="use_capabilites" <?php echo $readonly; ?>>
                     <option value="0"<?php if ( $daten["use_capabilites"] == 0 && $course_ID != 0 ) {echo ' selected="selected"'; } ?>><?php _e('Global settings','teachpress'); ?></option>
                     <option value="1"<?php if ( $daten["use_capabilites"] == 1 && $course_ID != 0 ) {echo ' selected="selected"'; } ?>><?php _e('Local settings','teachpress'); ?></option>
                 </select>

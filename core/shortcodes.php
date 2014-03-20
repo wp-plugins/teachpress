@@ -1,8 +1,8 @@
 <?php
-/**********************************/
-/* teachPress Shortcode functions */
-/*    (without tp_enrollments)    */
-/**********************************/
+/**
+ * This file contains the shortcode functions (without [tp_enrollments])
+ * @package teachpress/core
+ */
 
 /** 
  * Shows an overview of courses
@@ -504,6 +504,135 @@ function tp_generate_pub_table($tparray, $args ) {
     return '<table class="teachpress_publication_list">' . $pubs . '</table>';
 }
 
+/**
+ * Generates and returns filter for tp_cloud
+ * @param array $filter_parameter
+ * @param array $sql_parameter
+ * @param array $settings
+ * @param array $mode
+ * @return string
+ * @since 5.0.0
+ */
+function tp_generate_filter ($filter_parameter, $sql_parameter, $settings, $mode = 'year'){
+    
+    $options = '';
+    // year filter
+    if ( $mode === 'year' ) {
+        $row = tp_publications::get_years( array( 'user' => $sql_parameter['user'], 'type' => $sql_parameter['type'], 'order' => 'DESC', 'output_type' => ARRAY_A ) );
+        $id = 'pub_year';
+        $title = __('All years','teachpress');
+    }
+    // type filter
+    if ( $mode === 'type' ) {
+        $row = tp_publications::get_used_pubtypes( array('user' => $sql_parameter['user']) );
+        $id = 'pub_type';
+        $title = __('All types','teachpress');
+    }
+    // author filter
+    if ( $mode === 'author' ) {
+        $row = tp_authors::get_authors( array('output_type' => ARRAY_A, 'group_by' => true) );
+        $id = 'pub_author';
+        $title = __('All authors','teachpress');
+    }
+    // user filter
+    if ( $mode === 'user' ) {
+        $row = tp_publications::get_pubusers( array('output_type' => ARRAY_A) );
+        $id = 'pub_user';
+        $title = __('All users','teachpress');
+    }
+    
+    // generate option
+    foreach ( $row as $row ){
+        $index = ( $mode === 'author' ) ? 'author_id' : $mode;
+        $current = ( $row[$index] == $filter_parameter[$mode] && $filter_parameter[$mode] != '0' ) ? 'selected="selected"' : '';
+        $year = ( $mode === 'year' ) ? $row['year'] : $filter_parameter['year'];
+        $type = ( $mode === 'type' ) ? $row['type'] : $filter_parameter['type'];
+        $user = ( $mode === 'user' ) ? $row['user'] : $filter_parameter['user'];
+        $author = ( $mode === 'author' ) ? $row['author_id'] : $filter_parameter['author'];
+        
+        if ( $mode === 'type' ) {
+            $text = tp_translate_pub_type($row['type'], 'pl');
+        }
+        else if ( $mode === 'author' ) {
+            $text = $row['name'];
+        }
+        else if ( $mode === 'user' ) {
+            $user_info = get_userdata( $row['user'] );
+            if ( $user_info === false ) {
+                continue;
+            }
+            $text = $user_info->display_name;
+        }
+        else {
+            $text = $row[$index];
+        }
+        $options .= '<option value = "' . $settings['permalink'] . 'tgid=' . $filter_parameter['tag'] . '&amp;yr=' . $year . '&amp;type=' . $type . '&amp;usr=' . $user . '&amp;auth=' . $author . $settings['html_anchor'] . '" ' . $current . '>' . $text . '</option>';
+    }
+    
+    // return filter menu
+    return '<select name="' . $id . '" id="' . $id . '" onchange="teachpress_jumpMenu(' . "'" . 'parent' . "'" . ',this,0)">
+               <option value="' . $settings['permalink'] . 'tgid=' . $filter_parameter['tag'] . '&amp;type=' . $filter_parameter['type'] . '&amp;usr=' . $filter_parameter['user'] . '&amp;auth=' . $filter_parameter['author'] . '' . $settings['html_anchor'] . '">' . $title . '</option>
+               ' . $options . '
+            </select>';
+    
+}
+
+/**
+ * Returns a tag cloud
+ * @param int $user
+ * @param array $tag_settings
+ * @param array $filter_parameter
+ * @param array $sql_parameter
+ * @param array $settings
+ * @return string
+ * @since 5.0.0
+ */
+function tp_generate_tag_cloud ($user, $tag_settings, $filter_parameter, $sql_parameter, $settings){
+    $temp = get_tp_tag_cloud( array('user' => $user, 
+                                    'type' => $sql_parameter['type'],
+                                    'exclude' => $tag_settings['hide_tags'],
+                                    'number_tags' => $tag_settings['tag_limit'],
+                                    'output_type' => ARRAY_A) );
+   $min = $temp["info"]->min;
+   $max = $temp["info"]->max;
+   // level out the min
+   if ($min == 1) {
+      $min = 0;
+   }
+   // Create the cloud
+   $tags = '';
+   foreach ($temp["tags"] as $tagcloud) {
+      $link_url = $settings['permalink'];
+      $link_title = "";
+      $link_class = "";
+      $pub = $tagcloud['tagPeak'] == 1 ? __('publication', 'teachpress') : __('publications', 'teachpress');
+ 
+      // calculate the font size
+      // max. font size * (current occorence - min occurence) / (max occurence - min occurence)
+      $size = floor(( $tag_settings['maxsize'] *( $tagcloud['tagPeak'] - $min )/( $max - $min ) ));
+      // level out the font size
+      if ( $size < $tag_settings['minsize'] ) {
+         $size = $tag_settings['minsize'] ;
+      }
+      
+      // for current tags
+      if ( $filter_parameter['tag'] == $tagcloud['tag_id'] ) {
+          $link_class = "teachpress_cloud_active";
+          $link_title = __('Delete tag as filter','teachpress');
+      }
+      else {
+          $link_title = $tagcloud['tagPeak'] . " $pub";
+          $link_url .= "tgid=" . $tagcloud['tag_id'] . "&amp;";
+      }
+      
+      // define url
+      $link_url .= 'yr=' . $filter_parameter['year'] . '&amp;type=' . $filter_parameter['type'] . '&amp;usr=' . $filter_parameter['user'] . '&amp;auth=' . $filter_parameter['author'] . $settings['html_anchor'];
+      
+      $tags .= '<span style="font-size:' . $size . 'px;"><a href="' . $link_url . '" title="' . $link_title . '" class="' . $link_class . '">' . stripslashes($tagcloud['name']) . '</a></span> ';
+   }
+   return $tags;
+}
+
 /** 
  * Publication list with tag cloud
  * 
@@ -532,282 +661,204 @@ function tp_generate_pub_table($tparray, $args ) {
  * 
  *   WARNING: id has been removed with teachPress 4.0.0, please use "user" instead!
  * 
- * GET-Parameter: $yr (Year, int), $type (Type, string), $auth (Author, int), $tg (tag id, int)
- * @param array atts
+ * GET-Parameter: $yr (Year, int), $type (Type, string), $auth (Author, int), $tg (tag id, int), $usr (User, int)
+ * @param array $atts
  * @return string
 */
 function tp_cloud_shortcode($atts) {
-   extract(shortcode_atts(array(
-      'user' => '',
-      'type' => '',
-      'exclude' => '', 
-      'order' => 'date DESC',
-      'headline' => '1', 
-      'maxsize' => 35,
-      'minsize' => 11,
-      'tag_limit' => 30,
-      'hide_tags' => '',
-      'exclude_tags' => '',
-      'image' => 'none',
-      'image_size' => 0,
-      'anchor' => 1,
-      'author_name' => 'last',
-      'editor_name' => 'last',
-      'style' => 'std',
-      'link_style' => 'inline',
-      'date_format' => 'd.m.Y',
-      'pagination' => '0',
-      'entries_per_page' => 30,
-      'sort_list' => '',
-   ), $atts));
-   $user = intval($user);
-   $sort_type = htmlspecialchars($type);
+    extract(shortcode_atts(array(
+        'user' => '',
+        'type' => '',
+        'exclude' => '', 
+        'order' => 'date DESC',
+        'headline' => 1, 
+        'maxsize' => 35,
+        'minsize' => 11,
+        'tag_limit' => 30,
+        'hide_tags' => '',
+        'exclude_tags' => '',
+        'image' => 'none',
+        'image_size' => 0,
+        'anchor' => 1,
+        'author_name' => 'last',
+        'editor_name' => 'last',
+        'style' => 'std',
+        'link_style' => 'inline',
+        'date_format' => 'd.m.Y',
+        'pagination' => '0',
+        'entries_per_page' => 30,
+        'sort_list' => '',
+    ), $atts));
    
-   $tgid = isset ($_GET['tgid']) ? intval($_GET['tgid']) : '';
-   $yr = isset ($_GET['yr']) ? intval($_GET['yr']) : '';
-   $type = isset ($_GET['type']) ? htmlspecialchars( $_GET['type'] ) : '';
-   $author = isset ($_GET['auth']) ? intval($_GET['auth']) : '';
+    $settings = array(
+        'author_name' => htmlspecialchars($author_name),
+        'editor_name' => htmlspecialchars($editor_name),
+        'headline' => intval($headline),
+        'style' => htmlspecialchars($style),
+        'image' => htmlspecialchars($image),
+        'image_size' => intval($image_size),
+        'link_style' => htmlspecialchars($link_style),
+        'html_anchor' => $anchor == '1' ? '#tppubs' : '',
+        'date_format' => htmlspecialchars($date_format),
+        'permalink' => ( get_option('permalink_structure') ) ? get_permalink() . "?" : get_permalink() . "&amp;",
+        'pagination' => intval($pagination),
+        'entries_per_page' => intval($entries_per_page),
+        'sort_list' => htmlspecialchars($sort_list),
+        'with_tags' => 1,
+    );
+    $tag_settings = array (
+        'tag_limit' => intval($tag_limit),
+        'hide_tags' => htmlspecialchars($hide_tags),
+        'maxsize' => intval($maxsize),
+        'minsize' => intval($minsize),
+    );
+    $filter_parameter = array(
+        'tag' => isset ($_GET['tgid']) ? intval($_GET['tgid']) : '',
+        'year' => isset ($_GET['yr']) ? intval($_GET['yr']) : '',
+        'type' => isset ($_GET['type']) ? htmlspecialchars( $_GET['type'] ) : '',
+        'author' => isset ($_GET['auth']) ? intval($_GET['auth']) : '',
+        'user' => isset ($_GET['usr']) ? intval($_GET['usr']) : ''
+    );
+    $sql_parameter = array (
+        'user' => intval($user),
+        'type' => htmlspecialchars($type),
+        'exclude' => htmlspecialchars($exclude),
+        'exclude_tags' => htmlspecialchars($exclude_tags),
+        'order' => htmlspecialchars($order),
+    );
+
+    // if author is set by shortcode parameter
+    if ($user != 0) {
+        $filter_parameter['user'] = $user;
+    }
    
-   // if author is set by shortcode parameter
-   if ($user != 0) {
-      $author = $user;
-   }
-   
-   // secure parameters
-   $exclude = htmlspecialchars($exclude);
-   $hide_tags = htmlspecialchars($hide_tags);
-   $exclude_tags = htmlspecialchars($exclude_tags);
-   $image_size = intval($image_size);
-   $anchor = intval($anchor);
-   $headline = intval($headline);
-   $order = htmlspecialchars($order);
-   $tag_limit = intval($tag_limit);
-   $maxsize = intval($maxsize);
-   $minsize = intval($minsize);
-   $pagination = intval($pagination);
-   $entries_per_page = intval($entries_per_page);
-   $sort_list = htmlspecialchars($sort_list);
-   $permalink = ( get_option('permalink_structure') ) ? get_permalink() . "?" : get_permalink() . "&amp;";
-   $settings = array(
-       'author_name' => htmlspecialchars($author_name),
-       'editor_name' => htmlspecialchars($editor_name),
-       'style' => htmlspecialchars($style),
-       'image' => htmlspecialchars($image),
-       'with_tags' => 1,
-       'link_style' => htmlspecialchars($link_style),
-       'html_anchor' => $anchor == '1' ? '#tppubs' : '',
-       'date_format' => htmlspecialchars($date_format)
-   );
-   
-   // Handle limits for pagination
-   if ( isset( $_GET['limit'] ) ) {
+    // Handle limits for pagination
+    if ( isset( $_GET['limit'] ) ) {
         $current_page = intval( $_GET['limit'] );
         if ( $current_page <= 0 ) {
             $current_page = 1;
         }
         $entry_limit = ( $current_page - 1 ) * $entries_per_page;
-   }
-   else {
+    }
+    else {
         $entry_limit = 0;
         $current_page = 1;
-   }
-   $page_limit = ( $pagination === 1 ) ? $entry_limit . ',' .  $entries_per_page : ''; 
-    
-   // ignore hide_tags if exclude_tags is given 
-   if ( $exclude_tags != '' ) {
-       $hide_tags = $exclude_tags;
-   }
+    }
+    $page_limit = ( $settings['pagination'] === 1 ) ? $entry_limit . ',' .  $entries_per_page : ''; 
 
-   /*************/
-   /* Tag cloud */
-   /*************/
-   
-   $temp = get_tp_tag_cloud( array('user' => $user, 
-                                   'type' => $sort_type,
-                                   'exclude' => $hide_tags,
-                                   'number_tags' => $tag_limit,
-                                   'output_type' => ARRAY_A) );
-   $asg = '';
-   $min = $temp["info"]->min;
-   $max = $temp["info"]->max;
-   // level out the min
-   if ($min == 1) {
-      $min = 0;
-   }
-   // Create the cloud
-   foreach ($temp["tags"] as $tagcloud) {
-      $link_url = $permalink;
-      $link_title = "";
-      $link_class = "";
-      $pub = $tagcloud['tagPeak'] == 1 ? __('publication', 'teachpress') : __('publications', 'teachpress');
- 
-      // calculate the font size
-      // max. font size * (current occorence - min occurence) / (max occurence - min occurence)
-      $size = floor(( $maxsize *( $tagcloud['tagPeak'] - $min )/( $max - $min ) ));
-      // level out the font size
-      if ($size < $minsize) {
-         $size = $minsize ;
-      }
-      
-      // for current tags
-      if ( $tgid == $tagcloud['tag_id'] ) {
-          $link_class = "teachpress_cloud_active";
-          $link_title = __('Delete tag as filter','teachpress');
-      }
-      else {
-          $link_title = $tagcloud['tagPeak'] . " $pub";
-          $link_url .= "tgid=" . $tagcloud['tag_id'] . "&amp;";
-      }
-      
-      // define url
-      $link_url .= "yr=$yr&amp;type=$type&amp;auth=$author" . $settings['html_anchor'];
-      $link_attributes = "tgid=$tgid&amp;yr=$yr&amp;type=$type&amp;auth=$author" . $settings['html_anchor'];
-      
-      $asg .= '<span style="font-size:' . $size . 'px;"><a href="' . $link_url . '" title="' . $link_title . '" class="' . $link_class . '">' . stripslashes($tagcloud['name']) . '</a></span> ';
-   }
+    // ignore hide_tags if exclude_tags is given 
+    if ( $sql_parameter['exclude_tags'] != '' ) {
+        $hide_tags = $sql_parameter['exclude_tags'];
+    }
 
-   /**********/ 
-   /* Filter */
-   /**********/
+    /*************/
+    /* Tag cloud */
+    /*************/
+   
+    $asg = tp_generate_tag_cloud($user, $tag_settings, $filter_parameter, $sql_parameter, $settings);
 
-   // for javascripts
-   $str ="'";
+    /**********/ 
+    /* Filter */
+    /**********/
    
-   // Filter year
-   $options = '';
-   $row_year = tp_publications::get_years( array( 'user' => $user, 'type' => $sort_type, 'order' => 'DESC', 'output_type' => ARRAY_A ) );
-   foreach ($row_year as $row) {
-      if ($row['year'] != '0000') {
-         $current = $row['year'] == $yr ? 'selected="selected"' : '' ;
-         $options = $options . '<option value = "' . $permalink . 'tgid=' . $tgid . '&amp;yr=' . $row['year'] . '&amp;type=' . $type . '&amp;auth=' . $author . $settings['html_anchor'] . '" ' . $current . '>' . $row['year'] . '</option>';
-      }
-   }
-   $filter1 ='<select name="yr" id="yr" onchange="teachpress_jumpMenu(' . $str . 'parent' . $str . ',this,0)">
-          <option value="' . $permalink . 'tgid=' . $tgid . '&amp;type=' . $type . '&amp;auth=' . $author . '' . $settings['html_anchor'] . '">' . __('All years','teachpress') . '</option>' . $options . '</select>';
-   // END filter year
+    // Filter year
+    $filter = tp_generate_filter($filter_parameter, $sql_parameter, $settings, 'year');
 
-   // Filter type
-   $filter2 = "";
-   if ($sort_type == '') {
-      $row = tp_publications::get_used_pubtypes( array('user' => $user) );
-      $current = '';	
-      $options = '';
-      foreach ($row as $row) {
-          $current = ($row['type'] == $type && $type != '0') ? 'selected="selected"' : '';
-          $options = $options . '<option value = "' . $permalink . 'tgid=' . $tgid . '&amp;yr=' . $yr . '&amp;type=' . $row['type'] . '&amp;auth=' . $author . $settings['html_anchor'] . '" ' . $current . '>' . tp_translate_pub_type($row['type'], 'pl') . '</option>';
-      }
-      $filter2 ='<span style="padding-left:10px; padding-right:10px;"><select name="type" id="type" onchange="teachpress_jumpMenu(' . $str . 'parent' . $str . ',this,0)">
-                   <option value="' . $permalink . 'tgid=' . $tgid . '&amp;yr=' . $yr . '&amp;auth=' . $author . $settings['html_anchor'] . '">' . __('All types','teachpress') . '</option>
-                         ' . $options . '
-                 </select></span>';
-   }		   
-   // End filter type
+    // Filter type
+    if ($sql_parameter['type'] == '') {
+        $filter .= tp_generate_filter($filter_parameter, $sql_parameter, $settings, 'type');
+    }
 
-   // Filter author
-   $current = '';	
-   $options = '';  
-   $filter3 = '';
-   
-   if ($user == '') {
-      $row = tp_publications::get_pubusers( array('output_type' => ARRAY_A) );	 
-      foreach ($row as $row) {
-         if ($row['user'] == $author) {
-            $current = 'selected="selected"';
-         }
-         else {
-            $current = '';
-         }
-         $user_info = get_userdata( $row['user'] );
-         if ( $user_info != false ) {
-               $options = $options . '<option value = "' . $permalink . 'tgid=' . $tgid . '&amp;yr=' . $yr . '&amp;type=' . $type . '&amp;auth=' . $row['user'] . $settings['html_anchor'] . '" ' . $current . '>' . $user_info->display_name . '</option>';
-         }
-      }  
-      $filter3 ='<select name="pub-author" id="pub-author" onchange="teachpress_jumpMenu(' . $str . 'parent' . $str . ',this,0)">
-                  <option value="' . $permalink . 'tgid=' . $tgid . '&amp;yr=' . $yr . '&amp;type=' . $type . $settings['html_anchor'] . '">' . __('All authors','teachpress') . '</option>
-                         ' . $options . '
-                </select>';
-   }
-   // end filter author
+    // Filter author
+    $filter .= tp_generate_filter($filter_parameter, $sql_parameter, $settings, 'author');
 
-   // Endformat
-   if ($yr == '' && $type == '' && ($author == '' || $author == $user ) && $tgid == '') {
-    $showall = "";
-   }
-   else {
-    $showall ='<a href="' . $permalink . $settings['html_anchor'] . '" title="' . __('Show all','teachpress') . '">' . __('Show all','teachpress') . '</a>';
-   }
-   // complete the header (tag cloud + filter)
-   $part1 = '<a name="tppubs" id="tppubs"></a><div class="teachpress_cloud">' . $asg . '</div><div class="teachpress_filter">' . $filter1 . '' .   $filter2 . '' . $filter3 . '</div><p align="center">' . $showall . '</p>';
+    // Filter user
+    if ($user == '') {
+        $filter .= tp_generate_filter($filter_parameter, $sql_parameter, $settings, 'user');
+    }
 
-   /************************/
-   /* List of publications */
-   /************************/
+    // Endformat
+    if ($filter_parameter['year'] == '' && $filter_parameter['type'] == '' && ( $filter_parameter['author'] == '' || $filter_parameter['author'] == $user ) && $filter_parameter['tag'] == '') {
+        $showall = '';
+    }
+    else {
+        $showall = '<a href="' . $settings['permalink'] . $settings['html_anchor'] . '" title="' . __('Show all','teachpress') . '">' . __('Show all','teachpress') . '</a>';
+    }
+    // complete the header (tag cloud + filter)
+    $part1 = '<a name="tppubs" id="tppubs"></a><div class="teachpress_cloud">' . $asg . '</div><div class="teachpress_filter">' . $filter . '</div><p align="center">' . $showall . '</p>';
+
+    /************************/
+    /* List of publications */
+    /************************/
+
+    // change the id
+    if ( $filter_parameter['user'] != 0) {
+        $user = $filter_parameter['user'];
+    }
+
+    // Handle headline/order settings
+    if ( $settings['headline'] === 2 ) {
+        $sql_parameter['order'] = "type ASC, date DESC"; 
+    }
+    if ( $settings['headline'] === 3 || $settings['headline'] === 4 ) {
+        $sql_parameter['order'] = "year DESC, type ASC , date DESC";
+    }
    
-   // change the id
-   if ($author != 0) {
-      $user = $author;
-   }
-   
-   // Handle headline/order settings
-   if ( $headline === 2 ) {
-        $order = "type ASC, date DESC"; 
-   }
-   if ( $headline === 3 || $headline === 4 ) {
-        $order = "year DESC, type ASC , date DESC";
-   }
-   
-   $args = array(
-       'tag' => $tgid, 
-       'year' => $yr, 
-       'type' => $type, 
-       'user' => $user, 
-       'order' => $order, 
-       'exclude' => $exclude,
-       'exclude_tags' => $exclude_tags,
-       'limit' => $page_limit,
-       'output_type' => ARRAY_A);
-   
-   $all_tags = get_tp_tags( array('exclude' => $hide_tags, 'output_type' => ARRAY_A) );
-   $number_entries = ( $pagination === 1 ) ? get_tp_publications($args, true) : 0;
-   $row = get_tp_publications( $args );
-   $tpz = 0;
-   $count = count($row);
-   $colspan = '';
-   $tparray = '';
-   if ($settings['image'] == 'left' || $settings['image'] == 'right') {
-      $settings['pad_size'] = $image_size + 5;
-      $colspan = ' colspan="2"';
-   }
-   // Create array of publications
-   foreach ($row as $row) {
-      $number = ( $style === 'numbered_desc' || $style === 'std_num_desc' ) ? $count - $tpz : $tpz + 1 ;
-      $tparray[$tpz][0] = $row['year'] ;
-      $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row, $all_tags, $permalink, $settings, $number);
-      if ( 2 <= $headline && $headline <= 4 ) {
-          $tparray[$tpz][2] = $row['type'] ;
-      }
-      $tpz++;
-   }
-   // Sort the array
-   // If there are publications
-   if ( $tpz != 0 ) {
-      $part2 = '';
-      $menu = ( $pagination === 1 ) ? tp_admin_page_menu($number_entries, $entries_per_page, $current_page, $entry_limit, $permalink, $link_attributes, 'bottom') : '';
-      $part2 .= $menu;
-      $part2 .= tp_generate_pub_table($tparray, array('number_publications' => $tpz, 
-                                                   'headline' => $headline,
-                                                   'years' => $row_year,
-                                                   'colspan' => $colspan,
-                                                   'user' => $user,
-                                                   'sort_list' => $sort_list));
-      $part2 .= $menu;
-   }
-   // If there are no publications founded
-   else {
-      $part2 = '<div class="teachpress_list"><p class="teachpress_mistake">' . __('Sorry, no publications matched your criteria.','teachpress') . '</p></div>';
-   }
-   // Return
-   return $part1 . $part2;
+    $args = array(
+        'tag' => $filter_parameter['tag'], 
+        'year' => $filter_parameter['year'], 
+        'type' => $filter_parameter['type'], 
+        'user' => $filter_parameter['user'], 
+        'author_id' => $filter_parameter['author'],
+        'order' => $sql_parameter['order'], 
+        'exclude' => $sql_parameter['exclude'],
+        'exclude_tags' => $sql_parameter['exclude_tags'],
+        'limit' => $page_limit,
+        'output_type' => ARRAY_A);
+
+    $all_tags = get_tp_tags( array('exclude' => $hide_tags, 'output_type' => ARRAY_A) );
+    $number_entries = ( $settings['pagination'] === 1 ) ? get_tp_publications($args, true) : 0;
+    $row = get_tp_publications( $args );
+    $tpz = 0;
+    $count = count($row);
+    $colspan = '';
+    $tparray = '';
+    if ($settings['image'] == 'left' || $settings['image'] == 'right') {
+        $settings['pad_size'] = $settings['image_size'] + 5;
+        $colspan = ' colspan="2"';
+    }
+    // Create array of publications
+    foreach ($row as $row) {
+        $number = ( $style === 'numbered_desc' || $style === 'std_num_desc' ) ? $count - $tpz : $tpz + 1 ;
+        $tparray[$tpz][0] = $row['year'] ;
+        $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row, $all_tags, $settings, $number);
+        if ( 2 <= $settings['headline'] && $settings['headline'] <= 4 ) {
+            $tparray[$tpz][2] = $row['type'] ;
+        }
+        $tpz++;
+    }
+    // Sort the array
+    // If there are publications
+    if ( $tpz != 0 ) {
+        $part2 = '';
+        $link_attributes = 'tgid=' . $filter_parameter['tag'] . '&amp;yr=' . $filter_parameter['year'] . '&amp;type=' . $filter_parameter['type'] . '&amp;usr=' . $filter_parameter['user'] . '&amp;auth=' . $filter_parameter['author'] . $settings['html_anchor'];
+        $menu = ( $settings['pagination'] === 1 ) ? tp_admin_page_menu($number_entries, $entries_per_page, $current_page, $entry_limit, $settings['permalink'], $link_attributes, 'bottom') : '';
+        $part2 .= $menu;
+        $row_year = tp_publications::get_years( array( 'user' => $sql_parameter['user'], 'type' => $sql_parameter['type'], 'order' => 'DESC', 'output_type' => ARRAY_A ) );
+        $part2 .= tp_generate_pub_table($tparray, array('number_publications' => $tpz, 
+                                                     'headline' => $settings['headline'],
+                                                     'years' => $row_year,
+                                                     'colspan' => $colspan,
+                                                     'user' => $user,
+                                                     'sort_list' => $settings['sort_list']));
+        $part2 .= $menu;
+    }
+    // If there are no publications founded
+    else {
+        $part2 = '<div class="teachpress_list"><p class="teachpress_mistake">' . __('Sorry, no publications matched your criteria.','teachpress') . '</p></div>';
+    }
+    // Return
+    return $part1 . $part2;
 }
 
 /** 
@@ -917,7 +968,7 @@ function tp_list_shortcode($atts){
     foreach ($row as $row) {
        $number = ( $style === 'numbered_desc' || $style === 'std_num_desc' ) ? $count - $tpz : $tpz + 1 ;
        $tparray[$tpz][0] = $row['year'];
-       $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row,'', '', $settings, $number);
+       $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row,'', $settings, $number);
        if ( 2 <= $headline && $headline <= 4 ) {
            $tparray[$tpz][2] = $row['type'];
        }
@@ -1042,7 +1093,7 @@ function tp_search_shortcode ($atts) {
         foreach ($results as $row) {
             $count = ( $entry_limit == 0 ) ? ( $tpz + 1 ) : ( $entry_limit + $tpz + 1 );
             $tparray[$tpz][0] = $row['year'];
-            $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row,'', '', $settings, $count);
+            $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row,'', $settings, $count);
             $tpz++;
         }
         $r .= tp_generate_pub_table($tparray, array('number_publications' => $tpz, 

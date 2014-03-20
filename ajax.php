@@ -1,4 +1,10 @@
 <?php
+/**
+ * This file contains the server side part for the teachpress ajax interface
+ * @package teachpress
+ * @since 5.0.0
+ */
+
 // include wp-load.php
 require_once( '../../../wp-load.php' );
 if ( is_user_logged_in() && current_user_can('use_teachpress') ) {

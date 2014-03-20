@@ -276,12 +276,19 @@ function tp_frontend_scripts() {
     echo '<!-- END teachPress -->' . chr(13) . chr(10);
 }
 
-// load language files
+/**
+ * Load language files
+ */
 function tp_language_support() {
     load_plugin_textdomain('teachpress', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/');
 }
 
-// Add link to wp plugin overview
+/**
+ * Add link to wp plugin overview
+ * @param array $links
+ * @param string $file
+ * @return array
+ */
 function tp_plugin_link($links, $file){
     if ($file == plugin_basename(__FILE__)) {
         return array_merge($links, array( sprintf('<a href="options-general.php?page=teachpress/settings.php">%s</a>', __('Settings') ) ));

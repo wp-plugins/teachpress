@@ -1,7 +1,8 @@
 <?php
 /**
- * teachPress XLS and CSV export for courses and publications
-*/
+ * This file contains the XLS and CSV constructor for courses and publications export
+ * @package teachpress
+ */
 
 // include wp-load.php
 require_once( '../../../wp-load.php' );

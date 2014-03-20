@@ -1,14 +1,24 @@
 <?php
+/**
+ * This file contains general core functions
+ * @package teachpress/core
+ * @since 5.0.0
+ */
+
 /** 
  * teachPress Page Menu
- * @param int $number_entries       --> Number of all available entries
- * @param int $entries_per_page     --> Number of entries per page
- * @param int $current_page         --> current displayed page
- * @param int $entry_limit          --> SQL entry limit
- * @param string $page_link         --> the name of the page you will insert the menu
- * @param string $link_atrributes   --> the url attributes for get parameters
- * @param string $type              --> top or bottom, default: top
+ * 
+ * possible values for $atts:
+ *      number_entries (int)       Number of all available entries
+ *      entries_per_page (int)     Number of entries per page
+ *      current_page (int)         current displayed page
+ *      entry_limit (int)          SQL entry limit
+ *      page_link (string)         the name of the page you will insert the menu
+ *      link_atrributes (string)   the url attributes for get parameters
+ *      type (string)              top or bottom, default: top
+ * @param array $atts
  * @return string
+ * @since 5.0.0
 */
 function tp_page_menu ($atts) {
     extract(shortcode_atts(array(

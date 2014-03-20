@@ -1,5 +1,10 @@
 <?php
 /**
+ * This file contains all functions of teachpress mail system
+ * @package teachpress/core
+ */
+
+/**
  * teachPress E-Mail class
  */
 class tp_mail {

@@ -1,5 +1,10 @@
 <?php 
 /**
+ * This file contains all functions for displaying the add_publication page in admin menu
+ * @package teachpress/admin
+ */
+
+/**
  * Add help tab for add new courses page
  */
 function tp_add_publication_page_help () {
