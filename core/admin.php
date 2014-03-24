@@ -233,7 +233,7 @@ function get_tp_admin_checkbox($name, $title, $value, $disabled = false) {
  */
 function get_tp_admin_course_option_box ( $title, $type, $options = array() ) {
     global $wpdb;
-    echo '<h4><strong>' . $title . '</strong></h4>';
+    echo '<h3>' . $title . '</h3>';
     echo '<table border="0" cellspacing="0" cellpadding="0" class="widefat">';
     echo '<thead>';
     echo '<tr>';

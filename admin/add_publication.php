@@ -442,7 +442,7 @@ function teachpress_addpublications_page() {
             var availableAuthors = [
                 <?php
                 $start2 = '';
-                $sql2 = tp_authors::get_authors( array('group_by' => true) );
+                $sql2 = tp_authors::get_authors( array('group_by' => true, 'include_editors' =>true) );
                 foreach ($sql2 as $row) {
                     if ( $start2 === '' ) {
                         echo '"' . $row->name . '"';

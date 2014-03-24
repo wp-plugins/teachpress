@@ -381,8 +381,9 @@ class tp_authors  {
     *  order           --> ASC or DESC; default is ASC
     *  limit           --> the sql search limit, example: 0,30
     *  search          --> a normal search string
-    *  group by        --> boolean flag for the group by clause
-    *  count           --> set it to true if you only need an number of authors which will be returned by your selection
+    *  inclue_editors  --> boolean flag, set it to true if you want to include editors (default: false)
+    *  group by        --> boolean flag for the group by clause (default: false)
+    *  count           --> set it to true if you only need an number of authors which will be returned by your selection (default: false)
     *  output type     --> OBJECT, ARRAY_A, ARRAY_N 
     * 
     * @param array $args
@@ -397,6 +398,7 @@ class tp_authors  {
            'order' => 'ASC',
            'limit' => '',
            'search' => '',
+           'include_editors' => false,
            'count' => false,
            'group_by' => false, 
            'output_type' => OBJECT
@@ -441,10 +443,13 @@ class tp_authors  {
            $where = ( $where != '' ) ? $where . " AND ( $user )" : $user;
        }
        if ( $search != '') {
-           $where = $where != '' ? $where . " AND ( $search )" : $search ;
+           $where = ( $where != '' ) ? $where . " AND ( $search )" : $search ;
        }
        if ( $exclude != '' ) {
            $where = ( $where != '' ) ? $where . " AND ( $exclude )" : $exclude;
+       }
+       if ( $include_editors === false ) {
+           $where = ( $where != '' ) ? $where . " AND ( r.is_editor = '0' )" : "r.is_editor = '0'";
        }
        if ( $where != '' ) {
            $where = " WHERE $where";
@@ -2196,6 +2201,7 @@ class tp_db_helpers {
      * @param string $table
      * @param string $column
      * @param string $type
+     * @return boolean
      * @since 5.0.0
      */
     public static function add_column ($table, $column, $type) {
@@ -2215,9 +2221,11 @@ class tp_db_helpers {
             }
         }
         // Add column    
-        if ( $wpdb->query("SHOW COLUMNS FROM $table LIKE '$column'") == '0' ) { 
+        if ( $wpdb->query("SHOW COLUMNS FROM $table LIKE '$column'") == 0 ) { 
             $wpdb->query("ALTER TABLE $table ADD `$column` $type $charset_collate NULL DEFAULT NULL");
+            return true;
         }
+        return false;
     }
     
     /**

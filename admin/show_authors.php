@@ -106,7 +106,7 @@ function teachpress_authors_page () {
     echo '<option value="delete">' . __('Delete','teachpress') . '</option>';
     echo '</select>';
     echo '<input name="OK" value="OK" type="submit" class="button-secondary"/>';
-    $test = tp_authors::get_authors( array( 'count' => true, 'search' => $search ) );
+    $test = tp_authors::get_authors( array( 'count' => true, 'search' => $search, 'include_editors' => true ) );
     echo tp_admin_page_menu ($test, $number_messages, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search");
     echo '</div>';
     
@@ -141,7 +141,7 @@ function teachpress_authors_page () {
             }
             echo '<tr class="' . $tr_class . '" id="resultbox_' . $row['author_id'] . '">';
             echo '<th class="check-column"><input name="checkbox[]" class="tp_checkbox" type="checkbox" ' . $checked . ' type="checkbox" value="' . $row['author_id'] . '"></th>';
-            echo '<td><a class="tp_show_pub_info" author_id="' . $row['author_id'] . '" title="' . __('Show publications','teachpress') . '" style_class="' . $tr_class . '" style="cursor:pointer;">' . stripslashes($row['name']) . '</a>';
+            echo '<td><a class="tp_show_pub_info" author_id="' . $row['author_id'] . '" title="' . __('Show publications','teachpress') . '" style_class="' . $tr_class . '" style="cursor:pointer;"><b>' . stripslashes($row['name']) . '</b></a>';
                 echo '<div class="tp_row_actions">';
                 echo '<a href="admin.php?page=' . $page . '&amp;checkbox%5B%5D=' . $row['author_id'] . '&amp;search=' . $search . '&amp;action=delete' . '" style="color:red;" title="' . __('Delete','teachpress') . '">' . __('Delete', 'teachpress') . '</a>';
                 echo '</div>';
