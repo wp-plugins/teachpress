@@ -67,7 +67,7 @@ function teachpress_students_page() {
         <input name="page" type="hidden" value="<?php echo $page; ?>" />
         <?php
         // Delete students part 1
-        if ( $bulk == "delete" ) {
+        if ( $bulk === "delete" ) {
             echo '<div class="teachpress_message">
             <p class="teachpress_message_headline">' . __('Are you sure to delete the selected elements?','teachpress') . '</p>
             <p><input name="delete_ok" type="submit" class="button-primary" value="' . __('Delete','teachpress') . '"/>
@@ -76,7 +76,7 @@ function teachpress_students_page() {
         }
         // Delete students part 2
         if ( isset($_GET['delete_ok']) ) {
-            tp_students::delete_student($checkbox, $user_ID);
+            tp_students::delete_student($checkbox);
             $message = __('Removing successful','teachpress');
             get_tp_message($message);
         }
@@ -100,37 +100,38 @@ function teachpress_students_page() {
         ?>
         <h2><?php _e('Students','teachpress'); ?> <a class="add-new-h2" href="admin.php?page=teachpress/students.php&amp;action=add"><?php _e('Add student','teachpress'); ?></a></h2>
         <div id="searchbox" style="float:right; padding-bottom:5px;">  
-        <?php if ($search != "") { ?>
-        <a href="admin.php?page=teachpress/students.php" style="font-size:14px; font-weight:bold; text-decoration:none; padding-right:3px;" title="<?php _e('Cancel the search','teachpress'); ?>">X</a>
-        <?php } ?>
-        <input name="search" type="text" value="<?php echo stripslashes($search); ?>"/></td>
-        <input name="go" type="submit" value="<?php _e('Search','teachpress'); ?>" id="teachpress_search_senden" class="button-secondary"/>
-    </div>
-    <div class="tablenav" style="padding-bottom:5px;">
-        <select name="bulk" id="bulk">
-            <option>- <?php _e('Bulk actions','teachpress'); ?> -</option>
-            <option value="delete"><?php _e('Delete','teachpress'); ?></option>
-        </select>
-        <input type="submit" name="teachpress_submit" value="<?php _e('OK','teachpress'); ?>" id="doaction" class="button-secondary"/>
-        <?php 
-        $selects = false;
-        for ($i = 0; $i< count($select_fields); $i++) {
-            echo '<select name="' . $select_fields[$i] . '">';
-            echo '<option value="">- ' . __('All','teachpress') . ' -</option>';
-            $options = get_tp_options($select_fields[$i]);
-            foreach ( $options as $option ) {
-                echo '<option>' . $option->value  . '</option>';
+            <?php if ($search != "") { ?>
+            <a href="admin.php?page=teachpress/students.php" style="font-size:14px; font-weight:bold; text-decoration:none; padding-right:3px;" title="<?php _e('Cancel the search','teachpress'); ?>">X</a>
+            <?php } ?>
+            <input name="search" type="text" value="<?php echo stripslashes($search); ?>"/></td>
+            <input name="go" type="submit" value="<?php _e('Search','teachpress'); ?>" id="teachpress_search_senden" class="button-secondary"/>
+        </div>
+        <div class="tablenav" style="padding-bottom:5px;">
+            <select name="bulk" id="bulk">
+                <option>- <?php _e('Bulk actions','teachpress'); ?> -</option>
+                <option value="delete"><?php _e('Delete','teachpress'); ?></option>
+            </select>
+            <input type="submit" name="teachpress_submit" value="<?php _e('OK','teachpress'); ?>" id="doaction" class="button-secondary"/>
+            <?php 
+            $selects = false;
+            $max = count($select_fields);
+            for ($i = 0; $i < $max; $i++) {
+                echo '<select name="' . $select_fields[$i] . '">';
+                echo '<option value="">- ' . __('All','teachpress') . ' -</option>';
+                $options = get_tp_options($select_fields[$i]);
+                foreach ( $options as $option ) {
+                    echo '<option>' . $option->value  . '</option>';
+                }
+                echo '</select>';
+                $selects = true;
             }
-            echo '</select>';
-            $selects = true;
-        }
-        if ( $selects === true ) {
-            echo ' <input name="anzeigen" type="submit" id="teachpress_search_senden" value="' . __('Show','teachpress') . '" class="button-secondary"/>';
-        }
-        // Page Menu
-        echo tp_admin_page_menu ($number_entries, $entries_per_page, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search&amp;students_group=$students_group"); ?>
-    </div>
-    <table class="widefat">
+            if ( $selects === true ) {
+                echo ' <input name="anzeigen" type="submit" id="teachpress_search_senden" value="' . __('Show','teachpress') . '" class="button-secondary"/>';
+            }
+            // Page Menu
+            echo tp_admin_page_menu ($number_entries, $entries_per_page, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search&amp;students_group=$students_group"); ?>
+        </div>
+        <table class="widefat">
         <thead>
         <tr>
             <th class="check-column">
@@ -151,14 +152,15 @@ function teachpress_students_page() {
         </tr>
         </thead>
         <tbody> 
-    <?php
+        <?php
         // Show students
         if (count($students) == 0) { 
             echo '<tr><td colspan="9"><strong>' . __('Sorry, no entries matched your criteria.','teachpress') . '</strong></td></tr>';
         }
         else {
             $class_alternate = true;
-            foreach($students as $row3) { 
+            foreach( $students as $row3) { 
+                $student_meta = tp_students::get_student_meta($row3['wp_id']);
                 if ( $class_alternate === true ) {
                     $tr_class = 'class="alternate"';
                     $class_alternate = false;
@@ -169,7 +171,7 @@ function teachpress_students_page() {
                 }
                 echo '<tr ' . $tr_class . '>';
                 echo '<th class="check-column"><input type="checkbox" name="checkbox[]" id="checkbox" value="' . $row3['wp_id'] . '"';
-                if ( $bulk == "delete") { 
+                if ( $bulk === "delete") { 
                     for( $i = 0; $i < count( $checkbox ); $i++ ) { 
                         if ( $row3['wp_id'] == $checkbox[$i] ) { echo 'checked="checked"';} 
                     } 
@@ -180,8 +182,14 @@ function teachpress_students_page() {
                 echo '<td>' . stripslashes($row3['firstname']) . '</td>';
                 echo '<td>' . stripslashes($row3['userlogin']) . '</td>';
                 echo '<td><a href="admin.php?page=teachpress/teachpress.php&amp;student_ID=' . $row3['wp_id'] . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $curr_page . '&amp;action=mail&amp;single=' . $row3['email'] . '" title="' . __('send E-Mail','teachpress') . '">' . $row3['email'] . '</a></td>';
-                for ($i = 0; $i< count($visible_fields); $i++) {
-                    echo '<td>' . $row3[$visible_fields[$i]] . '</td>';
+                $max2 = count($visible_fields);
+                for ( $i = 0; $i < $max2; $i++ ) {
+                    foreach ($student_meta as $meta) {
+                        if ( $meta['meta_key'] === $visible_fields[$i] ) {
+                            echo '<td>' . $meta['meta_value'] . '</td>';
+                            continue;
+                        }
+                    }
                 }
                 echo '</tr>';
             } 
@@ -189,7 +197,7 @@ function teachpress_students_page() {
         ?> 
         </tbody>
         </table>
-    <div class="tablenav"><div class="tablenav-pages" style="float:right;">
+        <div class="tablenav"><div class="tablenav-pages" style="float:right;">
         <?php 
         if ($number_entries > $entries_per_page) {
             echo tp_admin_page_menu ($number_entries, $entries_per_page, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search&amp;students_group=$students_group", 'bottom');

@@ -223,9 +223,36 @@ function get_tp_admin_checkbox($name, $title, $value, $disabled = false) {
     return '<input name="' . $name . '" id="' . $name . '" type="checkbox" value="1" ' . $checked . $disabled .'/> <label for="' . $name . '">' . $title . '</label>';
 }
 
+function get_course_form_text_field($field_name, $label, $value, $readonly = false) {
+    $readonly = ( $readonly === false ) ? '' : 'readonly="true" ';
+    return '<p><label for="' . $field_name . '"><b>' . $label . '</b></label></p>
+            <input name="' . $field_name . '" type="text" id="' . $field_name . '" value="' . $value . '" size="50" ' . $readonly . '/>';
+}
+
+function get_course_form_textarea_field ($field_name, $label, $value) {
+    return '<p><label for="' . $field_name . '"><b>' . $label . '</b></label><p>
+            <textarea name="' . $field_name . '" id="' . $field_name . '" style="width:100%; height:80px;">' . $value . '</textarea>';
+}
+
+function get_course_form_select_field ($field_name, $label, $value) {
+    global $wpdb;
+    $return = '';
+    $return .= '<p><label for="' . $field_name . '"><b>' . $label . '</b></label></p>';
+    $return .= '<select name="' . $field_name . '" id="' . $field_name . '">';
+    $options = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '" . $field_name . "' ORDER BY value ASC");
+    if ( $value == '' ) {
+        $return .= '<option value=""></option>';
+    }
+    foreach ($options as $opt) {
+        $selected = ( $value == $opt->value ) ? 'selected="selected"' : '';
+        $return .= '<option value="' . $opt->value . '" ' . $selected . '>' . $opt->value . '</option>';
+    }
+    $return .= '</select>';
+    return $return;
+}
+
 /**
  * Gets a box for editing some options (terms|type|studies) for courses
- * @global class $wpdb
  * @param string $title
  * @param string $type
  * @param array $options (element_title|add_title|delete_title|count_title|tab)
@@ -256,7 +283,7 @@ function get_tp_admin_course_option_box ( $title, $type, $options = array() ) {
         $sql = "SELECT number, value, setting_id FROM ( SELECT COUNT(s.course_of_studies) as number, e.value AS value,  e.setting_id as setting_id, e.category as category FROM " . TEACHPRESS_SETTINGS . " e LEFT JOIN " . TEACHPRESS_STUD . " s ON e.value = s.course_of_studies GROUP BY e.value ORDER BY number DESC ) AS temp WHERE category = 'course_of_studies' ORDER BY value";
     }
     else {
-        $sql = "SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '$type' ORDER BY setting_id ASC";
+        $sql = "SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '$type' ORDER BY value ASC";
     }
                
     $row = $wpdb->get_results($sql);

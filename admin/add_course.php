@@ -35,8 +35,8 @@ function tp_add_course_page_help () {
         'title'     => __('Capabilities','teachpress'),
         'content'   => '<p>' . __('You can choice between the following capability options','teachpress') . ':</p>
                         <ul style="list-style:disc; padding-left:40px;">
-                            <li><strong>' . __('Global settings','teachpress') . ':</strong> ' . __('All users, which have the minimum user role for using teachpress, can see, edit or delete the course or course data.','teachpress') . '</li>
-                            <li><strong>' . __('Local settings','teachpress') . ':</strong> ' . __('You can select which users can see, edit or delete the course or course data.','teachpress') . '</li>
+                            <li><strong>' . __('global','teachpress') . ':</strong> ' . __('All users, which have the minimum user role for using teachpress, can see, edit or delete the course or course data.','teachpress') . '</li>
+                            <li><strong>' . __('local','teachpress') . ':</strong> ' . __('You can select which users can see, edit or delete the course or course data.','teachpress') . '</li>
                             </ul>'
     ) );
 } 
@@ -55,6 +55,7 @@ function tp_add_course_page() {
    global $wpdb;
    global $current_user;
    get_currentuserinfo();
+   $fields = get_tp_options('teachpress_courses','`setting_id` ASC', ARRAY_A);
 
    $data['type'] = isset( $_POST['course_type'] ) ? htmlspecialchars($_POST['course_type']) : '';
    $data['name'] = isset( $_POST['post_title'] ) ? htmlspecialchars($_POST['post_title']) : '';
@@ -96,22 +97,40 @@ function tp_add_course_page() {
         $par[$counter3]["semester"] = $row->semester;
         $counter3++;
    }
-   // Event handler
+   
+   // Add new course
    if ( isset($_POST['create']) ) {
         $course_ID = tp_courses::add_course($data);
+        foreach ($fields as $row) {
+            if ( isset( $_POST[$row['variable']] ) && $_POST[$row['variable']] !== '' ) {
+                tp_courses::add_course_meta($course_ID, $row['variable'], $_POST[$row['variable']]);
+            }
+        }
         $message = __('Course created successful.','teachpress') . ' <a href="admin.php?page=teachpress/add_course.php">' . __('Add New','teachpress') . '</a>';
         get_tp_message($message);
    }
+   
+   // Saves changes
    if ( isset($_POST['save']) ) {
+        tp_courses::delete_course_meta($course_ID);
+        foreach ($fields as $row) {
+            if ( isset( $_POST[$row['variable']] ) && $_POST[$row['variable']] !== '' ) {
+                tp_courses::add_course_meta($course_ID, $row['variable'], $_POST[$row['variable']]);
+            }
+        }
         tp_courses::change_course($course_ID, $data);
         $message = __('Saved');
         get_tp_message($message);
    }
+   
+   // Default vaulues
    if ( $course_ID != 0 ) {
         $daten = tp_courses::get_course($course_ID, ARRAY_A);
+        $course_meta = tp_courses::get_course_meta($course_ID);
    }
    else {
         $daten = get_tp_var_types('course_array');
+        $course_meta = array ( array('meta_key' => '', 'meta_value' => '') );
    }
    ?>
    <div class="wrap">
@@ -165,8 +184,8 @@ function tp_add_course_page() {
                 ?>
                 <p><label for="use_capabilites"><strong><?php _e('Capabilites','teachpress'); ?></strong></label></p>
                 <select name="use_capabilites" <?php echo $readonly; ?>>
-                    <option value="0"<?php if ( $daten["use_capabilites"] == 0 && $course_ID != 0 ) {echo ' selected="selected"'; } ?>><?php _e('Global settings','teachpress'); ?></option>
-                    <option value="1"<?php if ( $daten["use_capabilites"] == 1 && $course_ID != 0 ) {echo ' selected="selected"'; } ?>><?php _e('Local settings','teachpress'); ?></option>
+                    <option value="0"<?php if ( $daten["use_capabilites"] == 0 && $course_ID != 0 ) {echo ' selected="selected"'; } ?>><?php _e('global','teachpress'); ?></option>
+                    <option value="1"<?php if ( $daten["use_capabilites"] == 1 && $course_ID != 0 ) {echo ' selected="selected"'; } ?>><?php _e('local','teachpress'); ?></option>
                 </select>
                 </td>
             </tr>
@@ -256,6 +275,8 @@ function tp_add_course_page() {
         <tr>
             <th><?php _e('General','teachpress'); ?></th>
         </tr>
+        </thead>
+        <tbody>
         <tr>
             <td>
                 <p><label for="course_type" title="<?php _e('The course type','teachpress'); ?>"><strong><?php _e('Type'); ?></strong></label></p>
@@ -339,9 +360,46 @@ function tp_add_course_page() {
                     get_tp_wp_pages("menu_order","ASC",$daten["rel_page"],$post_type,0,0); 
                     ?>
                 </select>
+            </td>
             </tr>
-        </thead>       
+        </tbody>      
      </table>
+    <?php if ( count($fields) !== 0 ) { ?> 
+    <table class="widefat" style="margin-top: 15px;">
+        <thead>
+           <tr>
+               <th><?php _e('Custom meta data','teachpress'); ?></th>
+           </tr>
+       </thead>
+       <tbody>
+           <tr>
+               <td>
+                   <?php
+                   foreach ($fields as $row) {
+                       $col_data = tp_db_helpers::extract_column_data($row['value']);
+                       $value = '';
+                       foreach ( $course_meta as $row_meta ) {
+                           if ( $row['variable'] === $row_meta['meta_key'] ) {
+                               $value = $row_meta['meta_value'];
+                               break;
+                           }
+                       }
+                       if ( $col_data['type'] === 'SELECT' ) {
+                           echo get_course_form_select_field($row['variable'], $col_data['title'], $value);
+                       }
+                       elseif ( $col_data['type'] === 'TEXTAREA' ) {
+                           echo get_course_form_textarea_field($row['variable'], $col_data['title'], $value);
+                       }
+                       else {
+                           echo get_course_form_text_field($row['variable'], $col_data['title'], $value);
+                       }
+                   }
+                   ?>
+               </td>
+           </tr>
+       </tbody>
+    </table>
+    <?php } ?>
      </div>
      </div>
       <script type="text/javascript" charset="utf-8">

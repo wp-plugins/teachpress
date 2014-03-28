@@ -18,7 +18,7 @@ function tp_show_single_course_page() {
     get_currentuserinfo();
 
     // form
-    $checkbox = isset( $_POST['checkbox'] ) ?  $_POST['checkbox'] : '';
+    $checkbox = ( isset( $_POST['checkbox'] ) ) ?  $_POST['checkbox'] : '';
     $waiting = isset( $_POST['waiting'] ) ?  $_POST['waiting'] : '';
     $reg_action = isset( $_POST['reg_action'] ) ?  $_POST['reg_action'] : '';
     $course_ID = intval($_GET['course_ID']);
@@ -135,7 +135,7 @@ function tp_show_single_course_page() {
         tp_single_course_page::get_capability_tab($daten);
     }
     else {
-        tp_single_course_page::get_course_meta_tab($daten);
+        tp_single_course_page::get_course_info_tab($daten);
     }
     
     echo '</form>';
@@ -253,7 +253,7 @@ class tp_single_course_page {
         
         if ($course_data["parent"] != 0) {
             if ($parent_data["course_id"] == $course_data["parent"]) {
-                $parent_name = '<a href="admin.php?page=teachpress/teachpress.php&amp;course_ID=' . $parent_data["course_id"] . '&amp;sem=' . $link_parameter['sem'] . '&amp;search=' . $link_parameter['search'] . '&amp;action=show&amp;redirect=' . $course_ID . '" title="' . stripslashes($parent_data["name"]) . '" style="color:#464646">' . stripslashes($parent["name"]) . '</a> &rarr; ';
+                $parent_name = '<a href="admin.php?page=teachpress/teachpress.php&amp;course_ID=' . $parent_data["course_id"] . '&amp;sem=' . $link_parameter['sem'] . '&amp;search=' . $link_parameter['search'] . '&amp;action=show&amp;redirect=' . $course_ID . '" title="' . stripslashes($parent_data["name"]) . '" style="color:#464646">' . stripslashes($parent_data["name"]) . '</a> &rarr; ';
             }
         }
         
@@ -442,7 +442,7 @@ class tp_single_course_page {
      * @param array $cours_data
      * @since 5.0.0
      */
-    public static function get_course_meta_tab ($cours_data) {
+    public static function get_course_info_tab ($cours_data) {
         ?>
      <div style="width:24%; float:right; padding-left:1%; padding-bottom:1%;">
          <div class="postbox">
@@ -476,7 +476,7 @@ class tp_single_course_page {
        </div>
        <div style="width:75%; float:left; padding-bottom:10px;">
            <div class="postbox">
-               <h3 style="padding: 7px 10px; cursor:default;"><span><?php _e('Meta Information','teachpress'); ?></span></h3>
+               <h3 style="padding: 7px 10px; cursor:default;"><span><?php _e('General','teachpress'); ?></span></h3>
                <div class="inside">
                     <table cellpadding="8">
                         <tr>

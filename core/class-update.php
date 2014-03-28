@@ -515,8 +515,10 @@ class tp_update_db {
         tp_tables::add_table_artefacts($charset);
         tp_tables::add_table_assessments($charset);
         tp_tables::add_table_course_capabilites($charset);
+        tp_tables::add_table_course_meta($charset);
         tp_tables::add_table_authors($charset);
         tp_tables::add_table_rel_pub_auth($charset);
+        tp_tables::add_table_stud_meta($charset);
         // add column use_capabilites to table teachpress_courses
         if ($wpdb->query("SHOW COLUMNS FROM " . TEACHPRESS_COURSES . " LIKE 'use_capabilites'") == '0') { 
             $wpdb->query("ALTER TABLE " . TEACHPRESS_COURSES . " ADD `use_capabilites` INT( 1 ) NULL DEFAULT NULL AFTER `strict_signup`");
@@ -609,7 +611,7 @@ class tp_update_db {
         // wp_id
         if ($wpdb->query("SELECT value FROM " . TEACHPRESS_SETTINGS . " WHERE `variable` = 'wp_id' AND `category` = 'teachpress_stud'") == '0') {
             $value = 'name = {wp_id}, title = {ID}, type = {INT}, required = {true}, unique = {true}, admin_visibility = {true}';
-            $wpdb->query("INSERT INTO " . TEACHPRESS_SETTINGS . " (`variable`, `value`, `category`) VALUES ('wp_id', '$value', 'teachpress_stud')"); 
+            // $wpdb->query("INSERT INTO " . TEACHPRESS_SETTINGS . " (`variable`, `value`, `category`) VALUES ('wp_id', '$value', 'teachpress_stud')"); 
         }
         
     }

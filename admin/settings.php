@@ -57,6 +57,11 @@ class tp_settings_page {
         if ( isset( $_GET['delete'] ) ) {
             tp_options::delete_option($_GET['delete']);
         }
+        
+        // Delete data field
+        if ( isset( $_GET['delete_field'] ) || isset( $_GET['delete_field_ok'] ) ) {
+            tp_settings_page::delete_meta_fields($tab);
+        }
 
         // add course options
         if ( isset( $_POST['add_term'] ) || isset( $_POST['add_type'] ) ) {
@@ -65,7 +70,8 @@ class tp_settings_page {
 
         // add student options
         if ( isset($_POST['add_field']) ) {
-            tp_settings_page::add_student_options();
+            $table = ( $tab === 'course_data' ) ? 'teachpress_courses' : 'teachpress_stud';
+            tp_settings_page::add_meta_fields($table);
         }
 
         // test if database is installed
@@ -74,23 +80,25 @@ class tp_settings_page {
         echo '<h2 style="padding-bottom:0px;">' . __('teachPress settings','teachpress') . '</h2>';
 
         // Site menu
-        $set_menu_1 = ( $tab === "general" || $tab === "" ) ? "nav-tab nav-tab-active" : "nav-tab";
-        $set_menu_2 = ( $tab === "courses" ) ? "nav-tab nav-tab-active" : "nav-tab";
-        $set_menu_4 = ( $tab === "course_data" ) ? "nav-tab nav-tab-active" : "nav-tab";
-        $set_menu_3 = ( $tab === "publications" ) ? "nav-tab nav-tab-active" : "nav-tab";
+        $set_menu_1 = ( $tab === 'general' || $tab === '' ) ? 'nav-tab nav-tab-active' : 'nav-tab';
+        $set_menu_2 = ( $tab === 'courses' ) ? 'nav-tab nav-tab-active' : 'nav-tab';
+        $set_menu_3 = ( $tab === 'course_data' ) ? 'nav-tab nav-tab-active' : 'nav-tab';
+        $set_menu_4 = ( $tab === 'student_data' ) ? 'nav-tab nav-tab-active' : 'nav-tab';
+        $set_menu_5 = ( $tab === 'publications' ) ? 'nav-tab nav-tab-active' : 'nav-tab';
 
         echo '<h3 class="nav-tab-wrapper">'; 
         echo '<a href="' . $site . '&amp;tab=general" class="' . $set_menu_1 . '">' . __('General','teachpress') . '</a>';
         if ( !defined('TP_COURSE_SYSTEM') ) {
-           echo '<a href="' . $site . '&amp;tab=courses" class="' . $set_menu_2 . '">' . __('Courses','teachpress') . '</a>';
-           echo '<a href="' . $site . '&amp;tab=course_data" class="' . $set_menu_4 . '">' . __('Students','teachpress') . '</a>';
+           echo '<a href="' . $site . '&amp;tab=courses" class="' . $set_menu_2 . '">' . __('Courses','teachpress') . ' 1</a>';
+           echo '<a href="' . $site . '&amp;tab=course_data" class="' . $set_menu_3 . '">' . __('Courses','teachpress') . ' 2</a>';
+           echo '<a href="' . $site . '&amp;tab=student_data" class="' . $set_menu_4 . '">' . __('Students','teachpress') . '</a>';
         }
         if ( !defined('TP_PUBLICATION_SYSTEM') ) {	
-           echo '<a href="' . $site . '&amp;tab=publications" class="' . $set_menu_3 . '">' . __('Publications','teachpress') . '</a>'; 
+           echo '<a href="' . $site . '&amp;tab=publications" class="' . $set_menu_5 . '">' . __('Publications','teachpress') . '</a>'; 
         }
         echo '</h3>';
 
-        echo '<form id="form1" name="form1" method="post" action="' . $_SERVER['REQUEST_URI'] . '">';
+        echo '<form id="form1" name="form1" method="post" action="' . $site . '&amp;tab=' . $tab . '">';
         echo '<input name="page" type="hidden" value="teachpress/settings.php" />';
         echo '<input name="tab" type="hidden" value="<?php echo $tab; ?>" />';
 
@@ -102,9 +110,9 @@ class tp_settings_page {
         if ( $tab === 'courses' ) { 
             tp_settings_page::get_course_tab();
         }
-        /* Course data */
-        if ( $tab === 'course_data' ) {
-            tp_settings_page::get_student_tab();
+        /* Meta data */
+        if ( $tab === 'course_data' || $tab === 'student_data' ) {
+            tp_settings_page::get_meta_tab($tab);
         }
         /* Publications */
         if ( $tab === 'publications' ) {
@@ -401,50 +409,36 @@ class tp_settings_page {
     
     /**
      * Shows the student settings tab
+     * @param string $tab
      * @access private
      * @since 5.0.0
      */
-    private static function get_student_tab() {
+    private static function get_meta_tab($tab) {
+        $table = ( $tab === 'student_data' ) ? 'teachpress_stud' : 'teachpress_courses';
 
         $select_fields = array();
 
         echo '<div style="min-width:780px; width:100%;">';
         echo '<div style="width:48%; float:left; padding-right:2%;">';
-        echo '<h3>' . __('Student data fields','teachpress') . '</h3>';
+        echo '<h3>' . __('Meta data fields','teachpress') . '</h3>';
 
         echo '<table class="widefat">';
         echo '<thead>';
 
         echo '<tr>';
         echo '<th></th>';
-        echo '<th>Field name</th>';
-        echo '<th>Properties</th>';
+        echo '<th>' . __('Field name','teachpress') . '</th>';
+        echo '<th>' . __('Properties','teachpress') . '</th>';
         echo '</tr>';
 
         echo '</thead>';
 
         // Default fields
         $class_alternate = true;
-        $default_fields = array('wp_id', 'firstname', 'lastname', 'userlogin', 'email');
-        for ( $i = 0; $i < 5; $i++ ) {
-            if ( $class_alternate === true ) {
-                $tr_class = 'class="alternate"';
-                $class_alternate = false;
-            }
-            else {
-                $tr_class = '';
-                $class_alternate = true;
-            }
-            echo '<tr ' . $tr_class . '>';
-            echo '<td></td>';
-            echo '<td>' . $default_fields[$i]. '</td>';
-            echo '<td>' . __('Default field. Not editable.','teachpress') . '</td>';
-            echo '</tr>';
-        }
-        $fields = get_tp_options('teachpress_stud','`setting_id` ASC');
+        $fields = get_tp_options($table,'`setting_id` ASC');
         foreach ($fields as $field) {
             $data = tp_db_helpers::extract_column_data($field->value);
-            if ( $data['type'] === 'SELECT' ) {
+            if ( $data['type'] === 'SELECT' || $data['type'] === 'CHECKBOX' ) {
                 array_push($select_fields, $field->variable);
                 // search for select options and add it
                 if ( isset( $_POST['add_' . $field->variable] ) && $_POST['new_' . $field->variable] != __('Add element','teachpress') ) {
@@ -460,11 +454,11 @@ class tp_settings_page {
                 $class_alternate = true;
             }
             echo '<tr ' . $tr_class . '>
-                <td><a class="teachpress_delete" href="options-general.php?page=teachpress/settings.php&amp;delete=' . $field->setting_id . '&amp;tab=course_data">X</a></td>
+                <td><a class="teachpress_delete" href="options-general.php?page=teachpress/settings.php&amp;delete_field=' . $field->setting_id . '&amp;tab=' . $tab . '">X</a></td>
                 <td>' . $field->variable . '</td>
                 <td>Label: <b>' . $data['title'] . '</b><br/> 
                     Type: <b>' . $data['type'] . '</b><br/>
-                    Admin-visibility: <b>' . $data['admin_visibility'] . '</b><br/>
+                    Admin visibility: <b>' . $data['admin_visibility'] . '</b><br/>
                     Unique: <b>' . $data['unique'] . '</b><br/>
                     Required: <b>' . $data['required'] . '</b></td>
                 </tr>';
@@ -475,7 +469,7 @@ class tp_settings_page {
         echo '<td colspan="2">';
         echo '<h4>Add new field</h4>';
 
-        echo '<p><input name="field_name" type="text" id="field_name" size="30" value="' . __('Name') . '" onblur="if(this.value==' . "''" .') this.value='. "'" . __('Name') . "'" . ';" onfocus="if(this.value=='. "'" . __('Name') . "'" . ') this.value=' . "''" . ';"/></p>';
+        echo '<p><input name="field_name" type="text" id="field_name" size="30" title="' . __('Allowed chars','teachpress') . ': A-Z,a-z,0-9,_" value="' . __('Name') . '" onblur="if(this.value==' . "''" .') this.value='. "'" . __('Name') . "'" . ';" onfocus="if(this.value=='. "'" . __('Name') . "'" . ') this.value=' . "''" . ';"/></p>';
         echo '<p><input name="field_label" type="text" id="field_name" size="30" value="' . __('Label') . '" onblur="if(this.value==' . "''" .') this.value='. "'" . __('Label') . "'" . ';" onfocus="if(this.value=='. "'" . __('Label') . "'" . ') this.value=' . "''" . ';"/></p>';
 
         echo '<p><label for="field_type">Field type:</label> <select name="field_type" id="field_type">';
@@ -487,11 +481,13 @@ class tp_settings_page {
         echo '<option value="CHECKBOX">CHECKBOX</option>';
         echo '</select></p>';
 
-        echo '<p><input type="checkbox" name="admin_visibility" id="admin_visibility" value="true"/> <label for="admin_visibility">' . __('Show field in admin interfaces','teachpress') . '</label></p>';
-        echo '<p><input type="checkbox" name="is_unique" id="is_unique" value="true"/> <label for="is_unique">' . __('Allow only unique values (only for the types INT and TEXT).','teachpress') . '</label></p>';
-        echo '<p><input type="checkbox" name="is_required" id="is_required" value="true"/> <label for="is_required">' . __('Select, if you want a required field.','teachpress') . '</label></p>';
+        if ( $tab === 'student_data' ) {
+            echo '<p><input type="checkbox" name="admin_visibility" id="admin_visibility" value="true"/> <label for="admin_visibility">' . __('Show field in admin interfaces','teachpress') . '</label></p>';
+            echo '<p><input type="checkbox" name="is_unique" id="is_unique" value="true"/> <label for="is_unique">' . __('Allow only unique values (only for the types INT and TEXT)','teachpress') . '</label></p>';
+            echo '<p><input type="checkbox" name="is_required" id="is_required" value="true"/> <label for="is_required">' . __('Required field','teachpress') . '</label></p>';    
+        }
         echo '<p><input type="submit" name="add_field" class="button-secondary" value="' . __('Create','teachpress') . '"/></p>';
-
+        
         echo '</td>';
         echo '</tr>';
 
@@ -506,7 +502,7 @@ class tp_settings_page {
                  'count_title' => __('Number of students','teachpress'),
                  'delete_title' => __('Delete elemtent','teachpress'),
                  'add_title' => __('Add element','teachpress'),
-                 'tab' => 'course_data'
+                 'tab' => 'student_data'
                  );
              get_tp_admin_course_option_box($elem, $elem, $args1);
         }
@@ -534,36 +530,53 @@ class tp_settings_page {
     }
     
     /**
-     * Handles adding of new student data fields
+     * Handles adding of new meta data fields
+     * @param string $table
      * @access private
      * @since 5.0.0
      */
-    private static function add_student_options () {
-        $forbidden_names = array('system', 'teachpress_stud', 'course_type', 'semester');
+    private static function add_meta_fields ($table) {
+        $forbidden_names = array('system', 'teachpress_stud', 'teachpress_pub', 'teachpress_courses', 'course_type', 'semester', __('Name'));
+        $options = get_tp_options($table);
+        foreach ( $options as $row) {
+            array_push( $forbidden_names, $row->variable );
+        }
         $field_name = isset( $_POST['field_name'] ) ? htmlspecialchars($_POST['field_name']) : '';
         $data['title'] = isset( $_POST['field_label'] ) ? htmlspecialchars($_POST['field_label']) : '';
         $data['type'] = isset( $_POST['field_type'] ) ? htmlspecialchars($_POST['field_type']) : '';
         $data['admin_visibility'] = isset( $_POST['admin_visibility'] ) ? 'true' : 'false';
         $data['required'] = isset( $_POST['is_required'] ) ? 'true' : 'false';
         $data['unique'] = isset( $_POST['is_unique'] ) ? 'true' : 'false';
-        if ( !in_array($field_name, $forbidden_names) ) {
-            tp_db_helpers::register_column('teachpress_stud', $field_name, $data);
-            if ( $data['type'] === 'TEXTAREA' || $data['type'] === 'SELECT' ) {
-                $data['type'] = 'TEXT';
-            }
-            $return = tp_db_helpers::add_column(TEACHPRESS_STUD, $field_name, $data['type']);
-            if ( $return === true ) {
-                get_tp_message(  __('Field added','teachpress') );
-            }
-            else {
-                get_tp_message(  __('Warning: This field name already exists.','teachpress'), 'red' );
-            }
+        if ( !in_array($field_name, $forbidden_names) && $data['title'] != __('Label') && preg_match("#^[_A-Za-z0-9]+$#", $field_name) ) {
+            tp_db_helpers::register_column($table, $field_name, $data);
+            get_tp_message(  __('Field added','teachpress') );
         }
         else {
             get_tp_message(  __('Warning: This field name is not possible.','teachpress'), 'red' );
         }
     }
     
+    /**
+     * Deletes student data fields
+     * @access private
+     * @since 5.0.0
+     */
+    private static function delete_meta_fields ($tab) {
+        if ( isset($_GET['delete_field']) ) {
+            $message = '<p>' . __('Do you really want to delete the selected meta field?','teachpress') . '</p>' . '<a class="button-primary" href="options-general.php?page=teachpress/settings.php&amp;delete_field_ok=' . intval($_GET['delete_field']) . '&amp;tab=' . $tab . '">'. __('OK') . '</a> <a class="button-secondary" href="options-general.php?page=teachpress/settings.php&amp;tab=student_data">'. __('Cancel') . '</a>';
+            get_tp_message($message,'orange');
+        }
+        if ( isset($_GET['delete_field_ok']) ) {
+            $option = tp_options::get_option_by_id($_GET['delete_field_ok']);
+            $options = get_tp_options($option['variable'], "`setting_id` DESC", ARRAY_A);
+            foreach ( $options as $row ) {
+                tp_options::delete_option($row['setting_id']);
+            }
+            tp_options::delete_option($_GET['delete_field_ok']);
+            get_tp_message( __('Field deleted','teachpress') );
+        }
+    }
+
     /**
      * Handles changing of general options
      * @access private

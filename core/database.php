@@ -840,18 +840,64 @@ class tp_courses {
     
     /** 
      * Returns a single value of a course 
-     * @param int $id       --> id of the course
-     * @param string $col   --> column name
-     * @param string $mode  --> single (default), all (planned)
+     * @param int $course_id    id of the course
+     * @param string $col       column name
      * @return string
      * @since 5.0.0
     */  
-    public static function get_course_data ($id, $col) {
+    public static function get_course_data ($course_id, $col) {
         global $wpdb;
-        $id = intval($id);
+        $course_id = intval($course_id);
         $col = esc_sql($col);
-        $result = $wpdb->get_var("SELECT `$col` FROM `" . TEACHPRESS_COURSES . "` WHERE `course_id` = '$id'");
+        $result = $wpdb->get_var("SELECT `$col` FROM `" . TEACHPRESS_COURSES . "` WHERE `course_id` = '$course_id'");
         return $result;
+    }
+    
+    /**
+     * Returns course meta data
+     * @param int $course_id
+     * @param string $meta_key
+     * @since 5.0.0
+     */
+    public static function get_course_meta($course_id, $meta_key = ''){
+        global $wpdb;
+        $course_id = intval($course_id);
+        $meta_key = esc_sql($meta_key);
+        $where = '';
+        if ( $meta_key !== '' ) {
+            $where = "AND `meta_key` = '$meta_key'";
+        }
+        $sql = "SELECT * FROM " . TEACHPRESS_COURSE_META . " WHERE `course_id` = '$course_id' $where";
+        return $wpdb->get_results($sql, ARRAY_A);
+    }
+    
+    /**
+     * Add course meta
+     * @param int $course_id
+     * @param string $meta_key
+     * @param string $meta_value
+     * @since 5.0.0
+     */
+    public static function add_course_meta ($course_id, $meta_key, $meta_value) {
+        global $wpdb;
+        $wpdb->insert( TEACHPRESS_COURSE_META, array( 'course_id' => $course_id, 'meta_key' => $meta_key, 'meta_value' => $meta_value ), array( '%d', '%s', '%s' ) );
+    }
+    
+    /**
+     * Deletes curse meta
+     * @param int $course_id
+     * @param string $meta_key
+     * @since 5.0.0
+     */
+    public static function delete_course_meta ($course_id, $meta_key = '') {
+        global $wpdb;
+        $course_id = intval($course_id);
+        $meta_key = esc_sql($meta_key);
+        $where = '';
+        if ( $meta_key !== '' ) {
+            $where = "AND `meta_key` = '$meta_key'";
+        }
+        $wpdb->query("DELETE FROM " . TEACHPRESS_COURSE_META . " WHERE `course_id` = '$course_id' $where");
     }
     
     /**
@@ -1111,6 +1157,18 @@ class tp_courses {
  */
 class tp_options {
     
+    /**
+     * Return an option by ID
+     * @param int $id
+     * @return array
+     * @since 5.0.0
+     */
+    public static function get_option_by_id ($id){
+        global $wpdb;
+        $id = intval($id);
+        return $wpdb->get_row("SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `setting_id` = '$id'", ARRAY_A);
+    }
+
     /** 
      * Add an option
      * @param string $name      --> name of the option
@@ -1689,7 +1747,7 @@ class tp_publications {
             }
             // if element not exists
             if ( $check === NULL ){
-                $check = ( $rel_type === 'tags' ) ? tp_tags::add_tag($element) : tp_authors::add_author($element);;
+                $check = ( $rel_type === 'tags' ) ? tp_tags::add_tag($element) : tp_authors::add_author($element);
             }
             // check if relation exists, if not add relation
             if ( $rel_type === 'tags' ) {
@@ -1789,6 +1847,24 @@ class tp_students {
         return $sql;
     }
     
+    /**
+     * Returns user meta data
+     * @param int $wp_id
+     * @param string $meta_key
+     * @since 5.0.0
+     */
+    public static function get_student_meta($wp_id, $meta_key = ''){
+        global $wpdb;
+        $wp_id = intval($wp_id);
+        $meta_key = esc_sql($meta_key);
+        $where = '';
+        if ( $meta_key !== '' ) {
+            $where = "AND `meta_key` = '$meta_key'";
+        }
+        $sql = "SELECT * FROM " . TEACHPRESS_STUD_META . " WHERE `wp_id` = '$wp_id' $where";
+        return $wpdb->get_results($sql, ARRAY_A);
+    }
+    
     /** 
      * Add student
      * @param int $wp_id    --> WordPress user ID
@@ -1811,35 +1887,41 @@ class tp_students {
         }
     }
     
+    /**
+     * Add student meta
+     * @param int $wp_id
+     * @param string $meta_key
+     * @param string $meta_value
+     * @since 5.0.0
+     */
+    public static function add_student_meta ($wp_id, $meta_key, $meta_value) {
+        global $wpdb;
+        $wpdb->insert( TEACHPRESS_STUD_META, array( 'wp_id' => $wp_id, 'meta_key' => $meta_key, 'meta_value' => $meta_value ), array( '%d', '%s', '%s' ) );
+    }
+    
     /** 
      * Edit userdata
-     * @param int $wp_id        --> user ID
-     * @param array_a $data     --> user data
-     * @param int $user_ID      --> current user ID
+     * @param int $wp_id
+     * @param array_a $data
+     * @param boolean $show_message
      * @return string
      * @since 5.0.0
     */
-   public static function change_student($wp_id, $data, $user_ID = 0) {
+   public static function change_student($wp_id, $data, $show_message = true) {
         global $wpdb;
-        $wp_id = intval($wp_id);
-        $user_ID = intval($user_ID);
-        $data['birthday'] = $data['birth_year'] . '-' . $data['birth_month'] . '-' . $data['birth_day'];
-        $wpdb->update( TEACHPRESS_STUD, array( 'firstname' => $data['firstname'], 'lastname' => $data['lastname'], 'course_of_studies' => $data['course_of_studies'], 'userlogin' => $data['userlogin'], 'birthday' => $data['birthday'], 'email' => $data['email'], 'semesternumber' => $data['semester_number'], 'matriculation_number' => $data['matriculation_number'] ), array( 'wp_id' => $wp_id ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d' ), array( '%d' ) );
-        if ($user_ID == 0) {
-            $return = '<div class="teachpress_message_success">' . __('Changes in your profile successful.','teachpress') . '</div>';
-            return $return;
+        $wpdb->update( TEACHPRESS_STUD, array( 'firstname' => $data['firstname'], 'lastname' => $data['lastname'], 'userlogin' => $data['userlogin'], 'email' => $data['email'] ), array( 'wp_id' => $wp_id ), array( '%s', '%s', '%s', '%s' ), array( '%d' ) );
+        if ($show_message === true) {
+            return '<div class="teachpress_message_success">' . __('Changes in your profile successful.','teachpress') . '</div>';
         }
     }
     
     /** 
      * Delete student
      * @param array $checkbox       --> ID of the enrollment
-     * @param int $user_ID          --> User ID
      * @since 5.0.0
     */ 
-   public static function delete_student($checkbox, $user_ID){
+   public static function delete_student($checkbox){
         global $wpdb;
-        $user_ID = intval($user_ID);
         for( $i = 0; $i < count( $checkbox ); $i++ ) {
             $checkbox[$i] = intval($checkbox[$i]);
             // search courses where the user was registered
@@ -1853,9 +1935,27 @@ class tp_students {
                     $wpdb->query( "UPDATE " . TEACHPRESS_SIGNUP . " SET `waitinglist` = '0' WHERE `con_id` = '$con_id'" );
                 }
             }
-            $wpdb->query( "DELETE FROM " . TEACHPRESS_STUD . " WHERE `wp_id` = $checkbox[$i]" );
-            $wpdb->query( "DELETE FROM " . TEACHPRESS_SIGNUP . " WHERE `wp_id` = $checkbox[$i]" );
+            $wpdb->query( "DELETE FROM " . TEACHPRESS_SIGNUP . " WHERE `wp_id` = '$checkbox[$i]'" );
+            $wpdb->query("DELETE FROM " . TEACHPRESS_STUD_META . " WHERE `wp_id` = '$checkbox[$i]'");
+            $wpdb->query( "DELETE FROM " . TEACHPRESS_STUD . " WHERE `wp_id` = '$checkbox[$i]'" );
         }
+    }
+    
+    /**
+     * Deletes student meta
+     * @param int $wp_id
+     * @param string $meta_key
+     * @since 5.0.0
+     */
+    public static function delete_student_meta ($wp_id, $meta_key = '') {
+        global $wpdb;
+        $wp_id = intval($wp_id);
+        $meta_key = esc_sql($meta_key);
+        $where = '';
+        if ( $meta_key !== '' ) {
+            $where = "AND `meta_key` = '$meta_key'";
+        }
+        $wpdb->query("DELETE FROM " . TEACHPRESS_STUD_META . " WHERE `wp_id` = '$wp_id' $where");
     }
     
     /**
@@ -2062,20 +2162,21 @@ class tp_tags {
 
            // Add tags
            foreach($array as $element) {
-               $element = trim($element);
-               if ($element != '') {
-                   $element = htmlspecialchars($element);
-                   $check = $wpdb->get_var("SELECT `tag_id` FROM " . TEACHPRESS_TAGS . " WHERE `name` = '$element'");
-                   // if tag not exist
-                   if ( $check === NULL ){
-                       $check = tp_tags::add_tag($element);
-                   }
-                   // add releation between publication and tag
-                   $test = $wpdb->query("SELECT `pub_id` FROM " . TEACHPRESS_RELATION . " WHERE `pub_id` = '$publication' AND `tag_id` = '$check'");
-                   if ($test === 0) {
-                       tp_tags::add_tag_relation($publications[$i], $check);
-                   }
-               }	
+                $element = htmlspecialchars( trim($element) );
+                if ($element === '') {
+                   continue;
+                }
+                $check = $wpdb->get_var("SELECT `tag_id` FROM " . TEACHPRESS_TAGS . " WHERE `name` = '$element'");
+                // if tag not exist
+                if ( $check === NULL ){
+                    $check = tp_tags::add_tag($element);
+                }
+                // add releation between publication and tag
+                $test = $wpdb->query("SELECT `pub_id` FROM " . TEACHPRESS_RELATION . " WHERE `pub_id` = '$publication' AND `tag_id` = '$check'");
+                if ($test === 0) {
+                    tp_tags::add_tag_relation($publications[$i], $check);
+                }
+         	
            }  
        } 
    }
@@ -2153,16 +2254,20 @@ class tp_db_helpers {
      */
     public static function generate_where_clause($input, $column, $connector = 'AND', $operator = '=', $pattern = '') {
         $end = '';
-        if ($input != '') {
-            $array = explode(",", $input);
-            foreach ( $array as $element ) {
-                $element = esc_sql( htmlspecialchars( trim($element) ) );
-                if ( $element != '' ) {
-                    if ( $pattern != '' ) { $element = $pattern . $element . $pattern; }
-                    $end = ( $end == '' ) ? "$column $operator '$element'" : $end . " $connector $column $operator '$element'";
-                }
-            }
+        if ($input === '') {
+            return;
         }
+        
+        $array = explode(",", $input);
+        foreach ( $array as $element ) {
+            $element = esc_sql( htmlspecialchars( trim($element) ) );
+            if ( $element === '' ) {
+                continue;
+            }
+            if ( $pattern != '' ) { $element = $pattern . $element . $pattern; }
+            $end = ( $end == '' ) ? "$column $operator '$element'" : $end . " $connector $column $operator '$element'";
+        }
+        
         return $end;
     }
     
@@ -2196,51 +2301,6 @@ class tp_db_helpers {
         return $return;
     }
     
-    /**
-     * Add a new table column in database
-     * @param string $table
-     * @param string $column
-     * @param string $type
-     * @return boolean
-     * @since 5.0.0
-     */
-    public static function add_column ($table, $column, $type) {
-        global $wpdb;
-        $table = esc_sql($table);
-        $column = esc_sql($column);
-        $type = esc_sql($type);
-        // charset & collate like WordPress
-        $charset_collate = '';
-        if ( version_compare(mysql_get_server_info(), '4.1.0', '>=') && $type !== 'INT' ) {
-            $charset_collate = ( !empty($wpdb->charset) ) ? "CHARACTER SET $wpdb->charset" : "CHARACTER SET utf8";
-            if ( ! empty($wpdb->collate) ) {
-                $charset_collate .= " COLLATE $wpdb->collate";
-            }
-            else {
-                $charset_collate .= " COLLATE utf8_general_ci";
-            }
-        }
-        // Add column    
-        if ( $wpdb->query("SHOW COLUMNS FROM $table LIKE '$column'") == 0 ) { 
-            $wpdb->query("ALTER TABLE $table ADD `$column` $type $charset_collate NULL DEFAULT NULL");
-            return true;
-        }
-        return false;
-    }
-    
-    /**
-     * Delete column
-     * @param string $table
-     * @param string $column
-     * @since 5.0.0
-     * @todo This function is unused
-     */
-    function delete_column ($table, $column) {
-        global $wpdb;
-        $table = esc_sql($table);
-        $column = esc_sql($column);
-        $wpdb->query("ALTER TABLE `$table` DROP `$column`;" );
-    }
     
 }
 

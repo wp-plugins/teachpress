@@ -37,7 +37,9 @@ global $wpdb;
 define('TEACHPRESS_ARTEFACTS', $wpdb->prefix . 'teachpress_artefacts');                     // Artefacts
 define('TEACHPRESS_ASSESSMENTS', $wpdb->prefix . 'teachpress_assessments');                 // Assessments
 define('TEACHPRESS_STUD', $wpdb->prefix . 'teachpress_stud');                               // Students
+define('TEACHPRESS_STUD_META', $wpdb->prefix . 'teachpress_stud_meta');                     // Student meta data
 define('TEACHPRESS_COURSES', $wpdb->prefix . 'teachpress_courses');                         // Courses
+define('TEACHPRESS_COURSE_META', $wpdb->prefix . 'teachpress_course_meta');                 // Course meta data
 define('TEACHPRESS_COURSE_CAPABILITES', $wpdb->prefix . 'teachpress_course_capabilites');   // Course Capabilities
 define('TEACHPRESS_SIGNUP', $wpdb->prefix . 'teachpress_signup');                           // Enrollments
 define('TEACHPRESS_SETTINGS', $wpdb->prefix . 'teachpress_settings');                       // Settings
@@ -156,7 +158,7 @@ if ( !class_exists( 'PARSEENTRIES' ) ) {
  * @return string
 */
 function get_tp_version() {
-    return '5.0.0c1';
+    return '5.0.0a2';
 }
 
 /** Function for the integrated registration mode */

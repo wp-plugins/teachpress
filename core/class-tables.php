@@ -21,6 +21,7 @@ class tp_tables {
         tp_tables::add_table_courses($charset_collate);
         tp_tables::add_table_course_capabilites($charset_collate);
         tp_tables::add_table_stud($charset_collate);
+        tp_tables::add_table_stud_meta($charset_collate);
         tp_tables::add_table_signup($charset_collate);
         tp_tables::add_table_artefacts($charset_collate);
         tp_tables::add_table_assessments($charset_collate);
@@ -41,7 +42,7 @@ class tp_tables {
     public static function remove() {
         global $wpdb;
         $wpdb->query("SET FOREIGN_KEY_CHECKS=0");
-        $wpdb->query("DROP TABLE `" . TEACHPRESS_COURSES . "`, `" . TEACHPRESS_STUD . "`, `" . TEACHPRESS_SETTINGS ."`, `" . TEACHPRESS_SIGNUP ."`, `" . TEACHPRESS_PUB . "`, `" . TEACHPRESS_TAGS . "`, `" . TEACHPRESS_USER . "`, `" . TEACHPRESS_RELATION ."`, `" . TEACHPRESS_ARTEFACTS . "`, `" . TEACHPRESS_ASSESSMENTS . "`, `" . TEACHPRESS_COURSE_CAPABILITES . "`, `" . TEACHPRESS_AUTHORS . "`, `" . TEACHPRESS_REL_PUB_AUTH . "`");
+        $wpdb->query("DROP TABLE `" . TEACHPRESS_COURSES . "`, `" . TEACHPRESS_STUD . "`, `" . TEACHPRESS_STUD_META . "`, `" . TEACHPRESS_SETTINGS ."`, `" . TEACHPRESS_SIGNUP ."`, `" . TEACHPRESS_PUB . "`, `" . TEACHPRESS_TAGS . "`, `" . TEACHPRESS_USER . "`, `" . TEACHPRESS_RELATION ."`, `" . TEACHPRESS_ARTEFACTS . "`, `" . TEACHPRESS_ASSESSMENTS . "`, `" . TEACHPRESS_COURSE_CAPABILITES . "`, `" . TEACHPRESS_AUTHORS . "`, `" . TEACHPRESS_REL_PUB_AUTH . "`");
         $wpdb->query("SET FOREIGN_KEY_CHECKS=1");
     }
 
@@ -107,6 +108,30 @@ class tp_tables {
     }
     
     /**
+     * Create table teachpress_course_meta
+     * @param string $charset_collate
+     * @since 5.0.0
+     */
+    public static function add_table_course_meta($charset_collate) {
+        global $wpdb;
+        
+        if($wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_COURSE_META . "'") == TEACHPRESS_COURSE_META) {
+            return;
+        }
+        
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    
+        dbDelta("CREATE TABLE " . TEACHPRESS_COURSE_META . " (
+                    `meta_id` INT UNSIGNED AUTO_INCREMENT,
+                    `course_id` INT UNSIGNED,
+                    `meta_key` VARCHAR(255),
+                    `meta_value` TEXT,
+                    FOREIGN KEY (course_id) REFERENCES " . TEACHPRESS_COURSES . " (course_id),
+                    PRIMARY KEY (meta_id)
+                ) $charset_collate;");
+    }
+    
+    /**
      * Create table teachpress_stud
      * @param string $charset_collate
      * @since 5.0.0
@@ -122,15 +147,35 @@ class tp_tables {
     
         dbDelta("CREATE TABLE " . TEACHPRESS_STUD . " (
                     `wp_id` INT UNSIGNED,
-                    `firstname` VARCHAR(100 ,
+                    `firstname` VARCHAR(100) ,
                     `lastname` VARCHAR(100),
-                    `course_of_studies` VARCHAR(100),
                     `userlogin` VARCHAR (100),
-                    `birthday` DATE,
                     `email` VARCHAR(50),
-                    `semesternumber` INT(2),
-                    `matriculation_number` INT,
                     PRIMARY KEY (wp_id)
+                ) $charset_collate;");
+    }
+    
+    /**
+     * Create table teachpress_stud_meta
+     * @param string $charset_collate
+     * @since 5.0.0
+     */
+    public static function add_table_stud_meta($charset_collate) {
+        global $wpdb;
+        
+        if($wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_STUD_META . "'") == TEACHPRESS_STUD_META) {
+            return;
+        }
+        
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    
+        dbDelta("CREATE TABLE " . TEACHPRESS_STUD_META . " (
+                    `meta_id` INT UNSIGNED AUTO_INCREMENT,
+                    `wp_id` INT UNSIGNED,
+                    `meta_key` VARCHAR(255),
+                    `meta_value` TEXT,
+                    FOREIGN KEY (wp_id) REFERENCES " . TEACHPRESS_STUD . " (wp_id),
+                    PRIMARY KEY (meta_id)
                 ) $charset_collate;");
     }
     
