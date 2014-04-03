@@ -5,6 +5,7 @@
  */
 
 /**
+ * This class contains all special functions for the shortcode [tpenrollments]
  * @since 5.0.0
  */
 class tp_enrollments {
@@ -25,7 +26,7 @@ class tp_enrollments {
                 $parent = tp_courses::get_course_data($row->parent, 'name');
                 $row->name = ( $row->name != $parent ) ? $parent . ' ' . $row->name : $row->name;
             }
-            $code = tp_add_signup($checkbox[$n], $user_id);
+            $code = tp_enrollments::add_signup($checkbox[$n], $user_id);
             tp_enrollments::send_notification($code, $user_id, $row->name);
             $message = tp_enrollments::get_signup_message($code);
             if ($code === 201) { $class = 'teachpress_message_success'; }
@@ -36,23 +37,93 @@ class tp_enrollments {
         
     }
     
+    /** 
+     * Add signup (= subscribe student in a course)
+     * @param int $checkbox     course_ID
+     * @param int $wp_id        user_ID
+     * @return int      This function returns a status code. This means:
+     *                  code 0    --> ERROR: course_ID was 0
+     *                  code 101  --> user is already registered
+     *                  code 102  --> user is already registered in waitinglist
+     *                  code 103  --> user is already registered for an other course of the course group
+     *                  code 104  --> no free places availablea
+     *                  code 201  --> registration was successful
+     *                  code 202  --> registration was successful for waitinglist
+     * @since 5.0.0
+     * @access private
+    */
+    private static function add_signup($checkbox, $wp_id){
+       global $wpdb;
+       $checkbox = intval($checkbox);
+       $wp_id = intval($wp_id);
+       if ( $checkbox == 0 ) {
+            return 0;
+       }
+       // Start transaction
+       $wpdb->query("SET AUTOCOMMIT=0");
+       $wpdb->query("START TRANSACTION");
+       // Check if the user is already registered
+       $check = $wpdb->get_var("SELECT `waitinglist` FROM " . TEACHPRESS_SIGNUP . " WHERE `course_id` = '$checkbox' and `wp_id` = '$wp_id'");
+       if ( $check != NULL && $check == '0' ) {
+            $wpdb->query("ROLLBACK");
+            return 101;
+       } 
+       if ( $check != NULL && $check == '1' ) {
+            $wpdb->query("ROLLBACK");
+            return 102;
+       }
+       // Check if there is a strict signup
+       $row1 = $wpdb->get_row("SELECT `places`, `waitinglist`, `parent` FROM " . TEACHPRESS_COURSES . " WHERE `course_id` = '$checkbox'");
+       if ( $row1->parent != 0 ) {
+            $check = tp_courses::get_course_data($row1->parent, 'strict_signup');
+            if ( $check != 0 ) {
+                 $check2 = $wpdb->query("SELECT c.course_id FROM " . TEACHPRESS_COURSES . " c INNER JOIN " . TEACHPRESS_SIGNUP . " s ON s.course_id = c.course_id WHERE c.parent = '$row1->parent' AND s.wp_id = '$wp_id' AND s.waitinglist = '0'");
+                 if ( $check2 != NULL ) {
+                     $wpdb->query("ROLLBACK");
+                     return 103;
+                 }
+            }
+       }
+       // Check if there are free places available
+       $used_places = $wpdb->query("SELECT `course_id` FROM " . TEACHPRESS_SIGNUP . " WHERE `course_id` = '$checkbox' AND `waitinglist` = 0");
+       if ($used_places < $row1->places ) {
+            // Subscribe
+            $wpdb->query("INSERT INTO " . TEACHPRESS_SIGNUP . " (`course_id`, `wp_id`, `waitinglist`, `date`) VALUES ('$checkbox', '$wp_id', '0', NOW() )");
+            $wpdb->query("COMMIT");
+            return 201;
+       }
+       else {
+            // if there is a waiting list available
+            if ($row1->waitinglist == '1') {
+                  $wpdb->query( "INSERT INTO " . TEACHPRESS_SIGNUP . " (course_id, wp_id, waitinglist, date) VALUES ('$checkbox', '$wp_id', '1', NOW() )" );
+                  $wpdb->query("COMMIT");
+                  return 202;
+            }
+            else {
+                $wpdb->query("ROLLBACK");
+                return 104;
+            }
+       }
+    }
+    
     /**
      * Add student
-     * @param int $user_id
+     * @param int $user_ID
      * @param string $user_login
      * @param string $user_email
      * @return string
      * @since 5.0.0
      */
-    public static function add_student ($user_id, $user_login, $user_email) {
+    public static function add_student ($user_ID, $user_login, $user_email, $fields, $post) {
         $data = array(
-         'firstname' => isset($_POST['firstname']) ? htmlspecialchars($_POST['firstname']) : '',
-         'lastname' => isset($_POST['lastname']) ? htmlspecialchars($_POST['lastname']) : '',
+         'firstname' => isset($post['firstname']) ? htmlspecialchars($post['firstname']) : '',
+         'lastname' => isset($post['lastname']) ? htmlspecialchars($post['lastname']) : '',
          'userlogin' => $user_login,
          'email' => $user_email
         );
-        $ret = tp_students::add_student($user_id, $data);
+        $ret = tp_students::add_student($user_ID, $data);
         if ($ret !== false) {
+            tp_enrollments::add_student_meta( $user_ID, $fields, $post );
             return '<div class="teachpress_message_success"><strong>' . __('Registration successful','teachpress') . '</strong></div>';
         }
         else {
@@ -60,8 +131,34 @@ class tp_enrollments {
         }
         
     }
+    
+    /**
+     * Add student meta
+     * @param int $user_id
+     * @param array $fields
+     * @param array $post
+     * @since 5.0.0
+     */
+    public static function add_student_meta ($user_id, $fields, $post) {
+        foreach ($fields as $row) {
+            if ( !isset( $post[$row['variable']] ) && !isset( $post[$row['variable'] . '_day'] ) ) {
+                continue;
+            }
+            
+            $column_info = tp_db_helpers::extract_column_data($row['value']);
+            if ( $column_info['type'] === 'DATE' ) {
+                $day = intval( $post[$row['variable'] . '_day'] );
+                $day2 = ( $day < 10 ) ? '0' . $day : $day;
+                $value = $post[$row['variable'] . '_year'] . '-' . $post[$row['variable'] . '_month'] . '-' . $day2;
+            }
+            else {
+                $value = $post[$row['variable']];
+            }
+            tp_students::add_student_meta( $user_id, $row['variable'], htmlspecialchars($value) );
+        }
+    }
 
-        /**
+    /**
      * Get registration message
      * @param int $code
      * @return boolean 
@@ -86,6 +183,38 @@ class tp_enrollments {
         default:
             return false;
         }
+    }
+    
+    /** 
+     * Unsubscribe a student from a course
+     * @param array $checkbox   An array with the registration IDs
+     * @return string
+     * @since 5.0.0
+    */
+    public static function delete_signup($checkbox) {
+        global $wpdb;
+        for( $i = 0; $i < count( $checkbox ); $i++ ) {
+            $checkbox[$i] = intval($checkbox[$i]);
+            // Select course ID
+            $sql = "SELECT `course_id`, `waitinglist` FROM " . TEACHPRESS_SIGNUP . " WHERE `con_id` = '$checkbox[$i]'";
+            $course = $wpdb->get_row($sql);
+            // Start transaction
+            $wpdb->query("SET AUTOCOMMIT=0");
+            $wpdb->query("START TRANSACTION");
+            // check if there are users in the waiting list
+            if ( $course->waitinglist == 0 ) {
+                $sql = "SELECT `con_id` FROM " . TEACHPRESS_SIGNUP . " WHERE `course_id` = '$course->course_id' AND `waitinglist` = '1' ORDER BY `con_id` ASC LIMIT 0, 1";
+                $con_id = $wpdb->get_var($sql);
+                // if is true subscribe the first one in the waiting list for the course
+                if ($con_id != 0 && $con_id != '') {
+                    $wpdb->query( "UPDATE " . TEACHPRESS_SIGNUP . " SET `waitinglist` = '0' WHERE `con_id` = '$con_id'" );
+                }
+            }
+            $wpdb->query("DELETE FROM " . TEACHPRESS_SIGNUP . " WHERE `con_id` = '$checkbox[$i]'");
+            // End transaction
+            $wpdb->query("COMMIT");
+        }	
+        return '<div class="teachpress_message_success">' . __('You are signed out successful','teachpress') . '</div>';
     }
     
     /**
@@ -149,6 +278,40 @@ class tp_enrollments {
     }
     
     /**
+     * Returns date select fields for user form
+     * @param string $field_name    name/id of the field
+     * @param string $label         label for the field
+     * @param string $value         value for the field
+     * @return string
+     * @since 5.0.0
+     */
+    public static function get_form_date_field ($field_name, $label, $value) {
+        if ( $value != '' ) {
+            $b = tp_datesplit($value);
+        }
+        $day = ( $value != '' ) ? $b[0][2] : '01';
+        $month = ( $value != '' ) ? $b[0][1] : '01';
+        $year = ( $value != '' ) ? $b[0][0] : '19xx';
+        $months = array ( __('Jan','teachpress'), __('Feb','teachpress'), __('Mar','teachpress'), __('Apr','teachpress'), __('May','teachpress'), __('Jun','teachpress'), __('Jul','teachpress'), __('Aug','teachpress'), __('Sep','teachpress'), __('Oct','teachpress'), __('Nov','teachpress'), __('Dec','teachpress') );
+        $return = '';
+        $return .= '<tr>';
+        $return .= '<td><b>' . $label . '</b></td>';
+        $return .= '<td>';
+        $return .= '<input name="' . $field_name . '_day" id="' . $field_name . '_day" type="text" title="Day" size="2" value="' . $day . '"/>';
+        $return .= '<select name="' . $field_name . '_month" id="' . $field_name . '_month" title="' . __('Month','teachpress') . '">';
+        for ( $i = 1; $i <= 12; $i++ ) {
+            $m = ( $i < 10 ) ? '0' . $i : $i;
+            $selected = ($month == $m) ? 'selected="selected"' : '';
+            $return .= '<option value="' . $m . '" ' . $selected . '>' . $months[$i-1] . '</option>';
+        }
+        $return .= '</select>';
+        $return .= '<input name="' . $field_name . '_year" id="' . $field_name . '_year" type="text" title="' . __('Year','teachpress') . '" size="4" value="' . $year . '"/>';
+        $return .= '</td>';
+        $return .= '</tr>';
+        return $return;
+    }
+    
+    /**
      * Returns the main menu for enrollments
      * @param string $tab
      * @param object $user
@@ -181,7 +344,7 @@ class tp_enrollments {
         $tab3 = ( $tab === 'data' ) ? '<span class="teachpress_active_tab">' . __('Your data','teachpress') . '</span>' : '<a href="' . $url["link"] . 'data">' . __('Your data','teachpress') . '</a>';
         
         $rtn = '<div class="tp_user_menu">
-                   <h4>' . __('Hello','teachpress') . ', ' . stripslashes($user->firstname) . ' ' . stripslashes($user->lastname) . '</h4>'
+                   <h4>' . __('Hello','teachpress') . ', ' . stripslashes($user['firstname']) . ' ' . stripslashes($user['lastname']) . '</h4>'
                 . '<p>' . $tab1 . ' | ' . $tab2 . ' | ' . $tab3 . '</p></div>'; 
         return $rtn;
     }
@@ -259,6 +422,130 @@ class tp_enrollments {
     }
     
     /**
+     * Returns the enrollment tab
+     * @param string $sem
+     * @param string $user_exists
+     * @return string
+     * @since 5.0.0
+     */
+    public static function get_enrollments_tab($sem, $user_exists) {
+        global $wpdb;
+        $rtn = '';
+        // Select all courses where enrollments in the current term are available
+        $row = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_COURSES . " WHERE `semester` = '$sem' AND `parent` = '0' AND (`visible` = '1' OR `visible` = '2') ORDER BY `type` DESC, `name`");
+        foreach( $row as $row ) {
+            $rtn .= tp_enrollments::load_course_entry($row, $user_exists);	
+        }	
+        if (is_user_logged_in() && $user_exists != '') {
+            $rtn .= '<input name="einschreiben" type="submit" value="' . __('Sign up','teachpress') . '" />';
+        }
+        return $rtn;
+    }
+    
+    /**
+     * Returns a table with a course and his sub courses for enrollments tab
+     * @param object $row
+     * @param string $user_exists
+     * @return string
+     * @since 5.0.0
+     * @access private
+     */
+    private static function load_course_entry ($row, $user_exists) {
+        global $wpdb;
+        
+        $course_name = ( $row->rel_page != 0 ) ? '<a href="' . get_permalink($row->rel_page) . '">' . stripslashes($row->name) . '</a>' : stripslashes($row->name);
+
+        // load all childs
+        $childs = $wpdb->get_results("Select * FROM " . TEACHPRESS_COURSES . " WHERE `parent` = '$row->course_id' AND (`visible` = '1' OR `visible` = '2') AND (`start` != '0000-00-00 00:00:00') ORDER BY `name`");
+        
+        // leave the function if there is nothing to show
+        if ( $row->start == '0000-00-00 00:00:00' && count($childs) === 0 ) {
+            return;
+        }
+        
+        // build course string
+        $rtn = '<div class="teachpress_course_group">';
+        $rtn .= '<div class="teachpress_course_name">' . $course_name . '</div>';
+        $rtn .= '<table class="teachpress_enr" width="100%" border="0">';
+        $rtn .= tp_enrollments::create_course_entry($row, $user_exists);
+        foreach ( $childs as $child ) {
+            $rtn .= tp_enrollments::create_course_entry($child, $user_exists, $row->name);
+        }
+        $rtn .= '</table>';
+        $rtn .= '</div>';
+        return $rtn;
+    }
+
+    /**
+     * Returns a single course entry for the function load_course_entry()
+     * @param object $row
+     * @param string $user_exists
+     * @param string $parent_name
+     * @return string
+     * @since 5.0.0
+     * @access private
+     */
+    private static function create_course_entry ($row, $user_exists, $parent_name = '') {
+        
+        // define some course variables
+        $date1 = $row->start;
+        $date2 = $row->end;
+        $free_places = tp_courses::get_free_places($row->course_id, $row->places);
+        if ( $free_places < 0 ) {
+            $free_places = 0;
+        }
+        
+        // Overwrite child name
+        if ($parent_name == $row->name) {
+            $row->name = $row->type;
+        }
+        
+        // checkbox
+        $checkbox = '&nbsp;';
+        $checkbox_label = stripslashes($row->type);
+        if (is_user_logged_in() && $user_exists != '') {
+            if ($date1 != '0000-00-00 00:00:00' && current_time('mysql') >= $date1 && current_time('mysql') <= $date2) {
+               $checkbox = '<input type="checkbox" name="checkbox[]" value="' . $row->course_id . '" title="' . stripslashes($row->name) . ' ' . __('Select','teachpress') . '" id="checkbox_' . $row->course_id . '"/>';
+               $checkbox_label = '<label for="checkbox_' . $row->course_id . '" style="line-height:normal;">' . stripslashes($row->type) . '</label>';
+            } 
+        }
+        
+        // display configs
+        $display_free_places = ( $date1 != '0000-00-00 00:00:00' ) ? $free_places . ' ' . __('of','teachpress') . ' ' .  $row->places : '&nbsp;';
+        $waitinglist_info = ( $row->waitinglist == 1 && $free_places == 0 ) ? __('Possible to subscribe in the waiting list','teachpress') : '&nbsp;';
+        $registration_period = ($date1 != '0000-00-00 00:00:00') ? __('Registration period','teachpress') . ': ' . substr($row->start,0,strlen($row->start)-3) . ' ' . __('to','teachpress') . ' ' . substr($row->end,0,strlen($row->end)-3) : '&nbsp;';
+        $additional_info = ( $parent_name != '' ) ? stripslashes(nl2br($row2->comment)) . ' ' : '';
+        
+        // Row 1
+        $rtn = '<tr>';
+        $rtn .= '<td rowspan="3" width="25" style="border-bottom:1px solid silver; border-collapse: collapse;">' . $checkbox . '</td>';
+        $rtn .= '<td colspan="2">&nbsp;</td>';
+        $rtn .= '<td align="center"><strong>' . __('Date(s)','teachpress') . '</strong></td>';
+        $rtn .= '<td align="center">';
+        if ($date1 != '0000-00-00 00:00:00') {
+            $rtn .= '<strong>' . __('free places','teachpress') . '</strong>';
+        }
+        $rtn .= '</td>';
+        $rtn .= '</tr>';
+        
+        // Row 2
+        $rtn .= '<tr>';
+        $rtn .= '<td width="20%" style="font-weight:bold;">' . $checkbox_label . '</td>';
+        $rtn .= '<td width="20%">' . stripslashes($row->lecturer) . '</td>';
+        $rtn .= '<td align="center">' . stripslashes($row->date) . ' ' . stripslashes($row->room) . '</td>';
+        $rtn .= '<td align="center">' . $display_free_places . '</td>';
+        $rtn .= '</tr>';
+        
+        // Row 3
+        $rtn .= '<tr>';
+        $rtn .= '<td colspan="3" style="border-bottom:1px solid silver; border-collapse: collapse;" class="waitinglist">' . $additional_info . $waitinglist_info . '</td>';
+        $rtn .= '<td style="border-bottom:1px solid silver; border-collapse: collapse;" align="center" class="einschreibefrist">' . $registration_period . '</td>';
+        $rtn .= '</tr>';
+        
+        return $rtn;
+    }
+    
+    /**
      * Send email notification
      * @param int $code
      * @param int $wp_id
@@ -286,104 +573,6 @@ class tp_enrollments {
     
 }
 
-/** 
- * Add signup (= subscribe student in a course)
- * @param int $checkbox     --> course_ID
- * @param int $wp_id        --> user_ID
- * @return int (teachPress status code)
- *   code 0    --> course_ID was 0,
- *   code 101  --> user is already registered,
- *   code 102  --> user is already registered in waitinglist,
- *   code 103  --> user is already registered for an other course of the course group,
- *   code 104  --> no free places availablea,
- *   code 201  --> registration was successful,
- *   code 202  --> registration was successful for waitinglist,
-*/
-function tp_add_signup($checkbox, $wp_id){
-   global $wpdb;
-   $checkbox = intval($checkbox);
-   $wp_id = intval($wp_id);
-   if ( $checkbox == 0 ) {
-        return 0;
-   }
-   // Start transaction
-   $wpdb->query("SET AUTOCOMMIT=0");
-   $wpdb->query("START TRANSACTION");
-   // Check if the user is already registered
-   $check = $wpdb->get_var("SELECT `waitinglist` FROM " . TEACHPRESS_SIGNUP . " WHERE `course_id` = '$checkbox' and `wp_id` = '$wp_id'");
-   if ( $check != NULL && $check == '0' ) {
-        $wpdb->query("ROLLBACK");
-        return 101;
-   } 
-   if ( $check != NULL && $check == '1' ) {
-        $wpdb->query("ROLLBACK");
-        return 102;
-   }
-   // Check if there is a strict signup
-   $row1 = $wpdb->get_row("SELECT `places`, `waitinglist`, `parent` FROM " . TEACHPRESS_COURSES . " WHERE `course_id` = '$checkbox'");
-   if ( $row1->parent != 0 ) {
-        $check = tp_courses::get_course_data($row1->parent, 'strict_signup');
-        if ( $check != 0 ) {
-             $check2 = $wpdb->query("SELECT c.course_id FROM " . TEACHPRESS_COURSES . " c INNER JOIN " . TEACHPRESS_SIGNUP . " s ON s.course_id = c.course_id WHERE c.parent = '$row1->parent' AND s.wp_id = '$wp_id' AND s.waitinglist = '0'");
-             if ( $check2 != NULL ) {
-                 $wpdb->query("ROLLBACK");
-                 return 103;
-             }
-        }
-   }
-   // Check if there are free places available
-   $used_places = $wpdb->query("SELECT `course_id` FROM " . TEACHPRESS_SIGNUP . " WHERE `course_id` = '$checkbox' AND `waitinglist` = 0");
-   if ($used_places < $row1->places ) {
-        // Subscribe
-        $wpdb->query("INSERT INTO " . TEACHPRESS_SIGNUP . " (`course_id`, `wp_id`, `waitinglist`, `date`) VALUES ('$checkbox', '$wp_id', '0', NOW() )");
-        $wpdb->query("COMMIT");
-        return 201;
-   }
-   else {
-        // if there is a waiting list available
-        if ($row1->waitinglist == '1') {
-              $wpdb->query( "INSERT INTO " . TEACHPRESS_SIGNUP . " (course_id, wp_id, waitinglist, date) VALUES ('$checkbox', '$wp_id', '1', NOW() )" );
-              $wpdb->query("COMMIT");
-              return 202;
-        }
-        else {
-            $wpdb->query("ROLLBACK");
-            return 104;
-        }
-   }
-}
-
-/** 
- * Unsubscribe a student (frontend function)
- * @param array $checkbox   --> An array with the registration IDs
- * @return string
-*/
-function tp_delete_signup_student($checkbox) {
-    global $wpdb;
-    for( $i = 0; $i < count( $checkbox ); $i++ ) {
-        $checkbox[$i] = intval($checkbox[$i]);
-        // Select course ID
-        $sql = "SELECT `course_id`, `waitinglist` FROM " . TEACHPRESS_SIGNUP . " WHERE `con_id` = '$checkbox[$i]'";
-        $course = $wpdb->get_row($sql);
-        // Start transaction
-        $wpdb->query("SET AUTOCOMMIT=0");
-        $wpdb->query("START TRANSACTION");
-        // check if there are users in the waiting list
-        if ( $course->waitinglist == 0 ) {
-            $sql = "SELECT `con_id` FROM " . TEACHPRESS_SIGNUP . " WHERE `course_id` = '$course->course_id' AND `waitinglist` = '1' ORDER BY `con_id` ASC LIMIT 0, 1";
-            $con_id = $wpdb->get_var($sql);
-            // if is true subscribe the first one in the waiting list for the course
-            if ($con_id != 0 && $con_id != '') {
-                $wpdb->query( "UPDATE " . TEACHPRESS_SIGNUP . " SET `waitinglist` = '0' WHERE `con_id` = '$con_id'" );
-            }
-        }
-        $wpdb->query("DELETE FROM $" . TEACHPRESS_SIGNUP . " WHERE `con_id` = '$checkbox[$i]'");
-        // End transaction
-        $wpdb->query("COMMIT");
-    }	
-    return '<div class="teachpress_message_success">' . __('You are signed out successful','teachpress') . '</div>';
-}
-
 /**
  * The form for user registrations
  * @param int $user_ID
@@ -392,7 +581,7 @@ function tp_delete_signup_student($checkbox) {
  * @since 4.0.0
  */
 function tp_registration_form ($user_ID, $mode = 'register') {
-    $user = ( $mode !== 'register' ) ? tp_students::get_student($user_ID, ARRAY_A) : '';
+    $user = ( $mode !== 'register' ) ? tp_students::get_student($user_ID) : '';
     $user_meta = ( $mode !== 'register' ) ? tp_students::get_student_meta($user_ID) : '';
     $fields = get_tp_options('teachpress_stud','`setting_id` ASC', ARRAY_A);
     
@@ -439,6 +628,9 @@ function tp_registration_form ($user_ID, $mode = 'register') {
         elseif ( $data['type'] === 'TEXTAREA' ) {
             $rtn .= tp_enrollments::get_form_textarea_field($row['variable'], $data['title'], $value);
         }
+        elseif ( $data['type'] === 'DATE' ) {
+            $rtn .= tp_enrollments::get_form_date_field($row['variable'], $data['title'], $value);
+        }
         else {
             $rtn .= tp_enrollments::get_form_text_field($row['variable'], $data['title'], $value);
         }
@@ -479,10 +671,9 @@ function tp_enrollments_shortcode($atts) {
     // teachPress
     $is_sign_out = get_tp_option('sign_out');
     $sem = ( $term != '' ) ? $term : get_tp_option('sem');
+    $fields = get_tp_options('teachpress_stud','`setting_id` ASC', ARRAY_A);
 
-    // Form
-    $wp_id = $user_ID;
-   
+    // Form   
     $checkbox = ( isset($_POST['checkbox']) ) ? $_POST['checkbox'] : '';
     $checkbox2 = ( isset($_POST['checkbox2']) ) ? $_POST['checkbox2'] : '';
     $tab = ( isset($_GET['tab']) ) ? $_GET['tab'] : '';
@@ -496,25 +687,26 @@ function tp_enrollments_shortcode($atts) {
     // change user
     if ( isset( $_POST['tp_change_user'] ) ) {
         $data2 = array( 
-          'matriculation_number' => isset($_POST['matriculation_number']) ? intval($_POST['matriculation_number']) : '',
           'firstname' => isset($_POST['firstname']) ? htmlspecialchars($_POST['firstname']) : '',
           'lastname' => isset($_POST['lastname']) ? htmlspecialchars($_POST['lastname']) : '',
           'userlogin' => htmlspecialchars($_POST['userlogin']),
           'email' => htmlspecialchars($_POST['email'])
-        );    
-        $rtn .= tp_students::change_student($wp_id, $data2, 0);
+        );
+        tp_students::delete_student_meta($user_ID);
+        $rtn .= tp_students::change_student($user_ID, $data2, true);
+        tp_enrollments::add_student_meta( $user_ID, $fields, filter_input_array(INPUT_POST, $_POST) );
     }
     // delete signup
     if ( isset( $_POST['austragen'] ) && $checkbox2 != '' ) {
-        $rtn .= tp_delete_signup_student($checkbox2);
+        $rtn .= tp_enrollments::delete_signup($checkbox2);
     }
     // add signups
     if ( isset( $_POST['einschreiben'] ) && $checkbox != '' ) {
-        $rtn .= tp_enrollments::add_signups($user_id, $checkbox);
+        $rtn .= tp_enrollments::add_signups($user_ID, $checkbox);
     }
     // add new user
     if ( isset( $_POST['tp_add_user'] ) ) {
-        $rtn .= tp_enrollments::add_student($user_ID, $user_login, $user_email);
+        $rtn .= tp_enrollments::add_student( $user_ID, $user_login, $user_email, $fields, filter_input_array(INPUT_POST, $_POST) );
     } 
 
     /*
@@ -548,154 +740,11 @@ function tp_enrollments_shortcode($atts) {
     * Enrollments
    */
    if ($tab === '' || $tab === 'current') {
-      // Select all courses where enrollments in the current term are available
-      $row = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_COURSES . " WHERE `semester` = '$sem' AND `parent` = '0' AND (`visible` = '1' OR `visible` = '2') ORDER BY `type` DESC, `name`");
-      foreach($row as $row) {
-         // load all childs
-         $row2 = $wpdb->get_results("Select * FROM " . TEACHPRESS_COURSES . " WHERE `parent` = '$row->course_id' AND (`visible` = '1' OR `visible` = '2') AND (`start` != '0000-00-00 00:00:00') ORDER BY `name`");
-         // test if a child has an enrollment
-         $test = false;
-         $free_places = 0;
-         foreach ( $row2 as $childs ) {
-            if ( $childs->start != '0000-00-00 00:00:00' ) {
-               $test = true;
-            }	
-         }
-         if ( $row->start != '0000-00-00 00:00:00' || $test == true ) {
-            // define some course variables
-            $date1 = $row->start;
-            $date2 = $row->end;
-            $free_places = tp_courses::get_free_places($row->course_id, $row->places);
-            if ( $free_places < 0 ) {
-                $free_places = 0;
-            }
-            if ($row->rel_page != 0) {
-               $course_name = '<a href="' . get_permalink($row->rel_page) . '">' . stripslashes($row->name) . '</a>';
-            }
-            else {
-               $course_name = '' . stripslashes($row->name) . '';
-            }
-            // build course string
-            $rtn = $rtn . '<div class="teachpress_course_group">
-                           <div class="teachpress_course_name">' . $course_name . '</div>
-                           <table class="teachpress_enr" width="100%" border="0" cellpadding="1" cellspacing="0">
-                           <tr>
-                           <td rowspan="3" width="25" style="border-bottom:1px solid silver; border-collapse: collapse;">';
-            if (is_user_logged_in() && $user_exists != '') {
-               if ($date1 != '0000-00-00 00:00:00' && current_time('mysql') >= $date1 && current_time('mysql') <= $date2) {
-                  $rtn = $rtn . '<input type="checkbox" name="checkbox[]" value="' . $row->course_id . '" title="' . stripslashes($row->name) . ' ' . __('Select','teachpress') . '" id="checkbox_' . $row->course_id . '"/>';
-               } 
-            }
-            else {
-               $rtn = $rtn . '&nbsp;';
-            }	
-            $rtn = $rtn . '</td>
-                           <td colspan="2">&nbsp;</td>
-                           <td align="center"><strong>' . __('Date(s)','teachpress') . '</strong></td>
-                           <td align="center">';
-            if ($date1 != '0000-00-00 00:00:00') {
-               $rtn = $rtn . '<strong>' . __('free places','teachpress') . '</strong>';
-            }
-            $rtn = $rtn . '</td>
-                        </tr>
-                        <tr>
-                         <td width="20%" style="font-weight:bold;">';
-            if ($date1 != '0000-00-00 00:00:00' && current_time('mysql') >= $date1 && current_time('mysql') <= $date2) {
-               $rtn = $rtn . '<label for="checkbox_' . $row->course_id . '" style="line-height:normal;">';
-            }
-            $rtn = $rtn . stripslashes($row->type);
-            if ($date1 != '0000-00-00 00:00:00' && current_time('mysql') >= $date1 && current_time('mysql') <= $date2) {
-               $rtn = $rtn . '</label>';
-            }
-            $rtn = $rtn . '</td>
-                           <td width="20%">' . stripslashes($row->lecturer) . '</td>
-                           <td align="center">' . stripslashes($row->date) . ' ' . stripslashes($row->room) . '</td>
-                           <td align="center">';
-            if ($date1 != '0000-00-00 00:00:00') { 
-               $rtn = $rtn . $free_places . ' ' . __('of','teachpress') . ' ' .  $row->places;
-            }
-            $rtn = $rtn . '</td>
-                         </tr>
-                         <tr>
-                         <td colspan="3" style="border-bottom:1px solid silver; border-collapse: collapse;" class="waitinglist">';
-            if ($row->waitinglist == 1 && $free_places == 0) {
-               $rtn = $rtn . __('Possible to subscribe in the waiting list','teachpress'); 
-            }
-            else {
-               $rtn = $rtn . '&nbsp;';
-            }
-            $rtn = $rtn . '</td>
-                         <td style="border-bottom:1px solid silver; border-collapse: collapse;" align="center" class="einschreibefrist">';
-            if ($date1 != '0000-00-00 00:00:00') {
-               $rtn = $rtn . __('Registration period','teachpress') . ': ' . substr($row->start,0,strlen($row->start)-3) . ' ' . __('to','teachpress') . ' ' . substr($row->end,0,strlen($row->end)-3);
-            }
-            $rtn = $rtn . '</td>
-                          </tr>';
-            // search childs
-            foreach ($row2 as $row2) {
-               $date3 = $row2->start;
-               $date4 = $row2->end;
-               $free_places = tp_courses::get_free_places($row2->course_id, $row2->places);
-               if ( $free_places < 0 ) {
-                   $free_places = 0;
-               }
-               if ($row->name == $row2->name) {
-                   $row2->name = $row2->type;
-               }
-               $rtn = $rtn . '<tr>
-                              <td rowspan="3" width="25" style="border-bottom:1px solid silver; border-collapse: collapse; vertical-align:middle">';
-               if (is_user_logged_in() && $user_exists != '') {
-                  if ($date3 != '0000-00-00 00:00:00' && current_time('mysql') >= $date3 && current_time('mysql') <= $date4) {
-                     $rtn = $rtn . '<input type="checkbox" name="checkbox[]" value="' . $row2->course_id . '" title="' . stripslashes($row2->name) . ' ausw&auml;hlen" id="checkbox_' . $row2->course_id . '"/>';
-                  }
-               }
-               $rtn = $rtn . '</td>
-                              <td colspan="2">&nbsp;</td>
-                              <td align="center"><strong>' . __('Date(s)','teachpress') . '</strong></td>
-                              <td align="center"><strong>' . __('free places','teachpress') . '</strong></td>
-                             </tr>
-                             <tr>
-                              <td width="20%" style="font-weight:bold;">';
-               if ($date3 != '0000-00-00 00:00:00' && current_time('mysql') >= $date3 && current_time('mysql') <= $date4) {
-                  $rtn = $rtn . '<label for="checkbox_' . $row2->course_id . '" style="line-height:normal;">';
-               }
-               $rtn = $rtn . $row2->name;
-               if ($date3 != '0000-00-00 00:00:00' && current_time('mysql') >= $date3 && current_time('mysql') <= $date4) {
-                  $rtn = $rtn . '</label>';
-               }
-               $rtn = $rtn . '</td>
-                              <td width="20%">' . stripslashes($row2->lecturer) . '</td>
-                              <td align="center">' . stripslashes($row2->date) . ' ' . stripslashes($row2->room) . '</td>
-                              <td align="center">' . $free_places . ' ' . __('of','teachpress') . ' ' . $row2->places . '</td>
-                             </tr>
-                             <tr>
-                              <td colspan="3" style="border-bottom:1px solid silver; border-collapse: collapse;" class="waitinglist">';
-               $rtn = $rtn . stripslashes(nl2br($row2->comment)) . ' ';
-               if ($row2->waitinglist == 1 && $free_places == 0) {
-                  $rtn = $rtn . __('Possible to subscribe in the waiting list','teachpress');
-               } 
-               else {
-                  $rtn = $rtn . '&nbsp;';
-               }
-               $rtn = $rtn . '</td>
-                              <td align="center" class="einschreibefrist" style="border-bottom:1px solid silver; border-collapse: collapse;">';
-               if ($date3 != '0000-00-00 00:00:00') {
-                  $rtn = $rtn . __('Registration period','teachpress') . ': ' . substr($row2->start,0,strlen($row2->start)-3) . ' ' . __('to','teachpress') . ' ' . substr($row2->end,0,strlen($row2->end)-3);
-               }
-               $rtn = $rtn . '</td>
-                        </tr>'; 
-            } 
-            // End (search for childs)
-            $rtn = $rtn . '</table>
-                     </div>';
-         }				
-      }	
-      if (is_user_logged_in() && $user_exists != '') {
-         $rtn = $rtn . '<input name="einschreiben" type="submit" value="' . __('Sign up','teachpress') . '" />';
-      }
+       $rtn .= tp_enrollments::get_enrollments_tab($sem, $user_exists);
    }
-   $rtn = $rtn . '</form>
-            </div>';
+   $rtn .= '</form>';
+   $rtn .= '</div>';
+   
    return $rtn;
 }
 ?>

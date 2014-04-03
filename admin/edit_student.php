@@ -38,7 +38,7 @@ function teachpress_show_student_page() {
    <input name="search" type="hidden" value="<?php echo $search; ?>" />
    <input name="limit" type="hidden" value="<?php echo $entry_limit; ?>" />
    <?php
-      $row3 = tp_students::get_student($student, ARRAY_A);
+      $row3 = tp_students::get_student($student);
       $row4 = tp_students::get_student_meta($student);
    ?>
     <h2 style="padding-top:0px;"><?php echo stripslashes($row3['firstname']); ?> <?php echo stripslashes($row3['lastname']); ?> <span class="tp_break">|</span> <small><a href="<?php echo 'admin.php?page=teachpress/students.php&amp;student_ID=' . $student . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $entry_limit . '&amp;action=edit'; ?>" id="daten_aendern"><?php _e('Edit','teachpress'); ?> </a></small></h2>
@@ -165,7 +165,7 @@ function teachpress_show_student_page() {
  * Edit student UI
  */
 function teachpress_edit_student_page() {
-    $student_ID = intval($_GET['student_ID']);
+    $user_ID = intval($_GET['student_ID']);
     $students_group = htmlspecialchars($_GET['students_group']);
     $search = htmlspecialchars($_GET['search']);
     $entry_limit = intval($_GET['limit']);
@@ -173,7 +173,7 @@ function teachpress_edit_student_page() {
     
     if ( isset($_POST['tp_change_user'] ) ) {
         // delete old meta data
-        tp_students::delete_student_meta($student_ID);
+        tp_students::delete_student_meta($user_ID);
         
         $data = array (
             'firstname' => htmlspecialchars($_POST['firstname']),
@@ -181,19 +181,15 @@ function teachpress_edit_student_page() {
             'userlogin' => htmlspecialchars($_POST['userlogin']),
             'email' => htmlspecialchars($_POST['email'])
         );
-        foreach ($fields as $row) {
-            if ( isset( $_POST[$row['variable']] ) && $_POST[$row['variable']] !== '' ) {
-                tp_students::add_student_meta($student_ID, $row['variable'], $_POST[$row['variable']]);
-            }
-        }
-        tp_students::change_student($student_ID, $data, false);
+        tp_enrollments::add_student_meta($user_ID, $fields, filter_input_array(INPUT_POST, $_POST));
+        tp_students::change_student($user_ID, $data, false);
         get_tp_message( __('Saved') );
     }
     
     echo '<div class="wrap">';
-    echo '<p><a href="admin.php?page=teachpress/students.php&amp;student_ID=' . $student_ID . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $entry_limit . '&amp;action=show" class="button-secondary" title="' . __('Back','teachpress') . '">&larr; ' . __('Back','teachpress') . ' </a></p>';
+    echo '<p><a href="admin.php?page=teachpress/students.php&amp;student_ID=' . $user_ID . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $entry_limit . '&amp;action=show" class="button-secondary" title="' . __('Back','teachpress') . '">&larr; ' . __('Back','teachpress') . ' </a></p>';
     echo '<h2>' . __('Edit Student','teachpress') . '</h2>';
-    echo tp_registration_form($student_ID, 'admin');
+    echo tp_registration_form($user_ID, 'admin');
     echo '</div>';
 }
 

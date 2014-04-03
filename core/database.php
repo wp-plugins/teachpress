@@ -61,11 +61,6 @@ function tp_is_user_subscribed ($course_id, $consider_childcourses = false) {
  *      'tags'  => it's an array or object with tags, including following keys: tagPeak, name, tag_id
  *      'info'  => it's an object which includes information about the frequency of tags, including following keys: max, min
  * 
- * @global class $wpdb
- * @global string $teachpress_tags
- * @global string $teachpress_relation
- * @global string $teachpress_user
- * @global string $teachpress_pub
  * @param array $args
  * @since 4.0.0
  */
@@ -1047,18 +1042,23 @@ class tp_courses {
 
         $fields = get_tp_options('teachpress_stud','`setting_id` ASC');
         $selects = '';
+        $froms = '';
+        $wheres = '';
+        $count = 1;
         foreach ($fields as $row) {
-            $selects = $selects . ', st.' . $row->variable;
+            $selects = $selects . ', rel_' . $count .'.meta_value AS ' . $row->variable;
+            $froms = $froms . ', ' . TEACHPRESS_STUD_META . ' rel_' . $count;
+            $wheres = $wheres . " AND rel_$count.meta_key = '" . $row->variable . "'";
+            $count++;
         }
 
-        $sql = "SELECT DISTINCT st.firstname, st.lastname, st.userlogin, st.email, s.date, s.con_id, s.waitinglist $selects
-               FROM " . TEACHPRESS_SIGNUP . " s
-               INNER JOIN " . TEACHPRESS_STUD . " st ON st.wp_id = s.wp_id
-               WHERE s.course_id = '$course'";
+        $sql = "SELECT DISTINCT st.wp_id, st.firstname, st.lastname, st.userlogin, st.email, s.date, s.con_id, s.waitinglist $selects
+               FROM " . TEACHPRESS_STUD . " st, " . TEACHPRESS_SIGNUP . " s $froms
+               WHERE s.course_id = '$course' $wheres";
         $where = '';
 
         if ( $waitinglist !== '' ) {
-            $where = "  AND s.waitinglist = '$waitinglist'";
+            $where = " AND s.waitinglist = '$waitinglist'";
         }
         $result = $wpdb->get_results($sql . $where . $order, $output_type);
         return $result;
@@ -1776,12 +1776,12 @@ class tp_students {
     
     /**
      * Returns data of a student
-     * @param string $id            --> ID of the student/user
-     * @param string $output_type   --> OBJECT, ARRAY_A or ARRAY_N
+     * @param string $id            ID of the student/user
+     * @param string $output_type   OBJECT, ARRAY_A or ARRAY_N; Default is ARRAY_A
      * @return object
      * @since 5.0.0
      */
-    public static function get_student ($id, $output_type = OBJECT) {
+    public static function get_student ($id, $output_type = ARRAY_A) {
         global $wpdb;
         $id = intval($id);
         $result = $wpdb->get_row("Select * FROM " . TEACHPRESS_STUD . " WHERE `wp_id` = '$id'", $output_type);

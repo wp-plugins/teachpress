@@ -24,7 +24,6 @@
 function teachpress_students_new_page() { 
 
 global $wpdb;
-global $teachpress_stud;
 
 $wp_id = isset($_POST['wp_id']) ? intval($_POST['wp_id']) : '';
 $data['matriculation_number'] = isset( $_POST['matriculation_number'] ) ? intval($_POST['matriculation_number']) : '';
@@ -63,7 +62,7 @@ if (isset( $_POST['insert'] ) && $wp_id != __('WordPress User-ID','teachpress') 
               echo '<select name="wp_id" id="wp_id">';
               echo '<option value="n">' . __('Select user','teachpress') . '</option>';
               $sql = "SELECT u.ID, s.wp_id, u.user_login FROM " . $wpdb->users . " u
-                      LEFT JOIN $teachpress_stud s ON u.ID = s.wp_id";	
+                      LEFT JOIN " . TEACHPRESS_STUD . " s ON u.ID = s.wp_id";	
               $row = $wpdb->get_results($sql);
               foreach ($row as $row) {
                  if ($row->ID != $row->wp_id) {

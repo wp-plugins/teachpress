@@ -26,9 +26,6 @@ function tp_edit_tags_page_screen_options () {
 
 /**
  * Tag management page
- * @global class $wpdb
- * @global string $teachpress_relation
- * @global string $teachpress_tags
  */ 
 function teachpress_tags_page(){
     // Get screen options

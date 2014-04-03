@@ -27,7 +27,6 @@ class tp_books_widget extends WP_Widget {
      */
     function widget($args, $instance) {
         global $wpdb;
-        global $teachpress_pub;	
         extract( $args );
         $title = apply_filters('widget_title', $instance['title']);
         $all_url = get_permalink($instance['url']);
@@ -35,7 +34,7 @@ class tp_books_widget extends WP_Widget {
         $zahl = count($books);
         $zufall = rand(0, $zahl - 1);
         $pub_id = $books[$zufall];
-        $row = $wpdb->get_row("SELECT `name`, `image_url`, `rel_page` FROM $teachpress_pub WHERE `pub_id` = '$pub_id'" );
+        $row = $wpdb->get_row("SELECT `name`, `image_url`, `rel_page` FROM " . TEACHPRESS_PUB . " WHERE `pub_id` = '$pub_id'" );
         echo $before_widget;
         if ( $title ) {
             echo $before_title . $title . $after_title;
@@ -61,15 +60,14 @@ class tp_books_widget extends WP_Widget {
      * @param array $instance
      */
     function form($instance) {
-        global $wpdb;	
-        global $teachpress_pub;			
+        global $wpdb;		
         $title = isset ($instance['title']) ? esc_attr($instance['title']) : '';
         $url = isset ($instance['url']) ? esc_attr($instance['url']) : '';
         $books = isset ($instance['books']) ? $instance['books'] : '';
         echo '<p><label for="' . $this->get_field_id('title') . '">' . __('Title', 'teachpress') . ': <input class="widefat" id="' . $this->get_field_id('title') . '" name="' . $this->get_field_name('title') . '" type="text" value="' . $title . '" /></label></p>';
 
         echo '<p><label for="' . $this->get_field_id('books') . '">' . __('Books', 'teachpress') . ': <select class="widefat" id="' . $this->get_field_id('books') . '" name="' . $this->get_field_name('books') . '[]" style="height:auto; max-height:25em" multiple="multiple" size="10">';
-        $sql= "SELECT `pub_id`, `name` FROM " . $teachpress_pub . " WHERE `type` = 'Book' ORDER BY `date` DESC";
+        $sql= "SELECT `pub_id`, `name` FROM " . TEACHPRESS_PUB . " WHERE `type` = 'Book' ORDER BY `date` DESC";
         $row= $wpdb->get_results($sql);
         foreach ($row as $row) {
             if ( in_array($row->pub_id, $books) ) {

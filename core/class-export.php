@@ -16,6 +16,7 @@ class tp_export {
      * @param int $course_ID
      * @param array $option
      * @param int $waitinglist 
+     * @since 3.0.0
      */
     static function get_course_registration_table($course_ID, $option, $waitinglist = '') {
         $row = tp_courses::get_signups( array('course' => $course_ID, 'waitinglist' => $waitinglist, 'output_type' => ARRAY_A, 'order' => 'st.lastname ASC') );
@@ -63,17 +64,17 @@ class tp_export {
     /**
      * Export course data in xls format
      * @param int $course_ID 
+     * @since 3.0.0
      */
     static function get_course_xls($course_ID) {
         global $wpdb;
-        global $teachpress_courses;
-		global $teachpress_signup;
+        $parent = '';
 
         // load course data
-        $daten = $wpdb->get_row("SELECT * FROM " . $teachpress_courses . " WHERE `course_id` = '$course_ID'", ARRAY_A);
+        $daten = $wpdb->get_row("SELECT * FROM " . TEACHPRESS_COURSES . " WHERE `course_id` = '$course_ID'", ARRAY_A);
         if ($daten['parent'] != '0') {
             $id = $daten['parent'];
-            $parent = $wpdb->get_var("SELECT name FROM " . $teachpress_courses . " WHERE `course_id` = '$id'");
+            $parent = $wpdb->get_var("SELECT `name` FROM " . TEACHPRESS_COURSES . " WHERE `course_id` = '$id'");
         }
         if ($parent != '') {
             $course_name = $parent . ' ' . $daten['name'];
@@ -101,7 +102,7 @@ class tp_export {
         echo '<th>' . __('Places','teachpress') . '</th>';
         echo '<td>' . $daten['places'] . '</td>';
         echo '<th>' . __('free places','teachpress') . '</th>';
-		$used_places = $wpdb->get_var("SELECT COUNT(`course_id`) FROM $teachpress_signup WHERE `course_id` = '" . $daten["course_id"] . "' AND `waitinglist` = 0");
+		$used_places = $wpdb->get_var("SELECT COUNT(`course_id`) FROM " . TEACHPRESS_SIGNUP . " WHERE `course_id` = '" . $daten["course_id"] . "' AND `waitinglist` = 0");
         echo '<td>' . ($daten["places"] - $used_places) . '</td>';
         echo '<td>&nbsp;</td>';
         echo '<td>&nbsp;</td>';
@@ -126,6 +127,7 @@ class tp_export {
      * Export course data in csv format
      * @param int $course_ID
      * @param array $options 
+     * @since 3.0.0
      */
     static function get_course_csv($course_ID) {
         // load settings
@@ -164,14 +166,12 @@ class tp_export {
      */
     public static function get_publications($user_ID, $format = 'bibtex') {
         global $wpdb;
-        global $teachpress_tags;
-        global $teachpress_relation;
         
         $user_ID = intval($user_ID);
         $row = get_tp_publications( array('user' => $user_ID, 'output_type' => ARRAY_A) );
         if ( $format === 'bibtex' ) {
             foreach ($row as $row) {
-                $tags = $wpdb->get_results("SELECT DISTINCT t.name FROM $teachpress_tags t INNER JOIN  $teachpress_relation r ON r.`tag_id` = t.`tag_id` WHERE r.pub_id = '" . $row['pub_id'] . "' ", ARRAY_A);
+                $tags = $wpdb->get_results("SELECT DISTINCT t.name FROM " . TEACHPRESS_TAGS . " t INNER JOIN " . TEACHPRESS_RELATION . " r ON r.`tag_id` = t.`tag_id` WHERE r.pub_id = '" . $row['pub_id'] . "' ", ARRAY_A);
                 echo tp_bibtex::get_single_publication_bibtex($row, $tags);
             }
         }     

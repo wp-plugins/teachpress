@@ -24,9 +24,6 @@ function tp_show_course_page_help () {
 
 /**
  * Show courses page
- * @global type $wpdb
- * @global type $teachpress_settings
- * @global type $teachpress_courses 
  */
 function teachpress_show_courses_page() {
      // test if teachpress database is up to date

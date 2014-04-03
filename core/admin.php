@@ -349,7 +349,6 @@ function tp_add_publication_as_post ($title, $bibtex_key, $date, $post_type = 'p
 */
 function tp_copy_course($checkbox, $copysem) {
      global $wpdb;
-     global $teachpress_courses; 
      $counter = 0;
      $counter2 = 0;
      for( $i = 0; $i < count( $checkbox ); $i++ ) {
@@ -397,7 +396,7 @@ function tp_copy_course($checkbox, $copysem) {
                     // search the parent
                     for( $k = 0; $k < $counter ; $k++ ) {
                          if ( $daten[$k]['id'] == $test) {
-                              $suche = "SELECT `course_id` FROM $teachpress_courses WHERE `name` = '" . $daten[$k]['name'] . "' AND `type` = '" . $daten[$k]['type'] . "' AND `room` = '" . $daten[$k]['room'] . "' AND `lecturer` = '" . $daten[$k]['lecturer'] . "' AND `date` = '" . $daten[$k]['date'] . "' AND `semester` = '$copysem' AND `parent` = 0";
+                              $suche = "SELECT `course_id` FROM " . TEACHPRESS_COURSES . " WHERE `name` = '" . $daten[$k]['name'] . "' AND `type` = '" . $daten[$k]['type'] . "' AND `room` = '" . $daten[$k]['room'] . "' AND `lecturer` = '" . $daten[$k]['lecturer'] . "' AND `date` = '" . $daten[$k]['date'] . "' AND `semester` = '$copysem' AND `parent` = 0";
                               $suche = $wpdb->get_var($suche);
                               $daten[$i]['parent'] = $suche;
                               $daten[$i]['semester'] = $copysem;
