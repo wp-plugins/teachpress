@@ -133,6 +133,9 @@ function teachpress_showhide(where) {
     if (where === "show_all_fields" || where === "show_recommend_fields") {
         mode = "inline";
     }
+	if (where === "tp-inline-edit-row") {
+        mode = "table-row";
+    }
     if (document.getElementById(where).style.display !== mode) {
     	document.getElementById(where).style.display = mode;
     }

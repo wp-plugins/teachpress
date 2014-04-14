@@ -96,7 +96,7 @@ function tp_show_single_course_page() {
    <h2 style="padding-top:5px;"><?php echo $parent_name . stripslashes($daten["name"]) . ' ' . $daten["semester"]; ?> <span class="tp_break">|</span> <small><a href="admin.php?page=teachpress/teachpress.php&amp;course_ID=<?php echo $course_ID; ?>&amp;sem=<?php echo $sem; ?>&amp;search=<?php echo $search; ?>&amp;action=edit" class="teachpress_link" style="cursor:pointer;"><?php _e('Edit','teachpress'); ?></a></small></h2>
    <div style="min-width:780px; width:100%;">
    <div style="width:24%; float:right; padding-left:1%; padding-bottom:1%;">
-   <table border="1" cellspacing="0" cellpadding="0" class="widefat" id="teachpress_edit">
+   <table class="widefat" id="teachpress_edit">
        <thead>
          <tr>
            <th colspan="4"><?php _e('Enrollments','teachpress'); ?></th>

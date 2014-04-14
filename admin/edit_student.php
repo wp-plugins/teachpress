@@ -83,7 +83,7 @@ function teachpress_show_student_page() {
    <input name="student_ID" type="hidden" value="<?php echo $student; ?>">
    <input name="search" type="hidden" value="<?php echo $search; ?>">
    <h3><?php _e('Signups','teachpress'); ?></h3>
-   <table border="1" cellspacing="0" cellpadding="5" class="widefat">
+   <table class="widefat">
     <thead>
         <tr>
         <th>&nbsp;</th>
@@ -181,15 +181,15 @@ function teachpress_edit_student_page() {
     
     if ( isset($_POST['tp_change_user'] ) ) {
         $data = array (
-            'matriculation_number' => intval($_POST['matriculation_number']),
+            'matriculation_number' => isset($_POST['matriculation_number']) ? intval($_POST['matriculation_number']) : 0,
             'firstname' => htmlspecialchars($_POST['firstname']),
             'lastname' => htmlspecialchars($_POST['lastname']),
             'userlogin' => htmlspecialchars($_POST['userlogin']),
-            'course_of_studies' => htmlspecialchars($_POST['course_of_studies']),
-            'semester_number' => intval($_POST['semesternumber']),
-            'birth_day' => htmlspecialchars($_POST['birth_day']),
-            'birth_month' => htmlspecialchars($_POST['birth_month']),
-            'birth_year' => intval($_POST['birth_year']),
+            'course_of_studies' => isset($_POST['course_of_studies']) ? htmlspecialchars($_POST['course_of_studies']) : '',
+            'semester_number' => isset($_POST['semesternumber']) ? intval($_POST['semesternumber']) : 0,
+            'birth_day' => isset($_POST['birth_day']) ? htmlspecialchars($_POST['birth_day']) : '00',
+            'birth_month' => isset($_POST['birth_month']) ? htmlspecialchars($_POST['birth_month']) : '00',
+            'birth_year' => isset($_POST['birth_year']) ? intval($_POST['birth_year']) : '0000',
             'email' => htmlspecialchars($_POST['email'])
         );
         tp_change_student($student, $data, $user_ID);

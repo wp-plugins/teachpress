@@ -347,7 +347,8 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
               'element_title' => __('Name','teachpress'),
               'count_title' => __('Number of students','teachpress'),
               'delete_title' => __('Delete course of studies','teachpress'),
-              'add_title' => __('Add course of studies','teachpress')
+              'add_title' => __('Add course of studies','teachpress'),
+			  'tab' => $tab
               );
           get_tp_admin_course_option_box(__('Courses of studies','teachpress'), 'course_of_studies', $args1);
           ?>
@@ -358,7 +359,8 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
               'element_title' => __('Term','teachpress'),
               'count_title' => __('Number of courses','teachpress'),
               'delete_title' => __('Delete term','teachpress'),
-              'add_title' => __('Add term','teachpress')
+              'add_title' => __('Add term','teachpress'),
+			  'tab' => $tab
               );
           get_tp_admin_course_option_box(__('Term','teachpress'), 'term', $args2);
           ?>
@@ -368,7 +370,8 @@ echo '<option value="1">' . __('teachpress_front.css','teachpress') . '</option>
               'element_title' => __('Type'),
               'count_title' => __('Number of courses','teachpress'),
               'delete_title' => __('Delete type','teachpress'),
-              'add_title' => __('Add type','teachpress')
+              'add_title' => __('Add type','teachpress'),
+			  'tab' => $tab
               );
           get_tp_admin_course_option_box(__('Types of courses','teachpress'), 'type', $args3);
           ?>

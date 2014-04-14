@@ -4,8 +4,8 @@ Tags: management, publications, enrollments, teachpress, education, course manag
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 3.3
-Tested up to: 3.8
-Stable tag: 4.3.3
+Tested up to: 3.9
+Stable tag: 4.3.4
 
 With this plugin you can easy manage courses, enrollments and publications.
 
@@ -117,6 +117,13 @@ define ('TP_PUBLICATION_SYSTEM','disable');
 If you save plugins outside the normal path (/wp-content/plugins/), the plugin can't load required WordPress files in some cases. Solution: Change the path in the following plugin files: export.php (line 9) / feed.php (line 7).
 
 == Changelog ==
+
+= 4.3.4 - (14.04.2014) =
+* New: Support for WordPress 3.9
+* Bugfix: Fixed a problem in settings menu with a wrong return to the correct tab
+* Bugfix: Fixed the closing of the mass edit menu for publications
+* Bugfix: Fixed some style issues in context with the new WordPress UI design
+* Bugfix: Fixed a possible issue with non declared array keys in edit students menu
 
 = 4.3.3 - (10.03.2014) =
 * New: [tpcloud, tplist]: New headline option (headline = 4: sort by type and year) added (Thanks to Ellie)
