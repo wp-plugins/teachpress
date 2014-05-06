@@ -1042,24 +1042,25 @@ class tp_courses {
 
         $fields = get_tp_options('teachpress_stud','`setting_id` ASC');
         $selects = '';
-        $froms = '';
-        $wheres = '';
+        $joins = '';
         $count = 1;
         foreach ($fields as $row) {
-            $selects = $selects . ', rel_' . $count .'.meta_value AS ' . $row->variable;
-            $froms = $froms . ', ' . TEACHPRESS_STUD_META . ' rel_' . $count;
-            $wheres = $wheres . " AND rel_$count.meta_key = '" . $row->variable . "'";
+            $table_id = 'm' . $count; 
+            $selects = $selects . ', ' . $table_id .'.meta_value AS ' . $row->variable;
+            $joins = $joins . ' INNER JOIN ' . TEACHPRESS_STUD_META . ' ' . $table_id . " ON ( " . $table_id . ".wp_id = s.wp_id AND " . $table_id . ".meta_key = '" . $row->variable . "' ) ";
             $count++;
         }
 
-        $sql = "SELECT DISTINCT st.wp_id, st.firstname, st.lastname, st.userlogin, st.email, s.date, s.con_id, s.waitinglist $selects
-               FROM " . TEACHPRESS_STUD . " st, " . TEACHPRESS_SIGNUP . " s $froms
-               WHERE s.course_id = '$course' $wheres";
         $where = '';
+        $sql = "SELECT DISTINCT st.wp_id, st.firstname, st.lastname, st.userlogin, st.email, s.date, s.con_id, s.waitinglist $selects "
+                . "FROM " . TEACHPRESS_SIGNUP . " s "
+                . "INNER JOIN " . TEACHPRESS_STUD . " st ON st.wp_id = s.wp_id $joins"
+                . "WHERE s.course_id = '$course' ";
 
         if ( $waitinglist !== '' ) {
             $where = " AND s.waitinglist = '$waitinglist'";
         }
+        //echo $sql . $where . $order . '<br />';
         $result = $wpdb->get_results($sql . $where . $order, $output_type);
         return $result;
     }
@@ -1332,7 +1333,7 @@ class tp_publications {
         if ( $user != '' ) {
             $join .= "INNER JOIN " . TEACHPRESS_USER . " u ON u.pub_id = p.pub_id ";
         }
-        if ( $tag != '' ) {
+        if ( $tag != '' && $tag != 0 ) {
             $join .= "INNER JOIN " . TEACHPRESS_RELATION . " b ON p.pub_id = b.pub_id INNER JOIN " . TEACHPRESS_TAGS . " t ON t.tag_id = b.tag_id ";
         }
         if ( $author_id != '' ) {
@@ -1374,7 +1375,7 @@ class tp_publications {
         if ( $user != '') {
             $where = $where != '' ? $where . " AND ( $user )" : $user;
         }
-        if ( $tag != '') {
+        if ( $tag != '' && $tag != 0 ) {
             $where = $where != '' ? $where . " AND ( $tag )" : $tag;
         }
         if ( $author_id != '') {
@@ -1392,7 +1393,7 @@ class tp_publications {
         if ( $where != '' ) {
             $where = " WHERE $where";
         }
-        if ( $year != '' ) {
+        if ( $year != '' && $year != 0 ) {
             $having = " HAVING $year";
         }
         if ( $limit != '' ) {
@@ -1415,12 +1416,30 @@ class tp_publications {
     }
     
     /**
+     * Returns course meta data
+     * @param int $pub_id
+     * @param string $meta_key
+     * @since 5.0.0
+     */
+    public static function get_pub_meta($pub_id, $meta_key = ''){
+        global $wpdb;
+        $pub_id = intval($pub_id);
+        $meta_key = esc_sql($meta_key);
+        $where = '';
+        if ( $meta_key !== '' ) {
+            $where = "AND `meta_key` = '$meta_key'";
+        }
+        $sql = "SELECT * FROM " . TEACHPRESS_PUB_META . " WHERE `pub_id` = '$pub_id' $where";
+        return $wpdb->get_results($sql, ARRAY_A);
+    }
+    
+    /**
      * Returns an array or object of users who has a publication list
      * @param array $args
      * @return object|array
      * @since 5.0.0
      */
-    public static function get_pubusers( $args = array() ) {
+    public static function get_pub_users( $args = array() ) {
         $defaults = array(
             'output_type' => OBJECT
         ); 
@@ -1606,6 +1625,18 @@ class tp_publications {
         return $pub_ID;
     }
     
+    /**
+     * Add publication meta data
+     * @param int $pub_id
+     * @param string $meta_key
+     * @param string $meta_value
+     * @since 5.0.0
+     */
+    public static function add_pub_meta ($pub_id, $meta_key, $meta_value) {
+        global $wpdb;
+        $wpdb->insert( TEACHPRESS_PUB_META, array( 'pub_id' => $pub_id, 'meta_key' => $meta_key, 'meta_value' => $meta_value ), array( '%d', '%s', '%s' ) );
+    }
+    
     /** 
      * Edit a publication
      * @param int $pub_ID           --> ID of the publication
@@ -1717,6 +1748,23 @@ class tp_publications {
             $wpdb->query( "DELETE FROM " . TEACHPRESS_USER . " WHERE `pub_id` = '$checkbox[$i]'" );
             $wpdb->query( "DELETE FROM " . TEACHPRESS_PUB . " WHERE `pub_id` = '$checkbox[$i]'" );
         }
+    }
+    
+    /**
+     * Deletes curse meta
+     * @param int $pub_id
+     * @param string $meta_key
+     * @since 5.0.0
+     */
+    public static function delete_pub_meta ($pub_id, $meta_key = '') {
+        global $wpdb;
+        $pub_id = intval($pub_id);
+        $meta_key = esc_sql($meta_key);
+        $where = '';
+        if ( $meta_key !== '' ) {
+            $where = "AND `meta_key` = '$meta_key'";
+        }
+        $wpdb->query("DELETE FROM " . TEACHPRESS_PUB_META . " WHERE `pub_id` = '$pub_id' $where");
     }
     
     /**

@@ -20,6 +20,7 @@ elseif ( is_user_logged_in() && current_user_can('use_teachpress') ) {
     $course_ID = isset ( $_GET['course_ID'] ) ? intval($_GET['course_ID']) : 0;
     $user_ID = isset ( $_POST['tp_user'] ) ? intval($_POST['tp_user']) : 0;
     $format = isset ( $_POST['tp_format'] ) ?  htmlspecialchars($_POST['tp_format']) : '';
+    $sel = isset ( $_POST['tp_sel'] ) ?  htmlspecialchars($_POST['tp_sel']) : '';
     $filename = 'teachpress_course_' . $course_ID . '_' . date('dmY');
 
     // Export courses
@@ -42,7 +43,12 @@ elseif ( is_user_logged_in() && current_user_can('use_teachpress') ) {
             header("Content-Disposition: attachment; filename=" . $filename . ".bib");
             echo '% This file was created with teachPress ' . get_tp_version() . chr(13) . chr(10);
             echo '% Encoding: UTF-8' . chr(13) . chr(10) . chr(13) . chr(10);
-            tp_export::get_publications($user_ID,'bibtex');
+            if ( $sel == '' ) {
+                tp_export::get_publications($user_ID);
+            }
+            else {
+                tp_export::get_selected_publications($sel);
+            }
         }
         if ( $format === 'txt' ) {
             header('Content-Type: text/plain; charset=utf-8' );

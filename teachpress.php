@@ -7,7 +7,7 @@ Version: 5.0.0
 Author: Michael Winkler
 Author URI: http://mtrv.wordpress.com/
 Min WP Version: 3.3
-Max WP Version: 3.8.1
+Max WP Version: 3.9
 */
 
 /*
@@ -45,6 +45,7 @@ define('TEACHPRESS_SIGNUP', $wpdb->prefix . 'teachpress_signup');               
 define('TEACHPRESS_SETTINGS', $wpdb->prefix . 'teachpress_settings');                       // Settings
 
 define('TEACHPRESS_PUB', $wpdb->prefix . 'teachpress_pub');                                 // Publications
+define('TEACHPRESS_PUB_META', $wpdb->prefix . 'teachpress_pub_meta');                       // Publication meta data
 define('TEACHPRESS_TAGS', $wpdb->prefix . 'teachpress_tags');                               // Tags
 define('TEACHPRESS_RELATION', $wpdb->prefix . 'teachpress_relation');                       // Relationship tags - publications
 define('TEACHPRESS_USER', $wpdb->prefix . 'teachpress_user');                               // Relationship publications - users
@@ -158,7 +159,7 @@ if ( !class_exists( 'PARSEENTRIES' ) ) {
  * @return string
 */
 function get_tp_version() {
-    return '5.0.0a2';
+    return '5.0.0a4';
 }
 
 /** Function for the integrated registration mode */
@@ -197,11 +198,18 @@ function tp_db_update() {
 
 /**
  * Database synchronisation manager
+ * @param string $table     authors or stud_meta
+ * @since 5.0.0
  */
-function tp_db_sync() {
+function tp_db_sync($table) {
     require_once("core/class-tables.php");
     require_once('core/class-update.php');
-    tp_update_db::fill_table_authors();
+    if ( $table === 'authors' ) {
+        tp_update_db::fill_table_authors();
+    }
+    if ( $table === 'stud_meta' ) {
+        tp_update_db::fill_table_stud_meta();
+    }
 }
 
 /**

@@ -28,6 +28,7 @@ class tp_tables {
         tp_tables::add_table_settings($charset_collate);
         tp_tables::add_default_settings();
         tp_tables::add_table_pub($charset_collate);
+        tp_tables::add_table_pub_meta($charset_collate);
         tp_tables::add_table_tags($charset_collate);
         tp_tables::add_table_relation($charset_collate);
         tp_tables::add_table_user($charset_collate);
@@ -42,7 +43,7 @@ class tp_tables {
     public static function remove() {
         global $wpdb;
         $wpdb->query("SET FOREIGN_KEY_CHECKS=0");
-        $wpdb->query("DROP TABLE `" . TEACHPRESS_COURSES . "`, `" . TEACHPRESS_STUD . "`, `" . TEACHPRESS_STUD_META . "`, `" . TEACHPRESS_SETTINGS ."`, `" . TEACHPRESS_SIGNUP ."`, `" . TEACHPRESS_PUB . "`, `" . TEACHPRESS_TAGS . "`, `" . TEACHPRESS_USER . "`, `" . TEACHPRESS_RELATION ."`, `" . TEACHPRESS_ARTEFACTS . "`, `" . TEACHPRESS_ASSESSMENTS . "`, `" . TEACHPRESS_COURSE_CAPABILITES . "`, `" . TEACHPRESS_AUTHORS . "`, `" . TEACHPRESS_REL_PUB_AUTH . "`");
+        $wpdb->query("DROP TABLE `" . TEACHPRESS_COURSES . "`, `" . TEACHPRESS_COURSE_META . "`, `" . TEACHPRESS_STUD . "`, `" . TEACHPRESS_STUD_META . "`, `" . TEACHPRESS_SETTINGS ."`, `" . TEACHPRESS_SIGNUP ."`, `" . TEACHPRESS_PUB . "`, `" . TEACHPRESS_PUB_META . "`, `" . TEACHPRESS_TAGS . "`, `" . TEACHPRESS_USER . "`, `" . TEACHPRESS_RELATION ."`, `" . TEACHPRESS_ARTEFACTS . "`, `" . TEACHPRESS_ASSESSMENTS . "`, `" . TEACHPRESS_COURSE_CAPABILITES . "`, `" . TEACHPRESS_AUTHORS . "`, `" . TEACHPRESS_REL_PUB_AUTH . "`");
         $wpdb->query("SET FOREIGN_KEY_CHECKS=1");
     }
 
@@ -230,17 +231,6 @@ class tp_tables {
                     FOREIGN KEY (course_id) REFERENCES " . TEACHPRESS_COURSES . " (course_id),
                     PRIMARY KEY (artefact_id)
                 ) $charset_collate;");
-        echo "CREATE TABLE " . TEACHPRESS_ARTEFACTS . " (
-                    `artefact_id` INT UNSIGNED AUTO_INCREMENT,
-                    `parent_id` INT UNSIGNED,
-                    `course_id` INT UNSIGNED,
-                    `title` VARCHAR(500),
-                    `scale` TEXT,
-                    `passed` INT(1),
-                    `max_value` VARCHAR(50),
-                    FOREIGN KEY (course_id) REFERENCES " . TEACHPRESS_COURSES . " (course_id),
-                    PRIMARY KEY (artefact_id)
-                ) $charset_collate;";
     }
     
     /**
@@ -306,7 +296,7 @@ class tp_tables {
     public static function add_default_settings(){
         global $wpdb;
         $value = '[tpsingle [key]]<!--more-->' . "\n\n[tpabstract]\n\n[tplinks]\n\n[tpbibtex]";
-        $version = get_tp_version();        
+        $version = get_tp_version();  
         
         $wpdb->query("INSERT INTO " . TEACHPRESS_SETTINGS . " (`variable`, `value`, `category`) VALUES ('sem', 'Example term', 'system')");
         $wpdb->query("INSERT INTO " . TEACHPRESS_SETTINGS . " (`variable`, `value`, `category`) VALUES ('db-version', '$version', 'system')");
@@ -375,6 +365,30 @@ class tp_tables {
                     `rel_page` INT,
                     `is_isbn` INT(1),
                     PRIMARY KEY (pub_id)
+                ) $charset_collate;");
+    }
+    
+    /**
+     * Create table teachpress_pub_meta
+     * @param string $charset_collate
+     * @since 5.0.0
+     */
+    public static function add_table_pub_meta($charset_collate) {
+        global $wpdb;
+        
+        if($wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_PUB_META . "'") == TEACHPRESS_PUB_META) {
+            return;
+        }
+        
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    
+        dbDelta("CREATE TABLE " . TEACHPRESS_PUB_META . " (
+                    `meta_id` INT UNSIGNED AUTO_INCREMENT,
+                    `pub_id` INT UNSIGNED,
+                    `meta_key` VARCHAR(255),
+                    `meta_value` TEXT,
+                    FOREIGN KEY (pub_id) REFERENCES " . TEACHPRESS_PUB . " (pub_id),
+                    PRIMARY KEY (meta_id)
                 ) $charset_collate;");
     }
     

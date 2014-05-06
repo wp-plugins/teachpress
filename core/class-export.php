@@ -168,7 +168,7 @@ class tp_export {
         global $wpdb;
         
         $user_ID = intval($user_ID);
-        $row = get_tp_publications( array('user' => $user_ID, 'output_type' => ARRAY_A) );
+        $row = tp_publications::get_publications( array('user' => $user_ID, 'output_type' => ARRAY_A) );
         if ( $format === 'bibtex' ) {
             foreach ($row as $row) {
                 $tags = $wpdb->get_results("SELECT DISTINCT t.name FROM " . TEACHPRESS_TAGS . " t INNER JOIN " . TEACHPRESS_RELATION . " r ON r.`tag_id` = t.`tag_id` WHERE r.pub_id = '" . $row['pub_id'] . "' ", ARRAY_A);
@@ -180,6 +180,28 @@ class tp_export {
         }
     }
     
+    /**
+     * Export a selection of publications
+     * @param string $selection     A string of publication IDs which are separated by comma
+     * @param string $format        bibtex or rtf
+     * @since 5.0.0
+     */
+    public static function get_selected_publications($selection, $format = 'bibtex') {
+        global $wpdb;
+        $row = tp_publications::get_publications( array( 'include' => $selection, 'output_type' => ARRAY_A) );
+        
+        if ( $format === 'bibtex' ) {
+            foreach ($row as $row) {
+                $tags = $wpdb->get_results("SELECT DISTINCT t.name FROM " . TEACHPRESS_TAGS . " t INNER JOIN " . TEACHPRESS_RELATION . " r ON r.`tag_id` = t.`tag_id` WHERE r.pub_id = '" . $row['pub_id'] . "' ", ARRAY_A);
+                echo tp_bibtex::get_single_publication_bibtex($row, $tags);
+            }
+        }     
+        if ( $format === 'rtf' ) {
+            echo tp_export::rtf($row);
+        }
+    }
+
+
     /**
      * Export a single publication
      * @param string $bibtex_key

@@ -3,13 +3,13 @@ Contributors: Michael Winkler
 Tags: management, publications, enrollments, teachpress, education, course management, BibTeX, bibliography
 License: GPLv2 or later
 Requires at least: 3.3
-Tested up to: 3.6
-Stable tag: 4.2.1
+Tested up to: 3.9
+Stable tag: 5.0.0beta
 
-With this plugin you can easy manage courses, enrollments and publications.
+With this plugin you can easy manage courses and publications.
 
 == Description ==
-The plugin unites a course management system (with enrollments) and a BibTeX compatible publication management. teachPress is optimized for the needs of professorships and research groups. You can use it with WordPress 3.3.0 or higher.
+The plugin unites a course management system (with modules for enrollments and assessments) and a BibTeX compatible publication management. teachPress is optimized for the needs of professorships and research groups. You can use it with WordPress 3.3.0 or higher.
 
 For more information see [here](http://www.mtrv.wordpress.com/teachpress/).
 
@@ -18,13 +18,13 @@ For more information see [here](http://www.mtrv.wordpress.com/teachpress/).
 * BibTeX import for publications
 * BibTeX and RTF export for publications
 * RSS feed for publications
-* Course management with an integrated enrollment system
+* Course management with an integrated enrollment/assessment system
 * XLS/CSV export for course lists
-* Widget for displaying books in a sidebar
 * Many shortcodes for an easy using of publication lists, publication searches, enrollments and course overviews
+* NEW: Dymamic adding of new data fields for courses/students and publications
 
 = Supported Languages =
-* English 
+* English
 * German
 * Italian (o)
 * Portuguese (Brazil) (o)
@@ -55,7 +55,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 = Licence information of external resources =
-* Graphics for mimetypes, folder-new-7.png and document-new-6.png by Oxygen Icons 4.3.1 http://www.oxygen-icons.org/ (Licence: LPGL)
+* Graphics for mimetypes, user-new-3.png, folder-new-7.png and document-new-6.png by Oxygen Icons 4.3.1 http://www.oxygen-icons.org/ (Licence: LPGL)
 * view-refresh-3.png by GNOME Icon Theme 2.26.0 http://art.gnome.org (License: GPLv2)
 * bookmark-new-4.png by Tango Icon Library (License: Public Domain)
 * bibtexParse by Mark Grimshaw & Guillaume Gardey (Licence: GPL)
@@ -116,26 +116,52 @@ define ('TP_PUBLICATION_SYSTEM','disable');
 = I see only error messages if I use the RSS-Feed for publications or the xls/csv export for enrollments. What's wrong? =
 If you save plugins outside the normal path (/wp-content/plugins/), the plugin can't load required WordPress files in some cases. Solution: Change the path in the following plugin files: export.php (line 9) / feed.php (line 7).
 
+== Upgrade Notice ==
+
+= 5.0.0 =
+Saving of database before upgrading is strongly recommended!!
+
 == Changelog ==
 
-* Bugfix: Reenable xls export (5.0.0)
+= 5.0.0beta - (xx.04.2014) =
+* New: Real author filter for publications added
+* New: Autocomplete for authors/editors added
+* New: Meta data system for courses/students and publications added
+* New: Assessment management for courses added
+* New: Simple capability management for courses added
+* New: Direct .bib export for selected publications added (via "Show as BibTeX entry")
+* Changed: Rewritten core API
+* Changed: Rewritten Shortcode [tpcloud]
+* Changed: Rewritten Shortcdoe [tpenrollments]
+* Changed: UI modifications for better integration in WordPress 3.8+
+* Bugfix: Reenable xls export
 
-= 4.3.1 =
-* *22.01.2014*
+= 4.3.4 - (14.04.2014) =
+* New: Support for WordPress 3.9
+* Bugfix: Fixed a problem in settings menu with a wrong return to the correct tab
+* Bugfix: Fixed the closing of the mass edit menu for publications
+* Bugfix: Fixed some style issues in context with the new WordPress UI design
+* Bugfix: Fixed a possible issue with non declared array keys in edit students menu
+
+= 4.3.3 - (10.03.2014) =
+* New: [tpcloud, tplist]: New headline option (headline = 4: sort by type and year) added (Thanks to Ellie)
+
+= 4.3.2 - (03.03.2014) =
+* New: [tpcloud]: New parameter "exclude_tags" added
+
+= 4.3.1 - (22.01.2014) =
 * New: Access control is now editable for courses and for publications separately
 
-= 4.3.0 =
-* *12.01.2014*
+= 4.3.0 - (12.01.2014) =
 * New: Bulk edit for publications in admin menu
 * New: [tplist], [tpcloud]: Support for custom sort orders for publication lists added (if headline = 2 is used)
 * New: [tpcloud]: Pagination added
-* New: [tpcloud]: New parameters "pagination", "entries_per_page" and "sort_list" added
+* New: [tpcloud]: New parameters "pagination", "entries_per_page" and "sort_order" added
 * Changed: [tpcloud]: Parameter "limit" is now "tag_limit"
 * Changed: BibTeX type "masterthesis" is now "mastersthesis"
 * Bugfix: The original content of a mail was replaced with the header
 
-= 4.2.2 =
-* *11.09.2013*
+= 4.2.2 - (11.09.2013) =
 * Bugfix: Fixed a bug which prevent adding of terms, course types and courses of studies
 
 = 4.2.1 - (11.09.2013) =

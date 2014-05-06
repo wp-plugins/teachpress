@@ -536,7 +536,7 @@ function tp_generate_filter ($filter_parameter, $sql_parameter, $settings, $mode
     }
     // user filter
     if ( $mode === 'user' ) {
-        $row = tp_publications::get_pubusers( array('output_type' => ARRAY_A) );
+        $row = tp_publications::get_pub_users( array('output_type' => ARRAY_A) );
         $id = 'pub_user';
         $title = __('All users','teachpress');
     }

@@ -28,88 +28,110 @@ function tp_add_publication_page_help () {
 */
 function teachpress_addpublications_page() {
    
-   // WordPress current unser info
-   global $current_user;
-   get_currentuserinfo();
-   $user = $current_user->ID;
+    // WordPress current unser info
+    global $current_user;
+    get_currentuserinfo();
+    $user = $current_user->ID;
+    $fields = get_tp_options('teachpress_pub','`setting_id` ASC', ARRAY_A);
 
-   // form variables from add_publication.php
-   $data = get_tp_var_types('publication_array');
-   $data['title'] = isset( $_POST['post_title'] ) ? htmlspecialchars($_POST['post_title']) : '';
-   $data['type'] = isset( $_POST['type'] ) ? htmlspecialchars($_POST['type']) : '';
-   $data['bibtex'] = isset( $_POST['bibtex'] ) ? htmlspecialchars($_POST['bibtex']) : '';
-   $data['author'] = isset( $_POST['author'] ) ? htmlspecialchars($_POST['author']) : '';
-   $data['editor'] = isset( $_POST['editor'] ) ? htmlspecialchars($_POST['editor']) : '';
-   $data['isbn'] = isset( $_POST['isbn'] ) ? htmlspecialchars($_POST['isbn']) : '';
-   $data['url'] = isset( $_POST['url'] ) ? htmlspecialchars($_POST['url']) : '';
-   $data['date'] = isset( $_POST['date'] ) ? htmlspecialchars($_POST['date']) : '';
-   $data['urldate'] = isset( $_POST['urldate'] ) ? htmlspecialchars($_POST['urldate']) : '';
-   $data['booktitle'] = isset( $_POST['booktitle'] ) ? htmlspecialchars($_POST['booktitle']) : '';
-   $data['issuetitle'] = isset( $_POST['issuetitle'] ) ? htmlspecialchars($_POST['issuetitle']) : '';
-   $data['journal'] = isset( $_POST['journal'] ) ? htmlspecialchars($_POST['journal']) : '';
-   $data['volume'] = isset( $_POST['volume'] ) ? htmlspecialchars($_POST['volume']) : '';
-   $data['number'] = isset( $_POST['number'] ) ? htmlspecialchars($_POST['number']) : '';
-   $data['pages'] = isset( $_POST['pages'] ) ? htmlspecialchars($_POST['pages']) : '';
-   $data['publisher'] = isset( $_POST['publisher'] ) ? htmlspecialchars($_POST['publisher']) : '';
-   $data['address'] = isset( $_POST['address'] ) ? htmlspecialchars($_POST['address']) : '';
-   $data['edition'] = isset( $_POST['edition'] ) ? htmlspecialchars($_POST['edition']) : '';
-   $data['chapter'] = isset( $_POST['chapter'] ) ? htmlspecialchars($_POST['chapter']) : '';
-   $data['institution'] = isset( $_POST['institution'] ) ? htmlspecialchars($_POST['institution']) : '';
-   $data['organization'] = isset( $_POST['organization'] ) ? htmlspecialchars($_POST['organization']) : '';
-   $data['school'] = isset( $_POST['school'] ) ? htmlspecialchars($_POST['school']) : '';
-   $data['series'] = isset( $_POST['series'] ) ? htmlspecialchars($_POST['series']) : '';
-   $data['crossref'] = isset( $_POST['crossref'] ) ? htmlspecialchars($_POST['crossref']) : '';
-   $data['abstract'] = isset( $_POST['abstract'] ) ? htmlspecialchars($_POST['abstract']) : '';
-   $data['howpublished'] = isset( $_POST['howpublished'] ) ? htmlspecialchars($_POST['howpublished']) : '';
-   $data['key'] = isset( $_POST['key'] ) ? htmlspecialchars($_POST['key']) : '';
-   $data['techtype'] = isset( $_POST['techtype'] ) ? htmlspecialchars($_POST['techtype']) : '';
-   $data['comment'] = isset( $_POST['comment'] ) ? htmlspecialchars($_POST['comment']) : '';
-   $data['note'] = isset( $_POST['note'] ) ? htmlspecialchars($_POST['note']) : '';
-   $data['image_url'] = isset( $_POST['image_url'] ) ? htmlspecialchars($_POST['image_url']) : '';
-   $data['rel_page'] = isset( $_POST['rel_page'] ) ? intval($_POST['rel_page']) : '';
-   $data['is_isbn'] = isset( $_POST['is_isbn'] ) ? intval($_POST['is_isbn']) : '';
+    // form variables from add_publication.php
+    $data = get_tp_var_types('publication_array');
+    $data['title'] = isset( $_POST['post_title'] ) ? htmlspecialchars($_POST['post_title']) : '';
+    $data['type'] = isset( $_POST['type'] ) ? htmlspecialchars($_POST['type']) : '';
+    $data['bibtex'] = isset( $_POST['bibtex'] ) ? htmlspecialchars($_POST['bibtex']) : '';
+    $data['author'] = isset( $_POST['author'] ) ? htmlspecialchars($_POST['author']) : '';
+    $data['editor'] = isset( $_POST['editor'] ) ? htmlspecialchars($_POST['editor']) : '';
+    $data['isbn'] = isset( $_POST['isbn'] ) ? htmlspecialchars($_POST['isbn']) : '';
+    $data['url'] = isset( $_POST['url'] ) ? htmlspecialchars($_POST['url']) : '';
+    $data['date'] = isset( $_POST['date'] ) ? htmlspecialchars($_POST['date']) : '';
+    $data['urldate'] = isset( $_POST['urldate'] ) ? htmlspecialchars($_POST['urldate']) : '';
+    $data['booktitle'] = isset( $_POST['booktitle'] ) ? htmlspecialchars($_POST['booktitle']) : '';
+    $data['issuetitle'] = isset( $_POST['issuetitle'] ) ? htmlspecialchars($_POST['issuetitle']) : '';
+    $data['journal'] = isset( $_POST['journal'] ) ? htmlspecialchars($_POST['journal']) : '';
+    $data['volume'] = isset( $_POST['volume'] ) ? htmlspecialchars($_POST['volume']) : '';
+    $data['number'] = isset( $_POST['number'] ) ? htmlspecialchars($_POST['number']) : '';
+    $data['pages'] = isset( $_POST['pages'] ) ? htmlspecialchars($_POST['pages']) : '';
+    $data['publisher'] = isset( $_POST['publisher'] ) ? htmlspecialchars($_POST['publisher']) : '';
+    $data['address'] = isset( $_POST['address'] ) ? htmlspecialchars($_POST['address']) : '';
+    $data['edition'] = isset( $_POST['edition'] ) ? htmlspecialchars($_POST['edition']) : '';
+    $data['chapter'] = isset( $_POST['chapter'] ) ? htmlspecialchars($_POST['chapter']) : '';
+    $data['institution'] = isset( $_POST['institution'] ) ? htmlspecialchars($_POST['institution']) : '';
+    $data['organization'] = isset( $_POST['organization'] ) ? htmlspecialchars($_POST['organization']) : '';
+    $data['school'] = isset( $_POST['school'] ) ? htmlspecialchars($_POST['school']) : '';
+    $data['series'] = isset( $_POST['series'] ) ? htmlspecialchars($_POST['series']) : '';
+    $data['crossref'] = isset( $_POST['crossref'] ) ? htmlspecialchars($_POST['crossref']) : '';
+    $data['abstract'] = isset( $_POST['abstract'] ) ? htmlspecialchars($_POST['abstract']) : '';
+    $data['howpublished'] = isset( $_POST['howpublished'] ) ? htmlspecialchars($_POST['howpublished']) : '';
+    $data['key'] = isset( $_POST['key'] ) ? htmlspecialchars($_POST['key']) : '';
+    $data['techtype'] = isset( $_POST['techtype'] ) ? htmlspecialchars($_POST['techtype']) : '';
+    $data['comment'] = isset( $_POST['comment'] ) ? htmlspecialchars($_POST['comment']) : '';
+    $data['note'] = isset( $_POST['note'] ) ? htmlspecialchars($_POST['note']) : '';
+    $data['image_url'] = isset( $_POST['image_url'] ) ? htmlspecialchars($_POST['image_url']) : '';
+    $data['rel_page'] = isset( $_POST['rel_page'] ) ? intval($_POST['rel_page']) : '';
+    $data['is_isbn'] = isset( $_POST['is_isbn'] ) ? intval($_POST['is_isbn']) : '';
 
-   $tags = isset( $_POST['tags'] ) ? htmlspecialchars($_POST['tags']) : '';
-   $delbox = isset( $_POST['delbox'] ) ? $_POST['delbox'] : '';
-   $bookmark = isset( $_POST['bookmark'] ) ? $_POST['bookmark'] : '';
+    $tags = isset( $_POST['tags'] ) ? htmlspecialchars($_POST['tags']) : '';
+    $delbox = isset( $_POST['delbox'] ) ? $_POST['delbox'] : '';
+    $bookmark = isset( $_POST['bookmark'] ) ? $_POST['bookmark'] : '';
 
-   // from show_publications.php
-   $pub_ID = isset( $_REQUEST['pub_ID'] ) ? intval($_REQUEST['pub_ID']) : '';
-   $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
-   $filter = isset( $_GET['filter'] ) ? htmlspecialchars($_GET['filter']) : '';
-   $site = isset( $_GET['site'] ) ? htmlspecialchars($_GET['site']) : '';
-   $tag_id = isset( $_GET['tag'] ) ? htmlspecialchars($_GET['tag']) : '';
-   $year = isset( $_GET['year'] ) ? intval($_GET['year']) : '';
-   $entry_limit = isset( $_GET['limit'] ) ? htmlspecialchars($_GET['limit']) : '';
+    // from show_publications.php
+    $pub_ID = isset( $_REQUEST['pub_ID'] ) ? intval($_REQUEST['pub_ID']) : 0;
+    $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
+    $filter = isset( $_GET['filter'] ) ? htmlspecialchars($_GET['filter']) : '';
+    $site = isset( $_GET['site'] ) ? htmlspecialchars($_GET['site']) : '';
+    $tag_id = isset( $_GET['tag'] ) ? htmlspecialchars($_GET['tag']) : '';
+    $year = isset( $_GET['year'] ) ? intval($_GET['year']) : '';
+    $entry_limit = isset( $_GET['limit'] ) ? htmlspecialchars($_GET['limit']) : '';
 
-   $daten = get_tp_var_types('publication_array');
-   ?>
-   <div class="wrap">
-   <form name="form1" method="post" action="<?php echo $_SERVER['REQUEST_URI']; ?>" id="form1">
-   <?php
-   // create related content (post/page/...)
-   if ( isset($_POST['create_rel_content']) ) {
-      $data['rel_page'] = tp_add_publication_as_post( $data['title'], $data['bibtex'], $data['date'], get_tp_option('rel_page_publications'), $tags, array(get_tp_option('rel_content_category')) );
+    echo '<div class="wrap">';
+    echo '<form name="form1" method="post" action="' . $_SERVER['REQUEST_URI'] . '" id="form1">';
+   
+    // create related content (post/page/...)
+    if ( isset($_POST['create_rel_content']) ) {
+        $data['rel_page'] = tp_add_publication_as_post( $data['title'], $data['bibtex'], $data['date'], get_tp_option('rel_page_publications'), $tags, array(get_tp_option('rel_content_category')) );
+    }
+    
+    // create publication and related page
+    if ( isset($_POST['create_pub']) ) {
+        $pub_ID = tp_publications::add_publication($data, $tags, $bookmark);
+        foreach ($fields as $row) {
+            if ( isset( $_POST[$row['variable']] ) && $_POST[$row['variable']] !== '' ) {
+                tp_publications::add_pub_meta($pub_ID, $row['variable'], $_POST[$row['variable']]);
+            }
         }
-   // create publication and related page
-   if ( isset($_POST['erstellen']) ) {
-      $pub_ID = tp_publications::add_publication($data, $tags, $bookmark);
-      $message = __('Publication added','teachpress') . ' <a href="admin.php?page=teachpress/addpublications.php">' . __('Add New','teachpress') . '</a>';
-      get_tp_message($message);
-   }
-   // save publication
-   if ( isset($_POST['speichern']) ) {
-      tp_publications::change_publication($pub_ID, $data, $bookmark, $delbox, $tags);
-      get_tp_message( __('Saved') );
-   }
+        $message = __('Publication added','teachpress') . ' <a href="admin.php?page=teachpress/addpublications.php">' . __('Add New','teachpress') . '</a>';
+        get_tp_message($message);
+    }
+    
+    // save publication
+    if ( isset($_POST['speichern']) ) {
+        tp_publications::delete_pub_meta($pub_ID);
+        foreach ($fields as $row) {
+            if ( isset( $_POST[$row['variable']] ) && $_POST[$row['variable']] !== '' ) {
+                tp_publications::add_pub_meta($pub_ID, $row['variable'], $_POST[$row['variable']]);
+            }
+        }
+        tp_publications::change_publication($pub_ID, $data, $bookmark, $delbox, $tags);
+        get_tp_message( __('Saved') );
+    }
+    
+    // Default vaulues
+    if ( $pub_ID != 0 ) {
+        $daten = tp_publications::get_publication($pub_ID, ARRAY_A);
+        $pub_meta = tp_publications::get_pub_meta($pub_ID);
+    }
+    else {
+        $daten = get_tp_var_types('publication_array');
+        $pub_meta = array ( array('meta_key' => '', 'meta_value' => '') );
+    }
 
-   if ( $pub_ID != '' && !isset($_POST['erstellen']) ) {
-      echo '<p style="margin-bottom:0px;"><a href="admin.php?page=publications.php&amp;search=' . $search . '&amp;filter=' .  $filter . '&amp;limit=' . $entry_limit . '&amp;tag=' . $tag_id . '&amp;year=' . $year . '" class="button-secondary" title="' . __('Back','teachpress') . '">&larr; ' . __("Back",'teachpress') . '</a></p>';
-   } ?>
-   <h2><?php if ($pub_ID == '') { _e('Add a new publication','teachpress'); } else { _e('Edit publication','teachpress'); } ?></h2>
+    if ( $pub_ID != 0 && !isset($_POST['create_pub']) ) {
+        echo '<p style="margin-bottom:0px;"><a href="admin.php?page=publications.php&amp;search=' . $search . '&amp;filter=' .  $filter . '&amp;limit=' . $entry_limit . '&amp;tag=' . $tag_id . '&amp;year=' . $year . '" class="button-secondary" title="' . __('Back','teachpress') . '">&larr; ' . __("Back",'teachpress') . '</a></p>';
+    } ?>
+    <h2><?php if ($pub_ID == 0) { _e('Add a new publication','teachpress'); } else { _e('Edit publication','teachpress'); } ?></h2>
      <input name="page" type="hidden" value="teachpress/addpublications.php">
-     <?php if ($pub_ID != '') { 
-          $daten = tp_publications::get_publication($pub_ID, ARRAY_A);
+     <?php if ($pub_ID != 0) { 
+          
           ?>
           <input type="hidden" name="pub_ID" value="<?php echo $pub_ID; ?>" />
           <input type="hidden" name="search" value="<?php echo stripslashes($search); ?>" />
@@ -144,7 +166,7 @@ function teachpress_addpublications_page() {
                    echo '<p><input type="checkbox" name="bookmark[]" id="bookmark" value="' . $user . '" title="' . __('Click to add the publication in your own list','teachpress') . '"/> <label for="bookmark" title="' . __('Click to add the publication in your own list','teachpress') . '">' . __('add to your own list','teachpress') . '</label></p>';
                    }
              // search users with min. one bookmark
-             $row = tp_publications::get_pubusers();
+             $row = tp_publications::get_pub_users();
              foreach($row as $row) {
                 $user_info = get_userdata($row->user);
                 if ($user != $row->user && $user_info != false) { 
@@ -173,14 +195,14 @@ function teachpress_addpublications_page() {
                 <input type="reset" name="Reset" value="<?php _e('Reset','teachpress'); ?>" id="teachpress_reset" class="button-secondary">
                 </div>
                 <div style="width:50%; float:right; height:25px;">
-                <input name="erstellen" type="submit" class="button-primary" id="publikation_erstellen" onclick="teachpress_validateForm('tags','','R','title','','R','bibtex','','R');return document.teachpress_returnValue;" value="<?php _e('Create','teachpress'); ?>">
+                <input name="create_pub" type="submit" class="button-primary" id="create_publication_submit" onclick="teachpress_validateForm('tags','','R','title','','R','bibtex','','R');return document.teachpress_returnValue;" value="<?php _e('Create','teachpress'); ?>">
                 </div>
             </td>
            </tr>    
            <?php } else { ?>
            <tr style="text-align:center;">
             <td>
-            <input type="submit" name="speichern" id="publikation_erstellen" value="<?php _e('Save'); ?>" class="button-primary" title="<?php _e('Save'); ?>">
+            <input type="submit" name="speichern" id="save_publication_submit" value="<?php _e('Save'); ?>" class="button-primary" title="<?php _e('Save'); ?>">
             </td>
            </tr>
    <?php } ?>  
@@ -256,7 +278,7 @@ function teachpress_addpublications_page() {
             <p style="padding:5px 0 0 5px;">
                 <?php 
                 $value = ( get_tp_option('rel_content_auto') == '1' ) ? '1' : '0';
-                echo get_tp_admin_checkbox('create_rel_content', __('Create related content','teachpress'), $value); 
+                echo tp_admin::get_checkbox('create_rel_content', __('Create related content','teachpress'), $value); 
                 ?>
             </p>
             </div>
@@ -316,61 +338,61 @@ function teachpress_addpublications_page() {
              <td>
              <?php
              // booktitle
-             echo get_tp_admin_form_field('booktitle', __('The title of a book','teachpress'),__('booktitle','teachpress'),'textarea',$daten["type"],$daten["booktitle"],array('conference','incollection','inproceedings'),7,'width:95%; height: 58px;');
+             echo tp_admin::get_form_field('booktitle', __('The title of a book','teachpress'),__('booktitle','teachpress'),'textarea',$daten["type"],$daten["booktitle"],array('conference','incollection','inproceedings'),7,'width:95%; height: 58px;');
              
              // issuetitle
-             echo get_tp_admin_form_field('issuetitle', __('The subtitle of a periodical publication','teachpress'),__('issuetitle','teachpress'),'textarea',$daten["type"],$daten["issuetitle"],array('periodical'),7,'width:95%; height: 58px;');
+             echo tp_admin::get_form_field('issuetitle', __('The subtitle of a periodical publication','teachpress'),__('issuetitle','teachpress'),'textarea',$daten["type"],$daten["issuetitle"],array('periodical'),7,'width:95%; height: 58px;');
              
              // journal
-             echo get_tp_admin_form_field('journal', __('The title of a journal','teachpress'),__('journal','teachpress'),'input',$daten["type"],$daten["journal"],array('article','periodical',''),8,'width:95%;');
+             echo tp_admin::get_form_field('journal', __('The title of a journal','teachpress'),__('journal','teachpress'),'input',$daten["type"],$daten["journal"],array('article','periodical',''),8,'width:95%;');
              
              // volume
-             echo get_tp_admin_form_field('volume', __('The volume of a journal or book','teachpress'),__('volume','teachpress'),'input',$daten["type"],$daten["volume"],array('article','book','booklet','collection','conference','inbook','incollection','inproceedings','periodical','proceedings',''),9);
+             echo tp_admin::get_form_field('volume', __('The volume of a journal or book','teachpress'),__('volume','teachpress'),'input',$daten["type"],$daten["volume"],array('article','book','booklet','collection','conference','inbook','incollection','inproceedings','periodical','proceedings',''),9);
              
              // number
-             echo get_tp_admin_form_field('number', __('The number of a book, journal or work in a series','teachpress'),__('Number','teachpress'),'input',$daten["type"],$daten["number"],array('article','book','collection','conference','inbook','incollection','inproceedings','periodical','proceedings','techreport',''),10);
+             echo tp_admin::get_form_field('number', __('The number of a book, journal or work in a series','teachpress'),__('Number','teachpress'),'input',$daten["type"],$daten["number"],array('article','book','collection','conference','inbook','incollection','inproceedings','periodical','proceedings','techreport',''),10);
              
              // pages
-             echo get_tp_admin_form_field('pages',__('The page you are referring to.','teachpress'),__('pages','teachpress'),'input',$daten["type"],$daten["pages"],array('article','conference','inbook','incollection','inproceedings',''),11);
+             echo tp_admin::get_form_field('pages',__('The page you are referring to.','teachpress'),__('pages','teachpress'),'input',$daten["type"],$daten["pages"],array('article','conference','inbook','incollection','inproceedings',''),11);
              
              // publisher
-             echo get_tp_admin_form_field('publisher', __('The names of publisher','teachpress'),__('publisher','teachpress'),'input',$daten["type"],$daten["publisher"],array('book','collection','conference','inbook','incollection','inproceedings','proceedings'),12,'width:95%;');
+             echo tp_admin::get_form_field('publisher', __('The names of publisher','teachpress'),__('publisher','teachpress'),'input',$daten["type"],$daten["publisher"],array('book','collection','conference','inbook','incollection','inproceedings','proceedings'),12,'width:95%;');
              
              // address
-             echo get_tp_admin_form_field('address', __('The address of the publisher or the place of confernece','teachpress'),__('address','teachpress'),'input',$daten["type"],$daten["address"],array('book','booklet','collection','conference','inbook','incollection','inproceedings','manual','mastersthesis','phdthesis','proceedings','techreport'),13,'width:95%;');
+             echo tp_admin::get_form_field('address', __('The address of the publisher or the place of confernece','teachpress'),__('address','teachpress'),'input',$daten["type"],$daten["address"],array('book','booklet','collection','conference','inbook','incollection','inproceedings','manual','mastersthesis','phdthesis','proceedings','techreport'),13,'width:95%;');
              
              // edition
-             echo get_tp_admin_form_field('edition', __('The edition of a book','teachpress'),__('edition','teachpress'),'input',$daten["type"],$daten["edition"],array('book','collection','inbook','incollection','manual'),14);
+             echo tp_admin::get_form_field('edition', __('The edition of a book','teachpress'),__('edition','teachpress'),'input',$daten["type"],$daten["edition"],array('book','collection','inbook','incollection','manual'),14);
              
              // chapter
-             echo get_tp_admin_form_field('chapter', __('The chapter or the section number','teachpress'),__('chapter','teachpress'),'input',$daten["type"],$daten["chapter"],array('inbook','incollection'),15);
+             echo tp_admin::get_form_field('chapter', __('The chapter or the section number','teachpress'),__('chapter','teachpress'),'input',$daten["type"],$daten["chapter"],array('inbook','incollection'),15);
              
              // institution
-             echo get_tp_admin_form_field('institution', __('The name of a sponsoring institution','teachpress'),__('institution','teachpress'),'input',$daten["type"],$daten["institution"],array('techreport'),16,'width:95%;');
+             echo tp_admin::get_form_field('institution', __('The name of a sponsoring institution','teachpress'),__('institution','teachpress'),'input',$daten["type"],$daten["institution"],array('techreport'),16,'width:95%;');
              
              // organization
-             echo get_tp_admin_form_field('organization', __('The names of a sponsoring organization','teachpress'),__('organization','teachpress'),'input',$daten["type"],$daten["organization"],array('conference','inproceedings','manual','proceedings','online'),17,'width:95%;');
+             echo tp_admin::get_form_field('organization', __('The names of a sponsoring organization','teachpress'),__('organization','teachpress'),'input',$daten["type"],$daten["organization"],array('conference','inproceedings','manual','proceedings','online'),17,'width:95%;');
              
              // school
-             echo get_tp_admin_form_field('school', __('The names of the academic instituion where a thesis was written','teachpress'),__('school','teachpress'),'input',$daten["type"],$daten["school"],array('mastersthesis','phdthesis'),18,'width:95%;');
+             echo tp_admin::get_form_field('school', __('The names of the academic instituion where a thesis was written','teachpress'),__('school','teachpress'),'input',$daten["type"],$daten["school"],array('mastersthesis','phdthesis'),18,'width:95%;');
             
              // series
-             echo get_tp_admin_form_field('series', __('The name of a series','teachpress'),__('series','teachpress'),'input',$daten["type"],$daten["series"],array('book','collection','conference','inbook','incollection','inproceedings','periodical','proceedings'),19);
+             echo tp_admin::get_form_field('series', __('The name of a series','teachpress'),__('series','teachpress'),'input',$daten["type"],$daten["series"],array('book','collection','conference','inbook','incollection','inproceedings','periodical','proceedings'),19);
              
              // crossref
-             echo get_tp_admin_form_field('crossref', __('The bibTeX key this work is referring to','teachpress'),__('crossref','teachpress'),'input','nothing',$daten["crossref"],array(''),20);
+             echo tp_admin::get_form_field('crossref', __('The bibTeX key this work is referring to','teachpress'),__('crossref','teachpress'),'input','nothing',$daten["crossref"],array(''),20);
              
              // abstract
-             echo get_tp_admin_form_field('abstract', __('A short summary of the publication','teachpress'),__('abstract','teachpress'),'textarea','',$daten["abstract"],array(''),21,'width:95%; height: 88px;');
+             echo tp_admin::get_form_field('abstract', __('A short summary of the publication','teachpress'),__('abstract','teachpress'),'textarea','',$daten["abstract"],array(''),21,'width:95%; height: 88px;');
              
              // howpublished
-             echo get_tp_admin_form_field('howpublished', __('An unusual method for publishing','teachpress'),__('howpublished','teachpress'),'input',$daten["type"],$daten["howpublished"],array('booklet','misc'),22,'width:95%;');
+             echo tp_admin::get_form_field('howpublished', __('An unusual method for publishing','teachpress'),__('howpublished','teachpress'),'input',$daten["type"],$daten["howpublished"],array('booklet','misc'),22,'width:95%;');
              
              // key
-             echo get_tp_admin_form_field('key', __('If there is no author or editor given, so this field is used for the sorting.','teachpress'),__('Key','teachpress'),'input','nothing',$daten["key"],array(''),23);
+             echo tp_admin::get_form_field('key', __('If there is no author or editor given, so this field is used for the sorting.','teachpress'),__('Key','teachpress'),'input','nothing',$daten["key"],array(''),23);
              
              // techtype
-             echo get_tp_admin_form_field('techtype', __('The type of a technical report, thesis, incollection or inbook.','teachpress'),__('Type'),'input',$daten["type"],$daten["techtype"],array('inbook','incollection','mastersthesis','phdthesis','techreport'),24);
+             echo tp_admin::get_form_field('techtype', __('The type of a technical report, thesis, incollection or inbook.','teachpress'),__('Type'),'input',$daten["type"],$daten["techtype"],array('inbook','incollection','mastersthesis','phdthesis','techreport'),24);
              
              ?>
              <div id="div_isbn">
@@ -413,8 +435,12 @@ function teachpress_addpublications_page() {
              <textarea name="note" wrap="virtual" id="note" title="<?php _e('Additional information','teachpress'); ?>" style="width:95%" rows="4" tabindex="31"><?php echo stripslashes($daten["note"]); ?></textarea>
              </td>
            </tr>
-           </thead>    
+           </thead>
            </table>
+            <?php 
+            if ( count($fields) !== 0 ) { 
+                tp_admin::display_meta_data($fields, $pub_meta);       
+            } ?>
      </p>
      </div>
    </form>

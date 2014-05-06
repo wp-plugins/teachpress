@@ -358,6 +358,7 @@ class tp_single_course_page {
                 echo '<a href="javascript:teachpress_open_description(' . $end['assessment_id'] . ',' . $pos . ');" class="tp_assessment ' . $class . '" id="tp_assessment_' . $end['assessment_id'] . '">' . $end['value'] . '</a>';
                     echo '<div id="tp_description_' .  $end['assessment_id'] . '" class="tp_description">
                          <input name="tp_desc_comment_' .  $end['assessment_id'] . '" id="tp_desc_comment_' .  $end['assessment_id'] . '" type="hidden" value="' . $end['comment'] . '"/>
+                         <input name="tp_desc_date_' .  $end['assessment_id'] . '" id="tp_desc_date_' .  $end['assessment_id'] . '" type="hidden" value="' . $end['exam_date'] . '"/>
                          </div> ';
             }
             echo '</td>';

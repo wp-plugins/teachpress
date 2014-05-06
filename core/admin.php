@@ -4,6 +4,210 @@
  * @package teachpress/core
  */
 
+/**
+ * This class contains general functions for teachpress admin menus
+ * @since 5.0.0
+ */
+class tp_admin {
+    
+    /**
+     * Returns a text field for admin/settings screens
+     * @param string $field_name
+     * @param string $label
+     * @param string $value
+     * @param boolean $readonly
+     * @return string
+     * @since 5.0.0
+     */
+    public static function get_text_field($field_name, $label, $value, $readonly = false) {
+        $readonly = ( $readonly === false ) ? '' : 'readonly="true" ';
+        return '<p><label for="' . $field_name . '"><b>' . $label . '</b></label></p>
+                <input name="' . $field_name . '" type="text" id="' . $field_name . '" value="' . $value . '" size="50" ' . $readonly . '/>';
+    }
+    
+    /**
+     * Returns a textarea field for admin/settings screens
+     * @param string $field_name
+     * @param string $label
+     * @param string $value
+     * @return string
+     * @since 5.0.0
+     */
+    public static function get_textarea_field ($field_name, $label, $value) {
+        return '<p><label for="' . $field_name . '"><b>' . $label . '</b></label><p>
+                <textarea name="' . $field_name . '" id="' . $field_name . '" style="width:100%; height:80px;">' . $value . '</textarea>';
+    }
+    
+    /**
+     * Returns a select field for admin/settings screens
+     * @param string $field_name
+     * @param string $label
+     * @param string $value
+     * @return string
+     * @since 5.0.0
+     */
+    public static function get_select_field ($field_name, $label, $value) {
+        global $wpdb;
+        $return = '';
+        $return .= '<p><label for="' . $field_name . '"><b>' . $label . '</b></label></p>';
+        $return .= '<select name="' . $field_name . '" id="' . $field_name . '">';
+        $options = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '" . $field_name . "' ORDER BY value ASC");
+        if ( $value == '' ) {
+            $return .= '<option value=""></option>';
+        }
+        foreach ($options as $opt) {
+            $selected = ( $value == $opt->value ) ? 'selected="selected"' : '';
+            $return .= '<option value="' . $opt->value . '" ' . $selected . '>' . $opt->value . '</option>';
+        }
+        $return .= '</select>';
+        return $return;
+    }
+    
+    /**
+     * Returns a form field for the add_publication_page()
+     * @param string $name          field name
+     * @param string $title         field title
+     * @param string $label         field label
+     * @param string $field_type    field type (textarea|input)
+     * @param string $pub_type      publication type of the current/visible entry
+     * @param string $pub_value     field value of the current/visible entry
+     * @param array $availabe_for   array of publication types
+     * @param int $tabindex         the tab index
+     * @param string $style         css style attributes
+     * @return string
+     * @since 5.0.0
+     */
+    public static function get_form_field ($name, $title, $label, $field_type, $pub_type, $pub_value, $availabe_for, $tabindex, $style = '') {
+        $display = ( in_array($pub_type, $availabe_for) ) ? 'style="display:block;"' : 'style="display:none;"';
+        if ( $field_type === 'textarea' ) {
+            $field = '<textarea name="' . $name . '" id="' . $name . '" wrap="virtual" style="' . $style . '" tabindex="' . $tabindex . '" title="' . $title . '">' . stripslashes($pub_value) . '</textarea>';
+        }
+        else {
+            $field = '<input name="' . $name . '" id="' . $name . '" type="text" title="' . $title . '" style="' . $style . '" value="' . stripslashes($pub_value) . '" tabindex="8" />';
+        }
+        $a = '<div id="div_' . $name . '" ' . $display . '>
+              <p><label for="' . $name . '" title="' . $title . '"><strong>' . $label . '</strong></label></p>
+              ' . $field . '</div>';
+        return $a;
+    }
+    
+    /**
+     * Returns a checkbox for admin/settings screens
+     * @param string $name
+     * @param string $title
+     * @param string $value
+     * @param boolean $disabled
+     * @return string
+     * @since 5.0.0
+     */
+    public static function get_checkbox($name, $title, $value, $disabled = false) {
+        $checked = ( $value == '1' ) ? 'checked="checked"' : '';
+        $disabled = ( $disabled === true ) ? ' disabled="disabled"' : '';
+        return '<input name="' . $name . '" id="' . $name . '" type="checkbox" value="1" ' . $checked . $disabled .'/> <label for="' . $name . '">' . $title . '</label>';
+    }
+    
+    /**
+     * Displays a box for editing some options (terms|type|studies) for courses
+     * @param string $title
+     * @param string $type
+     * @param array $options (element_title|add_title|delete_title|count_title|tab)
+     * @since 5.0.0
+     */
+    public static function get_course_option_box ( $title, $type, $options = array() ) {
+        global $wpdb;
+        echo '<h3>' . $title . '</h3>';
+        echo '<table border="0" cellspacing="0" cellpadding="0" class="widefat">';
+        echo '<thead>';
+        echo '<tr>';
+        echo '<th width="10">&nbsp;</th>';
+        echo '<th>' . $options['element_title'] . '</th>';
+        if ( $type === 'term' || $type === 'course_of_studies' || $type === 'type' ) {
+        echo '<th width="150">' . $options['count_title'] . '</th>';
+        }
+        echo '</tr>';
+        echo '</thead>';
+        echo '<tbody>';
+
+        if ( $type === 'term' ) {
+            $sql = "SELECT number, value, setting_id FROM ( SELECT COUNT(v.semester) as number, e.variable AS value,  e.setting_id as setting_id, e.category as category FROM " . TEACHPRESS_SETTINGS . " e LEFT JOIN " . TEACHPRESS_COURSES . " v ON e.variable = v.semester GROUP BY e.variable ORDER BY number DESC ) AS temp WHERE category = 'semester' ORDER BY setting_id";
+        }
+        elseif ( $type === 'type' ) {
+            $sql = "SELECT number, value, setting_id FROM ( SELECT COUNT(v.type) as number, e.value AS value,  e.setting_id as setting_id, e.category as category FROM " . TEACHPRESS_SETTINGS . " e LEFT JOIN " . TEACHPRESS_COURSES . " v ON e.value = v.type GROUP BY e.value ORDER BY number DESC ) AS temp WHERE category = 'course_type' ORDER BY value";
+        }
+        elseif ( $type === 'course_of_studies' ) {
+            $sql = "SELECT number, value, setting_id FROM ( SELECT COUNT(s.course_of_studies) as number, e.value AS value,  e.setting_id as setting_id, e.category as category FROM " . TEACHPRESS_SETTINGS . " e LEFT JOIN " . TEACHPRESS_STUD . " s ON e.value = s.course_of_studies GROUP BY e.value ORDER BY number DESC ) AS temp WHERE category = 'course_of_studies' ORDER BY value";
+        }
+        else {
+            $sql = "SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '$type' ORDER BY value ASC";
+        }
+
+        $row = $wpdb->get_results($sql);
+        $class_alternate = true;
+        foreach ($row as $row) {
+            if ( $class_alternate === true ) {
+                $tr_class = 'class="alternate"';
+                $class_alternate = false;
+            }
+            else {
+                $tr_class = '';
+                $class_alternate = true;
+            }
+            echo '<tr ' . $tr_class . '>';
+            echo '<td><a title="' . $options['delete_title'] . '" href="options-general.php?page=teachpress/settings.php&amp;delete=' . $row->setting_id . '&amp;tab=' . $options['tab'] . '" class="teachpress_delete">X</a></td>';
+            echo '<td>' . stripslashes($row->value) . '</td>';
+            if ( $type === 'term' || $type === 'course_of_studies' || $type === 'type' ) {
+                echo '<td>' . $row->number . '</td>';
+            }
+            echo '</tr>';              
+        }
+
+        echo '<tr>';
+        echo '<td></td>';
+        echo '<td colspan="2"><input name="new_' . $type . '" type="text" id="new_' . $type . '" size="30" value="' . $options['add_title'] . '" onblur="if(this.value==' . "''" .') this.value='. "'" . $options['add_title'] . "'" . ';" onfocus="if(this.value=='. "'" . $options['add_title'] . "'" . ') this.value=' . "''" . ';"/> <input name="add_' . $type . '" type="submit" class="button-secondary" value="' . __('Create','teachpress') . '"/></td>'; 
+        echo '</tr>'; 
+
+        echo '</tbody>';
+        echo '</table>';     
+    }
+    
+    /**
+     * Displays the meta data section of publications / courses in admin menus
+     * @param array $fields
+     * @param array $meta_input
+     * @since 5.0.0
+     */
+    public static function display_meta_data($fields, $meta_input) {
+    
+        echo '<table class="widefat" style="margin-top: 15px;">';
+        echo '<thead>';
+        echo '<tr><th>' . __('Custom meta data','teachpress') . '</th></tr>';
+        echo '</thead>';
+    
+        echo '<tbody><tr><td>';   
+        foreach ($fields as $row) {
+            $col_data = tp_db_helpers::extract_column_data($row['value']);
+            $value = '';
+            foreach ( $meta_input as $row_meta ) {
+                if ( $row['variable'] === $row_meta['meta_key'] ) {
+                    $value = $row_meta['meta_value'];
+                    break;
+                }
+            }
+            if ( $col_data['type'] === 'SELECT' ) {
+                echo tp_admin::get_select_field($row['variable'], $col_data['title'], $value);
+            }
+            elseif ( $col_data['type'] === 'TEXTAREA' ) {
+                echo tp_admin::get_textarea_field($row['variable'], $col_data['title'], $value);
+            }
+            else {
+                echo tp_admin::get_text_field($row['variable'], $col_data['title'], $value);
+            }
+        }
+        echo '</td></tr></tbody>';
+        echo '</table>'; 
+    }
+}
+
 /** 
  * teachPress Admin Page Menu
  * @param int $number_entries       Number of all available entries
@@ -178,141 +382,6 @@ function get_tp_single_table_row_course ($course, $checkbox, $static, $parent_co
     // Return
     $return = $a1 . $a2 . $a3 . $a4 . $a5;
     return $return;
-}
-
-/**
- * Returns a form field for the add_publication_page()
- * @param string $name          --> field name
- * @param string $title         --> field title
- * @param string $label         --> field label
- * @param string $field_type    --> field type (textarea|input)
- * @param string $pub_type      --> publication type of the current/visible entry
- * @param string $pub_value     --> field value of the current/visible entry
- * @param array $availabe_for   --> array of publication types
- * @param int $tabindex         --> the tab index
- * @param string $style         --> css style attributes
- * @return string
- * @since 4.1.0
- */
-function get_tp_admin_form_field ($name, $title, $label, $field_type, $pub_type, $pub_value, $availabe_for, $tabindex, $style = '') {
-    $display = ( in_array($pub_type, $availabe_for) ) ? 'style="display:block;"' : 'style="display:none;"';
-    if ( $field_type === 'textarea' ) {
-        $field = '<textarea name="' . $name . '" id="' . $name . '" wrap="virtual" style="' . $style . '" tabindex="' . $tabindex . '" title="' . $title . '">' . stripslashes($pub_value) . '</textarea>';
-    }
-    else {
-        $field = '<input name="' . $name . '" id="' . $name . '" type="text" title="' . $title . '" style="' . $style . '" value="' . stripslashes($pub_value) . '" tabindex="8" />';
-    }
-    $a = '<div id="div_' . $name . '" ' . $display . '>
-          <p><label for="' . $name . '" title="' . $title . '"><strong>' . $label . '</strong></label></p>
-          ' . $field . '</div>';
-    return $a;
-}
-
-/**
- * Returns a checkbox for admin/settings screens
- * @param string $name
- * @param string $title
- * @param string $value
- * @param boolean $disabled
- * @return string
- * @since 4.2.0
- */
-function get_tp_admin_checkbox($name, $title, $value, $disabled = false) {
-    $checked = ( $value == '1' ) ? 'checked="checked"' : '';
-    $disabled = ( $disabled === true ) ? ' disabled="disabled"' : '';
-    return '<input name="' . $name . '" id="' . $name . '" type="checkbox" value="1" ' . $checked . $disabled .'/> <label for="' . $name . '">' . $title . '</label>';
-}
-
-function get_course_form_text_field($field_name, $label, $value, $readonly = false) {
-    $readonly = ( $readonly === false ) ? '' : 'readonly="true" ';
-    return '<p><label for="' . $field_name . '"><b>' . $label . '</b></label></p>
-            <input name="' . $field_name . '" type="text" id="' . $field_name . '" value="' . $value . '" size="50" ' . $readonly . '/>';
-}
-
-function get_course_form_textarea_field ($field_name, $label, $value) {
-    return '<p><label for="' . $field_name . '"><b>' . $label . '</b></label><p>
-            <textarea name="' . $field_name . '" id="' . $field_name . '" style="width:100%; height:80px;">' . $value . '</textarea>';
-}
-
-function get_course_form_select_field ($field_name, $label, $value) {
-    global $wpdb;
-    $return = '';
-    $return .= '<p><label for="' . $field_name . '"><b>' . $label . '</b></label></p>';
-    $return .= '<select name="' . $field_name . '" id="' . $field_name . '">';
-    $options = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '" . $field_name . "' ORDER BY value ASC");
-    if ( $value == '' ) {
-        $return .= '<option value=""></option>';
-    }
-    foreach ($options as $opt) {
-        $selected = ( $value == $opt->value ) ? 'selected="selected"' : '';
-        $return .= '<option value="' . $opt->value . '" ' . $selected . '>' . $opt->value . '</option>';
-    }
-    $return .= '</select>';
-    return $return;
-}
-
-/**
- * Gets a box for editing some options (terms|type|studies) for courses
- * @param string $title
- * @param string $type
- * @param array $options (element_title|add_title|delete_title|count_title|tab)
- * @since 4.2.0
- */
-function get_tp_admin_course_option_box ( $title, $type, $options = array() ) {
-    global $wpdb;
-    echo '<h3>' . $title . '</h3>';
-    echo '<table border="0" cellspacing="0" cellpadding="0" class="widefat">';
-    echo '<thead>';
-    echo '<tr>';
-    echo '<th width="10">&nbsp;</th>';
-    echo '<th>' . $options['element_title'] . '</th>';
-    if ( $type === 'term' || $type === 'course_of_studies' || $type === 'type' ) {
-    echo '<th width="150">' . $options['count_title'] . '</th>';
-    }
-    echo '</tr>';
-    echo '</thead>';
-    echo '<tbody>';
-    
-    if ( $type === 'term' ) {
-        $sql = "SELECT number, value, setting_id FROM ( SELECT COUNT(v.semester) as number, e.variable AS value,  e.setting_id as setting_id, e.category as category FROM " . TEACHPRESS_SETTINGS . " e LEFT JOIN " . TEACHPRESS_COURSES . " v ON e.variable = v.semester GROUP BY e.variable ORDER BY number DESC ) AS temp WHERE category = 'semester' ORDER BY setting_id";
-    }
-    elseif ( $type === 'type' ) {
-        $sql = "SELECT number, value, setting_id FROM ( SELECT COUNT(v.type) as number, e.value AS value,  e.setting_id as setting_id, e.category as category FROM " . TEACHPRESS_SETTINGS . " e LEFT JOIN " . TEACHPRESS_COURSES . " v ON e.value = v.type GROUP BY e.value ORDER BY number DESC ) AS temp WHERE category = 'course_type' ORDER BY value";
-    }
-    elseif ( $type === 'course_of_studies' ) {
-        $sql = "SELECT number, value, setting_id FROM ( SELECT COUNT(s.course_of_studies) as number, e.value AS value,  e.setting_id as setting_id, e.category as category FROM " . TEACHPRESS_SETTINGS . " e LEFT JOIN " . TEACHPRESS_STUD . " s ON e.value = s.course_of_studies GROUP BY e.value ORDER BY number DESC ) AS temp WHERE category = 'course_of_studies' ORDER BY value";
-    }
-    else {
-        $sql = "SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '$type' ORDER BY value ASC";
-    }
-               
-    $row = $wpdb->get_results($sql);
-    $class_alternate = true;
-    foreach ($row as $row) {
-        if ( $class_alternate === true ) {
-            $tr_class = 'class="alternate"';
-            $class_alternate = false;
-        }
-        else {
-            $tr_class = '';
-            $class_alternate = true;
-        }
-        echo '<tr ' . $tr_class . '>';
-        echo '<td><a title="' . $options['delete_title'] . '" href="options-general.php?page=teachpress/settings.php&amp;delete=' . $row->setting_id . '&amp;tab=' . $options['tab'] . '" class="teachpress_delete">X</a></td>';
-        echo '<td>' . stripslashes($row->value) . '</td>';
-        if ( $type === 'term' || $type === 'course_of_studies' || $type === 'type' ) {
-            echo '<td>' . $row->number . '</td>';
-        }
-        echo '</tr>';              
-    }
-    
-    echo '<tr>';
-    echo '<td></td>';
-    echo '<td colspan="2"><input name="new_' . $type . '" type="text" id="new_' . $type . '" size="30" value="' . $options['add_title'] . '" onblur="if(this.value==' . "''" .') this.value='. "'" . $options['add_title'] . "'" . ';" onfocus="if(this.value=='. "'" . $options['add_title'] . "'" . ') this.value=' . "''" . ';"/> <input name="add_' . $type . '" type="submit" class="button-secondary" value="' . __('Create','teachpress') . '"/></td>'; 
-    echo '</tr>'; 
-    
-    echo '</tbody>';
-    echo '</table>';     
 }
 
 /**

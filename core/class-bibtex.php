@@ -398,6 +398,8 @@ class tp_bibtex {
     * @param string $test       --> set it to true for test mode ( = disable the inserting of publications into database )
     */
     static function import_bibtex ($input, $settings, $test = false) {
+        // Try to set the time limit for the script
+        set_time_limit(180);
         global $PARSEENTRIES;
         $input = tp_bibtex::replace_bibtex_chars($input);
         $parse = NEW PARSEENTRIES();

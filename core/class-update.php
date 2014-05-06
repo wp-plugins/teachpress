@@ -17,6 +17,10 @@ class tp_update_db {
     public static function force_update () {
         global $wpdb;
         $db_version = get_tp_option('db-version');
+        // Fallback for very old teachPress systems
+        if ( $db_version == '' ) {
+            $db_version = $wpdb->get_var("SELECT `value` FROM " . TEACHPRESS_SETTINGS . " WHERE `variable` = 'db-version'");
+        }
         $software_version = get_tp_version();
         $update_level = '0';
         
@@ -519,6 +523,7 @@ class tp_update_db {
         tp_tables::add_table_authors($charset);
         tp_tables::add_table_rel_pub_auth($charset);
         tp_tables::add_table_stud_meta($charset);
+        tp_tables::add_table_pub_meta($charset);
         // add column use_capabilites to table teachpress_courses
         if ($wpdb->query("SHOW COLUMNS FROM " . TEACHPRESS_COURSES . " LIKE 'use_capabilites'") == '0') { 
             $wpdb->query("ALTER TABLE " . TEACHPRESS_COURSES . " ADD `use_capabilites` INT( 1 ) NULL DEFAULT NULL AFTER `strict_signup`");
@@ -539,6 +544,21 @@ class tp_update_db {
         }
         return false;
     }
+    
+    /**
+     * Checks if the table teachpress_stud_meta needs to be filled. Returns false if not.
+     * @return boolean
+     * @since 5.0.0
+     */
+    public static function check_table_stud_meta () {
+        global $wpdb;
+        $test_stud = $wpdb->get_var("SELECT COUNT(`wp_id`) FROM " . TEACHPRESS_STUD);
+        $test_stud_meta = $wpdb->get_var("SELECT COUNT(`wp_id`) FROM " . TEACHPRESS_STUD_META);
+        if ( $test_stud != 0 && $test_stud_meta == 0 ) {
+            return true;
+        }
+        return false;
+    }
 
     /**
      * Use this function to fill up the table teachpress_authors with data from teachpress_pub
@@ -546,8 +566,8 @@ class tp_update_db {
      */
     public static function fill_table_authors () {
         global $wpdb;
-        // Try to expand the time limit for the script
-        set_time_limit(180);
+        // Try to set the time limit for the script
+        set_time_limit(240);
         $pubs = $wpdb->get_results("SELECT pub_id, author, editor FROM " . TEACHPRESS_PUB, ARRAY_A);
         foreach ( $pubs as $row ) {
             if ( $row['author'] != '' ) {
@@ -556,6 +576,24 @@ class tp_update_db {
             if ( $row['editor'] != '' ) {
                 tp_publications::add_relation($row['pub_id'], $row['editor'], ' and ', 'editors');
             }
+        }
+        get_tp_message( __('Update successful','teachpress') );
+    }
+    
+    /**
+     * Use this function to transfer all data from no longer used columns of teachpress_stud to teachpress_stud_meta
+     * @since 5.0.0
+     */
+    public static function fill_table_stud_meta () {
+        global $wpdb;
+        // Try to set the time limit for the script
+        set_time_limit(240);
+        $students = $wpdb->get_results("SELECT wp_id, course_of_studies, birthday, semesternumber, matriculation_number FROM " . TEACHPRESS_STUD, ARRAY_A);
+        foreach ( $students as $row ) {
+            tp_students::add_student_meta($row['wp_id'], 'course_of_studies', $row['course_of_studies']);
+            tp_students::add_student_meta($row['wp_id'], 'birthday', $row['birthday']);
+            tp_students::add_student_meta($row['wp_id'], 'semester_number', $row['semesternumber']);
+            tp_students::add_student_meta($row['wp_id'], 'matriculation_number', $row['matriculation_number']);
         }
         get_tp_message( __('Update successful','teachpress') );
     }
@@ -608,10 +646,29 @@ class tp_update_db {
         }
         
         /**** since version 5.0.0 ****/
-        // wp_id
-        if ($wpdb->query("SELECT value FROM " . TEACHPRESS_SETTINGS . " WHERE `variable` = 'wp_id' AND `category` = 'teachpress_stud'") == '0') {
-            $value = 'name = {wp_id}, title = {ID}, type = {INT}, required = {true}, unique = {true}, admin_visibility = {true}';
-            // $wpdb->query("INSERT INTO " . TEACHPRESS_SETTINGS . " (`variable`, `value`, `category`) VALUES ('wp_id', '$value', 'teachpress_stud')"); 
+        // fix old entries
+        if ($wpdb->query("SELECT value FROM " . TEACHPRESS_SETTINGS . " WHERE `variable` = 'sem' AND `category` = ''") == '0') {
+            $wpdb->query("UPDATE " . TEACHPRESS_SETTINGS . " SET `category` = 'system' WHERE `variable` = 'sem'");
+        }
+        // course_of_studies
+        if ($wpdb->query("SELECT value FROM " . TEACHPRESS_SETTINGS . " WHERE `variable` = 'course_of_studies' AND `category` = 'teachpress_stud'") == '0') {
+            $value = 'name = {course_of_studies}, title = {' . __('Course of studies','teachpress') . '}, type = {SELECT}, required = {false}, unique = {false}, admin_visibility = {true}';
+            $wpdb->query("INSERT INTO " . TEACHPRESS_SETTINGS . " (`variable`, `value`, `category`) VALUES ('course_of_studies', '$value', 'teachpress_stud')"); 
+        }
+        // birthday
+        if ($wpdb->query("SELECT value FROM " . TEACHPRESS_SETTINGS . " WHERE `variable` = 'birthday' AND `category` = 'teachpress_stud'") == '0') {
+            $value = 'name = {birthday}, title = {' . __('Birthday','teachpress') . '}, type = {DATE}, required = {false}, unique = {false}, admin_visibility = {false}';
+            $wpdb->query("INSERT INTO " . TEACHPRESS_SETTINGS . " (`variable`, `value`, `category`) VALUES ('birthday', '$value', 'teachpress_stud')"); 
+        }
+        // semester_number
+        if ($wpdb->query("SELECT value FROM " . TEACHPRESS_SETTINGS . " WHERE `variable` = 'semester_number' AND `category` = 'teachpress_stud'") == '0') {
+            $value = 'name = {semester_number}, title = {' . __('Semester number','teachpress') . '}, type = {INT}, required = {false}, unique = {false}, admin_visibility = {false}';
+            $wpdb->query("INSERT INTO " . TEACHPRESS_SETTINGS . " (`variable`, `value`, `category`) VALUES ('semester_number', '$value', 'teachpress_stud')"); 
+        }
+        // matriculation_number
+        if ($wpdb->query("SELECT value FROM " . TEACHPRESS_SETTINGS . " WHERE `variable` = 'matriculation_number' AND `category` = 'teachpress_stud'") == '0') {
+            $value = 'name = {matriculation_number}, title = {' . __('Matriculation number','teachpress') . '}, type = {INT}, required = {false}, unique = {false}, admin_visibility = {true}';
+            $wpdb->query("INSERT INTO " . TEACHPRESS_SETTINGS . " (`variable`, `value`, `category`) VALUES ('matriculation_number', '$value', 'teachpress_stud')"); 
         }
         
     }
@@ -624,7 +681,7 @@ class tp_update_db {
     private static function finalize_update ($version) {
         global $wpdb;
         $version = htmlspecialchars( esc_sql( $version ) );
-        $wpdb->query("UPDATE " . TEACHPRESS_SETTINGS . " SET  `value` = '$version' WHERE `variable` = 'db-version'");
+        $wpdb->query("UPDATE " . TEACHPRESS_SETTINGS . " SET `value` = '$version', `category` = 'system' WHERE `variable` = 'db-version'");
         get_tp_message( __('Update successful','teachpress') );
     }
 }

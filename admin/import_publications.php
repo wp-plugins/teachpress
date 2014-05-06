@@ -126,7 +126,7 @@ function tp_import_tab () {
                     <td>
                     <?php if ( get_tp_option('import_overwrite') === '1' ) { ?>
                     <p><strong><label for="overwrite"><?php _e('Overwrite Publications','teachpress'); ?></label></strong></p>
-                    <?php echo get_tp_admin_checkbox('overwrite', __('Overwrite existing publications with a similar BibTeX key','teachpress'), ''); 
+                    <?php echo tp_admin::get_checkbox('overwrite', __('Overwrite existing publications with a similar BibTeX key','teachpress'), ''); 
                     } ?>
                     </td>
                 </tr>
@@ -240,7 +240,7 @@ function tp_export_tab() {
                    <select name="tp_user" id="tp_user">
                         <option value="all"><?php _e('All','teachpress'); ?></option>
                         <?php
-                        $row = tp_publications::get_pubusers();
+                        $row = tp_publications::get_pub_users();
                         foreach($row as $row) {
                              $user_info = get_userdata($row->user);
                              if ( $user_info != false ) { 

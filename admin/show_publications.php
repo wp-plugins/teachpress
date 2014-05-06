@@ -149,6 +149,7 @@ function teachpress_publications_page() {
  * @since 4.3.0
  */
 function tp_show_publications_page_bibtex_screen($array_variables) {
+    $sel = '';
     echo '<form name="form1">';
     echo '<p><a href="admin.php?page=' . $array_variables['page'] . '&amp;search=' . $array_variables['search'] . '&amp;limit=' . $array_variables['curr_page'] . '" class="button-secondary">&larr; ' . __('Back','teachpress') . '</a></p>';
     echo '<h2>' . __('BibTeX','teachpress') . '</h2>';
@@ -160,7 +161,8 @@ function tp_show_publications_page_bibtex_screen($array_variables) {
             $pub = intval($array_variables['checkbox'][$i]);
             $row = tp_publications::get_publication( $pub, ARRAY_A );
             $tags = get_tp_tags( array('output_type' => ARRAY_A, 'pub_id' => $pub) );
-            echo tp_bibtex::get_single_publication_bibtex($row, $tags);	
+            echo tp_bibtex::get_single_publication_bibtex($row, $tags);
+            $sel = ( $sel !== '' ) ? $sel . ',' . $pub : $pub;
         }
     }
     else {
@@ -177,6 +179,13 @@ function tp_show_publications_page_bibtex_screen($array_variables) {
            document.form1.bibtex_area.focus();
            document.form1.bibtex_area.select();
            </script>';
+    if ( $sel != '' ) {
+        echo '<form id="tp_export" method="post" action="' . plugins_url() . '/teachpress/export.php?type=pub">';
+        echo '<input type="hidden" name="tp_sel" value="' . $sel . '"/>';
+        echo '<input type="hidden" name="tp_format" value="bib"/>';
+        echo '<input type="submit" name="tp_submit" class="button-primary" value="' . __('Export','teachpress') . ' (.bibtex)"/>';
+        echo '</form>';
+    }
 }
 
 /**

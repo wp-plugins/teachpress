@@ -227,7 +227,7 @@ function tp_add_course_page() {
            <p><label for="end" title="<?php _e('The end date for the enrollment','teachpress'); ?>"><strong><?php _e('End','teachpress'); ?></strong></label></p>
           <?php 
            if ($course_ID == 0) {
-              // same as for start
+                // same as for start
            }
            else {
               $date1 = tp_datesplit($daten["end"]);
@@ -364,42 +364,10 @@ function tp_add_course_page() {
             </tr>
         </tbody>      
      </table>
-    <?php if ( count($fields) !== 0 ) { ?> 
-    <table class="widefat" style="margin-top: 15px;">
-        <thead>
-           <tr>
-               <th><?php _e('Custom meta data','teachpress'); ?></th>
-           </tr>
-       </thead>
-       <tbody>
-           <tr>
-               <td>
-                   <?php
-                   foreach ($fields as $row) {
-                       $col_data = tp_db_helpers::extract_column_data($row['value']);
-                       $value = '';
-                       foreach ( $course_meta as $row_meta ) {
-                           if ( $row['variable'] === $row_meta['meta_key'] ) {
-                               $value = $row_meta['meta_value'];
-                               break;
-                           }
-                       }
-                       if ( $col_data['type'] === 'SELECT' ) {
-                           echo get_course_form_select_field($row['variable'], $col_data['title'], $value);
-                       }
-                       elseif ( $col_data['type'] === 'TEXTAREA' ) {
-                           echo get_course_form_textarea_field($row['variable'], $col_data['title'], $value);
-                       }
-                       else {
-                           echo get_course_form_text_field($row['variable'], $col_data['title'], $value);
-                       }
-                   }
-                   ?>
-               </td>
-           </tr>
-       </tbody>
-    </table>
-    <?php } ?>
+    <?php 
+    if ( count($fields) !== 0 ) { 
+        tp_admin::display_meta_data($fields, $course_meta);       
+    } ?>
      </div>
      </div>
       <script type="text/javascript" charset="utf-8">
