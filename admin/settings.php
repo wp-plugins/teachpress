@@ -25,7 +25,7 @@ function teachpress_admin_settings() {
 
     $new_term = isset( $_POST['new_term'] ) ? htmlspecialchars($_POST['new_term']) : '';
     $new_type = isset( $_POST['new_type'] ) ? htmlspecialchars($_POST['new_type']) : '';
-    $new_studies = isset( $_POST['new_studies'] ) ? htmlspecialchars($_POST['new_studies']) : '';
+    $new_studies = isset( $_POST['new_course_of_studies'] ) ? htmlspecialchars($_POST['new_course_of_studies']) : '';
 	
     $site = 'options-general.php?page=teachpress/settings.php';
     $tab = isset( $_GET['tab'] ) ? $_GET['tab'] : 'general';
@@ -56,7 +56,7 @@ function teachpress_admin_settings() {
            tp_update_userrole($option_userrole_courses, 'use_teachpress_courses');
            tp_update_userrole($option_userrole_publications, 'use_teachpress');
        }
-       get_tp_message( __('Settings are changed. Please note that access changes are visible, until you have reloaded this page a secont time.','teachpress') );
+       get_tp_message( __('Settings are changed. Please note that access changes are visible, until you have reloaded this page a second time.','teachpress') );
     }
     if ( isset($_POST['save_pub']) ) {
         tp_change_option('import_overwrite', $checkbox_import_overwrite, 'checkbox');
@@ -65,17 +65,17 @@ function teachpress_admin_settings() {
         tp_change_option('rel_content_category', $_POST['rel_content_category']);
         get_tp_message(__('Saved'));
     }
-    if (isset( $_POST['add_studies'] ) && $new_studies != __('Add course of studies','teachpress')) {
-       tp_add_option($new_studies, 'course_of_studies');
+    if (isset( $_POST['add_course_of_studies'] ) && $new_studies != __('Add course of studies','teachpress')) {
+        tp_add_option($new_studies, 'course_of_studies');
     }
     if (isset( $_POST['add_type'] ) && $new_type != __('Add type','teachpress')) {
-       tp_add_option($new_type, 'course_type');
+        tp_add_option($new_type, 'course_type');
     }
     if (isset( $_POST['add_term'] ) && $new_term != __('Add term','teachpress')) {
-       tp_add_option($new_term, 'semester');
+        tp_add_option($new_term, 'semester');
     }
     if ( isset( $_GET['delete'] ) ) {
-       tp_delete_option($_GET['delete']);
+        tp_delete_option($_GET['delete']);
     }?>
 <div class="wrap">
     <h2 style="padding-bottom:0px;"><?php _e('teachPress settings','teachpress'); ?></h2>
