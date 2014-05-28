@@ -5,7 +5,7 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 3.3
 Tested up to: 3.9.1
-Stable tag: 4.3.5
+Stable tag: 4.3.6
 
 With this plugin you can easy manage courses, enrollments and publications.
 
@@ -117,6 +117,9 @@ define ('TP_PUBLICATION_SYSTEM','disable');
 If you save plugins outside the normal path (/wp-content/plugins/), the plugin can't load required WordPress files in some cases. Solution: Change the path in the following plugin files: export.php (line 9) / feed.php (line 7).
 
 == Changelog ==
+
+= 4.3.6 - (28.05.2014) =
+* New: Meta data of publications (page, adress, chapter, isbn, ...) have their own HTML selectors.
 
 = 4.3.5 - (21.05.2014) =
 * New: [tpcloud, tplist]: New link style option (link_style = direct) added (Thanks to Ellie)
