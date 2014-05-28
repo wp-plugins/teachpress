@@ -514,7 +514,7 @@ class tp_enrollments {
         $display_free_places = ( $date1 != '0000-00-00 00:00:00' ) ? $free_places . ' ' . __('of','teachpress') . ' ' .  $row->places : '&nbsp;';
         $waitinglist_info = ( $row->waitinglist == 1 && $free_places == 0 ) ? __('Possible to subscribe in the waiting list','teachpress') : '&nbsp;';
         $registration_period = ($date1 != '0000-00-00 00:00:00') ? __('Registration period','teachpress') . ': ' . substr($row->start,0,strlen($row->start)-3) . ' ' . __('to','teachpress') . ' ' . substr($row->end,0,strlen($row->end)-3) : '&nbsp;';
-        $additional_info = ( $parent_name != '' ) ? stripslashes(nl2br($row2->comment)) . ' ' : '';
+        $additional_info = ( $parent_name != '' ) ? stripslashes(nl2br($row->comment)) . ' ' : '';
         
         // Row 1
         $rtn = '<tr>';
@@ -582,7 +582,7 @@ class tp_enrollments {
  */
 function tp_registration_form ($user_ID, $mode = 'register') {
     $user = ( $mode !== 'register' ) ? tp_students::get_student($user_ID) : '';
-    $user_meta = ( $mode !== 'register' ) ? tp_students::get_student_meta($user_ID) : '';
+    $user_meta = ( $mode !== 'register' ) ? tp_students::get_student_meta($user_ID) : array( array('meta_key' => '', 'meta_value' => '') );
     $fields = get_tp_options('teachpress_stud','`setting_id` ASC', ARRAY_A);
     
     $rtn = '';

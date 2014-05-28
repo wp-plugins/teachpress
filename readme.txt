@@ -136,6 +136,14 @@ Saving of database before upgrading is strongly recommended!!
 * Changed: UI modifications for better integration in WordPress 3.8+
 * Bugfix: Reenable xls export
 
+= 4.3.6 - (28.05.2014) =
+* New: Meta data of publications (page, adress, chapter, isbn, ...) have their own HTML selectors.
+
+= 4.3.5 - (21.05.2014) = 
+* New: [tpcloud, tplist]: New link style option (link_style = direct) added (Thanks to Ellie) 
+* Bugfix: Adding of new courses of studies was impossible 
+* Bugfix: Fixed a small spelling mistake
+
 = 4.3.4 - (14.04.2014) =
 * New: Support for WordPress 3.9
 * Bugfix: Fixed a problem in settings menu with a wrong return to the correct tab

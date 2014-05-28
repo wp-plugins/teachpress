@@ -170,7 +170,7 @@ function teachpress_addpublications_page() {
              foreach($row as $row) {
                 $user_info = get_userdata($row->user);
                 if ($user != $row->user && $user_info != false) { 
-                    if ($pub_ID != '') {
+                    if ($pub_ID != 0) {
                         $test = tp_bookmarks::bookmark_exists($pub_ID, $user_info->ID);
                         if ($test === true) {
                             echo '<p><input type="checkbox" name="bookmark[]" id="bookmark_' . $user_info->ID . '" disabled="disabled"/> <label for="bookmark_' . $user_info->ID . '">' . $user_info->display_name . '</label></p>';
@@ -188,7 +188,7 @@ function teachpress_addpublications_page() {
              </div>
              </td>
            </tr>
-           <?php if ($pub_ID == '') {?>
+           <?php if ($pub_ID == 0) {?>
            <tr style="text-align:center;">
             <td>   
                 <div style="width:50%; float:left; height:25px;">
@@ -215,7 +215,7 @@ function teachpress_addpublications_page() {
         </tr>
         <tr>
             <td>
-            <?php if ($pub_ID != '') {
+            <?php if ($pub_ID != 0) {
             $current_tags = get_tp_tags( array('pub_id' => $pub_ID) );
             if ($current_tags != '') {
                 echo '<p><strong>' . __('Current','teachpress') . '</strong></p>';
@@ -324,7 +324,7 @@ function teachpress_addpublications_page() {
              <p><label for="editor" title="<?php _e('The names of the editors, separate by `and`. Example: Mark Twain and Albert Einstein','teachpress'); ?>"><strong><?php _e('Editor(s)','teachpress'); ?></strong></label></p>
              <textarea name="editor" id="editor" type="text" title="<?php _e('The names of the editors, separate by `and`. Example: Mark Twain and Albert Einstein','teachpress'); ?>" style="width:95%;" rows="3" tabindex="5"><?php echo stripslashes($daten["editor"]); ?></textarea>
              <p><label for="date" title="<?php _e('date of publishing','teachpress'); ?>"><strong><?php _e('date of publishing','teachpress'); ?></strong></label></p>
-             <input type="text" name="date" id="date" title="<?php _e('date of publishing','teachpress'); ?>" value="<?php if ($pub_ID != '') { echo $daten["date"]; } else {_e('JJJJ-MM-TT','teachpress'); } ?>" onblur="if(this.value==='') this.value='<?php _e('JJJJ-MM-TT','teachpress'); ?>';" onfocus="if(this.value==='<?php _e('JJJJ-MM-TT','teachpress'); ?>') this.value='';" tabindex="6"/>
+             <input type="text" name="date" id="date" title="<?php _e('date of publishing','teachpress'); ?>" value="<?php if ($pub_ID != 0) { echo $daten["date"]; } else {_e('JJJJ-MM-TT','teachpress'); } ?>" onblur="if(this.value==='') this.value='<?php _e('JJJJ-MM-TT','teachpress'); ?>';" onfocus="if(this.value==='<?php _e('JJJJ-MM-TT','teachpress'); ?>') this.value='';" tabindex="6"/>
            </td>
            </tr>
            </thead>
@@ -399,7 +399,7 @@ function teachpress_addpublications_page() {
              <p><label for="isbn" title="<?php _e('The ISBN or ISSN of the publication','teachpress'); ?>"><strong><?php _e('ISBN/ISSN','teachpress'); ?></strong></label></p>
              <input type="text" name="isbn" id="isbn" title="<?php _e('The ISBN or ISSN of the publication','teachpress'); ?>" value="<?php echo $daten["isbn"]; ?>" tabindex="25">
                    <span style="padding-left:7px;">
-                     <label><input name="is_isbn" type="radio" id="is_isbn_0" value="1" <?php if ($daten["is_isbn"] == '1' || $pub_ID == '') { echo 'checked="checked"'; }?> tabindex="26"/><?php _e('ISBN','teachpress'); ?></label>
+                     <label><input name="is_isbn" type="radio" id="is_isbn_0" value="1" <?php if ($daten["is_isbn"] == '1' || $pub_ID == 0) { echo 'checked="checked"'; }?> tabindex="26"/><?php _e('ISBN','teachpress'); ?></label>
                      <label><input name="is_isbn" type="radio" value="0" id="is_isbn_1" <?php if ($daten["is_isbn"] == '0') { echo 'checked="checked"'; }?> tabindex="27"/><?php _e('ISSN','teachpress'); ?></label>
                    </span>
              </div>
@@ -410,7 +410,7 @@ function teachpress_addpublications_page() {
              ?>
              <div id="div_urldate" <?php echo $display; ?>>
                  <p><label for="urldate" title="<?php _e('The date you have visited the online resource','teachpress'); ?>"><strong><?php _e('Urldate','teachpress'); ?></strong></label></p>
-             <input type="text" name="urldate" id="urldate" title="<?php _e('The date you have visited the online resource','teachpress'); ?>" value="<?php if ($pub_ID != '') { echo $daten["urldate"]; } else {_e('JJJJ-MM-TT','teachpress'); } ?>" onblur="if(this.value==='') this.value='<?php _e('JJJJ-MM-TT','teachpress'); ?>';" onfocus="if(this.value==='<?php _e('JJJJ-MM-TT','teachpress'); ?>') this.value='';" tabindex="28"/>
+             <input type="text" name="urldate" id="urldate" title="<?php _e('The date you have visited the online resource','teachpress'); ?>" value="<?php if ($pub_ID != 0) { echo $daten["urldate"]; } else {_e('JJJJ-MM-TT','teachpress'); } ?>" onblur="if(this.value==='') this.value='<?php _e('JJJJ-MM-TT','teachpress'); ?>';" onfocus="if(this.value==='<?php _e('JJJJ-MM-TT','teachpress'); ?>') this.value='';" tabindex="28"/>
              </div>
              <div id="div_url">
                 <p style="margin-bottom:0;"><label for="url" title="<?php _e('URL/Files', 'teachpress'); ?>"><strong><?php _e('URL/Files', 'teachpress'); ?></strong></label></p>
@@ -601,4 +601,4 @@ function teachpress_addpublications_page() {
             });
         </script>
    </div>
-<?php } ?>
+<?php }

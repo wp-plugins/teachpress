@@ -509,7 +509,7 @@ function tp_generate_pub_table($tparray, $args ) {
  * @param array $filter_parameter
  * @param array $sql_parameter
  * @param array $settings
- * @param array $mode
+ * @param string $mode
  * @return string
  * @since 5.0.0
  */
@@ -540,7 +540,6 @@ function tp_generate_filter ($filter_parameter, $sql_parameter, $settings, $mode
         $id = 'pub_user';
         $title = __('All users','teachpress');
     }
-    
     // generate option
     foreach ( $row as $row ){
         $index = ( $mode === 'author' ) ? 'author_id' : $mode;
@@ -549,7 +548,6 @@ function tp_generate_filter ($filter_parameter, $sql_parameter, $settings, $mode
         $type = ( $mode === 'type' ) ? $row['type'] : $filter_parameter['type'];
         $user = ( $mode === 'user' ) ? $row['user'] : $filter_parameter['user'];
         $author = ( $mode === 'author' ) ? $row['author_id'] : $filter_parameter['author'];
-        
         if ( $mode === 'type' ) {
             $text = tp_translate_pub_type($row['type'], 'pl');
         }
@@ -569,6 +567,8 @@ function tp_generate_filter ($filter_parameter, $sql_parameter, $settings, $mode
         $options .= '<option value = "' . $settings['permalink'] . 'tgid=' . $filter_parameter['tag'] . '&amp;yr=' . $year . '&amp;type=' . $type . '&amp;usr=' . $user . '&amp;auth=' . $author . $settings['html_anchor'] . '" ' . $current . '>' . $text . '</option>';
     }
     
+    // set filter_parameter[$mode] to zero
+    $filter_parameter[$mode] = '';
     // return filter menu
     return '<select name="' . $id . '" id="' . $id . '" onchange="teachpress_jumpMenu(' . "'" . 'parent' . "'" . ',this,0)">
                <option value="' . $settings['permalink'] . 'tgid=' . $filter_parameter['tag'] . '&amp;type=' . $filter_parameter['type'] . '&amp;usr=' . $filter_parameter['user'] . '&amp;auth=' . $filter_parameter['author'] . '' . $settings['html_anchor'] . '">' . $title . '</option>
@@ -713,14 +713,14 @@ function tp_cloud_shortcode($atts) {
         'minsize' => intval($minsize),
     );
     $filter_parameter = array(
-        'tag' => isset ($_GET['tgid']) ? intval($_GET['tgid']) : '',
-        'year' => isset ($_GET['yr']) ? intval($_GET['yr']) : '',
+        'tag' => ( isset ($_GET['tgid']) && $_GET['tgid'] != '' ) ? intval($_GET['tgid']) : '',
+        'year' => ( isset ($_GET['yr']) && $_GET['yr'] != '' ) ? intval($_GET['yr']) : '',
         'type' => isset ($_GET['type']) ? htmlspecialchars( $_GET['type'] ) : '',
-        'author' => isset ($_GET['auth']) ? intval($_GET['auth']) : '',
-        'user' => isset ($_GET['usr']) ? intval($_GET['usr']) : ''
+        'author' => ( isset ($_GET['auth']) && $_GET['auth'] != '' ) ? intval($_GET['auth']) : '',
+        'user' => ( isset ($_GET['usr']) && $_GET['usr'] != '' ) ? intval($_GET['usr']) : ''
     );
     $sql_parameter = array (
-        'user' => intval($user),
+        'user' => htmlspecialchars($user),
         'type' => htmlspecialchars($type),
         'exclude' => htmlspecialchars($exclude),
         'exclude_tags' => htmlspecialchars($exclude_tags),
@@ -728,8 +728,8 @@ function tp_cloud_shortcode($atts) {
     );
 
     // if author is set by shortcode parameter
-    if ($user != 0) {
-        $filter_parameter['user'] = $user;
+    if ($user != '') {
+        $filter_parameter['user'] = htmlspecialchars($user);
     }
    
     // Handle limits for pagination
@@ -760,7 +760,6 @@ function tp_cloud_shortcode($atts) {
     /**********/ 
     /* Filter */
     /**********/
-   
     // Filter year
     $filter = tp_generate_filter($filter_parameter, $sql_parameter, $settings, 'year');
 
@@ -804,6 +803,8 @@ function tp_cloud_shortcode($atts) {
         $sql_parameter['order'] = "year DESC, type ASC , date DESC";
     }
    
+    // print_r($filter_parameter);
+    
     $args = array(
         'tag' => $filter_parameter['tag'], 
         'year' => $filter_parameter['year'], 

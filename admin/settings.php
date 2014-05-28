@@ -401,7 +401,7 @@ class tp_settings_page {
         echo '<th>' . __('Default category for related content','teachpress') . '</th>';
         echo '<td>';
         wp_dropdown_categories(array('hide_empty' => 0, 'name' => 'rel_content_category', 'orderby' => 'name', 'selected' => get_tp_option('rel_content_category'), 'hierarchical' => true, 'show_option_none' => __('None'))); 
-        echo '<em>' . _('Used if the related content type for publicaitons is set on "Posts"','teachpress') . '</em>
+        echo '<em>' . __('Used if the related content type for publicaitons is set on "Posts"','teachpress') . '</em>
              </td>';
 		echo '<td></td>';
         echo '</tr>';

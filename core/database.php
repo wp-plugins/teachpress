@@ -1393,7 +1393,7 @@ class tp_publications {
         if ( $where != '' ) {
             $where = " WHERE $where";
         }
-        if ( $year != '' && $year != 0 ) {
+        if ( $year != '' ) {
             $having = " HAVING $year";
         }
         if ( $limit != '' ) {
