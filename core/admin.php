@@ -322,27 +322,24 @@ function tp_copy_course($checkbox, $copysem) {
      $counter = 0;
      $counter2 = 0;
      for( $i = 0; $i < count( $checkbox ); $i++ ) {
-          $checkbox[$i] = intval($checkbox[$i]);
-          $row = get_tp_course($checkbox[$i]);
-          foreach ($row as $row) {
-               $daten[$counter]['id'] = $row->course_id;
-               $daten[$counter]['name'] = $row->name;
-               $daten[$counter]['type'] = $row->type;
-               $daten[$counter]['room'] = $row->room;
-               $daten[$counter]['lecturer'] = $row->lecturer;
-               $daten[$counter]['date'] = $row->date;
-               $daten[$counter]['places'] = $row->places;
-               $daten[$counter]['start'] = $row->start;
-               $daten[$counter]['end'] = $row->end;
-               $daten[$counter]['semester'] = $row->semester;
-               $daten[$counter]['comment'] = $row->comment;
-               $daten[$counter]['rel_page'] = $row->rel_page;
-               $daten[$counter]['parent'] = $row->parent;
-               $daten[$counter]['visible'] = $row->visible;
-               $daten[$counter]['waitinglist'] = $row->waitinglist;
-               $daten[$counter]['image_url'] = $row->image_url;
-               $counter++;
-          }
+           $row = get_tp_course($checkbox[$i]);
+		   $daten[$counter]['id'] = $row->course_id;
+		   $daten[$counter]['name'] = $row->name;
+		   $daten[$counter]['type'] = $row->type;
+		   $daten[$counter]['room'] = $row->room;
+		   $daten[$counter]['lecturer'] = $row->lecturer;
+		   $daten[$counter]['date'] = $row->date;
+		   $daten[$counter]['places'] = $row->places;
+		   $daten[$counter]['start'] = $row->start;
+		   $daten[$counter]['end'] = $row->end;
+		   $daten[$counter]['semester'] = $row->semester;
+		   $daten[$counter]['comment'] = $row->comment;
+		   $daten[$counter]['rel_page'] = $row->rel_page;
+		   $daten[$counter]['parent'] = $row->parent;
+		   $daten[$counter]['visible'] = $row->visible;
+		   $daten[$counter]['waitinglist'] = $row->waitinglist;
+		   $daten[$counter]['image_url'] = $row->image_url;
+		   $counter++;
           // copy parents
           if ( $daten[$i]['parent'] == 0) {
                $merke[$counter2] = $daten[$i]['id'];
@@ -351,7 +348,7 @@ function tp_copy_course($checkbox, $copysem) {
                $counter2++;
           }
      }	
-     // copy childs
+     // copy childs 
      for( $i = 0; $i < $counter ; $i++ ) {
           if ( $daten[$i]['parent'] != 0) {
                // check if where is a parent for the current course
