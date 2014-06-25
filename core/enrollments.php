@@ -234,6 +234,14 @@ class tp_enrollments {
                  </tr>';
     }
     
+    public static function get_form_int_field($field_name, $label, $value, $readonly = false) {
+        $readonly = ( $readonly === false ) ? '' : 'readonly="true" ';
+        return '<tr>
+                    <td><label for="' . $field_name . '"><b>' . $label . '</b></label></td>
+                    <td><input name="' . $field_name . '" type="number" id="' . $field_name . '" value="' . $value . '" size="50" ' . $readonly . ' min="0" max="999"/></td>
+                 </tr>';
+    }
+    
     /**
      * Returns a texteara field for user form
      * @param string $field_name    name/id of the field
@@ -266,7 +274,7 @@ class tp_enrollments {
         $return .= '<td><select name="' . $field_name . '" id="' . $field_name . '">';
         $options = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '" . $field_name . "' ORDER BY value ASC");
         if ( $value == '' ) {
-            $return .= '<option value=""></option>';
+            $return .= '<option value="">- ' . __('Please select','teachpress') . ' -</option>';
         }
         foreach ($options as $opt) {
             $selected = ( $value == $opt->value ) ? 'selected="selected"' : '';
@@ -575,10 +583,11 @@ class tp_enrollments {
 
 /**
  * The form for user registrations
- * @param int $user_ID
+ * @param int|array $user_ID
  * @param string $mode        --> register, edit or admin
  * @return string
  * @since 4.0.0
+ * @version 2 (since 5.0.0)
  */
 function tp_registration_form ($user_ID, $mode = 'register') {
     $user = ( $mode !== 'register' ) ? tp_students::get_student($user_ID) : '';
@@ -605,7 +614,7 @@ function tp_registration_form ($user_ID, $mode = 'register') {
     $value = ( $mode === 'register' ) ? '' : stripslashes($user['lastname']);
     $rtn .= tp_enrollments::get_form_text_field('lastname', __('Last name','teachpress'), $value);
     
-    $value = isset($user['userlogin']) ? stripslashes($user['userlogin']) : '';
+    $value = ( is_array( $user_ID ) ) ? $user_ID['userlogin'] : $user['userlogin'];
     $rtn .= tp_enrollments::get_form_text_field('userlogin', __('User account','teachpress'), $value, true);
     
     $readonly = !isset($user['email']) ? false : true;
@@ -630,6 +639,9 @@ function tp_registration_form ($user_ID, $mode = 'register') {
         }
         elseif ( $data['type'] === 'DATE' ) {
             $rtn .= tp_enrollments::get_form_date_field($row['variable'], $data['title'], $value);
+        }
+        elseif ( $data['type'] === 'INT' ) {
+            $rtn .= tp_enrollments::get_form_int_field($row['variable'], $data['title'], $value);
         }
         else {
             $rtn .= tp_enrollments::get_form_text_field($row['variable'], $data['title'], $value);
@@ -734,6 +746,9 @@ function tp_enrollments_shortcode($atts) {
                 $rtn .= tp_registration_form($row, 'edit'); 
             }
         }
+    }
+    else {
+        $user_exists = '';
     }
     
    /*

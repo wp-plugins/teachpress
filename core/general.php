@@ -112,23 +112,23 @@ function tp_datesplit($datum) {
 */ 
 function get_tp_publication_types() {
     $pub_types[0] = array (0 => '0', 1 => __('All types','teachpress'), 2 => __('All types','teachpress'));
-    $pub_types[1] = array (0 => 'article', 1 => __('Article','teachpress'), 2 => __('Articles','teachpress'));
+    $pub_types[1] = array (0 => 'article', 1 => __('Journal Article','teachpress'), 2 => __('Journal Article','teachpress'));
     $pub_types[2] = array (0 => 'book', 1 => __('Book','teachpress'), 2 => __('Books','teachpress'));
     $pub_types[3] = array (0 => 'booklet', 1 => __('Booklet','teachpress'), 2 => __('Booklets','teachpress'));
     $pub_types[4] = array (0 => 'collection', 1 => __('Collection','teachpress'), 2 => __('Collections','teachpress'));
     $pub_types[5] = array (0 => 'conference', 1 => __('Conference','teachpress'), 2 => __('Conferences','teachpress'));
-    $pub_types[6] = array (0 => 'inbook', 1 => __('Inbook','teachpress'), 2 => __('Inbooks','teachpress'));
+    $pub_types[6] = array (0 => 'inbook', 1 => __('Book Chapter','teachpress'), 2 => __('Book Chapters','teachpress'));
     $pub_types[7] = array (0 => 'incollection', 1 => __('Incollection','teachpress'), 2 => __('Incollections','teachpress'));
     $pub_types[8] = array (0 => 'inproceedings', 1 => __('Inproceeding','teachpress'), 2 => __('Inproceedings','teachpress'));
-    $pub_types[9] = array (0 => 'manual', 1 => __('Manual','teachpress'), 2 => __('Manuals','teachpress'));
-    $pub_types[10] = array (0 => 'mastersthesis', 1 => __('Mastersthesis','teachpress'), 2 => __('Masterstheses','teachpress'));
-    $pub_types[11] = array (0 => 'misc', 1 => __('Misc','teachpress'), 2 => __('Misc','teachpress'));
+    $pub_types[9] = array (0 => 'manual', 1 => __('Technical Manual','teachpress'), 2 => __('Technical Manuals','teachpress'));
+    $pub_types[10] = array (0 => 'mastersthesis', 1 => __('Masters Thesis','teachpress'), 2 => __('Masters Theses','teachpress'));
+    $pub_types[11] = array (0 => 'misc', 1 => __('Miscellaneous','teachpress'), 2 => __('Miscellaneous','teachpress'));
     $pub_types[12] = array (0 => 'online', 1 => __('Online','teachpress'), 2 => __('Online','teachpress'));
     $pub_types[13] = array (0 => 'periodical', 1 => __('Periodical','teachpress'), 2 => __('Periodicals','teachpress'));
     $pub_types[14] = array (0 => 'phdthesis', 1 => __('PhD Thesis','teachpress'), 2 => __('PhD Theses','teachpress'));
     $pub_types[15] = array (0 => 'presentation', 1 => __('Presentation','teachpress'), 2 => __('Presentations','teachpress'));
     $pub_types[16] = array (0 => 'proceedings', 1 => __('Proceeding','teachpress'), 2 => __('Proceedings','teachpress'));
-    $pub_types[17] = array (0 => 'techreport', 1 => __('Techreport','teachpress'), 2 => __('Techreports','teachpress'));
+    $pub_types[17] = array (0 => 'techreport', 1 => __('Technical Report','teachpress'), 2 => __('Technical Reports','teachpress'));
     $pub_types[18] = array (0 => 'unpublished', 1 => __('Unpublished','teachpress'), 2 => __('Unpublished','teachpress'));
     return $pub_types;
 }

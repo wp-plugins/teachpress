@@ -3,11 +3,11 @@
 Plugin Name: teachPress
 Plugin URI: http://mtrv.wordpress.com/teachpress/
 Description: With teachPress you can easy manage courses, enrollments and publications.
-Version: 5.0.0beta
+Version: 5.0.0alpha
 Author: Michael Winkler
 Author URI: http://mtrv.wordpress.com/
 Min WP Version: 3.3
-Max WP Version: 3.9
+Max WP Version: 4.0
 */
 
 /*
@@ -31,26 +31,57 @@ Max WP Version: 3.9
 */
 
 /**
- * Define teachpress database tables, change it, if you want to install teachpress in other tables. Every name must be unique.
+ * Define teachpress database tables. If you want, you can owerwrite this parameters in your wpconfig.php.
  */
 global $wpdb;
-define('TEACHPRESS_ARTEFACTS', $wpdb->prefix . 'teachpress_artefacts');                     // Artefacts
-define('TEACHPRESS_ASSESSMENTS', $wpdb->prefix . 'teachpress_assessments');                 // Assessments
-define('TEACHPRESS_STUD', $wpdb->prefix . 'teachpress_stud');                               // Students
-define('TEACHPRESS_STUD_META', $wpdb->prefix . 'teachpress_stud_meta');                     // Student meta data
-define('TEACHPRESS_COURSES', $wpdb->prefix . 'teachpress_courses');                         // Courses
-define('TEACHPRESS_COURSE_META', $wpdb->prefix . 'teachpress_course_meta');                 // Course meta data
-define('TEACHPRESS_COURSE_CAPABILITES', $wpdb->prefix . 'teachpress_course_capabilites');   // Course Capabilities
-define('TEACHPRESS_SIGNUP', $wpdb->prefix . 'teachpress_signup');                           // Enrollments
-define('TEACHPRESS_SETTINGS', $wpdb->prefix . 'teachpress_settings');                       // Settings
-
-define('TEACHPRESS_PUB', $wpdb->prefix . 'teachpress_pub');                                 // Publications
-define('TEACHPRESS_PUB_META', $wpdb->prefix . 'teachpress_pub_meta');                       // Publication meta data
-define('TEACHPRESS_TAGS', $wpdb->prefix . 'teachpress_tags');                               // Tags
-define('TEACHPRESS_RELATION', $wpdb->prefix . 'teachpress_relation');                       // Relationship tags - publications
-define('TEACHPRESS_USER', $wpdb->prefix . 'teachpress_user');                               // Relationship publications - users
-define('TEACHPRESS_AUTHORS', $wpdb->prefix . 'teachpress_authors');                         // Authors
-define('TEACHPRESS_REL_PUB_AUTH', $wpdb->prefix . 'teachpress_rel_pub_auth');               // Relationship publications - authors
+// Artefacts
+if ( !defined('TEACHPRESS_ARTEFACTS') ) {
+    define('TEACHPRESS_ARTEFACTS', $wpdb->prefix . 'teachpress_artefacts'); }
+// Assessments
+if ( !defined('TEACHPRESS_ASSESSMENTS') ) {
+    define('TEACHPRESS_ASSESSMENTS', $wpdb->prefix . 'teachpress_assessments'); }
+// Students
+if ( !defined('TEACHPRESS_STUD') ) {
+    define('TEACHPRESS_STUD', $wpdb->prefix . 'teachpress_stud');}
+// Student meta data
+if ( !defined('TEACHPRESS_STUD_META') ) {
+    define('TEACHPRESS_STUD_META', $wpdb->prefix . 'teachpress_stud_meta');}
+// Courses
+if ( !defined('TEACHPRESS_COURSES') ) {
+    define('TEACHPRESS_COURSES', $wpdb->prefix . 'teachpress_courses');}
+// Course meta data
+if ( !defined('TEACHPRESS_COURSE_META') ) {
+    define('TEACHPRESS_COURSE_META', $wpdb->prefix . 'teachpress_course_meta');}
+// Course Capabilities
+if ( !defined('TEACHPRESS_COURSE_CAPABILITES') ) {
+    define('TEACHPRESS_COURSE_CAPABILITES', $wpdb->prefix . 'teachpress_course_capabilites');}
+// Enrollments
+if ( !defined('TEACHPRESS_SIGNUP') ) {
+    define('TEACHPRESS_SIGNUP', $wpdb->prefix . 'teachpress_signup');}
+// Settings
+if ( !defined('TEACHPRESS_SETTINGS') ) {
+    define('TEACHPRESS_SETTINGS', $wpdb->prefix . 'teachpress_settings');}
+// Publications
+if ( !defined('TEACHPRESS_PUB') ) {
+    define('TEACHPRESS_PUB', $wpdb->prefix . 'teachpress_pub');}
+// Publication meta data
+if ( !defined('TEACHPRESS_PUB_META') ) {
+    define('TEACHPRESS_PUB_META', $wpdb->prefix . 'teachpress_pub_meta');}
+// Tags
+if ( !defined('TEACHPRESS_TAGS') ) {
+    define('TEACHPRESS_TAGS', $wpdb->prefix . 'teachpress_tags');}
+// Relationship tags - publications
+if ( !defined('TEACHPRESS_RELATION') ) {
+    define('TEACHPRESS_RELATION', $wpdb->prefix . 'teachpress_relation');}
+// Relationship publications - users
+if ( !defined('TEACHPRESS_USER') ) {
+    define('TEACHPRESS_USER', $wpdb->prefix . 'teachpress_user');}
+// Authors
+if ( !defined('TEACHPRESS_AUTHORS') ) {
+    define('TEACHPRESS_AUTHORS', $wpdb->prefix . 'teachpress_authors');}
+// Relationship publications - authors
+if ( !defined('TEACHPRESS_REL_PUB_AUTH') ) {
+    define('TEACHPRESS_REL_PUB_AUTH', $wpdb->prefix . 'teachpress_rel_pub_auth');}
 
 /*************/
 /* Add menus */

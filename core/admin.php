@@ -415,70 +415,71 @@ function tp_add_publication_as_post ($title, $bibtex_key, $date, $post_type = 'p
  * Copy courses
  * @param array $checkbox   ID of the course you want to copy
  * @param string $copysem   semester
+ * @todo Needs fixing!!!!!
 */
 function tp_copy_course($checkbox, $copysem) {
-     global $wpdb;
-     $counter = 0;
-     $counter2 = 0;
-     for( $i = 0; $i < count( $checkbox ); $i++ ) {
-          $checkbox[$i] = intval($checkbox[$i]);
-          $row = tp_courses::get_course($checkbox[$i]);
-          foreach ($row as $row) {
-               $daten[$counter]['id'] = $row->course_id;
-               $daten[$counter]['name'] = $row->name;
-               $daten[$counter]['type'] = $row->type;
-               $daten[$counter]['room'] = $row->room;
-               $daten[$counter]['lecturer'] = $row->lecturer;
-               $daten[$counter]['date'] = $row->date;
-               $daten[$counter]['places'] = $row->places;
-               $daten[$counter]['start'] = $row->start;
-               $daten[$counter]['end'] = $row->end;
-               $daten[$counter]['semester'] = $row->semester;
-               $daten[$counter]['comment'] = $row->comment;
-               $daten[$counter]['rel_page'] = $row->rel_page;
-               $daten[$counter]['parent'] = $row->parent;
-               $daten[$counter]['visible'] = $row->visible;
-               $daten[$counter]['waitinglist'] = $row->waitinglist;
-               $daten[$counter]['image_url'] = $row->image_url;
-               $counter++;
-          }
-          // copy parents
-          if ( $daten[$i]['parent'] == 0) {
-               $merke[$counter2] = $daten[$i]['id'];
-               $daten[$i]['semester'] = $copysem;
-               tp_courses::add_course($daten[$i]);
-               $counter2++;
-          }
-     }	
-     // copy childs
-     for( $i = 0; $i < $counter ; $i++ ) {
-          if ( $daten[$i]['parent'] != 0) {
-               // check if where is a parent for the current course
-               $test = 0;
-               for( $j = 0; $j < $counter2 ; $j++ ) {
-                    if ( $daten[$i]['parent'] == $merke[$j]) {
-                         $test = $merke[$j];
-                    }
-               }
-               // if is true
-               if ($test != 0) {
-                    // search the parent
-                    for( $k = 0; $k < $counter ; $k++ ) {
-                         if ( $daten[$k]['id'] == $test) {
-                              $suche = "SELECT `course_id` FROM " . TEACHPRESS_COURSES . " WHERE `name` = '" . $daten[$k]['name'] . "' AND `type` = '" . $daten[$k]['type'] . "' AND `room` = '" . $daten[$k]['room'] . "' AND `lecturer` = '" . $daten[$k]['lecturer'] . "' AND `date` = '" . $daten[$k]['date'] . "' AND `semester` = '$copysem' AND `parent` = 0";
-                              $suche = $wpdb->get_var($suche);
-                              $daten[$i]['parent'] = $suche;
-                              $daten[$i]['semester'] = $copysem;
-                              tp_courses::add_course($daten[$i]);					
-                         }
-                    }
-               }
-               // if is false: create copy directly
-               else {
-                    $daten[$i]['semester'] = $copysem;
-                    tp_courses::add_course($daten[$i]);
-               }
-          }
+    global $wpdb;
+    $counter = 0;
+    $counter2 = 0;
+    for( $i = 0; $i < count( $checkbox ); $i++ ) {
+        $checkbox[$i] = intval($checkbox[$i]);
+        $row = tp_courses::get_course($checkbox[$i]);
+        $daten[$counter]['id'] = $row->course_id;
+        $daten[$counter]['name'] = $row->name;
+        $daten[$counter]['type'] = $row->type;
+        $daten[$counter]['room'] = $row->room;
+        $daten[$counter]['lecturer'] = $row->lecturer;
+        $daten[$counter]['date'] = $row->date;
+        $daten[$counter]['places'] = $row->places;
+        $daten[$counter]['start'] = $row->start;
+        $daten[$counter]['end'] = $row->end;
+        $daten[$counter]['semester'] = $row->semester;
+        $daten[$counter]['comment'] = $row->comment;
+        $daten[$counter]['rel_page'] = $row->rel_page;
+        $daten[$counter]['parent'] = $row->parent;
+        $daten[$counter]['visible'] = $row->visible;
+        $daten[$counter]['waitinglist'] = $row->waitinglist;
+        $daten[$counter]['image_url'] = $row->image_url;
+        $counter++;
+        // copy parents
+        if ( $daten[$i]['parent'] == 0) {
+             $merke[$counter2] = $daten[$i]['id'];
+             $daten[$i]['semester'] = $copysem;
+             tp_courses::add_course($daten[$i]);
+             $counter2++;
+        }
+    }	
+    // copy childs
+    for( $i = 0; $i < $counter ; $i++ ) {
+        if ( $daten[$i]['parent'] != 0 ) {
+            continue;
+        }
+        // check if where is a parent for the current course
+        $test = 0;
+        for( $j = 0; $j < $counter2 ; $j++ ) {
+             if ( $daten[$i]['parent'] == $merke[$j]) {
+                  $test = $merke[$j];
+             }
+        }
+        // if is true
+        if ($test != 0) {
+             // search the parent
+             for( $k = 0; $k < $counter ; $k++ ) {
+                  if ( $daten[$k]['id'] == $test) {
+                       $suche = "SELECT `course_id` FROM " . TEACHPRESS_COURSES . " WHERE `name` = '" . $daten[$k]['name'] . "' AND `type` = '" . $daten[$k]['type'] . "' AND `room` = '" . $daten[$k]['room'] . "' AND `lecturer` = '" . $daten[$k]['lecturer'] . "' AND `date` = '" . $daten[$k]['date'] . "' AND `semester` = '$copysem' AND `parent` = 0";
+                       $suche = $wpdb->get_var($suche);
+                       $daten[$i]['parent'] = $suche;
+                       $daten[$i]['semester'] = $copysem;
+                       tp_courses::add_course($daten[$i]);					
+                  }
+             }
+        }
+        // if is false: create copy directly
+        else {
+             $daten[$i]['semester'] = $copysem;
+             tp_courses::add_course($daten[$i]);
+        }
+          
      }
 }
 
