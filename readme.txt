@@ -1,11 +1,11 @@
 === teachPress ===
 Contributors: Michael Winkler
-Tags: management, publications, enrollments, teachpress, education, course management, BibTeX, bibliography
+Tags: publications, enrollments, education, course management, BibTeX, bibliography
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 3.3
 Tested up to: 3.9.1
-Stable tag: 4.3.7
+Stable tag: 4.3.8
 
 With this plugin you can easy manage courses, enrollments and publications.
 
@@ -87,7 +87,11 @@ I would like to thank the team of [CBIS, Chemnitz University of Technology](http
 1. Add publication menu
 2. Add course menu
 3. Example for a publication list created with [tpcloud]
- 
+
+== Upgrade Notice ==
+
+= 4.3.8 =
+This release fixes small bugs in XML and RTF export.
 
 == Frequently Asked Questions ==
 
@@ -117,6 +121,11 @@ define ('TP_PUBLICATION_SYSTEM','disable');
 If you save plugins outside the normal path (/wp-content/plugins/), the plugin can't load required WordPress files in some cases. Solution: Change the path in the following plugin files: export.php (line 9) / feed.php (line 7).
 
 == Changelog ==
+
+= 4.3.8 - (29.06.2014) =
+* Bugfix: Prevent adding of <span>-tags within publication meta rows in XML and RTF files
+* Bugfix: Fix usage of editor names instead of author names in feeds and RTF files
+* Bugfix: Reenable xls export for enrollments
 
 = 4.3.7 - (19.06.2014) =
 * Bugfix: The copy function for courses creates only empty courses.

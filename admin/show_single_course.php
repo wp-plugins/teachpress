@@ -191,7 +191,7 @@ function tp_show_single_course_page() {
        </span>
        <span style="margin-right:15px;">
         <a id="teachpress_create_csv" class="button-secondary" href="<?php echo plugins_url(); ?>/teachpress/export.php?course_ID=<?php echo $course_ID; ?>&amp;type=csv" title="<?php _e('CSV export','teachpress'); ?>">CSV</a>
-        <a id="teachpress_create_xls" class="button-secondary" href="<?php echo plugins_url(); ?>/teachpress/export.php?course_ID=<?php echo $course_ID; ?>&amp;type=csv" title="<?php _e('XLS export','teachpress'); ?>">XLS</a>
+        <a id="teachpress_create_xls" class="button-secondary" href="<?php echo plugins_url(); ?>/teachpress/export.php?course_ID=<?php echo $course_ID; ?>&amp;type=xls" title="<?php _e('XLS export','teachpress'); ?>">XLS</a>
        </span>
        <a id="teachpress_send_mail" class="button-secondary" href="admin.php?page=teachpress/teachpress.php&amp;course_ID=<?php echo $course_ID; ?>&amp;sem=<?php echo $sem; ?>&amp;search=<?php echo $search; ?>&amp;redirect=<?php echo $redirect; ?>&amp;action=mail&amp;type=course" title="<?php _e('Send E-Mail','teachpress'); ?>"><?php _e('Send E-Mail','teachpress'); ?></a>
    </div>

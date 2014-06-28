@@ -114,6 +114,7 @@ class tp_bibtex {
      * @since 3.0.0
     */
     public static function get_single_publication_html ($row, $all_tags, $permalink, $settings, $tpz = 0) {
+		$settings['use_span'] = true;
         $tag_string = '';
         $str = "'";
         $keywords = '';
@@ -271,24 +272,26 @@ class tp_bibtex {
      * @since 3.0.0
     */
     public static function single_publication_meta_row($row, $settings) {
+		$use_span = $settings['use_span'];
+		$isbn = '';
         // For ISBN or ISSN number
         if ( $row['isbn'] != '' ) {
+			$after = ( $use_span === true ) ? '</span>' : '';
             // test if ISBN or ISSN
-            if ($row['is_isbn'] == '0') { 
-                $isbn = ', <span class="tp_pub_additional_issn">ISSN: ' . $row['isbn'] . '</span>';
+            if ($row['is_isbn'] == '0') {
+				$before = ( $use_span === true ) ? '<span class="tp_pub_additional_issn">' : '';
+                $isbn = ', ' . $before . 'ISSN: ' . $row['isbn'] . $after;
             }
             else {
-                $isbn = ', <span class="tp_pub_additional_isbn">ISBN: ' . $row['isbn'] . '</span>';
+				$before = ( $use_span === true ) ? '<span class="tp_pub_additional_isbn">' : '';
+                $isbn = ', ' . $before . 'ISBN: ' . $row['isbn'] . $after;
             }
-        }
-        else {
-            $isbn = '';
         }
         
         // for urldate
         if ( isset( $row['urldate'] ) && $row['urldate'] !== '0000-00-00'  ) {
              $row['urldate'] = ( array_key_exists('date_format', $settings) === true ) ? date( $settings['date_format'], strtotime($row['urldate']) ) : $row['urldate'];
-            $urldate = tp_bibtex::prepare_html_line('urldate', $row['urldate'],', ' . __('visited','teachpress') . ': ','');
+            $urldate = tp_bibtex::prepare_html_line('urldate', $row['urldate'],', ' . __('visited','teachpress') . ': ','',$use_span);
         }
         else {
             $urldate = '';
@@ -296,24 +299,24 @@ class tp_bibtex {
         
         // isset() doesn't work for $editor
         $editor = $row['editor'] != '' ? tp_bibtex::parse_author($row['editor'], $settings['editor_name']) . ' (' . __('Ed.','teachpress') . '): ' : '';
-        $pages = isset( $row['pages'] ) ? tp_bibtex::prepare_html_line('pages', tp_bibtex::prepare_page_number($row['pages']) , __('pp.','teachpress') . ' ',', ') : '';
-        $year = isset( $row['year'] ) ? tp_bibtex::prepare_html_line('year', $row['year']) : '';
-        $booktitle = isset( $row['booktitle'] ) ? tp_bibtex::prepare_html_line('booktitle', $row['booktitle'],'',', ') : '';
-        $issuetitle = isset( $row['issuetitle'] ) ? tp_bibtex::prepare_html_line('issuetitle', $row['issuetitle'],'',', ') : '';
-        $journal = isset( $row['journal'] ) ? tp_bibtex::prepare_html_line('journal', $row['journal'],'',', ') : '';
-        $volume = isset( $row['volume'] ) ? tp_bibtex::prepare_html_line('volume', $row['volume'],'',' ') : '';
-        $number = isset( $row['number'] ) ? tp_bibtex::prepare_html_line('number', $row['number'],'(','), ') : '';
-        $publisher = isset( $row['publisher'] ) ? tp_bibtex::prepare_html_line('publisher', $row['publisher'],'',', ') : '';
-        $address = isset( $row['address'] ) ? tp_bibtex::prepare_html_line('address', $row['address'],'',', ') : '';
-        $edition = isset( $row['edition'] ) ? tp_bibtex::prepare_html_line('edition', $row['edition'],'',', ') : '';
-        $chapter = isset( $row['chapter'] ) ? tp_bibtex::prepare_html_line('chapter', $row['chapter'],' ' . __('Chapter','teachpress') . ' ',', ') : '';
-        $institution = isset( $row['institution'] ) ? tp_bibtex::prepare_html_line('institution', $row['institution'],'',' ') : '';
-        $organization = isset( $row['organization'] ) ? tp_bibtex::prepare_html_line('organization', $row['organization'],'',' ') : '';
-        $school = isset( $row['school'] ) ? tp_bibtex::prepare_html_line('school', $row['school'],'',', ') : '';
-        $series = isset( $row['series'] ) ? tp_bibtex::prepare_html_line('series', $row['series'],'',' ') : '';
-        $howpublished = isset( $row['howpublished'] ) ? tp_bibtex::prepare_html_line('howpublished', $row['howpublished'],'',', ') : '';
-        $techtype = isset( $row['techtype'] ) ? tp_bibtex::prepare_html_line('techtype', $row['techtype'],'',', ') : '';
-        $note = isset( $row['techtype'] ) ? tp_bibtex::prepare_html_line('note', $row['note'],', (',')') : '';
+        $pages = isset( $row['pages'] ) ? tp_bibtex::prepare_html_line('pages', tp_bibtex::prepare_page_number($row['pages']) , __('pp.','teachpress') . ' ',', ',$use_span) : '';
+        $year = isset( $row['year'] ) ? tp_bibtex::prepare_html_line('year', $row['year'],'','',$use_span) : '';
+        $booktitle = isset( $row['booktitle'] ) ? tp_bibtex::prepare_html_line('booktitle', $row['booktitle'],'',', ',$use_span) : '';
+        $issuetitle = isset( $row['issuetitle'] ) ? tp_bibtex::prepare_html_line('issuetitle', $row['issuetitle'],'',', ',$use_span) : '';
+        $journal = isset( $row['journal'] ) ? tp_bibtex::prepare_html_line('journal', $row['journal'],'',', ',$use_span) : '';
+        $volume = isset( $row['volume'] ) ? tp_bibtex::prepare_html_line('volume', $row['volume'],'',' ',$use_span) : '';
+        $number = isset( $row['number'] ) ? tp_bibtex::prepare_html_line('number', $row['number'],'(','), ',$use_span) : '';
+        $publisher = isset( $row['publisher'] ) ? tp_bibtex::prepare_html_line('publisher', $row['publisher'],'',', ',$use_span) : '';
+        $address = isset( $row['address'] ) ? tp_bibtex::prepare_html_line('address', $row['address'],'',', ',$use_span) : '';
+        $edition = isset( $row['edition'] ) ? tp_bibtex::prepare_html_line('edition', $row['edition'],'',', ',$use_span) : '';
+        $chapter = isset( $row['chapter'] ) ? tp_bibtex::prepare_html_line('chapter', $row['chapter'],' ' . __('Chapter','teachpress') . ' ',', ',$use_span) : '';
+        $institution = isset( $row['institution'] ) ? tp_bibtex::prepare_html_line('institution', $row['institution'],'',' ',$use_span) : '';
+        $organization = isset( $row['organization'] ) ? tp_bibtex::prepare_html_line('organization', $row['organization'],'',' ',$use_span) : '';
+        $school = isset( $row['school'] ) ? tp_bibtex::prepare_html_line('school', $row['school'],'',', ',$use_span) : '';
+        $series = isset( $row['series'] ) ? tp_bibtex::prepare_html_line('series', $row['series'],'',' ',$use_span) : '';
+        $howpublished = isset( $row['howpublished'] ) ? tp_bibtex::prepare_html_line('howpublished', $row['howpublished'],'',', ',$use_span) : '';
+        $techtype = isset( $row['techtype'] ) ? tp_bibtex::prepare_html_line('techtype', $row['techtype'],'',', ',$use_span) : '';
+        $note = isset( $row['techtype'] ) ? tp_bibtex::prepare_html_line('note', $row['note'],', (',')',$use_span) : '';
         
         // special cases for volume/number
         if ( $number == '' && $volume != '' ) {
@@ -373,8 +376,8 @@ class tp_bibtex {
             $end = $school . $year . $isbn . $note . '.';
         }
         elseif ($row['type'] === 'presentation') {
-            $date = ( array_key_exists('date_format', $settings) === true ) ? ', ' .tp_bibtex::prepare_html_line('date', date( $settings['date_format'], strtotime($row['date']) ) ) : '';
-            $end = ( $howpublished === '' && $row['address'] === '' ) ? substr($date,2) . $note . '.' : $howpublished . tp_bibtex::prepare_html_line('address', $row['address']) . $date . $note . '.';
+            $date = ( array_key_exists('date_format', $settings) === true ) ? ', ' .tp_bibtex::prepare_html_line('date', date( $settings['date_format'], strtotime($row['date']) ) ,'','',$use_span) : '';
+            $end = ( $howpublished === '' && $row['address'] === '' ) ? substr($date,2) . $note . '.' : $howpublished . tp_bibtex::prepare_html_line('address', $row['address'],'','',$use_span) . $date . $note . '.';
         }
         elseif ($row['type'] === 'proceedings') {
             $end = $howpublished . $organization. $publisher. $address . $edition . $year . $isbn . $note . '.';
@@ -692,7 +695,7 @@ class tp_bibtex {
     public static function prepare_bibtex_line($input, $fieldname, $stripslashes = true) {
         if ($input != '') {
             $input = ( $stripslashes === true ) ? stripslashes($input) : $input;
-            return '' . $fieldname . ' = {' . $input . '},' . chr(13) . chr(10);
+            return $fieldname . ' = {' . $input . '},' . chr(13) . chr(10);
         }
         else {
             return '';
@@ -705,15 +708,19 @@ class tp_bibtex {
      * @param string $content
      * @param string $before
      * @param string $after
+	 * @param string $use_span
      * @return string
      * @since 3.0.0
-     * @version 2 (since 4.3.6)
+     * @version 3 (since 4.3.8)
      */
-    public static function prepare_html_line($element, $content, $before = '', $after = '') {
-        if ($content !== '') {
+    public static function prepare_html_line($element, $content, $before = '', $after = '', $use_span = false) {
+		if ( $content === '' ) {
+			return '';
+		}
+        if ( $use_span === true ) {
             return '<span class="tp_pub_additional_' . $element . '">' . $before . $content . $after . '</span>';
         }
-        return '';
+		return $before . $content . $after;
     }
 
     /**

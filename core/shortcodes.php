@@ -235,7 +235,8 @@ function tp_single_shortcode ($atts) {
        'author_name' => htmlspecialchars($author_name),
        'editor_name' => htmlspecialchars($editor_name),
        'date_format' => htmlspecialchars($date_format),
-       'style' => 'simple', 
+       'style' => 'simple',
+	   'use_span' => true
     );
     
     if ( $key != '' ) {

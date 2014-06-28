@@ -203,8 +203,9 @@ class tp_export {
     static function rtf_row ($row) {
         $settings['editor_name'] = 'initials';
         $settings['style'] = 'simple';
-        if ( $row['type'] == 'collection' ) {
-            $all_authors = tp_bibtex::parse_author($row['editor'], $settings['editor_name'] );
+		$settings['use_span'] = false;
+        if ( $row['type'] === 'collection' || ( $row['author'] === '' && $row['editor'] !== '' ) ) {
+            $all_authors = tp_bibtex::parse_author($row['editor'], $settings['editor_name'] ) . ' (' . __('Ed.','teachpress') . ')';
         }
         else {
             $all_authors = tp_bibtex::parse_author($row['author'], $settings['editor_name'] );

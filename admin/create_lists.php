@@ -21,7 +21,7 @@ function tp_lists_page() {
    $anzahl = isset( $_GET['anzahl'] ) ? intval($_GET['anzahl']) : '';
    $create = isset( $_GET['create'] ) ? $_GET['create'] : '';
    ?>
-   <div class="wrap" style="padding-top:10px;">
+   <div class="wrap">
    <?php if ($create == '') {
            echo '<a href="admin.php?page=teachpress/teachpress.php&amp;course_ID=' . $course_ID . '&amp;sem=' . $sem . '&amp;search=' . $search . '&amp;redirect=' . $redirect . '&amp;action=show" class="button-secondary" title="' . __('back to the course','teachpress') . '">&larr; ' . __('Back','teachpress') . '</a>';
    }
@@ -36,13 +36,12 @@ function tp_lists_page() {
    <input name="sem" type="hidden" value="<?php echo $sem; ?>" />
    <input name="search" type="hidden" value="<?php echo $search; ?>" />
    <?php if ($create == '') {?>
-   <div style="padding:10px 0 10px 30px;">
    <h2><?php _e('Create attendance list','teachpress'); ?></h2>
-   <table class="widefat" style="width:400px;">
+   <table class="widefat" style="width:600px;">
       <thead>
        <tr>
          <th><label for="anzahl"><?php _e('Sort after','teachpress'); ?></label></th>
-         <td>
+         <th>
             <select name="sort" id="sort">
                <option value="1"><?php _e('Last name','teachpress'); ?></option>
                <?php 
@@ -51,11 +50,11 @@ function tp_lists_page() {
                <option value="2"><?php _e('Matr. number','teachpress'); ?></option>
                <?php } ?>
             </select>
-         </td>
+         </th>
       </tr>
       <tr>
          <th style="width:160px;"><label for="anzahl"><?php _e('Number of free columns','teachpress'); ?></label></th>
-         <td>
+         <th>
             <select name="anzahl" id="anzahl">
                <?php
                for ($i=1; $i<=15; $i++) {
@@ -67,11 +66,11 @@ function tp_lists_page() {
                   }	
                } ?>
             </select>
-         </td>
+         </th>
       </tr>
       <tr>
          <th><?php _e('Additional columns','teachpress'); ?></th>
-         <td>
+         <th>
           <?php
             if ($val == '1') {
                 echo '<input name="matriculation_number_field" id="matriculation_number_field" type="checkbox" value="1" /> <label for="matriculation_number_field">' . __('Matr. number','teachpress') . '</label><br />';
@@ -91,12 +90,11 @@ function tp_lists_page() {
             }
             echo '<input name="email_field" id="email_field" type="checkbox" value="1" /> <label for="email_field">' . __('E-Mail') . '</label><br />';
             ?>
-         </td>
+         </th>
       </tr>
       </thead>
    </table>
    <p><input name="create" type="submit" class="button-primary" value="<?php _e('Create','teachpress'); ?>"/></p>
-   </div>
    <?php
    }
    if ( $create == __('Create','teachpress') ) {
