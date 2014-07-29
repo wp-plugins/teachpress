@@ -201,6 +201,37 @@ function teachpress_showhide(where) {
 }
 
 /**
+ * for switching rel_page options at add_course page
+ * @returns {undefined}
+ * @since 5.0.0
+ */
+function teachpress_switch_rel_page_container(){
+    if (document.getElementById('rel_page_original').style.display !== "none") {
+    	document.getElementById('rel_page_alternative').style.display = "block";
+        document.getElementById('rel_page_original').style.display = "none";
+    }
+    else {
+        document.getElementById('rel_page_alternative').style.display = "none";
+        document.getElementById('rel_page_original').style.display = "block";
+    }
+}
+
+/**
+ * for show/hide sub course panel at add_course page
+ * @returns {undefined}
+ * @since 5.0.0
+ */
+function teachpress_courseFields () {
+    var test = document.getElementById('parent2').value;
+    if ( test === "0") {
+        document.getElementById('sub_course_panel').style.display = "block";
+    }
+    else {
+        document.getElementById('sub_course_panel').style.display = "none";
+    }
+}
+
+/**
  * for edit tags
  * @param {int} tag_ID
  * @since 1.0.0

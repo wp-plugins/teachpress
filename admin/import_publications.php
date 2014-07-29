@@ -81,7 +81,7 @@ function teachpress_import_page() {
         }
         // if there is no import
         else {
-            $entries = get_tp_publications( array( 'include' => htmlspecialchars($_POST['tp_entries'] ), 'output_type' => ARRAY_A ) );
+            $entries = tp_publications::get_publications( array( 'include' => htmlspecialchars($_POST['tp_entries'] ), 'output_type' => ARRAY_A ) );
         }
         tp_import_show_results($entries);
     }

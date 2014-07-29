@@ -398,7 +398,7 @@ class tp_single_course_page {
             }
         }
         echo '</select>';
-        echo '<p><input name="cap_submit" type="submit" class="button-primary" value="' . _('Add','teachpress') . '" /> <a class="button-secondary" onclick="javascript:teachpress_showhide(' . "'add_capability'" .');">' . __('Cancel','teachpress') . '</a></p>';
+        echo '<p><input name="cap_submit" type="submit" class="button-primary" value="' . __('Add','teachpress') . '" /> <a class="button-secondary" onclick="javascript:teachpress_showhide(' . "'add_capability'" .');">' . __('Cancel','teachpress') . '</a></p>';
         echo '</form>';
         echo '</div>';
         echo '<table class="widefat">';
@@ -547,7 +547,7 @@ class tp_single_course_page {
         $visible_fields = array();
         foreach ($fields as $row) {
             $data = tp_db_helpers::extract_column_data($row->value);
-            if ( $data['admin_visibility'] === 'true') {
+            if ( $data['visibility'] === 'admin') {
                 array_push($visible_fields, $row->variable);
             }
         }
@@ -598,7 +598,7 @@ class tp_single_course_page {
                    if ($zahl != 0 && $merke[0] != $row1->lastname[0]) {
                       echo '<option>----------</option>';
                    }
-                   echo '<option value="' . $row1->wp_id . '">' . stripslashes($row1->lastname) . ', ' . stripslashes($row1->firstname) . ' (' . $row1->matriculation_number . ')</option>';
+                   echo '<option value="' . $row1->wp_id . '">' . stripslashes($row1->lastname) . ', ' . stripslashes($row1->firstname) . ' (' . $row1->userlogin . ')</option>';
                    $merke = $row1->lastname;
                    $zahl++;
                 } ?>
@@ -676,7 +676,7 @@ class tp_single_course_page {
            <?php
            foreach ($fields as $row) {
                 $data = tp_db_helpers::extract_column_data($row->value);
-                if ( $data['admin_visibility'] === 'true' ) {
+                if ( $data['visibility'] === 'admin' ) {
                     echo '<th>' . $data['title'] . '</th>';
                 }
             }
@@ -731,7 +731,7 @@ class tp_single_course_page {
                <?php
                 foreach ($fields as $row) {
                      $data = tp_db_helpers::extract_column_data($row->value);
-                     if ( $data['admin_visibility'] === 'true' ) {
+                     if ( $data['visibility'] === 'admin' ) {
                          echo '<th>' . $data['title'] . '</th>';
                      }
                  }

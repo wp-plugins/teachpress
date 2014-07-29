@@ -30,7 +30,7 @@ class tp_export {
         $fields = get_tp_options('teachpress_stud','`setting_id` ASC');
         foreach ( $fields as $field ) {
             $data = tp_db_helpers::extract_column_data($field->value);
-            if ( $data['admin_visibility'] === 'true') {
+            if ( $data['visibility'] === 'admin') {
                 echo '<th>' . stripslashes(utf8_decode($data['title'])) . '</th>';
             }
         }
@@ -49,7 +49,7 @@ class tp_export {
             echo '<td>' . $row['email'] . '</td>';
             foreach ( $fields as $field ) {
                 $data = tp_db_helpers::extract_column_data($field->value);
-                if ( $data['admin_visibility'] === 'true') {
+                if ( $data['visibility'] === 'admin') {
                     echo '<td>' . stripslashes( utf8_decode( tp_export::decode($row[$field->variable]) ) ) . '</td>';
                 }
             }
@@ -168,6 +168,8 @@ class tp_export {
         global $wpdb;
         
         $user_ID = intval($user_ID);
+        // Try to set the time limit for the script
+        set_time_limit(180);
         $row = tp_publications::get_publications( array('user' => $user_ID, 'output_type' => ARRAY_A) );
         if ( $format === 'bibtex' ) {
             foreach ($row as $row) {
@@ -209,7 +211,7 @@ class tp_export {
      */
     public static function get_publication_by_key($bibtex_key) {
         $row = tp_publications::get_publication_by_key($bibtex_key, ARRAY_A);
-        $tags = get_tp_tags( array( 'pub_id' => $row['pub_id'], 'output_type' => ARRAY_A ) );
+        $tags = tp_tags::get_tags( array( 'pub_id' => $row['pub_id'], 'output_type' => ARRAY_A ) );
         echo tp_bibtex::get_single_publication_bibtex($row, $tags);
     }
 
@@ -236,8 +238,9 @@ class tp_export {
     static function rtf_row ($row) {
         $settings['editor_name'] = 'initials';
         $settings['style'] = 'simple';
-        if ( $row['type'] == 'collection' ) {
-            $all_authors = tp_bibtex::parse_author($row['editor'], $settings['editor_name'] );
+        $settings['use_span'] = false;
+        if ( $row['type'] === 'collection' || ( $row['author'] === '' && $row['editor'] !== '' ) ) {
+            $all_authors = tp_bibtex::parse_author($row['editor'], $settings['editor_name'] ) . ' (' . __('Ed.','teachpress') . ')';
         }
         else {
             $all_authors = tp_bibtex::parse_author($row['author'], $settings['editor_name'] );

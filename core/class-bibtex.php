@@ -275,6 +275,7 @@ class tp_bibtex {
     */
     public static function single_publication_meta_row($row, $settings) {
         // For ISBN or ISSN number
+        $isbn = '';
         if ( $row['isbn'] != '' ) {
             // test if ISBN or ISSN
             if ($row['is_isbn'] == '0') { 
@@ -284,17 +285,12 @@ class tp_bibtex {
                 $isbn = ', <span class="tp_pub_additional_isbn">ISBN: ' . $row['isbn'] . '</span>';
             }
         }
-        else {
-            $isbn = '';
-        }
         
         // for urldate
+        $urldate = '';
         if ( isset( $row['urldate'] ) && $row['urldate'] !== '0000-00-00'  ) {
              $row['urldate'] = ( array_key_exists('date_format', $settings) === true ) ? date( $settings['date_format'], strtotime($row['urldate']) ) : $row['urldate'];
             $urldate = tp_bibtex::prepare_html_line('urldate',$row['urldate'],', ' . __('visited','teachpress') . ': ','');
-        }
-        else {
-            $urldate = '';
         }
         
         // isset() doesn't work for $editor
@@ -695,7 +691,7 @@ class tp_bibtex {
     public static function prepare_bibtex_line($input, $fieldname, $stripslashes = true) {
         if ($input != '') {
             $input = ( $stripslashes === true ) ? stripslashes($input) : $input;
-            return '' . $fieldname . ' = {' . $input . '},' . chr(13) . chr(10);
+            return $fieldname . ' = {' . $input . '},' . chr(13) . chr(10);
         }
         return '';
     }

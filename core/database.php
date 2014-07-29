@@ -5,189 +5,12 @@
  * @since 4.0.0
  */
 
-/************************/
-/* DEPRECATED FUNCTIONS */
-/************************/
-
-/**
- * This function is deprecated. Please use tp_tags::get_tags instead.
- * 
- * @param array $args
- * @return array|object
- * @since 4.0.0
- * @deprecated since version 5.0.0
- * @todo Delete function with teachPress 5.1 or later
- */
-function get_tp_tags( $args = array() ) {
-    return tp_tags::get_tags($args);
-}
-
-/**
- * This function is deprecated. Please use tp_publications::get_publications instead.
- *
- * @param array $args
- * @param boolean $count    set to true of you only need the number of rows
- * @return array|object|int
- * @since 3.1.8
- * @deprecated since version 5.0.0
- * @todo Delete function with teachPress 5.1 or later
-*/
-function get_tp_publications($args = array(), $count = false) {
-    return tp_publications::get_publications($args, $count);
-}
-
-/**
- * This function is deprecated. Please use tp_is_student_subscribed instead.
- * 
- * @param integer $course_id
- * @param boolean $consider_childcourses
- * @return boolean
- * @since 3.1.7
- * @deprecated since version 5.0.0
- * @todo Delete function with teachPress 5.1 or later
- */
-function tp_is_user_subscribed ($course_id, $consider_childcourses = false) {
-    return tp_is_student_subscribed($course_id, $consider_childcourses);
-}
-
-/********/
-/* Tags */
-/********/
-
-/**
- * Returns a special array for creating tag clouds
- * 
- * The returned array $result has the following array_keys:
- *      'tags'  => it's an array or object with tags, including following keys: tagPeak, name, tag_id
- *      'info'  => it's an object which includes information about the frequency of tags, including following keys: max, min
- * 
- * @param array $args
- * @since 4.0.0
- */
-function get_tp_tag_cloud ( $args = array() ) {
-    $defaults = array(
-        'user' => '',
-        'type' => '',
-        'number_tags' => '',
-        'exclude' => '',
-        'output_type' => OBJECT
-    ); 
-    $args = wp_parse_args( $args, $defaults );
-    extract( $args, EXTR_SKIP );
-
-    global $wpdb;
-
-    $where = '';
-    $number_tags = intval($number_tags);
-    $output_type = esc_sql($output_type);
-    $type = tp_db_helpers::generate_where_clause($type, "p.type", "OR", "=");
-    $user = tp_db_helpers::generate_where_clause($user, "u.user", "OR", "=");
-    $exclude = tp_db_helpers::generate_where_clause($exclude, "r.tag_id", "AND", "!=");
-    $join1 = "LEFT JOIN " . TEACHPRESS_TAGS . " t ON r.tag_id = t.tag_id";
-    $join2 = "INNER JOIN " . TEACHPRESS_PUB . " p ON p.pub_id = r.pub_id";
-    $join3 = "INNER JOIN " . TEACHPRESS_USER . " u ON u.pub_id = p.pub_id";
-
-    if ( $user == '' && $type == '' ) {
-        $join1 = '';
-        $join2 = '';
-        $join3 = '';
-
-    }
-    if ( $user == '' && $type != '' ) {
-        $join3 = '';
-    }
-
-    // WHERE clause
-    if ( $type != '') {
-        $where = $where != '' ? $where . " AND ( $type )" : $type;
-    }
-    if ( $user != '') {
-        $where = $where != '' ? $where . " AND ( $user )" : $user;
-    }
-    if ( $exclude != '' ) {
-        $where = $where != '' ? $where . " AND ( $exclude )" : $exclude;
-    }
-    if ( $where != '' ) {
-        $where = " WHERE $where";
-    }
-
-    $sql = "SELECT anzahlTags FROM ( 
-                SELECT COUNT(*) AS anzahlTags 
-                FROM " . TEACHPRESS_RELATION . " r
-                $join1 $join2 $join3 $where
-                GROUP BY r.tag_id 
-                ORDER BY anzahlTags DESC ) as temp1 
-            GROUP BY anzahlTags 
-            ORDER BY anzahlTags DESC";
-    $cloud_info = $wpdb->get_row("SELECT MAX(anzahlTags) AS max, min(anzahlTags) AS min FROM ( $sql ) AS temp", OBJECT);
-    $cloud_info->min = $cloud_info->min == '' ? 0 : $cloud_info->min; // Fix if there are no tags
-    $sql = "SELECT tagPeak, name, tag_id FROM ( 
-              SELECT COUNT(r.tag_id) as tagPeak, t.name AS name, t.tag_id as tag_id 
-              FROM " . TEACHPRESS_RELATION . " r 
-              LEFT JOIN " . TEACHPRESS_TAGS . " t ON r.tag_id = t.tag_id 
-              INNER JOIN " . TEACHPRESS_PUB . " p ON p.pub_id = r.pub_id 
-              $join3 $where
-              GROUP BY r.tag_id ORDER BY tagPeak DESC 
-              LIMIT $number_tags ) AS temp 
-            WHERE tagPeak>=".$cloud_info->min." 
-            ORDER BY name";
-    $result["tags"] = $wpdb->get_results($sql, $output_type);
-    $result["info"] = $cloud_info;
-    return $result;
-}
-
-/************/
-/* Students */
-/************/
-
-/**
- * Return true if the user is subscribed in the course or false of not
- * @param integer $course_id
- * @param boolean $consider_childcourses
- * @return boolean
- * @since 5.0.0
- */
-function tp_is_student_subscribed ($course_id, $consider_childcourses = false) {
-    global $wpdb;
-    global $user_ID;
-    get_currentuserinfo();
-    $course_id = intval($course_id);
-    if ( $course_id == 0 ) {
-        return false;
-    }
-    // simple case
-    if ( $consider_childcourses == false ) {
-        $test = $wpdb->query("SELECT `con_id` FROM " . TEACHPRESS_SIGNUP . " WHERE `course_id` = '$course_id' AND `wp_id` = '$user_ID' AND `waitinglist` = '0'");
-    }
-    // consider child courses
-    if ( $consider_childcourses == true ) {
-        $where = '';
-        $courses = $wpdb->get_results("SELECT `course_id` FROM " . TEACHPRESS_COURSES . " WHERE `parent` = '$course_id'");
-        foreach ( $courses as $row ) {
-            $where = $where == '' ? "`course_id` = '$row->course_id'" : $where . " OR `course_id` = '$row->course_id'";
-        }
-        if ( $where != '' ) {
-            $where = " WHERE `wp_id` = '$user_ID' AND `waitinglist` = '0' AND ( $where OR `course_id` = '$course_id' )";
-            $test = $wpdb->query("SELECT `con_id` FROM " . TEACHPRESS_SIGNUP . " $where");
-        }
-        // Fallback if there are no child courses
-        else {
-            $test = $wpdb->query("SELECT `con_id` FROM " . TEACHPRESS_SIGNUP . " WHERE `course_id` = '$course_id' AND `wp_id` = '$user_ID' AND `waitinglist` = '0'");
-        }
-    }
-
-    if ( $test >= 1 ) {
-        return true;
-    }
-    return false;
-}
-
 /********************/
 /* Settings/Options */
 /********************/
 
 /** 
- * Get a teachPress option
+ * Returns a teachPress option
  * @param string $var           --> sem, db-version, sign_out, login, regnum, studies, termnumber, birthday
  * @param string $category      --> system,... default: system
  * @return string
@@ -202,7 +25,7 @@ function get_tp_option($var, $category = 'system') {
 }
 
 /**
- * Get all settings of a category
+ * Returns all settings of a category
  * @param string $category      --> category name (system, course_of_studies, course_type, semester)
  * @param string $order         --> default: setting_id DESC
  * @param string $output_type   --> default: OBJECT
@@ -281,6 +104,7 @@ class tp_artefacts {
     
     /**
      * @todo Muss noch fertiggestellt werden
+     * @since x.x.x
      */
     public static function change_artefact () {
 
@@ -370,16 +194,16 @@ class tp_authors  {
     * In this case you should ignore the columns con_id and pub_id from return
     * 
     * Possible values for $args:
-    *  pub_id          --> publication IDs (separated by comma)
-    *  user            --> user IDs (separated by comma)
-    *  exclude         --> authors IDs you want to exclude from result (separated by comma)
-    *  order           --> ASC or DESC; default is ASC
-    *  limit           --> the sql search limit, example: 0,30
-    *  search          --> a normal search string
-    *  inclue_editors  --> boolean flag, set it to true if you want to include editors (default: false)
-    *  group by        --> boolean flag for the group by clause (default: false)
-    *  count           --> set it to true if you only need an number of authors which will be returned by your selection (default: false)
-    *  output type     --> OBJECT, ARRAY_A, ARRAY_N 
+    *  pub_id          publication IDs (separated by comma)
+    *  user            user IDs (separated by comma)
+    *  exclude         authors IDs you want to exclude from result (separated by comma)
+    *  order           ASC or DESC; default is ASC
+    *  limit           the sql search limit, example: 0,30
+    *  search          a normal search string
+    *  inclue_editors  boolean flag, set it to true if you want to include editors (default: false)
+    *  group by        boolean flag for the group by clause (default: false)
+    *  count           set it to true if you only need an number of authors which will be returned by your selection (default: false)
+    *  output type     OBJECT, ARRAY_A, ARRAY_N 
     * 
     * @param array $args
     * @return array|object
@@ -929,21 +753,70 @@ class tp_courses {
     /** 
      * Add a new course
      * @param array_a $data
-     * @return int              --> ID of the new course
+     * @return int              ID of the new course
      * @since 5.0.0
     */
-   public static function add_course($data) {
+   public static function add_course($data, $sub) {
         global $wpdb;
+        // create rel_page
+        if ($data['rel_page_alter'] !== 0 ) {
+            $data['rel_page'] = tp_courses::add_rel_page($data);
+        }
+        // test if creation was successful
+        if ( $data['rel_page'] === false ) {
+            get_tp_message(__('Error while adding new related content.','teachpress'), 'red');
+        }
         $data['start'] = $data['start'] . ' ' . $data['start_hour'] . ':' . $data['start_minute'] . ':00';
         $data['end'] = $data['end'] . ' ' . $data['end_hour'] . ':' . $data['end_minute'] . ':00';
         $wpdb->insert( TEACHPRESS_COURSES, array( 'name' => $data['name'], 'type' => $data['type'], 'room' => $data['room'], 'lecturer' => $data['lecturer'], 'date' => $data['date'], 'places' => $data['places'], 'start' => $data['start'], 'end' => $data['end'], 'semester' => $data['semester'], 'comment' => $data['comment'], 'rel_page' => $data['rel_page'], 'parent' => $data['parent'], 'visible' => $data['visible'], 'waitinglist' => $data['waitinglist'], 'image_url' => $data['image_url'], 'strict_signup' => $data['strict_signup'], 'use_capabilites' => $data['use_capabilites'] ), array( '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%d', '%d' ) );
         $course_id = $wpdb->insert_id;
         // add capability
-        if ( $data['use_capabilites'] == 1 ) {
-            global $current_user;
-            tp_courses::add_capability($course_id, $current_user->ID, 'owner');
+        global $current_user;
+        tp_courses::add_capability($course_id, $current_user->ID, 'owner');
+        // create sub courses
+        if ( $sub['number'] !== 0 ) {
+            tp_courses::add_sub_courses($course_id, $data, $sub);
         }
         return $course_id;
+    }
+    
+    /**
+     * Adds a new related content to WordPress
+     * @param array $data
+     * @return int or false
+     * @since 5.0.0
+     * @access private
+     */
+    private static function add_rel_page($data) {
+        $post = get_post($data['rel_page_alter']);
+        $postarr = array ( 
+            'post_title'   => $data['name'],
+            'post_content' => $post->post_content,
+            'post_type'    => $post->post_type,
+            'post_author'  => $post->post_author,
+            'post_status'   => 'publish'
+        );
+        return wp_insert_post($postarr);
+    }
+    
+    /**
+     * Adds sub courses to a course
+     * @param int $course_id    The ID of the parent course
+     * @param array $data       The data of the parent course
+     * @param array $sub        The data for the sub courses (type, places, number)
+     * @since 5.0.0
+     * @access private
+     */
+    private static function add_sub_courses($course_id, $data, $sub) {
+        $sub_data = $data;
+        $sub_data['parent'] = $course_id;
+        $sub_data['places'] = $sub['places'];
+        $sub_data['type'] = $sub['type'];
+        $options = array('number' => 0);
+        for ( $i = 1; $i <= $sub['number']; $i++ ) {
+            $sub_data['name'] = $sub['type'] . ' ' . $i;
+            tp_courses::add_course($sub_data, $options);
+        }
     }
     
     /** 
@@ -994,6 +867,7 @@ class tp_courses {
      */
     public static function delete_courses($checkbox){
         global $wpdb;
+        $wpdb->query("SET FOREIGN_KEY_CHECKS=0");
         for( $i = 0; $i < count( $checkbox ); $i++ ) { 
             $checkbox[$i] = intval($checkbox[$i]); 
             $wpdb->query( "DELETE FROM " . TEACHPRESS_COURSES . " WHERE `course_id` = $checkbox[$i]" );
@@ -1011,6 +885,7 @@ class tp_courses {
                 }
             }
         }
+        $wpdb->query("SET FOREIGN_KEY_CHECKS=1");
     }
     
     /**
@@ -1148,6 +1023,48 @@ class tp_courses {
             }
             $wpdb->query( "DELETE FROM " . TEACHPRESS_SIGNUP . " WHERE `con_id` = '$checkbox[$i]'" );
         }
+    }
+    
+    /**
+     * Return true if the user is subscribed in the course or false of not
+     * @param integer $course_id
+     * @param boolean $consider_childcourses
+     * @return boolean
+     * @since 5.0.0
+     */
+    public static function is_student_subscribed ($course_id, $consider_childcourses = false) {
+        global $wpdb;
+        global $user_ID;
+        get_currentuserinfo();
+        $course_id = intval($course_id);
+        if ( $course_id == 0 ) {
+            return false;
+        }
+        // simple case
+        if ( $consider_childcourses == false ) {
+            $test = $wpdb->query("SELECT `con_id` FROM " . TEACHPRESS_SIGNUP . " WHERE `course_id` = '$course_id' AND `wp_id` = '$user_ID' AND `waitinglist` = '0'");
+        }
+        // consider child courses
+        if ( $consider_childcourses == true ) {
+            $where = '';
+            $courses = $wpdb->get_results("SELECT `course_id` FROM " . TEACHPRESS_COURSES . " WHERE `parent` = '$course_id'");
+            foreach ( $courses as $row ) {
+                $where = $where == '' ? "`course_id` = '$row->course_id'" : $where . " OR `course_id` = '$row->course_id'";
+            }
+            if ( $where != '' ) {
+                $where = " WHERE `wp_id` = '$user_ID' AND `waitinglist` = '0' AND ( $where OR `course_id` = '$course_id' )";
+                $test = $wpdb->query("SELECT `con_id` FROM " . TEACHPRESS_SIGNUP . " $where");
+            }
+            // Fallback if there are no child courses
+            else {
+                $test = $wpdb->query("SELECT `con_id` FROM " . TEACHPRESS_SIGNUP . " WHERE `course_id` = '$course_id' AND `wp_id` = '$user_ID' AND `waitinglist` = '0'");
+            }
+        }
+
+        if ( $test >= 1 ) {
+            return true;
+        }
+        return false;
     }
     
 }
@@ -2282,6 +2199,89 @@ class tp_tags {
         
         return $wpdb->get_results("SELECT DISTINCT t.name, t.tag_id, count(r.tag_id) AS count FROM " . TEACHPRESS_TAGS . " t LEFT JOIN " . TEACHPRESS_RELATION . " r ON t.tag_id = r.tag_id $search GROUP BY t.name ORDER BY t.name ASC $limit", $output_type);
     }
+    
+    /**
+     * Returns a special array for creating tag clouds
+     * 
+     * The returned array $result has the following array_keys:
+     *      'tags'  => it's an array or object with tags, including following keys: tagPeak, name, tag_id
+     *      'info'  => it's an object which includes information about the frequency of tags, including following keys: max, min
+     * 
+     * @param array $args
+     * @return array|object
+     * @since 5.0.0
+    */
+    public static function get_tag_cloud ( $args = array() ) {
+       $defaults = array(
+           'user' => '',
+           'type' => '',
+           'number_tags' => '',
+           'exclude' => '',
+           'output_type' => OBJECT
+       ); 
+       $args = wp_parse_args( $args, $defaults );
+       extract( $args, EXTR_SKIP );
+
+       global $wpdb;
+
+       $where = '';
+       $number_tags = intval($number_tags);
+       $output_type = esc_sql($output_type);
+       $type = tp_db_helpers::generate_where_clause($type, "p.type", "OR", "=");
+       $user = tp_db_helpers::generate_where_clause($user, "u.user", "OR", "=");
+       $exclude = tp_db_helpers::generate_where_clause($exclude, "r.tag_id", "AND", "!=");
+       $join1 = "LEFT JOIN " . TEACHPRESS_TAGS . " t ON r.tag_id = t.tag_id";
+       $join2 = "INNER JOIN " . TEACHPRESS_PUB . " p ON p.pub_id = r.pub_id";
+       $join3 = "INNER JOIN " . TEACHPRESS_USER . " u ON u.pub_id = p.pub_id";
+
+       if ( $user == '' && $type == '' ) {
+           $join1 = '';
+           $join2 = '';
+           $join3 = '';
+
+       }
+       if ( $user == '' && $type != '' ) {
+           $join3 = '';
+       }
+
+       // WHERE clause
+       if ( $type != '') {
+           $where = $where != '' ? $where . " AND ( $type )" : $type;
+       }
+       if ( $user != '') {
+           $where = $where != '' ? $where . " AND ( $user )" : $user;
+       }
+       if ( $exclude != '' ) {
+           $where = $where != '' ? $where . " AND ( $exclude )" : $exclude;
+       }
+       if ( $where != '' ) {
+           $where = " WHERE $where";
+       }
+
+       $sql = "SELECT anzahlTags FROM ( 
+                   SELECT COUNT(*) AS anzahlTags 
+                   FROM " . TEACHPRESS_RELATION . " r
+                   $join1 $join2 $join3 $where
+                   GROUP BY r.tag_id 
+                   ORDER BY anzahlTags DESC ) as temp1 
+               GROUP BY anzahlTags 
+               ORDER BY anzahlTags DESC";
+       $cloud_info = $wpdb->get_row("SELECT MAX(anzahlTags) AS max, min(anzahlTags) AS min FROM ( $sql ) AS temp", OBJECT);
+       $cloud_info->min = $cloud_info->min == '' ? 0 : $cloud_info->min; // Fix if there are no tags
+       $sql = "SELECT tagPeak, name, tag_id FROM ( 
+                 SELECT COUNT(r.tag_id) as tagPeak, t.name AS name, t.tag_id as tag_id 
+                 FROM " . TEACHPRESS_RELATION . " r 
+                 LEFT JOIN " . TEACHPRESS_TAGS . " t ON r.tag_id = t.tag_id 
+                 INNER JOIN " . TEACHPRESS_PUB . " p ON p.pub_id = r.pub_id 
+                 $join3 $where
+                 GROUP BY r.tag_id ORDER BY tagPeak DESC 
+                 LIMIT $number_tags ) AS temp 
+               WHERE tagPeak>=".$cloud_info->min." 
+               ORDER BY name";
+       $result["tags"] = $wpdb->get_results($sql, $output_type);
+       $result["info"] = $cloud_info;
+       return $result;
+    }
 }
 
 /**
@@ -2327,7 +2327,7 @@ class tp_db_helpers {
      * @since 5.0.0
      */
     public static function register_column ($table, $column, $data) {
-        $value = 'name = {' . $column. '}, title = {' . $data['title'] . '}, type = {' . $data['type'] . '}, required = {' . $data['required'] . '}, unique = {' . $data['unique'] . '}, admin_visibility = {' . $data['admin_visibility'] . '}';
+        $value = 'name = {' . $column. '}, title = {' . $data['title'] . '}, type = {' . $data['type'] . '}, required = {' . $data['required'] . '}, unique = {' . $data['unique'] . '}, visibility = {' . $data['visibility'] . '}';
         tp_options::add_option($column, $value, $table);
     }
     

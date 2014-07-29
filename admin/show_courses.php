@@ -86,12 +86,12 @@ function teachpress_show_courses_page() {
      ?> 
 
      <div class="wrap">
-     <h2><?php _e('Courses','teachpress'); ?></h2>
+         <h2><?php _e('Courses','teachpress'); ?> <a href="admin.php?page=teachpress/add_course.php" class="add-new-h2"><?php _e('Create','teachpress'); ?></a></h2>
      <form id="showcourse" name="showcourse" method="get" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
      <input name="page" type="hidden" value="teachpress/teachpress.php" />
            <?php 	
            // delete a course, part 1
-           if ( $bulk == "delete" ) {
+           if ( $bulk === "delete" ) {
                 echo '<div class="teachpress_message">
                 <p class="teachpress_message_headline">' . __('Are you sure to delete the selected elements?','teachpress') . '</p>
                 <p><input name="delete_ok" type="submit" class="button-primary" value="' . __('Delete','teachpress') . '"/>
@@ -105,7 +105,7 @@ function teachpress_show_courses_page() {
                 get_tp_message($message);
            }
            // copy a course, part 1
-           if ( $bulk == "copy" ) { ?>
+           if ( $bulk === "copy" ) { ?>
                 <div class="teachpress_message">
                 <p class="teachpress_message_headline"><?php _e('Copy courses','teachpress'); ?></p>
                 <p class="teachpress_message_text"><?php _e('Select the term, in which you will copy the selected courses.','teachpress'); ?></p>
@@ -114,12 +114,7 @@ function teachpress_show_courses_page() {
                     <?php
                     $term = get_tp_options('semester');
                     foreach ($term as $term) { 
-                        if ($term->value == $sem) {
-                            $current = 'selected="selected"' ;
-                        }
-                        else {
-                            $current = '' ;
-                        } 
+                        $current = ( $term->value == $sem ) ? 'selected="selected"' : '';
                         echo '<option value="' . $term->value . '" ' . $current . '>' . stripslashes($term->value) . '</option>';
                     } ?> 
                 </select>
@@ -155,12 +150,7 @@ function teachpress_show_courses_page() {
                <?php    
                $row = get_tp_options('semester');
                foreach ($row as $row) { 
-                    if ($row->value == $sem) {
-                        $current = 'selected="selected"' ;
-                    }
-                    else {
-                        $current = '' ;
-                    } 
+                    $current = ( $row->value == $sem ) ? 'selected="selected"' : '';
                     echo '<option value="' . $row->value . '" ' . $current . '>' . stripslashes($row->value) . '</option>';
                } ?> 
           </select>
@@ -184,13 +174,13 @@ function teachpress_show_courses_page() {
         <tbody>
      <?php
         $order = 'name, course_id';
-        if ($search != "") {
+        if ($search != '') {
             $order = 'semester DESC, name';	
         }
            
         $row = tp_courses::get_courses( array('search' => $search, 'semester' => $sem, 'order' => 'name, course_id') );
         // is the query is empty
-        if (count($row) == 0) { 
+        if ( count($row) === 0 ) { 
             echo '<tr><td colspan="13"><strong>' . __('Sorry, no entries matched your criteria.','teachpress') . '</strong></td></tr>';
         }
         else {
@@ -229,17 +219,11 @@ function teachpress_show_courses_page() {
              for ($i=0; $i<$z; $i++) {
                  
                  // normal table design
-                 if ($search == "") {
+                 if ($search == '') {
                      if ($courses[$i]['parent'] == 0) {
                          // alternate table rows
-                         if ( $class_alternate === true ) {
-                             $static['tr_class'] = ' class="alternate"';
-                             $class_alternate = false;
-                         }
-                         else {
-                             $static['tr_class'] = '';
-                             $class_alternate = true;
-                         }
+                         $static['tr_class'] = ( $class_alternate === true ) ? ' class="alternate"' : '';
+                         $class_alternate = ( $class_alternate === true ) ? false : true;
                          echo get_tp_single_table_row_course ($courses[$i], $checkbox, $static);
                          // Search childs
                          for ($j=0; $j<$z; $j++) {

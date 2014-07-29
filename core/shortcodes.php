@@ -298,7 +298,7 @@ function tp_bibtex_shortcode ($atts) {
         $publication = $tp_single_publication;
     }
     
-    $tags = get_tp_tags( array('pub_id' => $publication['pub_id'], 'output_type' => ARRAY_A) );
+    $tags = tp_tags::get_tags( array('pub_id' => $publication['pub_id'], 'output_type' => ARRAY_A) );
     
     return '<h2 class="tp_bibtex">BibTeX (<a href="' . plugins_url('export.php', dirname(__FILE__)) . '?key=' . $publication['bibtex'] . '">Download</a>)</h2><pre class="tp_bibtex">' . tp_bibtex::get_single_publication_bibtex($publication, $tags) . '</pre>';
 }
@@ -588,7 +588,7 @@ function tp_generate_filter ($filter_parameter, $sql_parameter, $settings, $mode
  * @since 5.0.0
  */
 function tp_generate_tag_cloud ($user, $tag_settings, $filter_parameter, $sql_parameter, $settings){
-    $temp = get_tp_tag_cloud( array('user' => $user, 
+    $temp = tp_tags::get_tag_cloud( array('user' => $user, 
                                     'type' => $sql_parameter['type'],
                                     'exclude' => $tag_settings['hide_tags'],
                                     'number_tags' => $tag_settings['tag_limit'],
@@ -817,9 +817,9 @@ function tp_cloud_shortcode($atts) {
         'limit' => $page_limit,
         'output_type' => ARRAY_A);
 
-    $all_tags = get_tp_tags( array('exclude' => $hide_tags, 'output_type' => ARRAY_A) );
-    $number_entries = ( $settings['pagination'] === 1 ) ? get_tp_publications($args, true) : 0;
-    $row = get_tp_publications( $args );
+    $all_tags = tp_tags::get_tags( array('exclude' => $hide_tags, 'output_type' => ARRAY_A) );
+    $number_entries = ( $settings['pagination'] === 1 ) ? tp_publications::get_publications($args, true) : 0;
+    $row = tp_publications::get_publications( $args );
     $tpz = 0;
     $count = count($row);
     $colspan = '';
@@ -963,8 +963,8 @@ function tp_list_shortcode($atts){
     
     // get publications
     $args = array('tag' => $tag, 'year' => $year, 'type' => $type, 'user' => $user, 'order' => $order, 'exclude' => $exclude, 'include' => $include, 'output_type' => ARRAY_A, 'limit' => $limit);
-    $row = get_tp_publications( $args );
-    $number_entries = ( $pagination === 1 ) ? get_tp_publications($args, true) : 0;
+    $row = tp_publications::get_publications( $args );
+    $number_entries = ( $pagination === 1 ) ? tp_publications::get_publications($args, true) : 0;
     $count = count($row);
     foreach ($row as $row) {
        $number = ( $style === 'numbered_desc' || $style === 'std_num_desc' ) ? $count - $tpz : $tpz + 1 ;
@@ -1082,8 +1082,8 @@ function tp_search_shortcode ($atts) {
                        'search' => $search, 
                        'limit' => $entry_limit . ',' .  $entries_per_page,
                        'output_type' => ARRAY_A);
-        $results = get_tp_publications( $args );
-        $number_entries = get_tp_publications($args, true);
+        $results = tp_publications::get_publications( $args );
+        $number_entries = tp_publications::get_publications($args, true);
         
         // menu
         $menu = tp_admin_page_menu($number_entries, $entries_per_page, $current_page, $entry_limit, $page_link, $link_attributes, 'bottom');

@@ -90,10 +90,10 @@ function teachpress_students_page() {
         $select_fields = array();
         foreach ($fields as $row) {
             $data = tp_db_helpers::extract_column_data($row->value);
-            if ( $data['admin_visibility'] === 'true') {
+            if ( $data['visibility'] === 'admin') {
                 array_push($visible_fields, $row->variable);
             }
-            if ( $data['admin_visibility'] === 'true' && $data['type'] === 'SELECT' ) {
+            if ( $data['visibility'] === 'admin' && $data['type'] === 'SELECT' ) {
                 array_push($select_fields, $row->variable);
             }
         }
@@ -144,7 +144,7 @@ function teachpress_students_page() {
             echo '<th>' . __('E-Mail') . '</th>';
             foreach ($fields as $row) {
                 $data = tp_db_helpers::extract_column_data($row->value);
-                if ( $data['admin_visibility'] === 'true' ) {
+                if ( $data['visibility'] === 'admin' ) {
                     echo '<th>' . $data['title'] . '</th>';
                 }
             }
@@ -161,14 +161,8 @@ function teachpress_students_page() {
             $class_alternate = true;
             foreach( $students as $row3) { 
                 $student_meta = tp_students::get_student_meta($row3['wp_id']);
-                if ( $class_alternate === true ) {
-                    $tr_class = 'class="alternate"';
-                    $class_alternate = false;
-                }
-                else {
-                    $tr_class = '';
-                    $class_alternate = true;
-                }
+                $tr_class = ( $class_alternate === true ) ? 'class="alternate"' : '';
+                $class_alternate = ( $class_alternate === true ) ? false : true;
                 echo '<tr ' . $tr_class . '>';
                 echo '<th class="check-column"><input type="checkbox" name="checkbox[]" id="checkbox" value="' . $row3['wp_id'] . '"';
                 if ( $bulk === "delete") { 

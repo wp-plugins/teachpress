@@ -31,15 +31,12 @@ class tp_update_db {
         }
         
         // charset & collate like WordPress
-        $charset_collate = '';
-        if ( version_compare(mysql_get_server_info(), '4.1.0', '>=') ) {
-            $charset_collate = ( !empty($wpdb->charset) ) ? "CHARACTER SET $wpdb->charset" : "CHARACTER SET utf8";
-            if ( ! empty($wpdb->collate) ) {
-                $charset_collate .= " COLLATE $wpdb->collate";
-            }
-            else {
-                $charset_collate .= " COLLATE utf8_general_ci";
-            }
+        $charset_collate = ( !empty($wpdb->charset) ) ? "CHARACTER SET $wpdb->charset" : "CHARACTER SET utf8";
+        if ( ! empty($wpdb->collate) ) {
+            $charset_collate .= " COLLATE $wpdb->collate";
+        }
+        else {
+            $charset_collate .= " COLLATE utf8_general_ci";
         }
         
         // set capabilities
@@ -83,7 +80,7 @@ class tp_update_db {
         }
         // force updates to reach structure of teachPress 5.0.0
         if ( $db_version[0] === '5' || $update_level === '5' ) {
-            tp_update_db::upgrade_to_50();
+            tp_update_db::upgrade_to_50($charset_collate);
         }
         tp_update_db::add_options();
         tp_update_db::finalize_update($software_version);
@@ -511,8 +508,9 @@ class tp_update_db {
     /**
      * Database upgrade to teachPress 5.0.0 structure
      * @param string $charset_collate
+     * @since 5.0.0
      */
-    private static function upgrade_to_50 (){
+    private static function upgrade_to_50 ($charset_collate){
         global $wpdb;
         $charset = tp_tables::get_charset();
         // add new tables
@@ -528,6 +526,11 @@ class tp_update_db {
         if ($wpdb->query("SHOW COLUMNS FROM " . TEACHPRESS_COURSES . " LIKE 'use_capabilites'") == '0') { 
             $wpdb->query("ALTER TABLE " . TEACHPRESS_COURSES . " ADD `use_capabilites` INT( 1 ) NULL DEFAULT NULL AFTER `strict_signup`");
         }
+        // expand char limit for tp_settings::value
+        if ($wpdb->query("SHOW COLUMNS FROM " . TEACHPRESS_SETTINGS . " LIKE 'value'") == '1') {
+            $wpdb->query("ALTER TABLE " . TEACHPRESS_SETTINGS . " CHANGE `value` `value` LONGTEXT $charset_collate NULL DEFAULT NULL");
+        }
+        
     }
     
     /**
@@ -652,22 +655,22 @@ class tp_update_db {
         }
         // course_of_studies
         if ($wpdb->query("SELECT value FROM " . TEACHPRESS_SETTINGS . " WHERE `variable` = 'course_of_studies' AND `category` = 'teachpress_stud'") == '0') {
-            $value = 'name = {course_of_studies}, title = {' . __('Course of studies','teachpress') . '}, type = {SELECT}, required = {false}, unique = {false}, admin_visibility = {true}';
+            $value = 'name = {course_of_studies}, title = {' . __('Course of studies','teachpress') . '}, type = {SELECT}, required = {false}, unique = {false}, visibility = {admin}';
             $wpdb->query("INSERT INTO " . TEACHPRESS_SETTINGS . " (`variable`, `value`, `category`) VALUES ('course_of_studies', '$value', 'teachpress_stud')"); 
         }
         // birthday
         if ($wpdb->query("SELECT value FROM " . TEACHPRESS_SETTINGS . " WHERE `variable` = 'birthday' AND `category` = 'teachpress_stud'") == '0') {
-            $value = 'name = {birthday}, title = {' . __('Birthday','teachpress') . '}, type = {DATE}, required = {false}, unique = {false}, admin_visibility = {false}';
+            $value = 'name = {birthday}, title = {' . __('Birthday','teachpress') . '}, type = {DATE}, required = {false}, unique = {false}, visibility = {normal}';
             $wpdb->query("INSERT INTO " . TEACHPRESS_SETTINGS . " (`variable`, `value`, `category`) VALUES ('birthday', '$value', 'teachpress_stud')"); 
         }
         // semester_number
         if ($wpdb->query("SELECT value FROM " . TEACHPRESS_SETTINGS . " WHERE `variable` = 'semester_number' AND `category` = 'teachpress_stud'") == '0') {
-            $value = 'name = {semester_number}, title = {' . __('Semester number','teachpress') . '}, type = {INT}, required = {false}, unique = {false}, admin_visibility = {false}';
+            $value = 'name = {semester_number}, title = {' . __('Semester number','teachpress') . '}, type = {INT}, required = {false}, unique = {false}, visibility = {normal}';
             $wpdb->query("INSERT INTO " . TEACHPRESS_SETTINGS . " (`variable`, `value`, `category`) VALUES ('semester_number', '$value', 'teachpress_stud')"); 
         }
         // matriculation_number
         if ($wpdb->query("SELECT value FROM " . TEACHPRESS_SETTINGS . " WHERE `variable` = 'matriculation_number' AND `category` = 'teachpress_stud'") == '0') {
-            $value = 'name = {matriculation_number}, title = {' . __('Matriculation number','teachpress') . '}, type = {INT}, required = {false}, unique = {false}, admin_visibility = {true}';
+            $value = 'name = {matriculation_number}, title = {' . __('Matriculation number','teachpress') . '}, type = {INT}, required = {false}, unique = {false}, visibility = {normal}';
             $wpdb->query("INSERT INTO " . TEACHPRESS_SETTINGS . " (`variable`, `value`, `category`) VALUES ('matriculation_number', '$value', 'teachpress_stud')"); 
         }
         

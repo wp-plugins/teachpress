@@ -216,7 +216,7 @@ function teachpress_addpublications_page() {
         <tr>
             <td>
             <?php if ($pub_ID != 0) {
-            $current_tags = get_tp_tags( array('pub_id' => $pub_ID) );
+            $current_tags = tp_tags::get_tags( array('pub_id' => $pub_ID) );
             if ($current_tags != '') {
                 echo '<p><strong>' . __('Current','teachpress') . '</strong></p>';
                 $s = "'";
@@ -233,7 +233,7 @@ function teachpress_addpublications_page() {
             $maxsize = 25;
             $minsize = 11;
            
-            $temp = get_tp_tag_cloud( array('number_tags' => 30, 'output_type' => ARRAY_A) );
+            $temp = tp_tags::get_tag_cloud( array('number_tags' => 30, 'output_type' => ARRAY_A) );
             $max = $temp['info']->max;
             $min = ( $temp['info']->min === 1 ) ? 0 : $temp['info']->min;
             if ( count($temp['tags']) != 0 ) {
@@ -454,7 +454,7 @@ function teachpress_addpublications_page() {
 	jQuery(document).ready(function($) {
             var availableTags = [
                 <?php
-                $sql = get_tp_tags( array('group_by' => true) );
+                $sql = tp_tags::get_tags( array('group_by' => true) );
                 $start = '';
                 foreach ($sql as $row) {
                     if ( $start === '' ) {

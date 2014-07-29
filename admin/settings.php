@@ -484,7 +484,7 @@ class tp_settings_page {
                 <td>' . $field->variable . '</td>
                 <td>Label: <b>' . $data['title'] . '</b><br/> 
                     Type: <b>' . $data['type'] . '</b><br/>
-                    Admin visibility: <b>' . $data['admin_visibility'] . '</b><br/>
+                    Visibility: <b>' . $data['visibility'] . '</b><br/>
                     Unique: <b>' . $data['unique'] . '</b><br/>
                     Required: <b>' . $data['required'] . '</b></td>
                 </tr>';
@@ -493,12 +493,12 @@ class tp_settings_page {
         echo '<tr>';
         echo '<td></td>';
         echo '<td colspan="2">';
-        echo '<h4>Add new field</h4>';
+        echo '<h4>' . __('Add new field','teachpress') . '</h4>';
 
         echo '<p><input name="field_name" type="text" id="field_name" size="30" title="' . __('Allowed chars','teachpress') . ': A-Z,a-z,0-9,_" value="' . __('Fieldname','teachpress') . '" onblur="if(this.value==' . "''" .') this.value='. "'" . __('Fieldname','teachpress') . "'" . ';" onfocus="if(this.value=='. "'" . __('Fieldname','teachpress') . "'" . ') this.value=' . "''" . ';"/></p>';
         echo '<p><input name="field_label" type="text" id="field_name" size="30" value="' . __('Label') . '" onblur="if(this.value==' . "''" .') this.value='. "'" . __('Label') . "'" . ';" onfocus="if(this.value=='. "'" . __('Label') . "'" . ') this.value=' . "''" . ';"/></p>';
 
-        echo '<p><label for="field_type">Field type:</label> <select name="field_type" id="field_type">';
+        echo '<p><label for="field_type">' . __('Field type','teachpress') . '</label>: <select name="field_type" id="field_type">';
         echo '<option value="TEXT">TEXT</option>';
         echo '<option value="TEXTAREA">TEXTAREA</option>';
         echo '<option value="INT">INT</option>';
@@ -506,9 +506,13 @@ class tp_settings_page {
         echo '<option value="SELECT">SELECT</option>';
         echo '<option value="CHECKBOX">CHECKBOX</option>';
         echo '</select></p>';
+        echo '<p><label for="visibility">' . __('Visibility','teachpress') . '</label>: <select name="visibility" id="visibility"';
+        echo '<option value="normal">' . __('Normal','teachpress') . '</option>';
+        echo '<option value="admin">' . __('Admin','teachpress') . '</option>';
+        echo '<option value="hiddem">' . __('Hidden','teachpress') . '</option>';
+        echo '</select></p>';
 
         if ( $tab === 'student_data' ) {
-            echo '<p><input type="checkbox" name="admin_visibility" id="admin_visibility" value="true"/> <label for="admin_visibility">' . __('Show field in admin interfaces','teachpress') . '</label></p>';
             echo '<p><input type="checkbox" name="is_unique" id="is_unique" value="true"/> <label for="is_unique">' . __('Allow only unique values (only for the types INT and TEXT)','teachpress') . '</label></p>';
             echo '<p><input type="checkbox" name="is_required" id="is_required" value="true"/> <label for="is_required">' . __('Required field','teachpress') . '</label></p>';    
         }
@@ -570,7 +574,7 @@ class tp_settings_page {
         $field_name = isset( $_POST['field_name'] ) ? htmlspecialchars($_POST['field_name']) : '';
         $data['title'] = isset( $_POST['field_label'] ) ? htmlspecialchars($_POST['field_label']) : '';
         $data['type'] = isset( $_POST['field_type'] ) ? htmlspecialchars($_POST['field_type']) : '';
-        $data['admin_visibility'] = isset( $_POST['admin_visibility'] ) ? 'true' : 'false';
+        $data['visibility'] = isset( $_POST['visibility'] ) ? htmlspecialchars($_POST['visibility']) : '';
         $data['required'] = isset( $_POST['is_required'] ) ? 'true' : 'false';
         $data['unique'] = isset( $_POST['is_unique'] ) ? 'true' : 'false';
         if ( !in_array($field_name, $forbidden_names) && $data['title'] != __('Label') && preg_match("#^[_A-Za-z0-9]+$#", $field_name) ) {

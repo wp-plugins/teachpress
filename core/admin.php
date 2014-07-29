@@ -53,7 +53,7 @@ class tp_admin {
         $return .= '<select name="' . $field_name . '" id="' . $field_name . '">';
         $options = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '" . $field_name . "' ORDER BY value ASC");
         if ( $value == '' ) {
-            $return .= '<option value=""></option>';
+            $return .= '<option value="">- ' . __('none','teachpress') . ' -</option>';
         }
         foreach ($options as $opt) {
             $selected = ( $value == $opt->value ) ? 'selected="selected"' : '';
@@ -83,7 +83,7 @@ class tp_admin {
             $field = '<textarea name="' . $name . '" id="' . $name . '" wrap="virtual" style="' . $style . '" tabindex="' . $tabindex . '" title="' . $title . '">' . stripslashes($pub_value) . '</textarea>';
         }
         else {
-            $field = '<input name="' . $name . '" id="' . $name . '" type="text" title="' . $title . '" style="' . $style . '" value="' . stripslashes($pub_value) . '" tabindex="8" />';
+            $field = '<input name="' . $name . '" id="' . $name . '" type="text" title="' . $title . '" style="' . $style . '" value="' . stripslashes($pub_value) . '" tabindex="' . $tabindex . '" />';
         }
         $a = '<div id="div_' . $name . '" ' . $display . '>
               <p><label for="' . $name . '" title="' . $title . '"><strong>' . $label . '</strong></label></p>
@@ -253,7 +253,24 @@ function tp_admin_page_menu ($number_entries, $entries_per_page, $current_page, 
             return '<div class="tablenav"><div class="tablenav-pages"><span class="displaying-num">' . $number_entries . ' ' . __('entries','teachpress') . '</span> ' . $back_links . ' ' . $current_page . ' ' . __('of','teachpress') . ' ' . $num_pages . ' ' . $next_links . '</div></div>';
         }	
     }
-}	
+}
+
+/**
+ * Gets all drafts of a post type as options for select menus
+ * @param string $post_type
+ * @param string $post_status
+ * @param string $sort_column
+ * @param string $sort_order
+ * @since 5.0.0
+ */
+function get_tp_wp_drafts($post_type, $post_status = 'publish', $sort_column = 'menu_order', $sort_order = 'ASC') {
+    global $wpdb;
+    echo "\n\t<option value='0'>" . __('none','teachpress') . "</option>";
+    $items = $wpdb->get_results( "SELECT `ID`, `post_title` FROM $wpdb->posts WHERE `post_type` = '$post_type' AND `post_status` = '$post_status' ORDER BY {$sort_column} {$sort_order}" );
+    foreach ( $items as $item ) {
+        echo "\n\t<option value='$item->ID'>" . get_the_title($item->ID) . "</option>";
+    }
+}
 
 /** 
  * Get WordPress pages
@@ -262,8 +279,9 @@ function tp_admin_page_menu ($number_entries, $entries_per_page, $current_page, 
  * @param string $sort_order
  * @param string $selected
  * @param string $post_type
- * @param INT $parent
- * @param INT $level
+ * @param int $parent
+ * @param int $level
+ * @since 1.0.0
 */ 
 function get_tp_wp_pages($sort_column = "menu_order", $sort_order = "ASC", $selected = '', $post_type = 'page', $parent = 0, $level = 0 ) {
     global $wpdb;
@@ -421,6 +439,7 @@ function tp_copy_course($checkbox, $copysem) {
     global $wpdb;
     $counter = 0;
     $counter2 = 0;
+    $sub = array('number' => 0);
     for( $i = 0; $i < count( $checkbox ); $i++ ) {
         $checkbox[$i] = intval($checkbox[$i]);
         $row = tp_courses::get_course($checkbox[$i]);
@@ -445,7 +464,7 @@ function tp_copy_course($checkbox, $copysem) {
         if ( $daten[$i]['parent'] == 0) {
              $merke[$counter2] = $daten[$i]['id'];
              $daten[$i]['semester'] = $copysem;
-             tp_courses::add_course($daten[$i]);
+             tp_courses::add_course($daten[$i], $sub);
              $counter2++;
         }
     }	
@@ -470,14 +489,14 @@ function tp_copy_course($checkbox, $copysem) {
                        $suche = $wpdb->get_var($suche);
                        $daten[$i]['parent'] = $suche;
                        $daten[$i]['semester'] = $copysem;
-                       tp_courses::add_course($daten[$i]);					
+                       tp_courses::add_course($daten[$i], $sub);					
                   }
              }
         }
         // if is false: create copy directly
         else {
              $daten[$i]['semester'] = $copysem;
-             tp_courses::add_course($daten[$i]);
+             tp_courses::add_course($daten[$i], $sub);
         }
           
      }

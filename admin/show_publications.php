@@ -160,15 +160,15 @@ function tp_show_publications_page_bibtex_screen($array_variables) {
         for ($i=0; $i < $max; $i++) {
             $pub = intval($array_variables['checkbox'][$i]);
             $row = tp_publications::get_publication( $pub, ARRAY_A );
-            $tags = get_tp_tags( array('output_type' => ARRAY_A, 'pub_id' => $pub) );
+            $tags = tp_tags::get_tags( array('output_type' => ARRAY_A, 'pub_id' => $pub) );
             echo tp_bibtex::get_single_publication_bibtex($row, $tags);
             $sel = ( $sel !== '' ) ? $sel . ',' . $pub : $pub;
         }
     }
     else {
-        $row = get_tp_publications( array('output_type' => ARRAY_A) );
+        $row = tp_publications::get_publications( array('output_type' => ARRAY_A) );
         foreach ( $row as $row ) {
-            $tags = get_tp_tags( array('output_type' => ARRAY_A, 'pub_id' => $row['pub_id']) );
+            $tags = tp_tags::get_tags( array('output_type' => ARRAY_A, 'pub_id' => $row['pub_id']) );
             echo tp_bibtex::get_single_publication_bibtex($row, $tags);
         }
     }
@@ -204,7 +204,7 @@ function tp_show_publications_page_bulk_edit_screen($array_variables) {
     echo '<h4>' . __('Bulk editing','teachpress') . '</h4>';
     echo '<div id="bulk-titles" style="width:30%; float:left;">';
     echo '<ul>';
-    $list = get_tp_publications( array('include' => $selected_publications, 'output_type' => ARRAY_A) );
+    $list = tp_publications::get_publications( array('include' => $selected_publications, 'output_type' => ARRAY_A) );
     foreach ( $list as $row ) {
         echo '<li><input type="checkbox" name="mass_edit[]" id="mass_edit_'. $row['pub_id'] . '" value="'. $row['pub_id'] . '" checked="checked"/> <label for="mass_edit_'. $row['pub_id'] . '">'. $row['title'] . '</label></li>';
     }
@@ -212,7 +212,7 @@ function tp_show_publications_page_bulk_edit_screen($array_variables) {
     echo '</div>';
     echo '<div class="tp_mass_edit_right">';
     echo '<p><b>' . __('Delete current tags','teachpress') . '</b></p>';
-    $used_tags = get_tp_tags( array('pub_id' => $selected_publications, 'output_type' => ARRAY_A, 'group_by' => true) );
+    $used_tags = tp_tags::get_tags( array('pub_id' => $selected_publications, 'output_type' => ARRAY_A, 'group_by' => true) );
     $s = "'";
     echo '<p>';
     foreach ( $used_tags as $row ) {
@@ -229,7 +229,7 @@ function tp_show_publications_page_bulk_edit_screen($array_variables) {
        jQuery(document).ready(function($) {
            var availableTags = [
                <?php
-               $sql = get_tp_tags( array('group_by' => true) );
+               $sql = tp_tags::get_tags( array('group_by' => true) );
                foreach ($sql as $row) {
                    echo '"' . $row->name . '",';        
                } ?>
@@ -308,16 +308,16 @@ function tp_show_publications_page_main_screen($user, $array_variables) {
                   'type' => $array_variables['type'],
                   'order' => 'date DESC, title ASC'
                  );
-    $test = get_tp_publications($args, true);
+    $test = tp_publications::get_publications($args, true);
 
     // Load tags
-    $tags = get_tp_tags( array('output_type' => ARRAY_A) );
+    $tags = tp_tags::get_tags( array('output_type' => ARRAY_A) );
 
     // Load bookmarks
     $bookmarks = tp_bookmarks::get_bookmarks( array('user'=> $user, 'output_type' => ARRAY_A) );
         
       ?>
-      <h2><?php echo $title; ?></h2>
+      <h2><?php echo $title; ?> <a href="admin.php?page=teachpress/addpublications.php" class="add-new-h2"><?php _e('Create','teachpress'); ?></a></h2>
       <div id="searchbox" style="float:right; padding-bottom:5px;">
          <?php if ($array_variables['search'] != "") { 
             echo '<a href="admin.php?page=' . $array_variables['page'] . '&amp;filter=' . $array_variables['type'] . '&amp;tag=' . $array_variables['tag_id'] . '&amp;year=' . $array_variables['year'] . '" style="font-size:14px; font-weight:bold; text-decoration:none; padding-right:3px;" title="' . __('Cancel the search','teachpress') . '">X</a>';
@@ -365,7 +365,7 @@ function tp_show_publications_page_main_screen($user, $array_variables) {
             <select name="tag">
                 <option value="0">- <?php _e('All tags','teachpress'); ?> -</option>
                 <?php
-                $array_tags = get_tp_tags( array(
+                $array_tags = tp_tags::get_tags( array(
                     'user' => ($array_variables['page'] == 'publications.php') ? '' : $user, 
                     'group_by' => true, 
                     'order' => 'ASC') );
@@ -407,7 +407,7 @@ function tp_show_publications_page_main_screen($user, $array_variables) {
          }
          
          else {
-             $row = get_tp_publications($args);
+             $row = tp_publications::get_publications($args);
              $class_alternate = true;
              foreach ($row as $row) { 
                  $get_string = '&amp;search=' . $array_variables['search'] . '&amp;filter=' . $array_variables['type'] . '&amp;limit=' . $array_variables['curr_page'] . '&amp;site=' . $array_variables['page'] . '&amp;tag=' . $array_variables['tag_id'] . '&amp;year=' . $array_variables['year'];

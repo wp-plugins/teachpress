@@ -20,9 +20,9 @@ $feedtype = isset($_GET['feedtype']) ? htmlspecialchars($_GET['feedtype']) : '';
  */
 if ($feedtype == 'bibtex') {
     header('Content-Type: text/plain; charset=utf-8;');
-    $row = get_tp_publications(array('user' => $id, 'tag' => $tag, 'output_type' => ARRAY_A));
+    $row = tp_publications::get_publications(array('user' => $id, 'tag' => $tag, 'output_type' => ARRAY_A));
     foreach ($row as $row) {
-        $tags = get_tp_tags(array('pub_id' => $row['pub_id'], 'output_type' => ARRAY_A));
+        $tags = tp_tags::get_tags(array('pub_id' => $row['pub_id'], 'output_type' => ARRAY_A));
         echo tp_bibtex::get_single_publication_bibtex($row, $tags);
     }
 }
@@ -53,8 +53,10 @@ if ($feedtype == 'bibtex') {
             <pubDate>' . date('r') . '</pubDate>
             <dc:creator>' . get_bloginfo('name') . '</dc:creator>' . chr(13) . chr(10);
 
-    $row = get_tp_publications(array('user' => $id, 'tag' => $tag, 'output_type' => ARRAY_A));
+    $row = tp_publications::get_publications(array('user' => $id, 'tag' => $tag, 'output_type' => ARRAY_A));
     foreach ($row as $row) {
+        
+        // prepare url
         if ($row['url'] != '') {
             $new = explode(', ', $row['url']);
             $item_link = $new[0];
@@ -63,8 +65,15 @@ if ($feedtype == 'bibtex') {
         } else {
             $item_link = get_bloginfo('url');
         }
-        $row['author'] = tp_bibtex::replace_html_chars($row['author']);
-        $row['author'] = str_replace(' and ', ', ', $row['author']);
+        
+        // prepare author name
+        if ( $row['type'] === 'collection' || ( $row['author'] === '' && $row['editor'] !== '' ) ) {
+            $all_authors = str_replace(' and ', ', ', tp_bibtex::replace_html_chars( $row['editor'] ) ) . ' (' . __('Ed.','teachpress') . ')';
+        }
+        else {
+            $all_authors = str_replace(' and ', ', ', tp_bibtex::replace_html_chars( $row['author'] ) );
+        }
+        
         $row['title'] = tp_bibtex::replace_html_chars($row['title']);
         $item_link = tp_bibtex::replace_html_chars($item_link);
         $settings['editor_name'] = 'simple';
@@ -74,7 +83,7 @@ if ($feedtype == 'bibtex') {
                 <title><![CDATA[' . stripslashes($row['title']) . ']]></title>
                 <description>' . tp_bibtex::single_publication_meta_row($row, $settings) . '</description>
                 <link><![CDATA[' . $item_link . ']]></link>
-                <dc:creator>' . stripslashes($row['author']) . '</dc:creator>
+                <dc:creator>' . stripslashes($all_authors) . '</dc:creator>
                 <guid isPermaLink="false">' . get_bloginfo('url') . '?publication=' . $row['pub_id'] . '</guid>
                 <pubDate>' . date('r', strtotime($row['date'])) . '</pubDate>
              </item>' . chr(13) . chr(10);

@@ -1,6 +1,6 @@
 === teachPress ===
 Contributors: Michael Winkler
-Tags: management, publications, enrollments, teachpress, education, course management, BibTeX, bibliography
+Tags: publications, enrollments, education, course management, BibTeX, bibliography
 License: GPLv2 or later
 Requires at least: 3.3
 Tested up to: 3.9
@@ -119,22 +119,33 @@ If you save plugins outside the normal path (/wp-content/plugins/), the plugin c
 == Upgrade Notice ==
 
 = 5.0.0 =
-Saving of database before upgrading is strongly recommended!!
+It's strongly recommended to save your teachpress database tables before upgrading!
 
 == Changelog ==
 
-= 5.0.0beta - (xx.04.2014) =
+= 5.0.0 (alpha) - (xx.xx.2014) =
 * New: Real author filter for publications added
 * New: Autocomplete for authors/editors added
 * New: Meta data system for courses/students and publications added
 * New: Assessment management for courses added
 * New: Simple capability management for courses added
 * New: Direct .bib export for selected publications added (via "Show as BibTeX entry")
+* New: Direct adding of related content based on drafts during the user adds a new course
+* New: Direct adding of sub courses during the user adds a new course
 * Changed: Rewritten core API
 * Changed: Rewritten Shortcode [tpcloud]
 * Changed: Rewritten Shortcdoe [tpenrollments]
 * Changed: UI modifications for better integration in WordPress 3.8+
-* Bugfix: Reenable xls export
+* Changed: Using parameters instead of variables for the definition of database table names
+* Changed: Display names for some publication types changed.
+
+= 4.3.8 - (xx.xx.2014) =
+* Bugfix: Prevent adding of <span>-tags within publication meta rows in XML and RTF files
+* Bugfix: Fix usage of editor names instead of author names in feeds and RTF files
+* Bugfix: Reenable xls export for enrollments
+
+= 4.3.7 - (19.06.2014) =
+* Bugfix: The copy function for courses creates only empty courses.
 
 = 4.3.6 - (28.05.2014) =
 * New: Meta data of publications (page, adress, chapter, isbn, ...) have their own HTML selectors.
