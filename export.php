@@ -2,6 +2,7 @@
 /**
  * This file contains the XLS and CSV constructor for courses and publications export
  * @package teachpress
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  */
 
 // include wp-load.php
@@ -17,23 +18,23 @@ if ($key != '') {
 } 
 elseif ( is_user_logged_in() && current_user_can('use_teachpress') ) {
     $type = isset ( $_GET['type'] ) ? htmlspecialchars($_GET['type']) : '';
-    $course_ID = isset ( $_GET['course_ID'] ) ? intval($_GET['course_ID']) : 0;
-    $user_ID = isset ( $_POST['tp_user'] ) ? intval($_POST['tp_user']) : 0;
+    $course_id = isset ( $_GET['course_id'] ) ? intval($_GET['course_id']) : 0;
+    $user_id = isset ( $_POST['tp_user'] ) ? intval($_POST['tp_user']) : 0;
     $format = isset ( $_POST['tp_format'] ) ?  htmlspecialchars($_POST['tp_format']) : '';
     $sel = isset ( $_POST['tp_sel'] ) ?  htmlspecialchars($_POST['tp_sel']) : '';
-    $filename = 'teachpress_course_' . $course_ID . '_' . date('dmY');
+    $filename = 'teachpress_course_' . $course_id . '_' . date('dmY');
 
     // Export courses
-    if ($type === "xls" && $course_ID != 0) {
+    if ($type === "xls" && $course_id != 0) {
         header("Content-type: application/vnd-ms-excel; charset=utf-8");
         header("Content-Disposition: attachment; filename=" . $filename . ".xls");
-        tp_export::get_course_xls($course_ID);
+        tp_export::get_course_xls($course_id);
     }
 
-    if ($type === 'csv' && $course_ID != 0) {
+    if ($type === 'csv' && $course_id != 0) {
         header('Content-Type: text/x-csv');
         header("Content-Disposition: attachment; filename=" . $filename . ".csv");
-        tp_export::get_course_csv($course_ID);
+        tp_export::get_course_csv($course_id);
     }
     // Export publication lists
     if ( $type === 'pub' ) {
@@ -44,7 +45,7 @@ elseif ( is_user_logged_in() && current_user_can('use_teachpress') ) {
             echo '% This file was created with teachPress ' . get_tp_version() . chr(13) . chr(10);
             echo '% Encoding: UTF-8' . chr(13) . chr(10) . chr(13) . chr(10);
             if ( $sel == '' ) {
-                tp_export::get_publications($user_ID);
+                tp_export::get_publications($user_id);
             }
             else {
                 tp_export::get_selected_publications($sel);
@@ -53,22 +54,22 @@ elseif ( is_user_logged_in() && current_user_can('use_teachpress') ) {
         if ( $format === 'txt' ) {
             header('Content-Type: text/plain; charset=utf-8' );
             header("Content-Disposition: attachment; filename=" . $filename . ".txt");
-            tp_export::get_publications($user_ID,'bibtex');
+            tp_export::get_publications($user_id,'bibtex');
         }
         if ( $format === 'rtf' ) {
             header('Content-Type: text/plain; charset=utf-8' );
             header("Content-Disposition: attachment; filename=" . $filename . ".rtf");
-            tp_export::get_publications($user_ID,'rtf');
+            tp_export::get_publications($user_id,'rtf');
         }
         if ( $format === 'rss' ) {
-            if ( $user_ID == 0 ) {
+            if ( $user_id == 0 ) {
                 header("Location: " . plugins_url() . "/teachpress/feed.php");
                 exit;
             }
             else {
-                header("Location: " . plugins_url() . "/teachpress/feed.php?id=$user_ID");
+                header("Location: " . plugins_url() . "/teachpress/feed.php?id=$user_id");
                 exit;
             }
         }
     }
-} ?>   
+}

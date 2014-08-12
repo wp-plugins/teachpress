@@ -1,7 +1,9 @@
 <?php
 /**
  * This file contains all functions for displaying the show_authors page in admin menu
- * @package teachpress/admin
+ * 
+ * @package teachpress\admin\publications
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  * @since 5.0.0
  */
 
@@ -30,7 +32,7 @@ function tp_show_authors_page_screen_options(){
  * teachpress show_authors_page
  * @since 5.0.0
  */
-function teachpress_authors_page () {
+function tp_show_authors_page () {
     $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
     $checkbox = isset( $_GET['checkbox'] ) ? $_GET['checkbox'] : array();
     $page = 'teachpress/authors.php';

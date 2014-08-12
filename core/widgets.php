@@ -1,13 +1,16 @@
 <?php
 /**
  * This file contains the widget class
- * @package teachpress/core
+ * 
+ * @package teachpress\core\widgets
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  * @since 5.0.0
  */
 
 
 /** 
  * teachPress Books widget class 
+ * @since 0.40.0
  */
 class tp_books_widget extends WP_Widget {
     /** 

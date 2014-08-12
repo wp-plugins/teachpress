@@ -3,7 +3,7 @@ Contributors: Michael Winkler
 Tags: publications, enrollments, education, course management, BibTeX, bibliography
 License: GPLv2 or later
 Requires at least: 3.3
-Tested up to: 3.9
+Tested up to: 4.0
 Stable tag: 5.0.0beta
 
 With this plugin you can easy manage courses and publications.
@@ -101,57 +101,69 @@ If you writing a post or page use the following tag: [tpcourselist]
 Create a new page or post and use the following tag: [tpenrollments]
 
 = How can I add longer course desciptions? =
-You can write long course desciptions, as normal WordPress pages. The main function of teachPress is only to connect the static page with a course overview and an enrollment system. For this you can specify a related page for your course.
+Write a long course desciption as normal WordPress pages and add this page as related content to the course.
 
 = How can I display images in publication lists? =
-An example: [tplist user="0" image="left" image_size="70"]. Important: You must specify both image parameters.
+An example: [tplist image="left" image_size="70"]. Important: You must specify both image parameters.
+
+= How can I split publication lists into multiple pages? =
+An example: [tpcloud pagination="1" entries_per_page="50"]. This works also for [tplist] and [tpsearch]
+
+= How can I protect course documents? =
+The plugin saves course documents in your WordPress upload directory under /teachpress/*course_id*. You can add a protection for this directory with a .htaccess file without influence to your normal media files.
 
 = How can I deactivate parts of the plugin? =
 If you want to use only one part of the plugin, so write the following in the wp-config.php of your WordPress installation
-For deactivating the course system:  
+`// For deactivating the course system:  
 define ('TP_COURSE_SYSTEM','disable');  
-For deactivating the publication system:  
-define ('TP_PUBLICATION_SYSTEM','disable');  
+// For deactivating the publication system:  
+define ('TP_PUBLICATION_SYSTEM','disable');  `
 
 = I see only error messages if I use the RSS-Feed for publications or the xls/csv export for enrollments. What's wrong? =
-If you save plugins outside the normal path (/wp-content/plugins/), the plugin can't load required WordPress files in some cases. Solution: Change the path in the following plugin files: export.php (line 9) / feed.php (line 7).
+If you save plugins outside the normal path (/wp-content/plugins/), the plugin can't load required WordPress files in some cases. Solution: Change the path in the following plugin files: export.php (line 9) / feed.php (line 13).
 
 == Upgrade Notice ==
 
 = 5.0.0 =
-It's strongly recommended to save your teachpress database tables before upgrading!
+It's **strongly** recommended to save your teachpress database tables before upgrading!
 
 == Changelog ==
 
 = 5.0.0 (alpha) - (xx.xx.2014) =
 * New: Real author filter for publications added
 * New: Autocomplete for authors/editors added
-* New: Meta data system for courses/students and publications added
+* New: Meta data system for courses, students and publications added
 * New: Assessment management for courses added
 * New: Simple capability management for courses added
+* New: Simple document management for courses added
 * New: Direct .bib export for selected publications added (via "Show as BibTeX entry")
-* New: Direct adding of related content based on drafts during the user adds a new course
-* New: Direct adding of sub courses during the user adds a new course
+* New: Direct creating of related content based on drafts added
+* New: Direct creating of sub courses added
+* New: Shortcode [tpcoursedate] as replacement for [tpdate]
+* New: Shortcode [tpcoursedocs]
+* New: [tpenrollments]: New parameter "date_format" added
 * Changed: Rewritten core API
 * Changed: Rewritten Shortcode [tpcloud]
 * Changed: Rewritten Shortcdoe [tpenrollments]
 * Changed: UI modifications for better integration in WordPress 3.8+
 * Changed: Using parameters instead of variables for the definition of database table names
-* Changed: Display names for some publication types changed.
+* Changed: Visible names for some publication types changed
+* Killed: The shortcode [tpdate] is deprecated, use [tpcoursedate] instead
+* Killed: The following functions are deprecated: get_tp_course(), get_tp_courses(), get_tp_course_free_places(), get_tp_tags(), get_tp_tag_cloud(), get_tp_publication(), get_tp_publications(), tp_is_user_subscribed(), tp_check_bookmark()
 
-= 4.3.8 - (xx.xx.2014) =
-* Bugfix: Prevent adding of <span>-tags within publication meta rows in XML and RTF files
+= 4.3.8 - (29.06.2014) =
+* Bugfix: Prevent adding of `<span>`-tags within publication meta rows in XML and RTF files
 * Bugfix: Fix usage of editor names instead of author names in feeds and RTF files
 * Bugfix: Reenable xls export for enrollments
 
 = 4.3.7 - (19.06.2014) =
-* Bugfix: The copy function for courses creates only empty courses.
+* Bugfix: The copy function for courses creates only empty courses
 
 = 4.3.6 - (28.05.2014) =
-* New: Meta data of publications (page, adress, chapter, isbn, ...) have their own HTML selectors.
+* New: Meta data of publications (page, adress, chapter, isbn, ...) have their own HTML selectors
 
 = 4.3.5 - (21.05.2014) = 
-* New: [tpcloud, tplist]: New link style option (link_style = direct) added (Thanks to Ellie) 
+* New: [tpcloud, tplist]: New link style option (link_style = "direct") added (Thanks to Ellie) 
 * Bugfix: Adding of new courses of studies was impossible 
 * Bugfix: Fixed a small spelling mistake
 
@@ -280,319 +292,4 @@ It's strongly recommended to save your teachpress database tables before upgradi
 * Killed: Menu "Add manually" replaced
 * Killed: [tpcloud]: Support for "id" parameter replaced. Please use "user" instead
 
-= 3.1.10 - (28.10.2012) =
-* Bugfix: Year was not displayed in a string which was generated by [tpsingle]
-
-= 3.1.9 - (23.10.2012) =
-* Bugfix: Fixed a bug with the year filter of tplist
-* Bugfix: Fixed a bug in bibtex implementation --> name is now a title
-
-= 3.1.8 - (07.10.2012) =
-* New: Portuguese (Brazil) translation added
-* Bugfix: Fixed a small bug in show_courses.php (variable declaration)
-
-= 3.1.7 - (18.09.2012) =
-* New: Allow articles as linked source
-* New: Introduce some functions of the planned teachpress 4 API (i.e. tp_is_user_subscribed)
-* New: Don't load admin functions in the frontend 
-
-= 3.1.6 - (03.08.2012) =
-* Changed: Update for slovak translation
-
-= 3.1.5 - (01.08.2012) =
-* Changed: Update for slovak translation
-* Changed: Update all .po language files
-
-= 3.1.4 - (25.07.2012) =
-* Bugfix: Fixed a bug at adding/changing of courses (was introduced with 3.1.3)
-
-= 3.1.3 - (25.07.2012) =
-* Bugfix: Fixed a silent overbooking of courses
-* Bugfix: Fixed the complete handling of free places to reduce possible collisions of database queries during the enrollment process
-
-= 3.1.2 - (14.06.2012) =
-* New: [tpenrollments, tpcourselist]: New parameter "term" for selecting the term you want to show
-
-= 3.1.1 - (05.04.2012) =
-* Bugfix: Missing statement for full courses in the enrollment system
-* Bugfix: The url field of teachpress_pub table was not changed from varchar to text
-
-= 3.1.0 - (24.03.2012) =
-* New: [tplist, tpcloud]: New parameter "exclude" for excluding publications from the lists
-* New: [tplist, tpcloud]: New parameter "link_style"
-* New: [tplist, tpcloud]: Abstracts will be displayed directly in publication lists
-* New: [tplist]: Abstracts and BibTeX entries will be displayed
-* New: [tplist]: Expand type parameter for more than one publication type
-* New: Sending emails as a separate copy to the email author (optional)
-* New: Adding more than one website/file to a publication
-* New: Some small UI improvements
-* New: Slovak translation added
-* Changed: URL field for publications changed from varchar to text
-* Changed: Using INNODB as default database engine
-* Changed: Using transactions for subscribing/unsubscribing users
-* Changed: Names of some CSS style classes in publication lists
-* Bugfix: BibTeX import ignores date field
-* Bugfix: BibTeX export could not display "edition" field
-* Bugfix: Colspan was not set in publication tables
-* Bugfix: Highlighting of the saved date in datepicker doesn't work
-* Bugfix: Students were not correctly deleted
-* Bugfix: Fixed a bug in displaying publications: year was not displayed for booklets
-* Bugfix: Fixed a bug which prevent an installation under WordPress Multisite
-* Bugfix: Fixed a bug which prevent adding of publications
-* Killed: Log system, teachpress_log table
-
-= 3.0.1 - (06.01.2012) =
-* Bugfix: Fixed a bug which prevent sending of e-mail notifications
-
-= 3.0.0 - (05.01.2012) =
-* New: [tpcourselist]: New option for hiding the headline
-* New: [tpcourselist]: New option for displaying a simple text under the headline
-* New: [tpcloud, tplist]: New option for listing publications after type, year (Set headline="2" for this)
-* New: [tpcloud]: New parameter "headline" is available
-* New: Tags (Keywords) will be displayed in BibTeX entries
-* New: E-mail notifications for the enrollment system (if users are signed up for a course or for a waitinglist of a course)
-* New: Writing e-mails directly from the admin menu
-* New: File export for publications added: .txt(BibTeX) and .rtf format
-* New: Datepicker translations for Spanish and Italian added
-* New: Plural forms for publication types added
-* Changed: Use add_help_tab instead an own help tab on teachpress admin screens
-* Changed: Use the integrated jQuery library from WordPress (i.e. datepicker) instead of an own
-* Changed: Use the style of button-primary / button-secondary from WP instead of an own copy
-* Changed: Line breaks in course comments will be displayed
-* Changed: [tpcloud]: "id"-parameter renamed to "user"
-* Changed: [tpdate]: Hide invisible child courses
-* Changed: [tpcloud, tplist]: If there is no URL given for a publication, teachPress tests if there is an related page instead
-* Bugfix: Using of undefined constants
-* Bugfix: Using of undefined variables
-* Bugfix: Publication title was not displayed in BibTeX strings
-* Bugfix: Deprecated call of load_plugin_textdomain
-* Bugfix: Installation of the tables teachpress_relation, teachpress_signup failed
-* Bugfix: [tpcloud]: Unable to reset the publication type filter 
-
-= 2.3.3 - (06.07.2011) =
-* New: WordPress Media Importer is now usable for the URL field of a publication
-* Changed: The parameters.php isn't longer required
-* Bugfix: Fixed some CSS bugs in conjunction with WordPress 3.2
-
-= 2.3.1/2.3.2 - (07.06.2011) =
-* Bugfix: Fixed two small errors
-
-= 2.3.0 - (06.06.2011) =
-* New: teachPress is now compatible with WordPress 3.2
-* New: An option for selecting all checkboxes is now available in some admin menus
-* New: The deactivation of the course/publication system is possible
-* Changed: Visibility handling for courses
-* Bugfix: Fixed a bug in the shortcode [tpcourselist]: With activated permalink structure it was in some cases for users not possible to select an other semester
-* Bugfix: Fixed a bug in the page menu: Wrong page number calculation under determined conditions
-* Bugfix: Fixed a bug in the enrollments system: If the course and the sub-course name were the same, the course type was displayed instead of the sub-course type
-* Bugfix: Fixed a bug in the enrollments system: If there is no related page given, the course name isn't longer a link
-* Bugfix: Fixed the bibtex import for several special chars
-
-= 2.2.0 - (17.04.2011) =
-* New: "order" option for the shortcodes [tplist], [tpcloud]
-* New: "type" option for the shortcodes [tplist], [tpcloud]
-* New: Improved filter system for the backend publication menu
-* New: teachPress can now manage the number of free places of a course automatically.
-* New: Improved visibility options for courses
-* Changed: Pagemenus have now the WordPress 3.0 Design
-* Changed: Backend function have their own file: core/admin.php
-* Bugfix: Fixed a redirect bug in the backend publication menu
-* Bugfix: Fixed a small CSS bug in the frontend courselist, shortcode: [tpcourselist]
-* Bugfix: The year 0000 is no longer visible in the year filter of [tpcloud] - 0000 stands for no date given - publications with no date are furthermore visible at the end of the publication list
-* Killed: Detailed parameter description for shortcodes in the help sections --> moved to docs/shortcodes.html
-* Killed: Language files for en_US (because it's already the basic plugin langauge)
-
-= 2.1.2 - (15.03.2011) =
-* New: If you want it, you can now use custom post types instead of pages for the related page links
-* Info: WordPress 2.8 is not longer supported
-
-= 2.1.1 - (10.03.2011) =
-* Bugfix: Fixed a bug in the publication overview (backend): The tags were not displayed
-* Bugfix: Fixed a bug in the updater which set the field type for birthday in the table teachpress_stud to varchar and not to date
-* Bugfix: Fixed a bug when student data were edited via backend: Data were lost
-* Bugfix: Fixed a bug which prevent an direct edit after adding a course/publication
-
-= 2.1.0 - (08.03.2011) =
-* New: Strict Subscribing
-* New: Improved Admin menu
-* Bugfix: Fixed a bug with a wrong redirect after the user cancelled the deleting of students
-
-= 2.0.14 - (24.02.2011) =
-* New: New style option for [tpcloud], [tplist]
-* Bugfix: Fixed a bug in teachPress books widget - the name of a book is no longer a html-element name
-* Bugfix: The Room is now vissible again in single course overviews (Bug was introduced with version 2.0.10)
-
-= 2.0.13 - (20.02.2011) =
-* New: Spanish translation added
-
-= 2.0.12 - (01.02.2011) =
-* New: Improved tag menu
-* New: Improved students menu
-* New: New style options for editor names - available for the shortcodes [tpcloud], [tplist], [tpsingle]
-* New: New style options for author names - available for the shortcodes [tpsingle]
-* Bugfix: Waiting lists are now sorted by registration date and not longer by user name
-* Bugfix: Fixed a bug in single course menu: If there is no enrollment, enrollment details are not longer visible
-* Bugfix: Some shortcode parameters are now more secure
-* Bugfix: Fixed a bug which insert wrong links to the publication feeds in the settings menu
-* Bugfix: Fixed some bugs with slashes with was not stripped for the final displaying. It's fixed for the xls/csv-export, the RSS parser and in some menus
-* Bugfix: Fixed some bugs in xls/csv export
-
-= 2.0.11 - (31.01.2011) =
-* New: New style options for author names - available for the shortcodes [tpcloud], [tplist]
-
-= 2.0.10 - (23.01.2011) = 
-* New: Highlighting of child courses in the course overview 
-* Bugfix: Fixed a html bug in show_single_course.php 
-* Bugfix: Fixed the sort of participants if the registration number is disabled 
-* Bugfix: Fixed a bug with the table of participants if the registration number is disabled
-
-= 2.0.9 - (30.11.2010) =
-* New: Better style permissions for all shortcodes. Some nasty hard coded CSS code is removed.
-* Changed: Style for tpenrollments, tpdate and tpcloud shortcodes
-* Changed: Italian translation updated
-
-= 2.0.8 - (27.11.2010) =
-* New: Support for WordPress 3.1
-* New: Basic italian translation added
-
-= 2.0.7 - (18.11.2010) =
-* Bugfix: Fixed a bug with the charset in the xls-export - teachpress uses now utf8_encode()
-* Bugfix: Fixed a bug in the bibtex output of articles
-* Bugfix: Fixed some small GUI-bugs
-* Bugfix: Fixed style of some buttons
-
-= 2.0.6 - (24.10.2010) =
-* Changed: Type of the registration timestamp has changed from date to datetime
-* Bugfix: Fixed a security vulnerability (sql injection) which was opened with a fix in version 2.0.5
-* Bugfix: teachPress uses now the right local server time and not longer greenwich time
-
-= 2.0.5 - (11.10.2010) =
-* New: Now you can set the time (hour, minute) for the start/end of a enrollment period
-* Bugfix: Fixed a bug which displayed a wrong message after adding a student
-* Bugfix: Fixed a bug which prevented the manual adding of students
-* Bugfix: Some small user interface improvements
-* Bugfix: Fixed some bugs in the english translation
-
-= 2.0.4 - (02.10.2010) =
-* Bugfix: Fixed a bug which prevented the installation of the teachpress_pub table
-
-= 2.0.3 - (27.09.2010) = 
-* Bugfix: Fixed a bug with one login mode (integrated)
-= 2.0.2 - (27.09.2010) =
-* Changed: New author and plugin website
-* Bugfix: The year was not displaying for articles
-* Bugfix: Images in the publication lists were not scaled
-* Bugfix: Child courses are now visible, if their parent was deleted
-* Bugfix: Fixed bugs in the admin course overview
-* Bugfix: Course type was not selected when an user edit a course
-* Bugfix: Fixed a variable declaration in get_tp_publication_type_options()
-
-= 2.0.1 - (20.09.2010) =
-* New: Introduce an option for deselecting the default teachPress frontend style
-* Changed: Some small improvements for publication lists
-* Bugfix: Fixed german translation for proceedings and inproceedings
-* Bugfix: BibTeX-Key was not displaying in the frontend
-
-= 2.0.0 - (18.09.2010) =
-* New: BibTeX support (bibtex export, more data fields, more publication types)
-* New: Shortcode "tpsingle" for displaying single publications
-* New: Shortcode "tpcourselist" for displaying a course list
-* New: Shortcode "tpenrollments" for displaying the enrollement system
-* New: Shortcode "tppost" for displaying parts of a post only for registered students
-* New: Images for courses
-* Changed: Style of single publications generated with [tpsingle]
-* Changed: Bibtex export now discerns isbn from issn
-* Changed: Shortcode "tpcloud": It's now possible to deactivate the html anchor
-* Changed: Redesigned user interface
-* Changed: Number of chars for a semester name (from 10 to 100)
-* Changed: Database and directory structure
-* Changed: Some small improvements for publication lists
-* Bugfix: Fixed bugs in the overview of students
-* Bugfix: Fixed problems with the user data field selection for registration forms
-* Bugfix: It's now possible to add images directly from the WordPress Media Library
-* Bugfix: Fixed a bug with the email column in the course lists
-* Bugfix: Fixed a bug in xls export: The parent course name is now displaying
-* Killed: own database functions tp_var, tp_query, tp_results
-* Bugfix: Fixed some bugs with the pagination in the students and the publication overview
-* Bugfix: Delete the bugfix in tpdate shortcode from version 2.0.b3, because the bug was the bugfix
-
-= 1.0.0 - (31.05.2010) =
-* New: It is possible to deactivate some fields for user data
-* New: New registration mode available
-* New: Function for uninstalling teachPress
-* Changed: Some small improvement for attendance lists
-* Changed: Settings
-* Changed: Design for enrollment system
-* Changed: Calendar: from jscalendar to datepicker (jquery-plugin)
-* Changed: Directory structure
-* Bugfix: Fixed bugs with utf8 chars
-
-= 0.85.1 =
-* New: RSS-Feed script for publications
-* Bugfix: Fixed bug in the "copy course" function
-* Bugfix: Fixed bug in the "add students manually" function
-
-= 0.85.0 =
-* New: Displaying images in publication lists
-* New: Larger edit field for course comments
-* Bugfix: Size of visible images in the publication edit menu is limited
-* Bufgix: Some function names now more unique
-* Bugfix: Fix some security vulnerabilities
-
-= 0.80.2 =
-* Bugfix: Fixed different bugs, which originated with the file merging in the publication management in version 0.80.0
-
-= 0.80.1 =
-* Bugfix: Fixed a bug when adding a publication
-
-= 0.80.0 =
-* New: Capabilities for backend access control
-* New: Possible to prevent sign outs for registrations 
-* Changed: Style of frontend course overview
-* Changed: Central definition of publication types in the source code 
-* Changed: Select fields reworked
-* Changed: Translation for publication types
-* Changed: Put all javascript functions to standard.js
-* Changed: Put the teachPress settings page from the courses menu to the Wordpress settings menu
-* Bugfix: Fixed displaying child courses in display.php 
-* Bugfix: Cleaned backend CSS and more CSS3 compatibility
-* Bugfix: Fixed access bug for students.php
-* Bugfix: Fixed updater
-
-= 0.40.0 =
-* New: teachPress books widget
-* New: Add images to your publications
-* New: Related pages for publications
-* New: Related pages for courses
-* New: ISSN field for publications
-* Changed: Many small changes in the enrollment form (now display.php)
-* Changed: Smarter script loading
-* Bugfix: Fixed a bug when you add a student manually
-* Bugfix: Fixed bug in the sort order of terms
-* Bugfix: Fixed charset and collation for teachpress tables
-* Bugfix: Fixed bug when parent and child course have the same name
-* Killed: URL field for courses
-
-= 0.32.0 = 
-* Changed: Design for course overview
-* Changed: Default language changed from german to english
-* Bugfix: Fixed a bug when student unsubscribes from a course (Thanks to Jean T. )
-* Bugfix: Fixed a bug in the course overview (frontend)
-
-= 0.30.2 =
-* Fixed a small problem with the version name
-
-= 0.30.0 =
-* New: Copy function for courses
-* New: Simple CSV-export for enrollments
-* New: Free selectable names for child courses
-* New: More parameters for the [tpcloud] shortcode
-* New: Using wpdb->prefix for database names
-* Changed: Order of courses in the backend overview
-* Changed: Structure of registration form
-* Changed: Tag-Cloud creation
-* Changed: Course search
-* Bugfix: Fixed a bug in 'add courses' form
-* Bugfix: Fixed a bug by using students search
-* Bugfix: Fixed a bug in get_tp_message()
-* Killed: XML-export for enrollments
+[Older entries](http://mtrv.wordpress.com/teachpress/changelog/)

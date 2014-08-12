@@ -2,6 +2,7 @@
 /**
  * This file contains the RSS feed constructor
  * @package teachpress
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  */
 
 /********************************/
@@ -91,4 +92,3 @@ if ($feedtype == 'bibtex') {
     echo '</channel>' . chr(13) . chr(10);
     echo '</rss>' . chr(13) . chr(10);
 }
-?>

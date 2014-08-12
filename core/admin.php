@@ -1,14 +1,34 @@
 <?php
 /**
  * This file contains all general functions for admin menu
- * @package teachpress/core
+ * 
+ * @package teachpress\core\admin
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  */
 
 /**
  * This class contains general functions for teachpress admin menus
  * @since 5.0.0
+ * @package teachpress\core\admin
  */
 class tp_admin {
+    
+    /**
+     * Tests if the database needs an update. If this is available a message will be displayed.
+     * @param $before       This will be displayed before the message
+     * @param $after        This will be displayed after the message
+     * @since 5.0.0
+     */
+    public static function database_test($before = '', $after = '') {
+        $test = get_tp_option('db-version');
+        $version = get_tp_version();
+        if ( $test != $version ) {
+            $message = __('An database update is necessary.','teachpress') . ' <a href="options-general.php?page=teachpress/settings.php&amp;up=1">' . __('Update','teachpress') . '</a>';
+            echo $before;
+            get_tp_message($message);
+            echo $after;
+        }
+    }
     
     /**
      * Returns a text field for admin/settings screens
@@ -218,6 +238,7 @@ class tp_admin {
  * @param string $link_attributes   the url attributes for get parameters
  * @param string $type              top or bottom, default: top
  * @return string
+ * @todo Replace it with tp_page_menu()
 */
 function tp_admin_page_menu ($number_entries, $entries_per_page, $current_page, $entry_limit, $page_link = '', $link_attributes = '', $type = 'top') {
     // if number of entries > number of entries per page
@@ -272,6 +293,158 @@ function get_tp_wp_drafts($post_type, $post_status = 'publish', $sort_column = '
     }
 }
 
+/**
+ * Handle PHP uploads in teachPress, sanitizing file names, checking extensions for mime type,
+ * and moving the file to the appropriate directory within the uploads directory. The function is a modified copy
+ * of wp_handle_upload, but uses the teachpress upload directory
+ *
+ * @since 5.0.0
+ *
+ * @param array $file       Reference to a single element of $_FILES. Call the function once for each uploaded file.
+ * @param array $overrides  Optional. An associative array of names=>values to override default variables with extract( $overrides, EXTR_OVERWRITE ).
+ * @param int $course_id    ID of a teachPress course.
+ * @return array On success, returns an associative array of file attributes. On failure, returns $overrides['upload_error_handler'](&$file, $message ) or array( 'error'=>$message ).
+ */
+function tp_handle_upload( &$file, $overrides = false, $course_id = 0 ) {
+	// The default error handler.
+	if ( ! function_exists( 'wp_handle_upload_error' ) ) {
+            function wp_handle_upload_error( &$file, $message ) {
+                return array( 'error'=>$message );
+            }
+	}
+
+	$file = apply_filters( 'wp_handle_upload_prefilter', $file );
+
+	// You may define your own function and pass the name in $overrides['upload_error_handler']
+	$upload_error_handler = 'wp_handle_upload_error';
+
+	// You may have had one or more 'wp_handle_upload_prefilter' functions error out the file. Handle that gracefully.
+	if ( isset( $file['error'] ) && !is_numeric( $file['error'] ) && $file['error'] ) {
+            return $upload_error_handler( $file, $file['error'] );
+        }
+
+	// Courtesy of php.net, the strings that describe the error indicated in $_FILES[{form field}]['error'].
+	$upload_error_strings = array( false,
+		__( "The uploaded file exceeds the upload_max_filesize directive in php.ini." ),
+		__( "The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form." ),
+		__( "The uploaded file was only partially uploaded." ),
+		__( "No file was uploaded." ),
+		'',
+		__( "Missing a temporary folder." ),
+		__( "Failed to write file to disk." ),
+		__( "File upload stopped by extension." ));
+
+	// All tests are on by default. Most can be turned off by $overrides[{test_name}] = false;
+	$test_size = true;
+	$test_upload = true;
+
+	// If you override this, you must provide $ext and $type!!!!
+	$test_type = true;
+	$mimes = false;
+
+	// Install user overrides. Did we mention that this voids your warranty?
+	if ( is_array( $overrides ) ) {
+            extract( $overrides, EXTR_OVERWRITE );
+        }
+
+	// A successful upload will pass this test. It makes no sense to override this one.
+	if ( isset( $file['error'] ) && $file['error'] > 0 ) {
+            return call_user_func( $upload_error_handler, $file, $upload_error_strings[ $file['error'] ] );
+	}
+
+	// A non-empty file will pass this test.
+	if ( $test_size && !($file['size'] > 0 ) ) {
+            if ( is_multisite() ) {
+                $error_msg = __( 'File is empty. Please upload something more substantial.' );
+            }
+            return call_user_func($upload_error_handler, $file, $error_msg);
+	}
+
+	// A properly uploaded file will pass this test. There should be no reason to override this one.
+	if ( $test_upload && ! @ is_uploaded_file( $file['tmp_name'] ) ) {
+            return call_user_func($upload_error_handler, $file, __( 'Specified file failed upload test.' ));
+        }
+        
+	// A correct MIME type will pass this test. Override $mimes or use the upload_mimes filter.
+	if ( $test_type ) {
+            $wp_filetype = wp_check_filetype_and_ext( $file['tmp_name'], $file['name'], $mimes );
+
+            extract( $wp_filetype );
+
+            // Check to see if wp_check_filetype_and_ext() determined the filename was incorrect
+            if ( $proper_filename ) {
+                $file['name'] = $proper_filename;
+            }
+            if ( ( !$type || !$ext ) && !current_user_can( 'unfiltered_upload' ) ) {
+                return call_user_func($upload_error_handler, $file, __( 'Sorry, this file type is not permitted for security reasons.' ));
+            }
+            if ( !$ext ) {
+                $ext = ltrim(strrchr($file['name'], '.'), '.');
+            }
+            if ( !$type ) {
+                $type = $file['type'];
+            }
+	} else {
+            $type = '';
+	}
+        
+        // If there is a course_id use it in the file path
+        $extra_directory_part = '';
+        if ( $course_id !== 0 ) {
+            $extra_directory_part = "/course_$course_id";
+        }
+
+	// A writable uploads dir will pass this test. Again, there's no point overriding this one.
+	if ( ! ( ( $uploads = wp_upload_dir() ) && false === $uploads['error'] ) ) {
+		return call_user_func($upload_error_handler, $file, $uploads['error'] );
+        }
+	$filename = wp_unique_filename( $uploads['basedir'] . "/teachpress$extra_directory_part", $file['name'] );
+        
+	// Move the file to the uploads dir
+        wp_mkdir_p($uploads['basedir'] . "/teachpress$extra_directory_part");
+	$new_file = $uploads['basedir'] . "/teachpress$extra_directory_part/$filename";
+	if ( false === @ move_uploaded_file( $file['tmp_name'], $new_file ) ) {
+            if ( 0 === strpos( $uploads['basedir'], ABSPATH ) ) {
+                    $error_path = str_replace( ABSPATH, '', $uploads['basedir'] ) . $uploads['subdir'];
+            }
+            else {
+                    $error_path = basename( $uploads['basedir'] ) . $uploads['subdir'];
+            }
+            return $upload_error_handler( $file, sprintf( __('The uploaded file could not be moved to %s.' ), $error_path ) );
+	}
+
+	// Set correct file permissions
+	$stat = stat( dirname( $new_file ));
+	$perms = $stat['mode'] & 0000666;
+	@ chmod( $new_file, $perms );
+
+	// Compute the URL
+	$url = $uploads['url'] . "/$filename";
+
+	if ( is_multisite() ) {
+            delete_transient( 'dirsize_cache' );
+        }
+	/**
+	 * Filter the data array for the uploaded files
+	 *
+	 * @param array  $upload {
+	 *     Array of upload data.
+	 *
+	 *     @type string $file       Filename of the newly-uploaded file.
+	 *     @type string $url        URL of the uploaded file.
+         *     @type string $path       The directory path of the uploaded file, file name included.
+	 *     @type string $type       File type.
+         *     @type string $filename   File name.
+	 * }
+	 * @param string $context The type of upload action. Accepts 'upload' or 'sideload'.
+	 */
+	return apply_filters( 'wp_handle_upload', array( 'file' => $new_file, 
+                                                         'url' => $url, 
+                                                         'path' => "/teachpress$extra_directory_part/$filename", 
+                                                         'type' => $type, 
+                                                         'filename' => $filename ), 'upload' );
+}
+
 /** 
  * Get WordPress pages
  * adapted from Flexi Pages Widget Plugin
@@ -324,82 +497,6 @@ function get_tp_wp_pages($sort_column = "menu_order", $sort_order = "ASC", $sele
     } else {
         return false;
     }
-}
-
-/** 
- * Get a single table row for show_courses.php
- * @param array $course                     course data
- * @param array $checkbox
- * @param array $static
-       $static['bulk']                      copy or delete
-       $static['sem']                       semester
-       $static['search']                    input from search field
- * @param string $parent_course_name        the name of the parent course
- * @param string $type                      parent or child
- * @return string
-*/ 
-function get_tp_single_table_row_course ($course, $checkbox, $static, $parent_course_name = '', $type = 'parent') {
-    $check = '';
-    $style = '';
-    // Check if checkbox must be activated or not
-    if ( ( $static['bulk'] == "copy" || $static['bulk'] == "delete") && $checkbox != "" ) {
-        for( $k = 0; $k < count( $checkbox ); $k++ ) { 
-            if ( $course['course_id'] == $checkbox[$k] ) { $check = 'checked="checked"';} 
-        }
-    }
-    // Change the style for an important information
-    if ( $course['places'] > 0 && $course['fplaces'] <= 0 ) {
-        $style = ' style="color:#ff6600; font-weight:bold;"'; 
-    }
-    // Type specifics
-    if ( $type == 'parent' || $type == 'search' ) {
-        $class = ' class="tp_course_parent"';
-    }
-    else {
-        $class = ' class="tp_course_child"';
-    }
-
-    if ( $type == 'child' || $type == 'search' ) {
-        if ( $course['name'] != $parent_course_name ) {
-            $course['name'] = $parent_course_name . ' - ' . $course['name'];
-        }
-    }
-    // complete the row
-    $a1 = '<tr' . $static['tr_class'] . '>
-        <th class="check-column"><input name="checkbox[]" type="checkbox" value="' . $course['course_id'] . '"' . $check . '/></th>
-        <td' . $class . '>
-                <a href="admin.php?page=teachpress/teachpress.php&amp;course_ID=' . $course['course_id'] . '&amp;sem=' . $static['sem'] . '&amp;search=' . $static['search'] . '&amp;action=show" class="teachpress_link" title="' . __('Click to show','teachpress') . '"><strong>' . $course['name'] . '</strong></a>
-                <div class="tp_row_actions">
-                        <a href="admin.php?page=teachpress/teachpress.php&amp;course_ID=' . $course['course_id'] . '&amp;sem=' . $static['sem'] . '&amp;search=' . $static['search'] . '&amp;action=show" title="' . __('Show','teachpress') . '">' . __('Show','teachpress') . '</a> | <a href="admin.php?page=teachpress/teachpress.php&amp;course_ID=' . $course['course_id'] . '&amp;sem=' . $static['sem'] . '&amp;search=' . $static['search'] . '&amp;action=edit&amp;ref=overview" title="' . __('Edit','teachpress') . '">' . __('Edit','teachpress') . '</a> | <a href="admin.php?page=teachpress/teachpress.php&amp;sem=' . $static['sem'] . '&amp;search=' . $static['search'] . '&amp;checkbox%5B%5D=' . $course['course_id'] . '&amp;bulk=delete" style="color:red;" title="' . __('Delete','teachpress') . '">' . __('Delete','teachpress') . '</a>
-                </div>
-        </td>
-        <td>' . $course['course_id'] . '</td>
-        <td>' . $course['type'] . '</td>
-        <td>' . $course['lecturer'] . '</td>
-        <td>' . $course['date'] . '</td>
-        <td>' . $course['places'] . '</td>
-        <td' . $style . '>' . $course['fplaces'] . '</td>';
-    if ( $course['start'] != '0000-00-00' && $course['end'] != '0000-00-00' ) {
-        $a2 ='<td>' . $course['start'] . '</td>
-                <td>' . $course['end'] . '</td>';
-    } 
-    else {
-        $a2 = '<td colspan="2" style="text-align:center;">' . __('none','teachpress') . '</td>';
-    }
-    $a3 = '<td>' . $course['semester'] . '</td>';
-    if ( $course['visible'] == 1 ) {
-        $a4 = '<td>' . __('normal','teachpress') . '</td>';
-    }
-    elseif ( $course['visible'] == 2 ) {
-        $a4 = '<td>' . __('extend','teachpress') . '</td>';
-    }
-    else {
-        $a4 = '<td>' . __('invisible','teachpress') . '</td>';
-    }
-    $a5 = '</tr>';
-    // Return
-    $return = $a1 . $a2 . $a3 . $a4 . $a5;
-    return $return;
 }
 
 /**
@@ -515,5 +612,3 @@ function tp_set_screen_option($status, $option, $value) {
     }
 }
 add_filter('set-screen-option', 'tp_set_screen_option', 10, 3);
-
-?>

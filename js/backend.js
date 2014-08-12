@@ -1,5 +1,4 @@
 // teachPress javascript for the admin menu
-
 /**
 * Open a assessment description
 * @param {int} id
@@ -11,8 +10,8 @@ function teachpress_open_description(id, pos) {
     var assessment = 'tp_assessment_' + id;
     var comment_text = 'tp_desc_comment_' + id;
     var comment_date = 'tp_desc_date_' + id;
-    var pos = pos + 1;
     var text;
+    pos = pos + 1;
     if (isNaN(document.getElementById("tp_description_open"))) {
     }
     else {
@@ -31,18 +30,26 @@ function teachpress_open_description(id, pos) {
         cancel_button.className = 'button';
         cancel_button.onclick = function () { 
                                     document.getElementById('tp_assessment_overview').deleteRow(pos);
-                                    document.getElementById(assessment).style.background = '#fff';
-                                    document.getElementById(assessment).style.color = '#0074a2'; 
+                                    teachpress_removeClass(assessment, 'tp_assessment_selected');
                                 };
         // add to table        
 	row.appendChild(description);
         document.getElementById("tp_description_open").innerHTML = "<h4>Assessment details</h4><p>" + exam_date + "</p><p>" + text + "</p>";
         description.appendChild(cancel_button);
         // change style of assessment
-        document.getElementById(assessment).style.background = '#000';
-        document.getElementById(assessment).style.color = '#fff';
+        document.getElementById(assessment).className += ' tp_assessment_selected';
         
     }
+}
+
+/**
+ * Removes a class from a given element
+ * @param {string} element
+ * @param {string} clas
+ * @since 5.0.0
+ */
+function teachpress_removeClass(element,clas) {
+    document.getElementById(element).className = document.getElementById(element).className.replace( new RegExp('(?:^|\\s)'+clas+'(?!\\S)') ,'');
 }
 
 /**
@@ -233,12 +240,12 @@ function teachpress_courseFields () {
 
 /**
  * for edit tags
- * @param {int} tag_ID
+ * @param {int} tag_id
  * @since 1.0.0
  */
-function teachpress_editTags(tag_ID) {
-    var parent = "tp_tag_row_" + tag_ID;
-    var message_text_field = "tp_tag_row_name_" + tag_ID;
+function teachpress_editTags(tag_id) {
+    var parent = "tp_tag_row_" + tag_id;
+    var message_text_field = "tp_tag_row_name_" + tag_id;
     var input_field = "tp_edit_tag_name";
     var text;
 
@@ -253,9 +260,9 @@ function teachpress_editTags(tag_ID) {
         editor.id = "div_edit";
         // create hidden fields
         var field_neu = document.createElement('input');
-        field_neu.name = "tp_edit_tag_ID";
+        field_neu.name = "tp_edit_tag_id";
         field_neu.type = "hidden";
-        field_neu.value = tag_ID;
+        field_neu.value = tag_id;
         // create textarea
         var tagname_new = document.createElement('input');
         tagname_new.id = input_field;

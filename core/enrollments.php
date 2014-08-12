@@ -1,11 +1,14 @@
 <?php
 /**
  * This file contains frontend functions for the enrollment forms of teachpress
- * @package teachpress/core
+ * 
+ * @package teachpress\core\enrollments
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  */
 
 /**
  * This class contains all special functions for the shortcode [tpenrollments]
+ * @package teachpress\core\enrollments
  * @since 5.0.0
  */
 class tp_enrollments {
@@ -39,10 +42,10 @@ class tp_enrollments {
     
     /** 
      * Add signup (= subscribe student in a course)
-     * @param int $checkbox     course_ID
-     * @param int $wp_id        user_ID
+     * @param int $checkbox     course_id
+     * @param int $wp_id        user_id
      * @return int      This function returns a status code. This means:
-     *                  code 0    --> ERROR: course_ID was 0
+     *                  code 0    --> ERROR: course_id was 0
      *                  code 101  --> user is already registered
      *                  code 102  --> user is already registered in waitinglist
      *                  code 103  --> user is already registered for an other course of the course group
@@ -108,22 +111,22 @@ class tp_enrollments {
     
     /**
      * Add student
-     * @param int $user_ID
+     * @param int $user_id
      * @param string $user_login
      * @param string $user_email
      * @return string
      * @since 5.0.0
      */
-    public static function add_student ($user_ID, $user_login, $user_email, $fields, $post) {
+    public static function add_student ($user_id, $user_login, $user_email, $fields, $post) {
         $data = array(
          'firstname' => isset($post['firstname']) ? htmlspecialchars($post['firstname']) : '',
          'lastname' => isset($post['lastname']) ? htmlspecialchars($post['lastname']) : '',
          'userlogin' => $user_login,
          'email' => $user_email
         );
-        $ret = tp_students::add_student($user_ID, $data);
+        $ret = tp_students::add_student($user_id, $data);
         if ($ret !== false) {
-            tp_enrollments::add_student_meta( $user_ID, $fields, $post );
+            tp_enrollments::add_student_meta( $user_id, $fields, $post );
             return '<div class="teachpress_message_success"><strong>' . __('Registration successful','teachpress') . '</strong></div>';
         }
         else {
@@ -167,7 +170,7 @@ class tp_enrollments {
     public static function get_signup_message($code) {
         switch ($code) {
         case 0:
-            return __('Warning: Wrong course_ID','teachpress');
+            return __('Warning: Wrong course_id','teachpress');
         case 101:
             return __('You are already registered for this course.','teachpress');
         case 102:
@@ -234,6 +237,16 @@ class tp_enrollments {
                  </tr>';
     }
     
+    /**
+     * Returns a number field for user form
+     * @param string $field_name    name/id of the field
+     * @param string $label         label for the field
+     * @param int $value            value for the field
+     * @param boolean $readonly     true or false
+     * @return string
+     * @todo min and max values are not editable
+     * @since 5.0.0
+     */
     public static function get_form_int_field($field_name, $label, $value, $readonly = false) {
         $readonly = ( $readonly === false ) ? '' : 'readonly="true" ';
         return '<tr>
@@ -339,7 +352,7 @@ class tp_enrollments {
            $url["link"] = $url["link"] . '?tab=';
         }
         else {
-           $url["post_id"] = get_the_ID();
+           $url["post_id"] = get_the_id();
            $url["link"] = $pagenow;
            $url["link"] = str_replace("index.php", "", $url["link"]);
            $url["link"] = $url["link"] . '?' . $page . '=' . $url["post_id"] . '&amp;tab=';
@@ -405,20 +418,20 @@ class tp_enrollments {
     
     /**
      * Returns the tab for former signups/waitinglist places
-     * @param int $user_ID
+     * @param int $user_id
      * @param int $is_sign_out
      * @return string
      * @since 5.0.0
      */
-    public static function get_old_tab ($user_ID, $is_sign_out) { 
+    public static function get_old_tab ($user_id, $is_sign_out) { 
         $rtn = '<p><strong>' . __('Signed up for','teachpress') . '</strong></p>';
         
         // signups
-        $row1 = tp_students::get_signups( array('wp_id' => $user_ID, 'mode' => 'reg') );
+        $row1 = tp_students::get_signups( array('wp_id' => $user_id, 'mode' => 'reg') );
         $rtn .= tp_enrollments::create_signups_table($row1, $is_sign_out);
         
         // waitinglist entries
-        $row2 = tp_students::get_signups( array('wp_id' => $user_ID, 'mode' => 'wtl') );
+        $row2 = tp_students::get_signups( array('wp_id' => $user_id, 'mode' => 'wtl') );
         if ( count($row2) !== 0 ) {
             $rtn .= '<p><strong>' . __('Waiting list','teachpress') . '</strong></p>';
             $rtn .= tp_enrollments::create_signups_table($row2, $is_sign_out);
@@ -432,17 +445,18 @@ class tp_enrollments {
     /**
      * Returns the enrollment tab
      * @param string $sem
+     * @param string $date_format
      * @param string $user_exists
      * @return string
      * @since 5.0.0
      */
-    public static function get_enrollments_tab($sem, $user_exists) {
+    public static function get_enrollments_tab($sem, $date_format, $user_exists) {
         global $wpdb;
         $rtn = '';
         // Select all courses where enrollments in the current term are available
         $row = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_COURSES . " WHERE `semester` = '$sem' AND `parent` = '0' AND (`visible` = '1' OR `visible` = '2') ORDER BY `type` DESC, `name`");
         foreach( $row as $row ) {
-            $rtn .= tp_enrollments::load_course_entry($row, $user_exists);	
+            $rtn .= tp_enrollments::load_course_entry($row, $date_format, $user_exists);	
         }	
         if (is_user_logged_in() && $user_exists != '') {
             $rtn .= '<input name="einschreiben" type="submit" value="' . __('Sign up','teachpress') . '" />';
@@ -453,12 +467,13 @@ class tp_enrollments {
     /**
      * Returns a table with a course and his sub courses for enrollments tab
      * @param object $row
+     * @param string $date_format
      * @param string $user_exists
      * @return string
      * @since 5.0.0
      * @access private
      */
-    private static function load_course_entry ($row, $user_exists) {
+    private static function load_course_entry ($row, $date_format, $user_exists) {
         global $wpdb;
         
         $course_name = ( $row->rel_page != 0 ) ? '<a href="' . get_permalink($row->rel_page) . '">' . stripslashes($row->name) . '</a>' : stripslashes($row->name);
@@ -475,9 +490,9 @@ class tp_enrollments {
         $rtn = '<div class="teachpress_course_group">';
         $rtn .= '<div class="teachpress_course_name">' . $course_name . '</div>';
         $rtn .= '<table class="teachpress_enr" width="100%" border="0">';
-        $rtn .= tp_enrollments::create_course_entry($row, $user_exists);
+        $rtn .= tp_enrollments::create_course_entry($row, $date_format, $user_exists);
         foreach ( $childs as $child ) {
-            $rtn .= tp_enrollments::create_course_entry($child, $user_exists, $row->name);
+            $rtn .= tp_enrollments::create_course_entry($child, $date_format, $user_exists, $row->name);
         }
         $rtn .= '</table>';
         $rtn .= '</div>';
@@ -487,13 +502,14 @@ class tp_enrollments {
     /**
      * Returns a single course entry for the function load_course_entry()
      * @param object $row
+     * @param string $date_format
      * @param string $user_exists
      * @param string $parent_name
      * @return string
      * @since 5.0.0
      * @access private
      */
-    private static function create_course_entry ($row, $user_exists, $parent_name = '') {
+    private static function create_course_entry ($row, $date_format, $user_exists, $parent_name = '') {
         
         // define some course variables
         $date1 = $row->start;
@@ -521,7 +537,7 @@ class tp_enrollments {
         // display configs
         $display_free_places = ( $date1 != '0000-00-00 00:00:00' ) ? $free_places . ' ' . __('of','teachpress') . ' ' .  $row->places : '&nbsp;';
         $waitinglist_info = ( $row->waitinglist == 1 && $free_places == 0 ) ? __('Possible to subscribe in the waiting list','teachpress') : '&nbsp;';
-        $registration_period = ($date1 != '0000-00-00 00:00:00') ? __('Registration period','teachpress') . ': ' . substr($row->start,0,strlen($row->start)-3) . ' ' . __('to','teachpress') . ' ' . substr($row->end,0,strlen($row->end)-3) : '&nbsp;';
+        $registration_period = ($date1 != '0000-00-00 00:00:00') ? __('Registration period','teachpress') . ': ' . date( $date_format, strtotime($row->start) ) . ' ' . __('to','teachpress') . ' ' . date( $date_format, strtotime($row->end) ) : '&nbsp;';
         $additional_info = ( $parent_name != '' ) ? stripslashes(nl2br($row->comment)) . ' ' : '';
         
         // Row 1
@@ -583,15 +599,15 @@ class tp_enrollments {
 
 /**
  * The form for user registrations
- * @param int|array $user_ID
+ * @param int|array $user_id
  * @param string $mode        --> register, edit or admin
  * @return string
  * @since 4.0.0
  * @version 2 (since 5.0.0)
  */
-function tp_registration_form ($user_ID, $mode = 'register') {
-    $user = ( $mode !== 'register' ) ? tp_students::get_student($user_ID) : '';
-    $user_meta = ( $mode !== 'register' ) ? tp_students::get_student_meta($user_ID) : array( array('meta_key' => '', 'meta_value' => '') );
+function tp_registration_form ($user_id, $mode = 'register') {
+    $user = ( $mode !== 'register' ) ? tp_students::get_student($user_id) : '';
+    $user_meta = ( $mode !== 'register' ) ? tp_students::get_student_meta($user_id) : array( array('meta_key' => '', 'meta_value' => '') );
     $fields = get_tp_options('teachpress_stud','`setting_id` ASC', ARRAY_A);
     
     $rtn = '';
@@ -614,7 +630,7 @@ function tp_registration_form ($user_ID, $mode = 'register') {
     $value = ( $mode === 'register' ) ? '' : stripslashes($user['lastname']);
     $rtn .= tp_enrollments::get_form_text_field('lastname', __('Last name','teachpress'), $value);
     
-    $value = ( is_array( $user_ID ) ) ? $user_ID['userlogin'] : $user['userlogin'];
+    $value = ( is_array( $user_id ) ) ? $user_id['userlogin'] : $user['userlogin'];
     $rtn .= tp_enrollments::get_form_text_field('userlogin', __('User account','teachpress'), $value, true);
     
     $readonly = !isset($user['email']) ? false : true;
@@ -659,15 +675,18 @@ function tp_registration_form ($user_ID, $mode = 'register') {
 /** 
  * Show the enrollment system
  * @param array $atts
- *    term (STRING) - the term you want to show
+ *      @type string term           The term you want to show
+ *      @type string date_format    Default: d.m.Y
  * @return string
 */
 function tp_enrollments_shortcode($atts) {
     // Shortcode options
     extract(shortcode_atts(array(
-       'term' => ''
+       'term' => '',
+       'date_format' => 'd.m.Y H:i'
     ), $atts));
     $term = htmlspecialchars($term);
+    $date_format = htmlspecialchars($date_format);
     // Advanced Login
     $tp_login = get_tp_option('login');
     if ( $tp_login == 'int' ) {
@@ -755,11 +774,10 @@ function tp_enrollments_shortcode($atts) {
     * Enrollments
    */
    if ($tab === '' || $tab === 'current') {
-       $rtn .= tp_enrollments::get_enrollments_tab($sem, $user_exists);
+       $rtn .= tp_enrollments::get_enrollments_tab($sem, $date_format, $user_exists);
    }
    $rtn .= '</form>';
    $rtn .= '</div>';
    
    return $rtn;
 }
-?>

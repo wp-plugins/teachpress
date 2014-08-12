@@ -1,18 +1,20 @@
 <?php
 /**
  * This file contains all functions for displaying the edit_student page in admin menu
- * @package teachpress/admin
+ * 
+ * @package teachpress\admin\students
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  */
 
 /** 
  * Edit a student
- * @param int $student_ID (GET)
+ * @param int $student_id (GET)
  * @param string $search (GET)
  * @param string $students_group (GET)
- * @since 4.0.0
+ * @since 5.0.0
 */ 
-function teachpress_show_student_page() {
-   $student = htmlspecialchars($_GET['student_ID']);
+function tp_show_student_page() {
+   $student = htmlspecialchars($_GET['student_id']);
    $students_group = htmlspecialchars($_GET['students_group']);
    $search = htmlspecialchars($_GET['search']);
    $entry_limit = intval($_GET['limit']);
@@ -33,7 +35,7 @@ function teachpress_show_student_page() {
    <form name="edit_student" method="get" action="admin.php">
    <input name="page" type="hidden" value="teachpress/students.php" />
    <input name="action" type="hidden" value="show" />
-   <input name="student_ID" type="hidden" value="<?php echo $student; ?>" />
+   <input name="student_id" type="hidden" value="<?php echo $student; ?>" />
    <input name="students_group" type="hidden" value="<?php echo $students_group; ?>" />
    <input name="search" type="hidden" value="<?php echo $search; ?>" />
    <input name="limit" type="hidden" value="<?php echo $entry_limit; ?>" />
@@ -41,7 +43,7 @@ function teachpress_show_student_page() {
       $row3 = tp_students::get_student($student);
       $row4 = tp_students::get_student_meta($student);
    ?>
-    <h2 style="padding-top:0px;"><?php echo stripslashes($row3['firstname']); ?> <?php echo stripslashes($row3['lastname']); ?> <span class="tp_break">|</span> <small><a href="<?php echo 'admin.php?page=teachpress/students.php&amp;student_ID=' . $student . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $entry_limit . '&amp;action=edit'; ?>" id="daten_aendern"><?php _e('Edit','teachpress'); ?> </a></small></h2>
+    <h2 style="padding-top:0px;"><?php echo stripslashes($row3['firstname']); ?> <?php echo stripslashes($row3['lastname']); ?> <span class="tp_break">|</span> <small><a href="<?php echo 'admin.php?page=teachpress/students.php&amp;student_id=' . $student . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $entry_limit . '&amp;action=edit'; ?>" id="daten_aendern"><?php _e('Edit','teachpress'); ?> </a></small></h2>
      <div style="width:55%; padding-bottom:10px;">
      <table border="0" cellpadding="0" cellspacing="5" class="widefat">
         <thead>
@@ -57,7 +59,7 @@ function teachpress_show_student_page() {
         echo '</tr>';
         echo '<tr>';
         echo'<td><strong>' . __('E-Mail') . '</strong></td>';
-        echo '<td style="vertical-align:middle;"><a href="admin.php?page=teachpress/teachpress.php&amp;student_ID=' . $row3['wp_id'] . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $entry_limit . '&amp;action=mail&amp;single=' . $row3['email'] . '" title="' . __('Send E-Mail to','teachpress') . ' ' . $row3['firstname'] . ' ' . $row3['lastname'] . '">' . $row3['email'] . '</a></td>';
+        echo '<td style="vertical-align:middle;"><a href="admin.php?page=teachpress/teachpress.php&amp;student_id=' . $row3['wp_id'] . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $entry_limit . '&amp;action=mail&amp;single=' . $row3['email'] . '" title="' . __('Send E-Mail to','teachpress') . ' ' . $row3['firstname'] . ' ' . $row3['lastname'] . '">' . $row3['email'] . '</a></td>';
         echo '</tr>';
         foreach ($fields as $row) {
             $data = tp_db_helpers::extract_column_data($row->value);
@@ -80,7 +82,7 @@ function teachpress_show_student_page() {
    </form>
    <form method="get" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
    <input name="page" type="hidden" value="teachpress/editstudent.php">
-   <input name="student_ID" type="hidden" value="<?php echo $student; ?>">
+   <input name="student_id" type="hidden" value="<?php echo $student; ?>">
    <input name="search" type="hidden" value="<?php echo $search; ?>">
    <h3><?php _e('Signups','teachpress'); ?></h3>
    <table cellpadding="5" class="widefat">
@@ -163,9 +165,10 @@ function teachpress_show_student_page() {
 
 /**
  * Edit student UI
+ * @since 5.0.0
  */
-function teachpress_edit_student_page() {
-    $user_ID = intval($_GET['student_ID']);
+function tp_edit_student_page() {
+    $user_id = intval($_GET['student_id']);
     $students_group = htmlspecialchars($_GET['students_group']);
     $search = htmlspecialchars($_GET['search']);
     $entry_limit = intval($_GET['limit']);
@@ -173,7 +176,7 @@ function teachpress_edit_student_page() {
     
     if ( isset($_POST['tp_change_user'] ) ) {
         // delete old meta data
-        tp_students::delete_student_meta($user_ID);
+        tp_students::delete_student_meta($user_id);
         
         $data = array (
             'firstname' => htmlspecialchars($_POST['firstname']),
@@ -181,15 +184,15 @@ function teachpress_edit_student_page() {
             'userlogin' => htmlspecialchars($_POST['userlogin']),
             'email' => htmlspecialchars($_POST['email'])
         );
-        tp_enrollments::add_student_meta($user_ID, $fields, filter_input_array(INPUT_POST, $_POST));
-        tp_students::change_student($user_ID, $data, false);
+        tp_enrollments::add_student_meta($user_id, $fields, filter_input_array(INPUT_POST, $_POST));
+        tp_students::change_student($user_id, $data, false);
         get_tp_message( __('Saved') );
     }
     
     echo '<div class="wrap">';
-    echo '<p><a href="admin.php?page=teachpress/students.php&amp;student_ID=' . $user_ID . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $entry_limit . '&amp;action=show" class="button-secondary" title="' . __('Back','teachpress') . '">&larr; ' . __('Back','teachpress') . ' </a></p>';
+    echo '<p><a href="admin.php?page=teachpress/students.php&amp;student_id=' . $user_id . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $entry_limit . '&amp;action=show" class="button-secondary" title="' . __('Back','teachpress') . '">&larr; ' . __('Back','teachpress') . ' </a></p>';
     echo '<h2>' . __('Edit Student','teachpress') . '</h2>';
-    echo tp_registration_form($user_ID, 'admin');
+    echo tp_registration_form($user_id, 'admin');
     echo '</div>';
 }
 

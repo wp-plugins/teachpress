@@ -1,12 +1,16 @@
 <?php
 /**
  * This file contains all functions for updating a teachpress database
- * @package teachpress/core
+ * 
+ * @package teachpress\core\update
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  * @since 4.2.0
  */
 
 /**
  * This class contains all functions for updating a teachpress database
+ * @package teachpress\core\update
+ * @since 4.2.0
  */
 class tp_update_db {
     
@@ -517,6 +521,7 @@ class tp_update_db {
         tp_tables::add_table_artefacts($charset);
         tp_tables::add_table_assessments($charset);
         tp_tables::add_table_course_capabilites($charset);
+        tp_tables::add_table_course_documents($charset_collate);
         tp_tables::add_table_course_meta($charset);
         tp_tables::add_table_authors($charset);
         tp_tables::add_table_rel_pub_auth($charset);
@@ -688,4 +693,3 @@ class tp_update_db {
         get_tp_message( __('Update successful','teachpress') );
     }
 }
-?>    

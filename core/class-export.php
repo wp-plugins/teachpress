@@ -1,25 +1,28 @@
 <?php
 /**
  * This file contains all general functions for the export system
- * @package teachpress/core
+ * 
+ * @package teachpress\core\export
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  */
 
 /**
  * teachPress export class
  *
+ * @package teachpress\core\export
  * @since 3.0.0
  */
 class tp_export {
 
     /**
      * Print html table with registrations
-     * @param int $course_ID
+     * @param int $course_id
      * @param array $option
      * @param int $waitinglist 
      * @since 3.0.0
      */
-    static function get_course_registration_table($course_ID, $option, $waitinglist = '') {
-        $row = tp_courses::get_signups( array('course' => $course_ID, 'waitinglist' => $waitinglist, 'output_type' => ARRAY_A, 'order' => 'st.lastname ASC') );
+    static function get_course_registration_table($course_id, $option, $waitinglist = '') {
+        $row = tp_courses::get_signups( array('course' => $course_id, 'waitinglist' => $waitinglist, 'output_type' => ARRAY_A, 'order' => 'st.lastname ASC') );
         echo '<table border="1" cellpadding="5" cellspacing="0">';
         echo '<thead>';
         echo '<tr>';
@@ -63,15 +66,15 @@ class tp_export {
 
     /**
      * Export course data in xls format
-     * @param int $course_ID 
+     * @param int $course_id 
      * @since 3.0.0
      */
-    static function get_course_xls($course_ID) {
+    static function get_course_xls($course_id) {
         global $wpdb;
         $parent = '';
 
         // load course data
-        $daten = $wpdb->get_row("SELECT * FROM " . TEACHPRESS_COURSES . " WHERE `course_id` = '$course_ID'", ARRAY_A);
+        $daten = $wpdb->get_row("SELECT * FROM " . TEACHPRESS_COURSES . " WHERE `course_id` = '$course_id'", ARRAY_A);
         if ($daten['parent'] != '0') {
             $id = $daten['parent'];
             $parent = $wpdb->get_var("SELECT `name` FROM " . TEACHPRESS_COURSES . " WHERE `course_id` = '$id'");
@@ -115,9 +118,9 @@ class tp_export {
         echo '</table>';
 
         echo '<h3>' . __('Registered participants','teachpress') . '</h3>'; 
-        tp_export::get_course_registration_table($course_ID, $option, 0);
+        tp_export::get_course_registration_table($course_id, $option, 0);
         echo '<h3>' . __('Waiting list','teachpress') . '</h3>'; 
-        tp_export::get_course_registration_table($course_ID, $option, 1);
+        tp_export::get_course_registration_table($course_id, $option, 1);
 
         global $tp_version;
         echo '<p style="font-size:11px; font-style:italic;">' . __('Created on','teachpress') . ': ' . date("d.m.Y") . ' | teachPress ' . $tp_version . '</p>';
@@ -125,15 +128,15 @@ class tp_export {
 
     /**
      * Export course data in csv format
-     * @param int $course_ID
+     * @param int $course_id
      * @param array $options 
      * @since 3.0.0
      */
-    static function get_course_csv($course_ID) {
+    static function get_course_csv($course_id) {
         // load settings
         $option['regnum'] = get_tp_option('regnum');
         $option['studies'] = get_tp_option('studies');
-        $row = tp_courses::get_signups( array('course' => $course_ID, 'waitinglist' => 0, 'output_type' => ARRAY_A, 'order' => 'st.lastname ASC') );
+        $row = tp_courses::get_signups( array('course' => $course_id, 'waitinglist' => 0, 'output_type' => ARRAY_A, 'order' => 'st.lastname ASC') );
         $fields = get_tp_options('teachpress_stud','`setting_id` ASC');
         
         $extra_headlines = '';
@@ -160,17 +163,17 @@ class tp_export {
 
     /**
      * Export publications
-     * @param int $user_ID 
+     * @param int $user_id 
      * @param string $format - bibtex or rtf
      * @sinsce 4.2.0 
      */
-    public static function get_publications($user_ID, $format = 'bibtex') {
+    public static function get_publications($user_id, $format = 'bibtex') {
         global $wpdb;
         
-        $user_ID = intval($user_ID);
+        $user_id = intval($user_id);
         // Try to set the time limit for the script
         set_time_limit(180);
-        $row = tp_publications::get_publications( array('user' => $user_ID, 'output_type' => ARRAY_A) );
+        $row = tp_publications::get_publications( array('user' => $user_id, 'output_type' => ARRAY_A) );
         if ( $format === 'bibtex' ) {
             foreach ($row as $row) {
                 $tags = $wpdb->get_results("SELECT DISTINCT t.name FROM " . TEACHPRESS_TAGS . " t INNER JOIN " . TEACHPRESS_RELATION . " r ON r.`tag_id` = t.`tag_id` WHERE r.pub_id = '" . $row['pub_id'] . "' ", ARRAY_A);
@@ -264,4 +267,3 @@ class tp_export {
         return $char;
     }
 }
-?>

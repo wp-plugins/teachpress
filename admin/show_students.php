@@ -1,7 +1,9 @@
 <?php 
 /**
  * This file contains all functions for displaying the show_students page in admin menu
- * @package teachpress/admin
+ * 
+ * @package teachpress\admin\students
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  */
 
 /** 
@@ -11,10 +13,8 @@
  * @param string $search
  * @param string $students_group
 */
-function teachpress_students_page() { 
+function tp_students_page() { 
 
-    global $user_ID;
-    get_currentuserinfo();
     $checkbox = isset ( $_GET['checkbox'] ) ? $_GET['checkbox'] : '';
     $bulk = isset ( $_GET['bulk'] ) ? $_GET['bulk'] : '';
     $search = isset ( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : ''; 
@@ -46,19 +46,18 @@ function teachpress_students_page() {
         $text = isset ( $_POST['text'] ) ? htmlspecialchars($_POST['text']) : '';
         $attachments = isset ( $_POST['attachments'] ) ? $_POST['attachments'] : '';
         tp_mail::sendMail($from, $to, $subject, $text, $recipients_option, $attachments);
-        $message = __('E-Mail sent','teachpress');
-        get_tp_message($message);
+        get_tp_message( __('E-Mail sent','teachpress') );
     }
 
     // Event handler
     if ( $action == 'show' ) {
-        teachpress_show_student_page();
+        tp_show_student_page();
     }
     elseif ( $action == 'edit' ) {
-        teachpress_edit_student_page();
+        tp_edit_student_page();
     }
     elseif ( $action == 'add' ) {
-        teachpress_students_new_page();
+        tp_add_student_page();
     }
     else {
         ?>
@@ -172,10 +171,10 @@ function teachpress_students_page() {
                 }
                 echo '/></th>';
                 $link_name = ( $row3['lastname'] !== '' ) ? stripslashes($row3['lastname']) : '[' . __('empty','teachpress') . ']';
-                echo '<td><a href="admin.php?page=teachpress/students.php&amp;student_ID=' . $row3['wp_id'] . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $curr_page . '&amp;action=show" class="teachpress_link" title="' . __('Click to edit','teachpress') . '"><strong>' . $link_name . '</strong></a></td>';
+                echo '<td><a href="admin.php?page=teachpress/students.php&amp;student_id=' . $row3['wp_id'] . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $curr_page . '&amp;action=show" class="teachpress_link" title="' . __('Click to edit','teachpress') . '"><strong>' . $link_name . '</strong></a></td>';
                 echo '<td>' . stripslashes($row3['firstname']) . '</td>';
                 echo '<td>' . stripslashes($row3['userlogin']) . '</td>';
-                echo '<td><a href="admin.php?page=teachpress/teachpress.php&amp;student_ID=' . $row3['wp_id'] . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $curr_page . '&amp;action=mail&amp;single=' . $row3['email'] . '" title="' . __('send E-Mail','teachpress') . '">' . $row3['email'] . '</a></td>';
+                echo '<td><a href="admin.php?page=teachpress/teachpress.php&amp;student_id=' . $row3['wp_id'] . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $curr_page . '&amp;action=mail&amp;single=' . $row3['email'] . '" title="' . __('send E-Mail','teachpress') . '">' . $row3['email'] . '</a></td>';
                 $max2 = count($visible_fields);
                 for ( $i = 0; $i < $max2; $i++ ) {
                     foreach ($student_meta as $meta) {

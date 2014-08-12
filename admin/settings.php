@@ -1,14 +1,16 @@
 <?php
 /**
  * This file contains all functions for displaying the settings page in admin menu
- * @package teachpress/admin
+ * 
+ * @package teachpress\admin\settings
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  */
 
 /**
  * teachPress settings menu: controller
- * @since 1.0.0
+ * @since 5.0.0
  */
-function teachpress_admin_settings() {
+function tp_show_admin_settings() {
     tp_settings_page::load_page();   
 }
 

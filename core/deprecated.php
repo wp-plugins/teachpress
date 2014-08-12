@@ -1,13 +1,24 @@
 <?php
 /**
  * This file contains all deprecated functions
- * @package teachpress/core
+ * 
+ * @package teachpress\core\deprecated
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  * @since 5.0.0
  */
 
-/************************/
-/* DEPRECATED FUNCTIONS */
-/************************/
+/** 
+ * Displays information about a single course and his childs
+ * @param array $attr
+ * @return string
+ * @since 0.20
+ * @deprecated since version 5.0.0
+ * @todo Delete function with teachPress 5.1 or later
+*/
+function tp_date_shortcode($attr) {
+    trigger_error( __('The shortcode [tpdate] is deprecated since teachpress 5.0.0. Use [tpcoursedate] instead.','teachpress') );
+    return tp_coursedate_shortcode($attr);
+}
 
 /**
  * This function is deprecated. Please use tp_courses::get_course() instead.

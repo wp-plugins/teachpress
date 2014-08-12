@@ -1,14 +1,16 @@
 <?php 
 /**
  * This file contains all functions for displaying the add_students page in admin menu
- * @package teachpress/admin
+ * 
+ * @package teachpress\admin\students
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  */
 
 /**
  * Form for manual edits in the enrollment system
  * @since 2.0.0
 */ 
-function teachpress_students_new_page() { 
+function tp_add_student_page() { 
 
     global $wpdb;
 

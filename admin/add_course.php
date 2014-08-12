@@ -1,11 +1,13 @@
 <?php
 /**
  * This file contains all functions for displaying the add_course page in admin menu
- * @package teachpress\admin
+ * 
+ * @package teachpress\admin\courses
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  */
 
 /**
- * Add help tab for add new courses page
+ * Adds a help tab for add new courses page
  */
 function tp_add_course_page_help () {
     $screen = get_current_screen();  
@@ -45,7 +47,7 @@ function tp_add_course_page_help () {
  * Add new courses
  *
  * GET parameters:
- * @param $course_ID (INT)
+ * @param $course_id (INT)
  * @param $search (String)
  * @param $sem (String)
  * @param $ref (String)
@@ -89,14 +91,14 @@ function tp_add_course_page() {
    // Handle that the activation of strict sign up is not possible for a child course
    if ( $data['parent'] != 0) { $data['strict_signup'] = 0; }
 
-   $course_ID = isset( $_REQUEST['course_ID'] ) ? intval($_REQUEST['course_ID']) : 0;
+   $course_id = isset( $_REQUEST['course_id'] ) ? intval($_REQUEST['course_id']) : 0;
    $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
    $sem = isset( $_GET['sem'] ) ? htmlspecialchars($_GET['sem']) : '';
    $ref = isset( $_GET['ref'] ) ? htmlspecialchars($_GET['ref']) : '';
-   $capability = ($course_ID !== 0) ? tp_courses::get_capability($course_ID, $current_user->ID) : 'owner';
+   $capability = ($course_id !== 0) ? tp_courses::get_capability($course_id, $current_user->ID) : 'owner';
 
    // possible course parents
-   $row = $wpdb->get_results("SELECT `course_id`, `name`, `semester` FROM " . TEACHPRESS_COURSES . " WHERE `parent` = '0' AND `course_id` != '$course_ID' ORDER BY semester DESC, name");
+   $row = $wpdb->get_results("SELECT `course_id`, `name`, `semester` FROM " . TEACHPRESS_COURSES . " WHERE `parent` = '0' AND `course_id` != '$course_id' ORDER BY semester DESC, name");
    $counter3 = 0;
    foreach($row as $row){
         $par[$counter3]["id"] = $row->course_id;
@@ -107,10 +109,10 @@ function tp_add_course_page() {
    
    // Add new course
    if ( isset($_POST['create']) ) {
-        $course_ID = tp_courses::add_course($data, $sub);
+        $course_id = tp_courses::add_course($data, $sub);
         foreach ($fields as $row) {
             if ( isset( $_POST[$row['variable']] ) && $_POST[$row['variable']] !== '' ) {
-                tp_courses::add_course_meta($course_ID, $row['variable'], $_POST[$row['variable']]);
+                tp_courses::add_course_meta($course_id, $row['variable'], $_POST[$row['variable']]);
             }
         }
         $message = __('Course created successful.','teachpress') . ' <a href="admin.php?page=teachpress/add_course.php">' . __('Add New','teachpress') . '</a>';
@@ -119,21 +121,21 @@ function tp_add_course_page() {
    
    // Saves changes
    if ( isset($_POST['save']) ) {
-        tp_courses::delete_course_meta($course_ID);
+        tp_courses::delete_course_meta($course_id);
         foreach ($fields as $row) {
             if ( isset( $_POST[$row['variable']] ) && $_POST[$row['variable']] !== '' ) {
-                tp_courses::add_course_meta($course_ID, $row['variable'], $_POST[$row['variable']]);
+                tp_courses::add_course_meta($course_id, $row['variable'], $_POST[$row['variable']]);
             }
         }
-        tp_courses::change_course($course_ID, $data);
+        tp_courses::change_course($course_id, $data);
         $message = __('Saved');
         get_tp_message($message);
    }
    
    // Default vaulues
-   if ( $course_ID != 0 ) {
-        $daten = tp_courses::get_course($course_ID, ARRAY_A);
-        $course_meta = tp_courses::get_course_meta($course_ID);
+   if ( $course_id != 0 ) {
+        $daten = tp_courses::get_course($course_id, ARRAY_A);
+        $course_meta = tp_courses::get_course_meta($course_id);
    }
    else {
         $daten = get_tp_var_types('course_array');
@@ -148,16 +150,16 @@ function tp_add_course_page() {
             $back = 'admin.php?page=teachpress/teachpress.php&amp;sem=' . stripslashes($sem) . '&amp;search=' . stripslashes($search) . '';
          }
          else {
-            $back = 'admin.php?page=teachpress/teachpress.php&amp;course_ID=' . $course_ID . '&amp;sem=' . stripslashes($sem) . '&amp;search=' . stripslashes($search) . '&amp;action=show';
+            $back = 'admin.php?page=teachpress/teachpress.php&amp;course_id=' . $course_id . '&amp;sem=' . stripslashes($sem) . '&amp;search=' . stripslashes($search) . '&amp;action=show';
          }
          ?>
           <p style="margin-bottom:0;"><a href="<?php echo $back; ?>" class="button-secondary">&larr; <?php _e('Back','teachpress'); ?></a></p>	
    <?php }?>
-     <h2><?php if ($course_ID == 0) { _e('Create a new course','teachpress'); } else { _e('Edit course','teachpress'); } ?></h2>
+     <h2><?php if ($course_id == 0) { _e('Create a new course','teachpress'); } else { _e('Edit course','teachpress'); } ?></h2>
      <form id="add_course" name="form1" method="post" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
-     <input name="page" type="hidden" value="<?php if ($course_ID != 0) {?>teachpress/teachpress.php<?php } else {?>teachpress/add_course.php<?php } ?>" />
+     <input name="page" type="hidden" value="<?php if ($course_id != 0) {?>teachpress/teachpress.php<?php } else {?>teachpress/add_course.php<?php } ?>" />
      <input name="action" type="hidden" value="edit" />
-     <input name="course_ID" type="hidden" value="<?php echo $course_ID; ?>" />
+     <input name="course_id" type="hidden" value="<?php echo $course_id; ?>" />
      <input name="sem" type="hidden" value="<?php echo $sem; ?>" />
      <input name="search" type="hidden" value="<?php echo $search; ?>" />
      <input name="ref" type="hidden" value="<?php echo $ref; ?>" />
@@ -179,9 +181,9 @@ function tp_add_course_page() {
         <a class="upload_button_image" title="<?php _e('Add Image','teachpress'); ?>" style="cursor:pointer;"><img src="images/media-button-image.gif" alt="<?php _e('Add Image','teachpress'); ?>" /></a>
                 <p><label for="visible" title="<?php _e('Here you can edit the visibility of a course in the enrollments.','teachpress'); ?>"><strong><?php _e('Visibility','teachpress'); ?></strong></label></p>
                 <select name="visible" id="visible" title="<?php _e('Here you can edit the visibility of a course in the enrollments.','teachpress'); ?>" tabindex="13">
-                    <option value="1"<?php if ( $daten["visible"] == 1 && $course_ID != 0 ) {echo ' selected="selected"'; } ?>><?php _e('normal','teachpress'); ?></option>
-                    <option value="2"<?php if ( $daten["visible"] == 2 && $course_ID != 0 ) {echo ' selected="selected"'; } ?>><?php _e('extend','teachpress'); ?></option>
-                    <option value="0"<?php if ( $daten["visible"] == 0 && $course_ID != 0 ) {echo ' selected="selected"'; } ?>><?php _e('invisible','teachpress'); ?></option>
+                    <option value="1"<?php if ( $daten["visible"] == 1 && $course_id != 0 ) {echo ' selected="selected"'; } ?>><?php _e('normal','teachpress'); ?></option>
+                    <option value="2"<?php if ( $daten["visible"] == 2 && $course_id != 0 ) {echo ' selected="selected"'; } ?>><?php _e('extend','teachpress'); ?></option>
+                    <option value="0"<?php if ( $daten["visible"] == 0 && $course_id != 0 ) {echo ' selected="selected"'; } ?>><?php _e('invisible','teachpress'); ?></option>
                 </select>
                 <?php
                 $readonly = 'disabled="disabled"';
@@ -191,14 +193,14 @@ function tp_add_course_page() {
                 ?>
                 <p><label for="use_capabilites"><strong><?php _e('Capabilites','teachpress'); ?></strong></label></p>
                 <select name="use_capabilites" <?php echo $readonly; ?>>
-                    <option value="0"<?php if ( $daten["use_capabilites"] == 0 && $course_ID != 0 ) {echo ' selected="selected"'; } ?>><?php _e('global','teachpress'); ?></option>
-                    <option value="1"<?php if ( $daten["use_capabilites"] == 1 && $course_ID != 0 ) {echo ' selected="selected"'; } ?>><?php _e('local','teachpress'); ?></option>
+                    <option value="0"<?php if ( $daten["use_capabilites"] == 0 && $course_id != 0 ) {echo ' selected="selected"'; } ?>><?php _e('global','teachpress'); ?></option>
+                    <option value="1"<?php if ( $daten["use_capabilites"] == 1 && $course_id != 0 ) {echo ' selected="selected"'; } ?>><?php _e('local','teachpress'); ?></option>
                 </select>
                 </td>
             </tr>
             <tr>
                 <td style="text-align:center;">
-            <?php if ($course_ID != 0) {?>
+            <?php if ($course_id != 0) {?>
                 <input name="save" type="submit" id="teachpress_create" onclick="teachpress_validateForm('title','','R','lecturer','','R','platz','','NisNum');return document.teachpress_returnValue" value="<?php _e('Save'); ?>" class="button-primary"/>
             <?php } else { ?>
                 <div style="width: 50%; float: left; height: 25px;"><input type="reset" name="Reset" value="<?php _e('Reset','teachpress'); ?>" id="teachpress_reset" class="button-secondary"/></div>
@@ -217,7 +219,7 @@ function tp_add_course_page() {
            <td>
            <p><label for="start" title="<?php _e('The start date for the enrollment','teachpress'); ?>"><strong><?php _e('Start','teachpress'); ?></strong></label></p>
           <?php 
-           if ($course_ID == 0) {
+           if ($course_id == 0) {
               $str = "'";
               $meta = 'value="' . __('JJJJ-MM-TT','teachpress') . '" onblur="if(this.value==' . $str . $str . ') this.value=' . $str . __('JJJJ-MM-TT','teachpress') . $str . ';" onfocus="if(this.value==' . $str . __('JJJJ-MM-TT','teachpress') . $str . ') this.value=' . $str . $str . ';"';
               $hour = '00';
@@ -233,7 +235,7 @@ function tp_add_course_page() {
            <input name="start" type="text" id="start" title="<?php _e('Date','teachpress'); ?>" tabindex="14" size="15" <?php echo $meta; ?>/> <input name="start_hour" type="text" title="<?php _e('Hours','teachpress'); ?>" value="<?php echo $hour; ?>" size="2" tabindex="15" /> : <input name="start_minute" type="text" title="<?php _e('Minutes','teachpress'); ?>" value="<?php echo $minute; ?>" size="2" tabindex="16" />
            <p><label for="end" title="<?php _e('The end date for the enrollment','teachpress'); ?>"><strong><?php _e('End','teachpress'); ?></strong></label></p>
           <?php 
-           if ($course_ID == 0) {
+           if ($course_id == 0) {
                 // same as for start
            }
            else {
@@ -297,7 +299,7 @@ function tp_add_course_page() {
                 <p><label for="semester" title="<?php _e('The term where the course will be happening','teachpress'); ?>"><strong><?php _e('Term','teachpress'); ?></strong></label></p>
                 <select name="semester" id="semester" title="<?php _e('The term where the course will be happening','teachpress'); ?>" tabindex="3">
                 <?php
-                $value = $course_ID == 0 ? get_tp_option('sem') : 0;
+                $value = $course_id == 0 ? get_tp_option('sem') : 0;
                 $sem = get_tp_options('semester', '`setting_id` ASC');
                 $x = 0;
                 // Semester in array speichern - wird spaeter fuer Parent-Menu genutzt
@@ -308,10 +310,10 @@ function tp_add_course_page() {
                 $zahl = $x-1;
                 // gibt alle Semester aus (umgekehrte Reihenfolge)
                 while ($zahl >= 0) {
-                    if ($period[$zahl] == $value && $course_ID == 0) {
+                    if ($period[$zahl] == $value && $course_id == 0) {
                         $current = 'selected="selected"' ;
                     }
-                    elseif ($period[$zahl] == $daten["semester"] && $course_ID != 0) {
+                    elseif ($period[$zahl] == $daten["semester"] && $course_id != 0) {
                         $current = 'selected="selected"' ;
                     }
                     else {
@@ -331,7 +333,7 @@ function tp_add_course_page() {
                 ?>
                 <p><label for="places" title="<?php _e('The number of available places.','teachpress'); ?>"><strong><?php _e('Number of places','teachpress'); ?></strong></label></p>
                 <input name="places" type="text" id="places" title="<?php _e('The number of available places.','teachpress'); ?>" style="width:70px;" tabindex="7" value="<?php echo $daten["places"]; ?>" />
-                <?php if ($course_ID != 0) {
+                <?php if ($course_id != 0) {
                         $used_places = $wpdb->get_var("SELECT COUNT(`course_id`) FROM " . TEACHPRESS_SIGNUP . " WHERE `course_id` = '" . $daten["course_id"] . "' AND `waitinglist` = 0");
                         echo ' | ' . __('free places','teachpress') . ': ' . ($daten["places"] - $used_places); ?>
                 <?php } ?>
@@ -381,7 +383,7 @@ function tp_add_course_page() {
             </tr>
         </tbody>      
      </table>
-     <?php if ($course_ID === 0) { ?>
+     <?php if ($course_id === 0) { ?>
         <table id="sub_course_panel" class="widefat" style="margin-top: 15px;">
             <thead>
                 <tr>

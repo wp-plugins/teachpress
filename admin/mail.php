@@ -1,7 +1,9 @@
 <?php
 /**
  * This file contains all functions for displaying the mail page in admin menu
- * @package teachpress/admin
+ * 
+ * @package teachpress\admin\courses
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  */
 
 /**
@@ -14,9 +16,9 @@ function tp_show_mail_page() {
     global $current_user;
     get_currentuserinfo();
 
-    $course_ID = isset( $_GET['course_ID'] ) ? intval($_GET['course_ID']) : 0;
+    $course_id = isset( $_GET['course_id'] ) ? intval($_GET['course_id']) : 0;
     $redirect = isset( $_GET['redirect'] ) ?  intval($_GET['redirect']) : 0;
-    $student_ID = isset( $_GET['student_ID'] ) ? intval($_GET['student_ID']) : 0;
+    $student_id = isset( $_GET['student_id'] ) ? intval($_GET['student_id']) : 0;
     $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
     $sem = isset( $_GET['sem'] ) ? htmlspecialchars($_GET['sem']) : '';
     $single = isset( $_GET['single'] ) ? htmlspecialchars($_GET['single']) : '';
@@ -28,7 +30,7 @@ function tp_show_mail_page() {
         $sql = "SELECT DISTINCT st.email 
                 FROM " . TEACHPRESS_SIGNUP . " s 
                 INNER JOIN " . TEACHPRESS_STUD . " st ON st.wp_id=s.wp_id
-                WHERE s.course_id = '$course_ID'";	
+                WHERE s.course_id = '$course_id'";	
         // E-Mails of registered participants
         if ( $group == 'reg' ) {
             $sql = $sql . " AND s.waitinglist = '0'";	
@@ -43,11 +45,11 @@ function tp_show_mail_page() {
     ?>
     <div class="wrap">
         <?php
-        if ( isset( $_GET['course_ID'] ) ) {
-            $return_url = "admin.php?page=teachpress/teachpress.php&amp;course_ID=$course_ID&amp;sem=$sem&amp;search=$search&amp;redirect=$redirect&amp;action=enrollments";
+        if ( isset( $_GET['course_id'] ) ) {
+            $return_url = "admin.php?page=teachpress/teachpress.php&amp;course_id=$course_id&amp;sem=$sem&amp;search=$search&amp;redirect=$redirect&amp;action=enrollments";
         }
-        if ( isset( $_GET['student_ID'] ) ) {
-            $return_url = "admin.php?page=teachpress/students.php&amp;student_ID=$student_ID&amp;search=$search&amp;students_group=$students_group&amp;limit=$limit";
+        if ( isset( $_GET['student_id'] ) ) {
+            $return_url = "admin.php?page=teachpress/students.php&amp;student_id=$student_id&amp;search=$search&amp;students_group=$students_group&amp;limit=$limit";
         }
         ?>
         <p><a href="<?php echo $return_url; ?>" class="button-secondary">&larr; <?php _e('Back','teachpress'); ?></a></p>
@@ -73,7 +75,7 @@ function tp_show_mail_page() {
                 <td>
                     <?php
                     if( !isset( $_GET['single'] ) ) {
-                        $link = "admin.php?page=teachpress/teachpress.php&amp;course_ID=$course_ID&amp;sem=$sem&amp;search=$search&amp;action=mail&amp;type=course";
+                        $link = "admin.php?page=teachpress/teachpress.php&amp;course_id=$course_id&amp;sem=$sem&amp;search=$search&amp;action=mail&amp;type=course";
                         if ($group == "wtl") {
                             echo '<p><strong><a href="' . $link . '">' . __('All', 'teachpress') . '</a> | <a href="' . $link . '&amp;group=reg">' . __('Only participants', 'teachpress') . '</a> | ' . __('Only waitinglist','teachpress') . '</strong><p>';
                         }

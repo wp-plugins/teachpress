@@ -1,7 +1,9 @@
 <?php
 /**
  * This file contains all functions for displaying the edit_tags page in admin menu
- * @package teachpress/admin
+ * 
+ * @package teachpress\admin\publications
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  */
 
 /**
@@ -26,8 +28,9 @@ function tp_edit_tags_page_screen_options () {
 
 /**
  * Tag management page
+ * @since 5.0.0
  */ 
-function teachpress_tags_page(){
+function tp_tags_page(){
     // Get screen options
     $user = get_current_user_id();
     $screen = get_current_screen();
@@ -89,7 +92,7 @@ function teachpress_tags_page(){
     }
     if ( isset( $_GET['tp_edit_tag_submit'] )) {
         $name = htmlspecialchars($_GET['tp_edit_tag_name']);
-        $tag_id = intval($_GET['tp_edit_tag_ID']);
+        $tag_id = intval($_GET['tp_edit_tag_id']);
         tp_tags::edit_tag($tag_id, $name);
         get_tp_message( __('Tag saved','teachpress') );
     }

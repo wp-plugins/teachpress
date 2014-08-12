@@ -1,12 +1,16 @@
 <?php
 /**
  * This file contains all functions for creating a database for teachpress
- * @package teachpress/core
+ * 
+ * @package teachpress\core\installation
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  * @since 5.0.0
  */
 
 /**
  * This class contains all functions for creating a database for teachpress
+ * @package teachpress\core\installation
+ * @since 5.0.0
  */
 class tp_tables {
     
@@ -20,6 +24,7 @@ class tp_tables {
         $charset_collate = tp_tables::get_charset();
         tp_tables::add_table_courses($charset_collate);
         tp_tables::add_table_course_capabilites($charset_collate);
+        tp_tables::add_table_course_documents($charset_collate);
         tp_tables::add_table_stud($charset_collate);
         tp_tables::add_table_stud_meta($charset_collate);
         tp_tables::add_table_signup($charset_collate);
@@ -55,7 +60,7 @@ class tp_tables {
     public static function add_table_courses($charset_collate) {
         global $wpdb;
         
-        if($wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_COURSES . "'") == TEACHPRESS_COURSES) {
+        if( $wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_COURSES . "'") == TEACHPRESS_COURSES ) {
             return;
         }
         
@@ -85,14 +90,14 @@ class tp_tables {
     }
     
     /**
-     * Create table table_course_capabilites
+     * Create table course_capabilites
      * @param string $charset_collate
      * @since 5.0.0
      */
     public static function add_table_course_capabilites($charset_collate) {
         global $wpdb;
         
-        if($wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_COURSE_CAPABILITES . "'") == TEACHPRESS_COURSE_CAPABILITES) {
+        if( $wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_COURSE_CAPABILITES . "'") == TEACHPRESS_COURSE_CAPABILITES ) {
             return;
         }
         
@@ -109,6 +114,32 @@ class tp_tables {
     }
     
     /**
+     * Create table course_documents
+     * @param string $charset_collate
+     * @since 5.0.0
+     */
+    public static function add_table_course_documents($charset_collate) {
+        global $wpdb;
+        
+        if( $wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_COURSE_DOCUMENTS . "'") == TEACHPRESS_COURSE_DOCUMENTS ) {
+            return;
+        }
+        
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        
+         dbDelta( "CREATE TABLE " . TEACHPRESS_COURSE_DOCUMENTS . " (
+                    `doc_id` INT UNSIGNED AUTO_INCREMENT,
+                    `name` VARCHAR(500),
+                    `path` VARCHAR(500),
+                    `added` DATETIME,
+                    `sort` INT,
+                    `course_id` INT UNSIGNED,
+                    FOREIGN KEY (course_id) REFERENCES " . TEACHPRESS_COURSES . " (course_id),
+                    PRIMARY KEY (doc_id)
+                ) $charset_collate;");
+    }
+    
+    /**
      * Create table teachpress_course_meta
      * @param string $charset_collate
      * @since 5.0.0
@@ -116,7 +147,7 @@ class tp_tables {
     public static function add_table_course_meta($charset_collate) {
         global $wpdb;
         
-        if($wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_COURSE_META . "'") == TEACHPRESS_COURSE_META) {
+        if( $wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_COURSE_META . "'") == TEACHPRESS_COURSE_META ) {
             return;
         }
         
@@ -140,7 +171,7 @@ class tp_tables {
     public static function add_table_stud($charset_collate) {
         global $wpdb;
         
-        if($wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_STUD . "'") == TEACHPRESS_STUD) {
+        if( $wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_STUD . "'") == TEACHPRESS_STUD ) {
             return;
         }
         
@@ -164,7 +195,7 @@ class tp_tables {
     public static function add_table_stud_meta($charset_collate) {
         global $wpdb;
         
-        if($wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_STUD_META . "'") == TEACHPRESS_STUD_META) {
+        if( $wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_STUD_META . "'") == TEACHPRESS_STUD_META ) {
             return;
         }
         
@@ -188,7 +219,7 @@ class tp_tables {
     public static function add_table_signup($charset_collate) {
         global $wpdb;
         
-        if($wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_SIGNUP ."'") == TEACHPRESS_SIGNUP) {
+        if( $wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_SIGNUP ."'") == TEACHPRESS_SIGNUP ) {
             return;
         }
         
@@ -214,7 +245,7 @@ class tp_tables {
     public static function add_table_artefacts($charset_collate) {
         global $wpdb;
         
-        if($wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_ARTEFACTS . "'") == TEACHPRESS_ARTEFACTS) {
+        if( $wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_ARTEFACTS . "'") == TEACHPRESS_ARTEFACTS ) {
             return;
         }
         
@@ -241,7 +272,7 @@ class tp_tables {
     public static function add_table_assessments($charset_collate) {
         global $wpdb;
         
-        if($wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_ASSESSMENTS . "'") == TEACHPRESS_ASSESSMENTS) {
+        if( $wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_ASSESSMENTS . "'") == TEACHPRESS_ASSESSMENTS ) {
             return;
         }
         
@@ -274,7 +305,7 @@ class tp_tables {
     public static function add_table_settings($charset_collate) {
         global $wpdb;
         
-        if($wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_SETTINGS . "'") == TEACHPRESS_SETTINGS) {
+        if( $wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_SETTINGS . "'") == TEACHPRESS_SETTINGS ) {
             return;
         }
         
@@ -323,7 +354,7 @@ class tp_tables {
     public static function add_table_pub($charset_collate) {
         global $wpdb;
         
-        if($wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_PUB . "'") == TEACHPRESS_PUB) {
+        if( $wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_PUB . "'") == TEACHPRESS_PUB ) {
             return;
         }
         
@@ -376,7 +407,7 @@ class tp_tables {
     public static function add_table_pub_meta($charset_collate) {
         global $wpdb;
         
-        if($wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_PUB_META . "'") == TEACHPRESS_PUB_META) {
+        if( $wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_PUB_META . "'") == TEACHPRESS_PUB_META ) {
             return;
         }
         
@@ -400,7 +431,7 @@ class tp_tables {
     public static function add_table_tags($charset_collate) {
         global $wpdb;
         
-        if($wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_TAGS . "'") == TEACHPRESS_TAGS) {
+        if( $wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_TAGS . "'") == TEACHPRESS_TAGS ) {
             return;
         }
         
@@ -468,7 +499,7 @@ class tp_tables {
     public static function add_table_authors($charset_collate) {
         global $wpdb;
         
-        if($wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_AUTHORS . "'") == TEACHPRESS_AUTHORS) {
+        if( $wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_AUTHORS . "'") == TEACHPRESS_AUTHORS ) {
             return;
         }
         
@@ -530,17 +561,14 @@ class tp_tables {
     public static function get_charset() {
         global $wpdb; 
         $charset_collate = '';
-        if ( version_compare(mysql_get_server_info(), '4.1.0', '>=') ) {
-            if ( ! empty($wpdb->charset) ) {
-                $charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
-            }	
-            if ( ! empty($wpdb->collate) ) {
-                $charset_collate .= " COLLATE $wpdb->collate";
-            }
-            $charset_collate .= " ENGINE = INNODB";
+        if ( ! empty($wpdb->charset) ) {
+            $charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
+        }	
+        if ( ! empty($wpdb->collate) ) {
+            $charset_collate .= " COLLATE $wpdb->collate";
         }
+        $charset_collate .= " ENGINE = INNODB";
         return $charset_collate;
     }
     
 }
-?>

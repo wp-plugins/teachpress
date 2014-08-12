@@ -1,7 +1,9 @@
 <?php
 /**
  * This file contains all functions for displaying the show_publications page in admin menu
- * @package teachpress/admin
+ * 
+ * @package teachpress\admin\publications
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  */
 
 /**
@@ -45,8 +47,9 @@ function tp_show_publications_page_help () {
 /**
  * Controller for show publications page
  * @global object $current_user
+ * @since 5.0.0
  */
-function teachpress_publications_page() {
+function tp_show_publications_page() {
     // WordPress User informations
     global $current_user;
     get_currentuserinfo();
@@ -86,13 +89,7 @@ function teachpress_publications_page() {
     echo '<div class="wrap">';
     
     // test if teachpress database is up to date
-    $test = get_tp_option('db-version');
-    $version = get_tp_version();
-
-    if ($test != $version) {
-        $message = __('An database update is necessary.','teachpress') . ' <a href="options-general.php?page=teachpress/settings.php&amp;up=1">' . __('Update','teachpress') . '</a>';
-        get_tp_message($message);
-    }
+    tp_admin::database_test();
     
     // Add a bookmark for the publication
     if ( isset( $_GET['add_id'] ) ) {
@@ -451,8 +448,8 @@ function tp_show_publications_page_main_screen($user, $array_variables) {
                   }
                   echo '<th class="check-column"><input name="checkbox[]" class="tp_checkbox" type="checkbox" ' . $checked . ' value="' . $row->pub_id . '" /></th>';
                   echo '<td>';
-                  echo '<a href="admin.php?page=teachpress/addpublications.php&amp;pub_ID=' . $row->pub_id . $get_string . '" class="teachpress_link" title="' . __('Click to edit','teachpress') . '"><strong>' . stripslashes($row->title) . '</strong></a>';
-                  echo '<div class="tp_row_actions"><a href="admin.php?page=teachpress/addpublications.php&amp;pub_ID=' . $row->pub_id . $get_string . '" class="teachpress_link" title="' . __('Click to edit','teachpress') . '">' . __('Edit','teachpress') . '</a> | <a href="admin.php?page=' . $array_variables['page']  .'&amp;checkbox%5B%5D=' . $row->pub_id . '&amp;action=delete' . $get_string . '" style="color:red;" title="' . __('Delete','teachpress') . '">' . __('Delete','teachpress') . '</a></div>';
+                  echo '<a href="admin.php?page=teachpress/addpublications.php&amp;pub_id=' . $row->pub_id . $get_string . '" class="teachpress_link" title="' . __('Click to edit','teachpress') . '"><strong>' . stripslashes($row->title) . '</strong></a>';
+                  echo '<div class="tp_row_actions"><a href="admin.php?page=teachpress/addpublications.php&amp;pub_id=' . $row->pub_id . $get_string . '" class="teachpress_link" title="' . __('Click to edit','teachpress') . '">' . __('Edit','teachpress') . '</a> | <a href="admin.php?page=' . $array_variables['page']  .'&amp;checkbox%5B%5D=' . $row->pub_id . '&amp;action=delete' . $get_string . '" style="color:red;" title="' . __('Delete','teachpress') . '">' . __('Delete','teachpress') . '</a></div>';
                   echo '</td>';
                   echo '<td>' . $row->pub_id . '</td>';
                   echo '<td>' . tp_translate_pub_type($row->type) . '</td>';

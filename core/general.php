@@ -1,7 +1,9 @@
 <?php
 /**
  * This file contains general core functions
- * @package teachpress/core
+ * 
+ * @package teachpress\core
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  * @since 5.0.0
  */
 
@@ -83,8 +85,9 @@ function get_tp_message($message, $color = 'green') {
 
 /** 
  * Split a timestamp
- * @param TIMESTAMP $datum
- * @return ARRAY
+ * @param datetime $date_string
+ * @return array
+ * @since 0.20.0
  *
  * $split[0][0] => Year
  * $split[0][1] => Month 
@@ -93,10 +96,10 @@ function get_tp_message($message, $color = 'green') {
  * $split[0][4] => Minute 
  * $split[0][5] => Second
 */ 
-function tp_datesplit($datum) {
+function tp_datesplit($date_string) {
     $preg = '/[\d]{2,4}/'; 
     $split = array(); 
-    preg_match_all($preg, $datum, $split); 
+    preg_match_all($preg, $date_string, $split); 
     return $split; 
 }
 
@@ -188,20 +191,23 @@ function get_tp_mimetype_images($url) {
 
 /**
  * Translate a publication type
- * @param STRING $string
- * @param STRING $num - sin (singular) or pl (plural)
- * @return STRING
+ * @param string $string    The publication type
+ * @param string $num       sin (singular) or pl (plural)
+ * @return string
+ * @since 2.0.0
  */
 function tp_translate_pub_type($string, $num = 'sin') {
-    $t = get_tp_publication_types();
-    $tr = '';
+    $types = get_tp_publication_types();
+    $max = count($types);
+    $translated_string = '';
     $num = ( $num === 'sin' ) ? 1 : 2;
-    for ( $i=1; $i <= count($t) - 1; $i++ ) {
-        if ( $string == $t[$i][0] ) {
-            $tr = $t[$i][$num];
+    for ( $i = 1; $i < $max; $i++ ) {
+        if ( $string == $types[$i][0] ) {
+            $translated_string = $types[$i][$num];
+            break;
         }
     }
-    return $tr;
+    return $translated_string;
 }
 
 /** 

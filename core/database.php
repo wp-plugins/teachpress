@@ -1,7 +1,8 @@
 <?php
 /**
  * This file contains all functions for sql calls
- * @package teachpress/core
+ * @package teachpress\core\database
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  * @since 4.0.0
  */
 
@@ -47,6 +48,7 @@ function get_tp_options($category, $order = "`setting_id` DESC", $output_type = 
 
 /**
  * Database access class for course artefacts
+ * @package teachpress\core\database
  * @since 5.0.0
  */
 class tp_artefacts {
@@ -80,7 +82,7 @@ class tp_artefacts {
     }
     
     /**
-     * Add a new artefact
+     * Adds a new artefact
      * @param array_a $data
      * @return int
      * @since 5.0.0
@@ -92,7 +94,7 @@ class tp_artefacts {
     }
     
     /**
-     * Delete artefact
+     * Deletes an artefact
      * @param int $artefact_id
      * @since 5.0.0
      */
@@ -103,7 +105,8 @@ class tp_artefacts {
     }
     
     /**
-     * @todo Muss noch fertiggestellt werden
+     * Changes an artefact
+     * @todo This function is not complete
      * @since x.x.x
      */
     public static function change_artefact () {
@@ -113,6 +116,7 @@ class tp_artefacts {
 
 /**
  * Database access class for course assessments
+ * @package teachpress\core\database
  * @since 5.0.0
  */
 class tp_assessments {
@@ -184,6 +188,7 @@ class tp_assessments {
 
 /**
  * Database access class for publication authors
+ * @package teachpress\core\database
  * @since 5.0.0
  */
 class tp_authors  {
@@ -386,6 +391,7 @@ class tp_authors  {
 
 /**
  * Contains functions for getting, adding and deleting of bookmarks
+ * @package teachpress\core\database
  * @since 5.0.0
  */
 class tp_bookmarks {
@@ -394,7 +400,7 @@ class tp_bookmarks {
      * Returns an arrayor object of bookmarks of an user
      * 
      * Possible values for $args:
-     *      user            --> user_ID
+     *      user            --> user_id
      *      output_type     --> ARRAY_A, ARRAY_N or OBJECT
      *
      * @since 5.0.0
@@ -421,7 +427,7 @@ class tp_bookmarks {
     /** 
      * Adds a new bookmark for a user
      * @param int $pub_id   --> publication id
-     * @param int $user     --> user_ID
+     * @param int $user     --> user_id
      * @return int          --> the id of the created element
      * @since 5.0.0
     */
@@ -434,7 +440,7 @@ class tp_bookmarks {
     /** 
      * Delete a bookmark 
      * @param int $del_id   --> IDs of the publications
-     * @param int $user     --> user_ID
+     * @param int $user     --> user_id
      * @since 5.0.0
     */
     public static function delete_bookmark($del_id) {
@@ -465,6 +471,7 @@ class tp_bookmarks {
 
 /**
  * Contains functions for getting, adding and deleting of courses
+ * @package teachpress\core\database
  * @since 5.0.0
  */
 class tp_courses {
@@ -821,14 +828,14 @@ class tp_courses {
     
     /** 
      * Change a course
-     * @param int $course_ID    --> course ID
+     * @param int $course_id    --> course ID
      * @param array $data
      * @since 5.0.0
     */ 
-   public static function change_course($course_ID, $data){
+   public static function change_course($course_id, $data){
         global $wpdb;
-        $course_ID = intval($course_ID);
-        $old_places = tp_courses::get_course_data ($course_ID, 'places');
+        $course_id = intval($course_id);
+        $old_places = tp_courses::get_course_data ($course_id, 'places');
 
         // handle the number of free places
         if ( $data['places'] > $old_places ) {
@@ -837,7 +844,7 @@ class tp_courses {
             $sql = "SELECT s.con_id, s.waitinglist, s.date
                     FROM " . TEACHPRESS_SIGNUP . " s 
                     INNER JOIN " . TEACHPRESS_COURSES . " c ON c.course_id=s.course_id
-                    WHERE c.course_id = '$course_ID' AND s.waitinglist = '1' ORDER BY s.date ASC";
+                    WHERE c.course_id = '$course_id' AND s.waitinglist = '1' ORDER BY s.date ASC";
             $waitinglist = $wpdb->get_results($sql, ARRAY_A);
             $count_waitinglist = count($waitinglist);
             if ( $count_waitinglist > 0 ) {
@@ -857,7 +864,7 @@ class tp_courses {
 
         $data['start'] = $data['start'] . ' ' . $data['start_hour'] . ':' . $data['start_minute'] . ':00';
         $data['end'] = $data['end'] . ' ' . $data['end_hour'] . ':' . $data['end_minute'] . ':00';
-        $wpdb->update( TEACHPRESS_COURSES, array( 'name' => $data['name'], 'type' => $data['type'], 'room' => $data['room'], 'lecturer' => $data['lecturer'], 'date' => $data['date'], 'places' => $data['places'], 'start' => $data['start'], 'end' => $data['end'], 'semester' => $data['semester'], 'comment' => $data['comment'], 'rel_page' => $data['rel_page'], 'parent' => $data['parent'], 'visible' => $data['visible'], 'waitinglist' => $data['waitinglist'], 'image_url' => $data['image_url'], 'strict_signup' => $data['strict_signup'], 'use_capabilites' => $data['use_capabilites'] ), array( 'course_id' => $course_ID ), array( '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%d', '%d' ), array( '%d' ) );
+        $wpdb->update( TEACHPRESS_COURSES, array( 'name' => $data['name'], 'type' => $data['type'], 'room' => $data['room'], 'lecturer' => $data['lecturer'], 'date' => $data['date'], 'places' => $data['places'], 'start' => $data['start'], 'end' => $data['end'], 'semester' => $data['semester'], 'comment' => $data['comment'], 'rel_page' => $data['rel_page'], 'parent' => $data['parent'], 'visible' => $data['visible'], 'waitinglist' => $data['waitinglist'], 'image_url' => $data['image_url'], 'strict_signup' => $data['strict_signup'], 'use_capabilites' => $data['use_capabilites'] ), array( 'course_id' => $course_id ), array( '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%d', '%d' ), array( '%d' ) );
     }
     
     /**
@@ -1026,7 +1033,7 @@ class tp_courses {
     }
     
     /**
-     * Return true if the user is subscribed in the course or false of not
+     * Returns true if the current user is subscribed in the tested course or false if not.
      * @param integer $course_id
      * @param boolean $consider_childcourses
      * @return boolean
@@ -1070,13 +1077,56 @@ class tp_courses {
 }
 
 /**
+ * Contains all functions for the access to course documents
+ * @package teachpress\core\database
+ * @since 5.0.0
+ */
+class tp_documents {
+    
+    /**
+     * Returns the documents of a course
+     * @param int $course_id
+     * @param string $output_type (OBJECT, ARRAY_A or ARRAY_N)
+     * @return array|object
+     * @since 5.0.0
+     */
+    public static function get_documents($course_id, $output_type = ARRAY_A) {
+        global $wpdb;
+        return $wpdb->get_results("SELECT * FROM " . TEACHPRESS_COURSE_DOCUMENTS . " WHERE `course_id` = '$course_id' ORDER BY `sort` ASC, `added` ASC",$output_type);
+    }
+    
+    /**
+     * Adds a connection between a course and a document file
+     * @param string $name
+     * @param string $path
+     * @param int $course_id
+     * @return int The id of the added document entry
+     * @since 5.0.0
+     */
+    public static function add_document($name, $path, $course_id) {
+        global $wpdb;
+        $course_id = intval($course_id);
+        $time = current_time('mysql',0);
+        $wpdb->insert( TEACHPRESS_COURSE_DOCUMENTS, array( 'name' => $name, 
+                                                           'path' => $path, 
+                                                           'added' => $time, 
+                                                           'sort' => 0, 
+                                                           'course_id' => $course_id ), 
+                                                           array( '%s', '%s', '%s', '%d','%d') );
+        return $wpdb->insert_id;
+        
+    }
+}
+
+/**
  * Contains all functions for getting, adding and deleting of plugin options
+ * @package teachpress\core\database
  * @since 5.0.0
  */
 class tp_options {
     
     /**
-     * Return an option by ID
+     * Returns an option by ID
      * @param int $id
      * @return array
      * @since 5.0.0
@@ -1088,10 +1138,11 @@ class tp_options {
     }
 
     /** 
-     * Add an option
-     * @param string $name      --> name of the option
-     * @param string $value     --> value of the option
-     * @param string $category  --> category name (system, course_of_studies, course_type, semester) 
+     * Adds an option
+     * @param string $name      Name of the option
+     * @param string $value     Nalue of the option
+     * @param string $category  Category name (system, course_of_studies, course_type, semester)
+     * @return int The ID if the added option
      * @since 5.0.0
     */
     public static function add_option($name, $value, $category) { 
@@ -1100,10 +1151,11 @@ class tp_options {
         $value = htmlspecialchars($value);
         $category = htmlspecialchars($category);
         $wpdb->insert( TEACHPRESS_SETTINGS, array( 'variable' => $name, 'value' => $value, 'category' => $category ), array( '%s', '%s', '%s' ) );
+        return $wpdb->insert_id;
     }
     
     /**
-     * Update an option
+     * Updates an option
      * @param string $variable
      * @param string $value
      * @param string $type      --> normal or checkbox
@@ -1120,7 +1172,7 @@ class tp_options {
     }
     
     /** 
-     * Delete an option
+     * Deletes an option
      * @param int $delete 
      * @since 5.0.0
     */
@@ -1134,6 +1186,7 @@ class tp_options {
 
 /**
  * Contains functions for getting, adding and deleting of publications
+ * @package teachpress\core\database
  * @since 5.0.0
  */
 class tp_publications {
@@ -1518,28 +1571,28 @@ class tp_publications {
         }
 
         $wpdb->insert( TEACHPRESS_PUB, array( 'title' => $title, 'type' => $type, 'bibtex' => $bibtex, 'author' => $author, 'editor' => $editor, 'isbn' => $isbn, 'url' => $url, 'date' => $date, 'urldate' => $urldate, 'booktitle' => $booktitle, 'issuetitle' => $issuetitle, 'journal' => $journal, 'volume' => $volume, 'number' => $number, 'pages' => $pages , 'publisher' => $publisher, 'address' => $address, 'edition' => $edition, 'chapter' => $chapter, 'institution' => $institution, 'organization' => $organization, 'school' => $school, 'series' => $series, 'crossref' => $crossref, 'abstract' => $abstract, 'howpublished' => $howpublished, 'key' => $key, 'techtype' => $techtype, 'comment' => $comment, 'note' => $note, 'image_url' => $image_url, 'is_isbn' => $is_isbn, 'rel_page' => $rel_page ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d' ) );
-         $pub_ID = $wpdb->insert_id;
+         $pub_id = $wpdb->insert_id;
 
         // Bookmarks
         if ( $bookmark != '' ) {
             $max = count( $bookmark );
             for( $i = 0; $i < $max; $i++ ) {
                if ($bookmark[$i] != '' || $bookmark[$i] != 0) {
-                   tp_bookmarks::add_bookmark($pub_ID, $bookmark[$i]);
+                   tp_bookmarks::add_bookmark($pub_id, $bookmark[$i]);
                }
             }
         }
         
         // Tags
-        tp_publications::add_relation($pub_ID, $tags);
+        tp_publications::add_relation($pub_id, $tags);
         
         // Authors
-        tp_publications::add_relation($pub_ID, $author, ' and ', 'authors');
+        tp_publications::add_relation($pub_id, $author, ' and ', 'authors');
         
         // Editors
-        tp_publications::add_relation($pub_ID, $editor, ' and ', 'editors');
+        tp_publications::add_relation($pub_id, $editor, ' and ', 'editors');
         
-        return $pub_ID;
+        return $pub_id;
     }
     
     /**
@@ -1556,16 +1609,16 @@ class tp_publications {
     
     /** 
      * Edit a publication
-     * @param int $pub_ID           --> ID of the publication
+     * @param int $pub_id           --> ID of the publication
      * @param array_a $data         --> Publication data
-     * @param array $bookmark       --> An array with WP_USER_IDs
+     * @param array $bookmark       --> An array with WP_USER_ids
      * @param array $delbox         --> An array with tag IDs you want to delete
      * @param string $tags          --> A string of Tags seperate by comma
      * @since 5.0.0
     */
-   public static function change_publication($pub_ID, $data, $bookmark, $delbox, $tags) {
+   public static function change_publication($pub_id, $data, $bookmark, $delbox, $tags) {
         global $wpdb;
-        $pub_ID = intval($pub_ID);
+        $pub_id = intval($pub_id);
         // check if bibtex key has no spaces
         if ( strpos($data['bibtex'], ' ') !== false ) {
             $data['bibtex'] = str_replace(' ', '', $data['bibtex']);
@@ -1578,13 +1631,13 @@ class tp_publications {
             $data['editor'] = substr($data['editor'] ,0 , strlen($data['editor']) - 5);
         }
         // update row
-        $wpdb->update( TEACHPRESS_PUB, array( 'title' => $data['title'], 'type' => $data['type'], 'bibtex' => $data['bibtex'], 'author' => $data['author'], 'editor' => $data['editor'], 'isbn' => $data['isbn'], 'url' => $data['url'], 'date' => $data['date'], 'urldate' => $data['urldate'], 'booktitle' => $data['booktitle'], 'issuetitle' => $data['issuetitle'], 'journal' => $data['journal'], 'volume' => $data['volume'], 'number' => $data['number'], 'pages' => $data['pages'] , 'publisher' => $data['publisher'], 'address' => $data['address'], 'edition' => $data['edition'], 'chapter' => $data['chapter'], 'institution' => $data['institution'], 'organization' => $data['organization'], 'school' => $data['school'], 'series' => $data['series'], 'crossref' => $data['crossref'], 'abstract' => $data['abstract'], 'howpublished' => $data['howpublished'], 'key' => $data['key'], 'techtype' => $data['techtype'], 'comment' => $data['comment'], 'note' => $data['note'], 'image_url' => $data['image_url'], 'is_isbn' => $data['is_isbn'], 'rel_page' => $data['rel_page'] ), array( 'pub_id' => $pub_ID ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' ,'%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ,'%d', '%d' ), array( '%d' ) );
+        $wpdb->update( TEACHPRESS_PUB, array( 'title' => $data['title'], 'type' => $data['type'], 'bibtex' => $data['bibtex'], 'author' => $data['author'], 'editor' => $data['editor'], 'isbn' => $data['isbn'], 'url' => $data['url'], 'date' => $data['date'], 'urldate' => $data['urldate'], 'booktitle' => $data['booktitle'], 'issuetitle' => $data['issuetitle'], 'journal' => $data['journal'], 'volume' => $data['volume'], 'number' => $data['number'], 'pages' => $data['pages'] , 'publisher' => $data['publisher'], 'address' => $data['address'], 'edition' => $data['edition'], 'chapter' => $data['chapter'], 'institution' => $data['institution'], 'organization' => $data['organization'], 'school' => $data['school'], 'series' => $data['series'], 'crossref' => $data['crossref'], 'abstract' => $data['abstract'], 'howpublished' => $data['howpublished'], 'key' => $data['key'], 'techtype' => $data['techtype'], 'comment' => $data['comment'], 'note' => $data['note'], 'image_url' => $data['image_url'], 'is_isbn' => $data['is_isbn'], 'rel_page' => $data['rel_page'] ), array( 'pub_id' => $pub_id ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' ,'%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ,'%d', '%d' ), array( '%d' ) );
         // Bookmarks
         if ($bookmark != '') {
             $max = count( $bookmark );
             for( $i = 0; $i < $max; $i++ ) {
                 if ($bookmark[$i] != '' || $bookmark[$i] != 0) {
-                    tp_bookmarks::add_bookmark($pub_ID, $bookmark[$i]);
+                    tp_bookmarks::add_bookmark($pub_id, $bookmark[$i]);
                 }
             }
         }
@@ -1594,16 +1647,16 @@ class tp_publications {
             tp_tags::delete_tag_relation($delbox);
         }
         if ( $tags != '' ) {
-            tp_publications::add_relation($pub_ID, $tags);
+            tp_publications::add_relation($pub_id, $tags);
         }
         
         // Handle author/editor relations
-        tp_authors::delete_author_relations($pub_ID);
+        tp_authors::delete_author_relations($pub_id);
         if ( $data['author'] != '' ) {
-            tp_publications::add_relation($pub_ID, $data['author'], ' and ', 'authors');
+            tp_publications::add_relation($pub_id, $data['author'], ' and ', 'authors');
         }
         if ( $data['editor'] != '' ) {
-            tp_publications::add_relation($pub_ID, $data['editor'], ' and ', 'editors');
+            tp_publications::add_relation($pub_id, $data['editor'], ' and ', 'editors');
         }
     }
     
@@ -1617,8 +1670,8 @@ class tp_publications {
      */
     public static function change_publication_by_key($key, $data, $tags) {
         global $wpdb;
-        $pub_ID = $wpdb->get_var("SELECT `pub_id` FROM " . TEACHPRESS_PUB . " WHERE `bibtex` = '$key'");
-        if ( $pub_ID === NULL ) {
+        $pub_id = $wpdb->get_var("SELECT `pub_id` FROM " . TEACHPRESS_PUB . " WHERE `bibtex` = '$key'");
+        if ( $pub_id === NULL ) {
             return false;
         }
         
@@ -1628,26 +1681,26 @@ class tp_publications {
         }
         
         // update row
-        $wpdb->update( TEACHPRESS_PUB, array( 'title' => $data['title'], 'type' => $data['type'], 'bibtex' => $data['bibtex'], 'author' => $data['author'], 'editor' => $data['editor'], 'isbn' => $data['isbn'], 'url' => $data['url'], 'date' => $data['date'], 'urldate' => $data['urldate'], 'booktitle' => $data['booktitle'], 'issuetitle' => $data['issuetitle'], 'journal' => $data['journal'], 'volume' => $data['volume'], 'number' => $data['number'], 'pages' => $data['pages'] , 'publisher' => $data['publisher'], 'address' => $data['address'], 'edition' => $data['edition'], 'chapter' => $data['chapter'], 'institution' => $data['institution'], 'organization' => $data['organization'], 'school' => $data['school'], 'series' => $data['series'], 'crossref' => $data['crossref'], 'abstract' => $data['abstract'], 'howpublished' => $data['howpublished'], 'key' => $data['key'], 'techtype' => $data['techtype'], 'comment' => $data['comment'], 'note' => $data['note'], 'is_isbn' => $data['is_isbn'] ), array( 'pub_id' => $pub_ID ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' ,'%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%d' ), array( '%d' ) );
+        $wpdb->update( TEACHPRESS_PUB, array( 'title' => $data['title'], 'type' => $data['type'], 'bibtex' => $data['bibtex'], 'author' => $data['author'], 'editor' => $data['editor'], 'isbn' => $data['isbn'], 'url' => $data['url'], 'date' => $data['date'], 'urldate' => $data['urldate'], 'booktitle' => $data['booktitle'], 'issuetitle' => $data['issuetitle'], 'journal' => $data['journal'], 'volume' => $data['volume'], 'number' => $data['number'], 'pages' => $data['pages'] , 'publisher' => $data['publisher'], 'address' => $data['address'], 'edition' => $data['edition'], 'chapter' => $data['chapter'], 'institution' => $data['institution'], 'organization' => $data['organization'], 'school' => $data['school'], 'series' => $data['series'], 'crossref' => $data['crossref'], 'abstract' => $data['abstract'], 'howpublished' => $data['howpublished'], 'key' => $data['key'], 'techtype' => $data['techtype'], 'comment' => $data['comment'], 'note' => $data['note'], 'is_isbn' => $data['is_isbn'] ), array( 'pub_id' => $pub_id ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' ,'%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%d' ), array( '%d' ) );
         
         // Delete existing tags
-        $wpdb->query( "DELETE FROM " . TEACHPRESS_RELATION . " WHERE `pub_id` = $pub_ID" );
+        $wpdb->query( "DELETE FROM " . TEACHPRESS_RELATION . " WHERE `pub_id` = $pub_id" );
         
         // Add new tags
         if ( $tags != '' ) {
-            tp_publications::add_relation($pub_ID, $tags);
+            tp_publications::add_relation($pub_id, $tags);
         }
         
         // Handle author/editor relations
-        tp_authors::delete_author_relations($pub_ID);
+        tp_authors::delete_author_relations($pub_id);
         if ( $data['author'] != '' ) {
-            tp_publications::add_relation($pub_ID, $data['author'], ' and ', 'authors');
+            tp_publications::add_relation($pub_id, $data['author'], ' and ', 'authors');
         }
         if ( $data['editor'] != '' ) {
-            tp_publications::add_relation($pub_ID, $data['editor'], ' and ', 'editors');
+            tp_publications::add_relation($pub_id, $data['editor'], ' and ', 'editors');
         }
         
-        return $pub_ID;
+        return $pub_id;
     }
     
     /** 
@@ -1686,13 +1739,13 @@ class tp_publications {
     
     /**
      * Add new relations (for tags,authors,etc)
-     * @param int $pub_ID
+     * @param int $pub_id
      * @param string $input_string
      * @param string $delimiter         --> example: ','
      * @param string $rel_type          --> tags, authors, editors
      * @since 5.0.0
      */
-    public static function add_relation ($pub_ID, $input_string, $delimiter = ',', $rel_type = 'tags') {
+    public static function add_relation ($pub_id, $input_string, $delimiter = ',', $rel_type = 'tags') {
         global $wpdb;
         $array = explode($delimiter, $input_string);
         foreach($array as $element) {
@@ -1716,17 +1769,17 @@ class tp_publications {
             }
             // check if relation exists, if not add relation
             if ( $rel_type === 'tags' ) {
-                $test = $wpdb->query("SELECT `pub_id` FROM " . TEACHPRESS_RELATION . " WHERE `pub_id` = '$pub_ID' AND `tag_id` = '$check'");
+                $test = $wpdb->query("SELECT `pub_id` FROM " . TEACHPRESS_RELATION . " WHERE `pub_id` = '$pub_id' AND `tag_id` = '$check'");
                 if ($test == 0) {
-                    tp_tags::add_tag_relation($pub_ID, $check);
+                    tp_tags::add_tag_relation($pub_id, $check);
                 }
             }
             else {
-                $test = $wpdb->query("SELECT `pub_id` FROM " . TEACHPRESS_REL_PUB_AUTH . " WHERE `pub_id` = '$pub_ID' AND `author_id` = '$check'");
+                $test = $wpdb->query("SELECT `pub_id` FROM " . TEACHPRESS_REL_PUB_AUTH . " WHERE `pub_id` = '$pub_id' AND `author_id` = '$check'");
                 if ($test == 0) {
                     $is_author = ( $rel_type === 'authors' ) ? 1 : 0;
                     $is_editor = ( $rel_type === 'editors' ) ? 1 : 0;
-                    tp_authors::add_author_relation($pub_ID, $check, $is_author, $is_editor);
+                    tp_authors::add_author_relation($pub_id, $check, $is_author, $is_editor);
                 }
             }
         }
@@ -1735,6 +1788,7 @@ class tp_publications {
 
 /**
  * Contains functions for getting, adding and deleting of students
+ * @package teachpress\core\database
  * @since 5.0.0
  */
 class tp_students {
@@ -1967,6 +2021,7 @@ class tp_students {
 
 /**
  * Database access class for tags
+ * @package teachpress\core\database
  * @since 5.0.0
  */
 class tp_tags {
@@ -2286,6 +2341,7 @@ class tp_tags {
 
 /**
  * Contains database helper functions
+ * @package teachpress\core\database
  * @since 5.0.0
  */
 class tp_db_helpers {

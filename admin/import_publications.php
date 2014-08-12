@@ -1,7 +1,9 @@
 <?php
 /**
  * This file contains all functions for displaying the import_publications page in admin menu
- * @package teachpress/admin
+ * 
+ * @package teachpress\admin\publications
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  */
 
 /**
@@ -21,7 +23,7 @@ function tp_import_page_help_tab() {
 /**
  * The controller for the import page of teachPress
 */ 
-function teachpress_import_page() {
+function tp_import_page() {
     $tab = isset( $_GET['tab'] ) ? $_GET['tab'] : '';
     if ( isset($_POST['tp_submit']) || isset($_POST['tp_bookmark']) || isset($_POST['tp_delete']) ) {
         global $current_user;
@@ -212,7 +214,7 @@ function tp_import_show_results($entries) {
         else {
             echo '<th class="check-column"><input name="checkbox[]" class="tp_checkbox" type="checkbox" value="' . $value . '"/></th>';
         }
-        echo '<td><a href="admin.php?page=teachpress/addpublications.php&amp;pub_ID=' . $value . '" class="teachpress_link" title="' . __('Click to edit','teachpress') . '" target="_blank">' . $entry['title'] . '</a></td>';
+        echo '<td><a href="admin.php?page=teachpress/addpublications.php&amp;pub_id=' . $value . '" class="teachpress_link" title="' . __('Click to edit','teachpress') . '" target="_blank">' . $entry['title'] . '</a></td>';
         echo '<td>' . $value . '</td>';
         echo '<td>' . tp_translate_pub_type( $entry['type'] ) . '</td>';
         echo '<td>' . $author . '</td>';

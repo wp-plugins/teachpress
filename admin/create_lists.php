@@ -1,18 +1,20 @@
 <?php
 /**
  * This file contains all functions for displaying the create_lists page in admin menu
- * @package teachpress/admin
+ * 
+ * @package teachpress\admin\courses
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  */
 
 /** 
  * Create attendance lists
- * @param $course_ID
+ * @param $course_id
  * @param $search
  * @param $sem
 */
 function tp_lists_page() {
    
-    $course_ID = isset( $_GET['course_ID'] ) ? intval($_GET['course_ID']) : '';
+    $course_id = isset( $_GET['course_id'] ) ? intval($_GET['course_id']) : '';
     $redirect = isset( $_GET['redirect'] ) ?  intval($_GET['redirect']) : 0;
     $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
     $sem = isset( $_GET['sem'] ) ? htmlspecialchars($_GET['sem']) : '';
@@ -26,10 +28,10 @@ function tp_lists_page() {
     echo '<form id="einzel" name="einzel" method="post">';
 
     if ( $create === '' ) {
-        echo '<a href="admin.php?page=teachpress/teachpress.php&amp;course_ID=' . $course_ID . '&amp;sem=' . $sem . '&amp;search=' . $search . '&amp;redirect=' . $redirect . '&amp;action=enrollments" class="button-secondary" title="' . __('back to the course','teachpress') . '">&larr; ' . __('Back','teachpress') . '</a>';
+        echo '<a href="admin.php?page=teachpress/teachpress.php&amp;course_id=' . $course_id . '&amp;sem=' . $sem . '&amp;search=' . $search . '&amp;redirect=' . $redirect . '&amp;action=enrollments" class="button-secondary" title="' . __('back to the course','teachpress') . '">&larr; ' . __('Back','teachpress') . '</a>';
     }
     else {
-        echo '<a href="admin.php?page=teachpress/teachpress.php&amp;course_ID=' . $course_ID . '&amp;sem=' . $sem . '&amp;search=' . $search . '&amp;redirect=' . $redirect . '&amp;action=list" class="button-secondary" title="' . __('back to the course','teachpress') . '">&larr; ' . __('Back','teachpress') . '</a>';
+        echo '<a href="admin.php?page=teachpress/teachpress.php&amp;course_id=' . $course_id . '&amp;sem=' . $sem . '&amp;search=' . $search . '&amp;redirect=' . $redirect . '&amp;action=list" class="button-secondary" title="' . __('back to the course','teachpress') . '">&larr; ' . __('Back','teachpress') . '</a>';
         
     }
 
@@ -81,7 +83,7 @@ function tp_lists_page() {
     <?php
     }
     else {
-        tp_create_attendance_list($course_ID, $number, $extra_fields);
+        tp_create_attendance_list($course_id, $number, $extra_fields);
     }
 
     echo '</form>';
@@ -90,13 +92,13 @@ function tp_lists_page() {
 
 /**
  * Creates an attendance list
- * @param int $course_ID            ID of the course
+ * @param int $course_id            ID of the course
  * @param int $number               number of free columns
  * @param string[] $extra_fields    An array of field_names which are available
  * @since 4.3.0
  */
-function tp_create_attendance_list($course_ID, $number, $extra_fields) {
-    $row = tp_courses::get_course($course_ID);
+function tp_create_attendance_list($course_id, $number, $extra_fields) {
+    $row = tp_courses::get_course($course_id);
     // define course name
     if ($row->parent != 0) {
        $parent_name = tp_courses::get_course_data($row->parent, 'name');
@@ -146,7 +148,7 @@ function tp_create_attendance_list($course_ID, $number, $extra_fields) {
     $count = 1;
     
     
-    $sql = tp_courses::get_signups( array('course' => $course_ID, 'order' => 'st.lastname', 'waitinglist' => 0, 'output_type' => ARRAY_A ) );
+    $sql = tp_courses::get_signups( array('course' => $course_id, 'order' => 'st.lastname', 'waitinglist' => 0, 'output_type' => ARRAY_A ) );
     foreach($sql as $row3) {
         echo '<tr>';
         echo '<td>' . $count . '</td>';

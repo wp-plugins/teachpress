@@ -2,6 +2,7 @@
 /**
  * This file contains the server side part for the teachpress ajax interface
  * @package teachpress
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  * @since 5.0.0
  */
 
@@ -15,7 +16,7 @@ if ( is_user_logged_in() && current_user_can('use_teachpress') ) {
         echo '<ol>';
         foreach ( $pubs as $pub) {
             echo '<li style="padding-left:10px;">';
-            echo '<a target="_blank" title="' . __('Edit publication','teachpress') .'" href="admin.php?page=teachpress/addpublications.php&pub_ID=' . $pub['pub_id'] . '">' . $pub['title'] . '</a>, ' . $pub['type'] . ', ' . $pub['year'];
+            echo '<a target="_blank" title="' . __('Edit publication','teachpress') .'" href="admin.php?page=teachpress/addpublications.php&pub_id=' . $pub['pub_id'] . '">' . $pub['title'] . '</a>, ' . $pub['type'] . ', ' . $pub['year'];
             if ( $pub['is_author'] == 1 ) {
                 echo ' (' . __('as author','teachpress') . ')';
             }
@@ -27,4 +28,3 @@ if ( is_user_logged_in() && current_user_can('use_teachpress') ) {
         echo '</ol>';
     }
 }
-?>
