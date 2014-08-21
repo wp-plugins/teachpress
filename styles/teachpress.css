@@ -1,6 +1,6 @@
 /* Help section */
-a.teachpress_delete {color:#d62719; text-decoration:none; font-size:12px; font-weight:bold;}
-a.teachpress_delete:hover {text-decoration:underline;}
+a.teachpress_delete {color:#a00; text-decoration:none; font-size:12px; font-weight:bold;}
+a.teachpress_delete:hover {text-decoration:underline; color:red;}
 .tp_print th {border:1px solid black; padding:5px 5px 5px 5px;}
 .tp_print td {border:1px solid black; padding:5px 5px 5px 5px;}
 .teachpress_message {background-color: #fff; box-shadow: 0 1px 1px 0 rgba(0,0,0,.1); padding: 10px 12px; margin: 5px 0 15px 0;}
@@ -17,10 +17,12 @@ td.tp_course_child {padding-left:25px; background: url(../images/child.png) no-r
 .tp_actions {padding: 0 0 10px 0;}
 
 /* Message menu */
-.tp_row_actions {visibility: hidden;padding: 2px 0 0;color:#000000;}
-.tp_row_actions a:hover {color:#FF6600;}
+.tp_row_actions {visibility: hidden;padding: 2px 0 0; color:#ddd;}
+.tp_row_actions a:hover {color:#ff6600;}
 tr:hover .tp_row_actions {visibility: visible;}
 .tp_row_actions-visible {padding: 2px 0 0;cursor: pointer;}
+a.tp_row_delete, a.tp_file_delete {color:#a00;}
+a.tp_row_delete:hover, a.tp_file_delete:hover {color:red;}
 
 /* buttons */
 #teachpress_add_capability { background: url( ../images/user-new-3.png) no-repeat 7px 3px; background-size: 17px auto; padding-left: 30px !important; }
@@ -43,10 +45,15 @@ tr:hover .tp_row_actions {visibility: visible;}
 .tp_description {display: none;}
 
 /* filelists */
-.filelist { padding-top: 5px; width: 60%;}
-.filelist .file { padding: 8px; border: solid 1px #ccc; margin-bottom: 4px;}
-.filelist .fileprogress { width: 0%; background: #0074a2; height: 5px;}
+.tp_filelist { padding-top: 5px; max-width: 680px;}
+.tp_filelist .tp_file { padding: 8px 8px 8px 30px; border: solid 1px #ccc; margin-bottom: 4px; z-index: 123; position: relative; background: no-repeat 4px 8px; background-size: 20px 20px;}
+.tp_file_headline { background-color: #eee !important;}
+.tp_file_headline .tp_file_name {font-weight: bold;}
+.tp_filelist .tp_fileprogress { background: #0074a2; height: 5px;}
+.tp_file_actions {margin-left: 0; visibility: hidden; position: absolute; right: 5px; top:10px; font-size: 12px; z-index: 1; color:#ddd;}
+.tp_file:hover .tp_file_actions{visibility:visible;}
+.tp_file a:hover {color: #ff6600;}
 
 /* jQuery UI Sortable */
-#tp_sortable>li {cursor: move; height: 1.5em; line-height: 1.2em; background-color: #fff;}
-.ui-state-highlight { height: 1.5em; line-height: 1.2em; }
+#tp_sortable>li {cursor: move; min-height: 20px; background-color: #fff;}
+.ui-state-highlight { height: 20px; padding: 8px 8px 8px 8px; border:1px dotted #ccc; }

@@ -128,7 +128,14 @@ function tp_students_page() {
                 echo ' <input name="anzeigen" type="submit" id="teachpress_search_senden" value="' . __('Show','teachpress') . '" class="button-secondary"/>';
             }
             // Page Menu
-            echo tp_admin_page_menu ($number_entries, $entries_per_page, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search&amp;students_group=$students_group"); ?>
+            $args = array('number_entries' => $number_entries,
+                      'entries_per_page' => $entries_per_page,
+                      'current_page' => $curr_page,
+                      'entry_limit' => $entry_limit,
+                      'page_link' => "admin.php?page=$page&amp;",
+                      'link_attributes' => "search=$search&amp;students_group=$students_group");
+            echo tp_page_menu($args);
+            ?>
         </div>
         <table class="widefat">
         <thead>
@@ -193,7 +200,14 @@ function tp_students_page() {
         <div class="tablenav"><div class="tablenav-pages" style="float:right;">
         <?php 
         if ($number_entries > $entries_per_page) {
-            echo tp_admin_page_menu ($number_entries, $entries_per_page, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search&amp;students_group=$students_group", 'bottom');
+            $args = array('number_entries' => $number_entries,
+                      'entries_per_page' => $entries_per_page,
+                      'current_page' => $curr_page,
+                      'entry_limit' => $entry_limit,
+                      'page_link' => "admin.php?page=$page&amp;",
+                      'link_attributes' => "search=$search&amp;students_group=$students_group",
+                      'mode' => 'bottom');
+            echo tp_page_menu($args);
         } 
         else {
             if ($number_entries == 1) {

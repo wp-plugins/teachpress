@@ -113,7 +113,14 @@ function tp_tags_page(){
         <?php
         // Page Menu
         $test = tp_tags::get_tags( array( 'count' => true, 'search' => $search ) );
-        echo tp_admin_page_menu ($test, $number_messages, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search"); ?>
+        $args = array('number_entries' => $test,
+                      'entries_per_page' => $number_messages,
+                      'current_page' => $curr_page,
+                      'entry_limit' => $entry_limit,
+                      'page_link' => "admin.php?page=$page&amp;",
+                      'link_attributes' => "search=$search");
+        echo tp_page_menu($args);
+        ?>
     </div>
     <div style="width:700px;">
     <table border="0" cellspacing="0" cellpadding="0" class="widefat">
@@ -154,7 +161,7 @@ function tp_tags_page(){
                 echo '<td id="tp_tag_row_' . $row['tag_id'] . '">';
                 echo '<a onclick="teachpress_editTags(' . $str . $row['tag_id'] . $str . ')" class="teachpress_link" title="' . __('Click to edit','teachpress') . '" style="cursor:pointer;"><strong>' . stripslashes($row['name']) . '</strong></a><input type="hidden" id="tp_tag_row_name_' . $row['tag_id'] . '" value="' . stripslashes($row['name']) . '"/>';
                 echo '<div class="tp_row_actions">';
-                echo '<a onclick="teachpress_editTags(' . $str . $row['tag_id'] . $str . ')" class="teachpress_link" title="' . __('Click to edit','teachpress') . '" style="cursor:pointer;">' . __('Edit', 'teachpress') . '</a> | <a href="admin.php?page=' . $page . '&amp;checkbox%5B%5D=' . $row['tag_id'] . '&amp;action=delete' . '" style="color:red;" title="' . __('Delete','teachpress') . '">' . __('Delete', 'teachpress') . '</a>';
+                echo '<a onclick="teachpress_editTags(' . $str . $row['tag_id'] . $str . ')" class="teachpress_link" title="' . __('Click to edit','teachpress') . '" style="cursor:pointer;">' . __('Edit', 'teachpress') . '</a> | <a href="admin.php?page=publications.php&amp;tag=' . $row['tag_id'] . '" title="' . __('Show all publications which have a relationship to this tag','teachpress') . '">' . __('Publications','teachpress') . '</a> | <a class="tp_row_delete" href="admin.php?page=' . $page . '&amp;checkbox%5B%5D=' . $row['tag_id'] . '&amp;action=delete' . '" title="' . __('Delete','teachpress') . '">' . __('Delete', 'teachpress') . '</a>';
                 echo '</div>';
                 echo '</td>';
                 echo '<td>' . $row['tag_id'] . '</td>';
@@ -174,7 +181,14 @@ function tp_tags_page(){
         <div class="tablenav-pages" style="float:right;">
         <?php 
         if ($test > $number_messages) {
-           echo tp_admin_page_menu ($test, $number_messages, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search", 'bottom');
+            $args = array('number_entries' => $test,
+                      'entries_per_page' => $number_messages,
+                      'current_page' => $curr_page,
+                      'entry_limit' => $entry_limit,
+                      'page_link' => "admin.php?page=$page&amp;",
+                      'link_attributes' => "search=$search",
+                      'mode' => 'bottom');
+            echo tp_page_menu($args);
         } 
         else {
            if ($test === 1) {

@@ -37,7 +37,6 @@ function get_tp_options($category, $order = "`setting_id` DESC", $output_type = 
     global $wpdb;
     $category = esc_sql($category);
     $order = esc_sql($order);
-    $output_type = esc_sql($output_type);
     $result = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '$category' ORDER BY $order", $output_type);
     return $result;
 }
@@ -147,8 +146,7 @@ class tp_assessments {
         global $wpdb;
         $wp_id = intval($wp_id);
         if ( $artefact_id === '' ) {
-            $course_id = intval($course_id);
-            $artefacts = "course_id = '$course_id'"; 
+            $artefacts = "course_id = '" . intval($course_id) . "'"; 
         }
         else {
             $artefacts = tp_db_helpers::generate_where_clause($artefact_id, "artefact_id", "OR", "=");
@@ -331,7 +329,6 @@ class tp_authors  {
      */
     public static function count_authors ( $search = '', $limit = '', $output_type = ARRAY_A ) {
         global $wpdb;
-        $output_type = esc_sql($output_type);
         $search = esc_sql($search);
         $limit = esc_sql($limit);
         
@@ -382,7 +379,6 @@ class tp_authors  {
    public static function get_related_authors($author_id, $output_type = ARRAY_A){
        global $wpdb;
        $author_id = intval($author_id);
-       $output_type = esc_sql($output_type);
        return $wpdb->get_results("SELECT DISTINCT p.pub_id, p.title, p.type, p.bibtex, p.author, p.editor, p.date, DATE_FORMAT(p.date, '%Y') AS year, p.urldate, p.isbn , p.url, p.booktitle, p.issuetitle, p.journal, p.volume, p.number, p.pages, p.publisher, p.address, p.edition, p.chapter, p.institution, p.organization, p.school, p.series, p.crossref, p.abstract, p.howpublished, p.key, p.techtype, p.note, p.is_isbn, p.image_url, p.rel_page, r.is_author, r.is_editor FROM " . TEACHPRESS_PUB .  " p INNER JOIN " . TEACHPRESS_REL_PUB_AUTH . " r ON p.pub_id = r.pub_id WHERE r.author_id = '$author_id' ORDER BY year DESC", $output_type);
        
    }
@@ -517,9 +513,6 @@ class tp_courses {
     */
    public static function add_capability ($course_id, $user_id, $capability) {
        global $wpdb;
-       $course_id = intval($course_id);
-       $user_id = intval($user_id);
-       $capability = htmlspecialchars($capability);
        if ( $course_id === 0 || $user_id === 0 || $capability === '' ) {
            return false;
        }
@@ -653,14 +646,14 @@ class tp_courses {
             $where = " WHERE $where";
         }
         if ( $limit != '' ) {
-            $limit = "LIMIT $limit";
+            $limit = " LIMIT $limit";
         }
 
         // define order
         if ($order != '') {
             $order = " ORDER BY $order";
         }
-        $result = $wpdb->get_results($sql . $where . $order, $output_type);
+        $result = $wpdb->get_results($sql . $where . $order . $limit, $output_type);
         return $result;
     }
     
@@ -759,20 +752,13 @@ class tp_courses {
     
     /** 
      * Add a new course
-     * @param array_a $data
+     * @param array $data       An associative array with data of the course
+     * @param array $sub        An associative array with data for the sub courses (type, places, number)
      * @return int              ID of the new course
      * @since 5.0.0
     */
    public static function add_course($data, $sub) {
         global $wpdb;
-        // create rel_page
-        if ($data['rel_page_alter'] !== 0 ) {
-            $data['rel_page'] = tp_courses::add_rel_page($data);
-        }
-        // test if creation was successful
-        if ( $data['rel_page'] === false ) {
-            get_tp_message(__('Error while adding new related content.','teachpress'), 'red');
-        }
         $data['start'] = $data['start'] . ' ' . $data['start_hour'] . ':' . $data['start_minute'] . ':00';
         $data['end'] = $data['end'] . ' ' . $data['end_hour'] . ':' . $data['end_minute'] . ':00';
         $wpdb->insert( TEACHPRESS_COURSES, array( 'name' => $data['name'], 'type' => $data['type'], 'room' => $data['room'], 'lecturer' => $data['lecturer'], 'date' => $data['date'], 'places' => $data['places'], 'start' => $data['start'], 'end' => $data['end'], 'semester' => $data['semester'], 'comment' => $data['comment'], 'rel_page' => $data['rel_page'], 'parent' => $data['parent'], 'visible' => $data['visible'], 'waitinglist' => $data['waitinglist'], 'image_url' => $data['image_url'], 'strict_signup' => $data['strict_signup'], 'use_capabilites' => $data['use_capabilites'] ), array( '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%d', '%d' ) );
@@ -780,6 +766,16 @@ class tp_courses {
         // add capability
         global $current_user;
         tp_courses::add_capability($course_id, $current_user->ID, 'owner');
+        // create rel_page
+        if ($data['rel_page_alter'] !== 0 ) {
+            $data['rel_page'] = tp_courses::add_rel_page($course_id, $data);
+            // Update rel_page
+            $wpdb->update( TEACHPRESS_COURSES, array( 'rel_page' => $data['rel_page'] ), array( 'course_id' => $course_id ), array( '%d', ), array( '%d' ) );
+        }
+        // test if creation was successful
+        if ( $data['rel_page'] === false ) {
+            get_tp_message(__('Error while adding new related content.','teachpress'), 'red');
+        }
         // create sub courses
         if ( $sub['number'] !== 0 ) {
             tp_courses::add_sub_courses($course_id, $data, $sub);
@@ -789,16 +785,18 @@ class tp_courses {
     
     /**
      * Adds a new related content to WordPress
-     * @param array $data
+     * @param int $course_id    The ID of the course
+     * @param array $data       An associative array of the course data
      * @return int or false
      * @since 5.0.0
      * @access private
      */
-    private static function add_rel_page($data) {
+    private static function add_rel_page($course_id, $data) {
         $post = get_post($data['rel_page_alter']);
+        $content = str_replace('[course_id]', 'id="' . $course_id . '"', $post->post_content );
         $postarr = array ( 
             'post_title'   => $data['name'],
-            'post_content' => $post->post_content,
+            'post_content' => $content,
             'post_type'    => $post->post_type,
             'post_author'  => $post->post_author,
             'post_status'   => 'publish'
@@ -809,8 +807,8 @@ class tp_courses {
     /**
      * Adds sub courses to a course
      * @param int $course_id    The ID of the parent course
-     * @param array $data       The data of the parent course
-     * @param array $sub        The data for the sub courses (type, places, number)
+     * @param array $data       An associative array with data of the parent course
+     * @param array $sub        An associative array with data for the sub courses (type, places, number)
      * @since 5.0.0
      * @access private
      */
@@ -878,6 +876,11 @@ class tp_courses {
         for( $i = 0; $i < count( $checkbox ); $i++ ) { 
             $checkbox[$i] = intval($checkbox[$i]); 
             $wpdb->query( "DELETE FROM " . TEACHPRESS_COURSES . " WHERE `course_id` = $checkbox[$i]" );
+            $wpdb->query( "DELETE FROM " . TEACHPRESS_COURSE_META . " WHERE `course_id` = $checkbox[$i]" );
+            $wpdb->query( "DELETE FROM " . TEACHPRESS_COURSE_CAPABILITES . " WHERE `course_id` = $checkbox[$i]" );
+            $wpdb->query( "DELETE FROM " . TEACHPRESS_COURSE_DOCUMENTS . " WHERE `course_id` = $checkbox[$i]" );
+            $wpdb->query( "DELETE FROM " . TEACHPRESS_ASSESSMENTS . " WHERE `course_id` = $checkbox[$i]" );
+            $wpdb->query( "DELETE FROM " . TEACHPRESS_ARTEFACTS . " WHERE `course_id` = $checkbox[$i]" );
             $wpdb->query( "DELETE FROM " . TEACHPRESS_SIGNUP . " WHERE `course_id` = $checkbox[$i]" );
             // Check if there are parent courses, which are not selected for erasing, and set there parent to default
             $sql = "SELECT `course_id` FROM " . TEACHPRESS_COURSES . " WHERE `parent` = $checkbox[$i]";
@@ -906,6 +909,7 @@ class tp_courses {
             'course' => '',
             'waitinglist' => '',
             'order' => '',
+            'limit' => '',
             'output_type' => OBJECT
         );
         $args = wp_parse_args( $args, $defaults );
@@ -917,9 +921,13 @@ class tp_courses {
         $order = esc_sql($order);
         $output_type = esc_sql($output_type);
         $waitinglist = esc_sql($waitinglist);
+        $limit = esc_sql($limit);
 
         if ($order != '') {
             $order = " ORDER BY $order";
+        }
+        if ( $limit != '' ) {
+            $limit = " LIMIT $limit";
         }
 
         $fields = get_tp_options('teachpress_stud','`setting_id` ASC');
@@ -942,8 +950,9 @@ class tp_courses {
         if ( $waitinglist !== '' ) {
             $where = " AND s.waitinglist = '$waitinglist'";
         }
-        //echo $sql . $where . $order . '<br />';
-        $result = $wpdb->get_results($sql . $where . $order, $output_type);
+        
+        // get_tp_message($sql . $where . $order . $limit, 'orange');
+        $result = $wpdb->get_results($sql . $where . $order . $limit, $output_type);
         return $result;
     }
     
@@ -1083,6 +1092,12 @@ class tp_courses {
  */
 class tp_documents {
     
+    public static function get_document($doc_id, $output_type = ARRAY_A) {
+        global $wpdb;
+        $doc_id = intval($doc_id);
+        return $wpdb->get_row("SELECT * FROM " . TEACHPRESS_COURSE_DOCUMENTS . " WHERE `doc_id` = '$doc_id'",$output_type);
+    }
+    
     /**
      * Returns the documents of a course
      * @param int $course_id
@@ -1092,6 +1107,7 @@ class tp_documents {
      */
     public static function get_documents($course_id, $output_type = ARRAY_A) {
         global $wpdb;
+        $course_id = intval($course_id);
         return $wpdb->get_results("SELECT * FROM " . TEACHPRESS_COURSE_DOCUMENTS . " WHERE `course_id` = '$course_id' ORDER BY `sort` ASC, `added` ASC",$output_type);
     }
     
@@ -1105,16 +1121,48 @@ class tp_documents {
      */
     public static function add_document($name, $path, $course_id) {
         global $wpdb;
-        $course_id = intval($course_id);
         $time = current_time('mysql',0);
         $wpdb->insert( TEACHPRESS_COURSE_DOCUMENTS, array( 'name' => $name, 
                                                            'path' => $path, 
                                                            'added' => $time, 
                                                            'sort' => 0, 
-                                                           'course_id' => $course_id ), 
+                                                           'course_id' => intval($course_id) ), 
                                                            array( '%s', '%s', '%s', '%d','%d') );
         return $wpdb->insert_id;
-        
+    }
+    
+    /**
+     * Sets the value of the name field for a document entry
+     * @param int $doc_id
+     * @param string $doc_name
+     * @since 5.0.0
+     */
+    public static function change_document_name($doc_id, $doc_name) {
+        global $wpdb;
+        $wpdb->update( TEACHPRESS_COURSE_DOCUMENTS, array( 'name' => $doc_name ), array( 'doc_id' => $doc_id ), array( '%s', ), array( '%d' ) );
+    }
+
+
+    /**
+     * Sets the value of the sort field for a document entry
+     * @param int $doc_id
+     * @param int $sort
+     * @since 5.0.0
+     */
+    public static function set_sort($doc_id, $sort) {
+        global $wpdb;
+        $wpdb->update( TEACHPRESS_COURSE_DOCUMENTS, array( 'sort' => $sort ), array( 'doc_id' => $doc_id ), array( '%d', ), array( '%d' ) );
+    }
+
+        /**
+     * Deletes a document entry in the database
+     * @param int $doc_id
+     * @since 5.0.0
+     */
+    public static function delete_document($doc_id) {
+        global $wpdb;
+        $doc_id = intval($doc_id);
+        $wpdb->query("DELETE FROM " . TEACHPRESS_COURSE_DOCUMENTS . " WHERE `doc_id` = '$doc_id'");
     }
 }
 
@@ -1259,7 +1307,7 @@ class tp_publications {
             'limit' => '',
             'search' => '',
             'output_type' => OBJECT
-        ); 
+        );
         $args = wp_parse_args( $args, $defaults );
         extract( $args, EXTR_SKIP );
 
@@ -1303,7 +1351,7 @@ class tp_publications {
         if ( $user != '' ) {
             $join .= "INNER JOIN " . TEACHPRESS_USER . " u ON u.pub_id = p.pub_id ";
         }
-        if ( $tag != '' && $tag != 0 ) {
+        if ( $tag != '' ) {
             $join .= "INNER JOIN " . TEACHPRESS_RELATION . " b ON p.pub_id = b.pub_id INNER JOIN " . TEACHPRESS_TAGS . " t ON t.tag_id = b.tag_id ";
         }
         if ( $author_id != '' ) {
@@ -1345,7 +1393,7 @@ class tp_publications {
         if ( $user != '') {
             $where = $where != '' ? $where . " AND ( $user )" : $user;
         }
-        if ( $tag != '' && $tag != 0 ) {
+        if ( $tag != '' ) {
             $where = $where != '' ? $where . " AND ( $tag )" : $tag;
         }
         if ( $author_id != '') {
@@ -1363,7 +1411,7 @@ class tp_publications {
         if ( $where != '' ) {
             $where = " WHERE $where";
         }
-        if ( $year != '' ) {
+        if ( $year != '' && $year !== '0' ) {
             $having = " HAVING $year";
         }
         if ( $limit != '' ) {
@@ -1380,7 +1428,8 @@ class tp_publications {
         else {
             $sql = "SELECT COUNT( DISTINCT pub_id ) AS `count` FROM ( $select $join $where $having) p ";
         }
-        // echo $sql . '<br/><br/>';
+        // print_r($args);
+        // get_tp_message($sql,'red');
         $sql = $count != true ? $wpdb->get_results($sql, $output_type): $wpdb->get_var($sql);
         return $sql;
     }
@@ -1670,6 +1719,7 @@ class tp_publications {
      */
     public static function change_publication_by_key($key, $data, $tags) {
         global $wpdb;
+        $key = esc_sql($key);
         $pub_id = $wpdb->get_var("SELECT `pub_id` FROM " . TEACHPRESS_PUB . " WHERE `bibtex` = '$key'");
         if ( $pub_id === NULL ) {
             return false;
@@ -1747,6 +1797,7 @@ class tp_publications {
      */
     public static function add_relation ($pub_id, $input_string, $delimiter = ',', $rel_type = 'tags') {
         global $wpdb;
+        $pub_id = intval($pub_id);
         $array = explode($delimiter, $input_string);
         foreach($array as $element) {
             $element = trim($element);
@@ -1829,9 +1880,9 @@ class tp_students {
 
         $select = "SELECT * FROM " . TEACHPRESS_STUD;
         $where = '';
-        $order = htmlspecialchars($order);
-        $limit = htmlspecialchars($limit);
-        $output_type = htmlspecialchars($output_type);
+        $order = esc_sql($order);
+        $limit = esc_sql($limit);
+        $output_type = esc_sql($output_type);
         $search = esc_sql(htmlspecialchars($search));
 
         // define global search
@@ -2181,8 +2232,8 @@ class tp_tags {
            }
 
            // Add tags
-           foreach($array as $element) {
-                $element = htmlspecialchars( trim($element) );
+           foreach( $array as $element ) {
+                $element = esc_sql( htmlspecialchars( trim($element) ) );
                 if ($element === '') {
                    continue;
                 }
@@ -2238,7 +2289,6 @@ class tp_tags {
      */
     public static function count_tags ( $search = '', $limit = '', $output_type = ARRAY_A ) {
         global $wpdb;
-        $output_type = esc_sql($output_type);
         $search = esc_sql($search);
         $limit = esc_sql($limit);
         
@@ -2358,7 +2408,7 @@ class tp_db_helpers {
      */
     public static function generate_where_clause($input, $column, $connector = 'AND', $operator = '=', $pattern = '') {
         $end = '';
-        if ($input === '') {
+        if ($input === '' || $input === 0) {
             return;
         }
         
@@ -2407,5 +2457,3 @@ class tp_db_helpers {
     
     
 }
-
-?>

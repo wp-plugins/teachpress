@@ -6,7 +6,7 @@ Description: With teachPress you can easy manage courses, enrollments and public
 Version: 5.0.0alpha
 Author: Michael Winkler
 Author URI: http://mtrv.wordpress.com/
-Min WP Version: 3.3
+Min WP Version: 3.9
 Max WP Version: 4.0
 */
 
@@ -106,6 +106,7 @@ function tp_add_menu() {
     add_submenu_page('teachpress/teachpress.php',__('Students','teachpress'), __('Students','teachpress'),'use_teachpress_courses', 'teachpress/students.php', 'tp_students_page');
     add_action("load-$tp_admin_add_course_page", 'tp_add_course_page_help');
     add_action("load-$tp_admin_show_courses_page", 'tp_show_course_page_help');
+    add_action("load-$tp_admin_show_courses_page", 'tp_show_course_page_screen_options');
 }
 
 /**
@@ -172,6 +173,7 @@ if ( is_admin() ) {
 
 // Core functions
 include_once("core/general.php");
+include_once("core/class-ajax.php");
 include_once("core/class-bibtex.php");
 include_once("core/class-export.php");
 include_once("core/class-mail.php");
@@ -197,7 +199,7 @@ if ( !class_exists( 'PARSEENTRIES' ) ) {
  * @return string
 */
 function get_tp_version() {
-    return '5.0.0alpha6';
+    return '5.0.0alpha7';
 }
 
 /** Function for the integrated registration mode */
@@ -353,18 +355,6 @@ function tp_plugin_link($links, $file){
     return $links;
 }
 
-/**
- * @since 5.0.0
- */
-function tp_upload_handler(){
-    check_ajax_referer('document-upload');
-    $course_id = ( isset ($_POST['course_id']) ) ? intval($_POST['course_id']) : 0;
-    $status = tp_handle_upload($_FILES['async-upload'], array('action' => 'tp_document_upload'), $course_id);
-    tp_documents::add_document($status['filename'], $status['path'], $course_id);
-    echo 'Uploaded to: '. $status['file'] . '| Course-ID: ' . $course_id;
-    exit;
-}
-
 // Register WordPress-Hooks
 register_activation_hook( __FILE__, 'tp_activation');
 add_action('init', 'tp_language_support');
@@ -372,7 +362,7 @@ add_action('admin_menu', 'tp_add_menu_settings');
 add_action('wp_head', 'tp_frontend_scripts');
 add_action('admin_init','tp_backend_scripts');
 add_filter('plugin_action_links','tp_plugin_link', 10, 2);
-add_action('wp_ajax_tp_document_upload', 'tp_upload_handler' );
+add_action('wp_ajax_tp_document_upload', 'tp_handle_document_uploads' );
 
 // Register course system
 if ( !defined('TP_COURSE_SYSTEM') ) {

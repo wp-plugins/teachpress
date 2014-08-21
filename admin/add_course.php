@@ -115,7 +115,7 @@ function tp_add_course_page() {
                 tp_courses::add_course_meta($course_id, $row['variable'], $_POST[$row['variable']]);
             }
         }
-        $message = __('Course created successful.','teachpress') . ' <a href="admin.php?page=teachpress/add_course.php">' . __('Add New','teachpress') . '</a>';
+        $message = __('Course created successful.','teachpress') . ' <a href="admin.php?page=teachpress/teachpress.php&amp;course_id=' . $course_id . '&amp;action=show&amp;search=&amp;sem=' . get_tp_option('sem') . '">' . __('Show course','teachpress') . '</a> | <a href="admin.php?page=teachpress/add_course.php">' . __('Add New','teachpress') . '</a>';
         get_tp_message($message);
    }
    

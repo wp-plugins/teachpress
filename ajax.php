@@ -9,22 +9,41 @@
 // include wp-load.php
 require_once( '../../../wp-load.php' );
 if ( is_user_logged_in() && current_user_can('use_teachpress') ) {
-    $author_id = intval($_GET['author_id']);
+    
+    // for show_authors.php
+    $author_id = ( isset( $_GET['author_id'] ) ) ? intval( $_GET['author_id'] ) : 0;
     if ( $author_id !== 0 ) {
-        // $pub = tp_publications::get_publication($author_id, ARRAY_A);
-        $pubs = tp_authors::get_related_authors($author_id, ARRAY_A);
-        echo '<ol>';
-        foreach ( $pubs as $pub) {
-            echo '<li style="padding-left:10px;">';
-            echo '<a target="_blank" title="' . __('Edit publication','teachpress') .'" href="admin.php?page=teachpress/addpublications.php&pub_id=' . $pub['pub_id'] . '">' . $pub['title'] . '</a>, ' . $pub['type'] . ', ' . $pub['year'];
-            if ( $pub['is_author'] == 1 ) {
-                echo ' (' . __('as author','teachpress') . ')';
-            }
-            if ( $pub['is_editor'] == 1 ) {
-                echo ' (' . __('as editor','teachpress') . ')';
-            }
-            echo '</li>';
-        }
-        echo '</ol>';
+        tp_ajax::get_author_publications($author_id);
+    }
+    
+    // for removing documents
+    $del_document = ( isset( $_GET['del_document'] ) ) ? intval( $_GET['del_document'] ) : 0;
+    if ( $del_document !== 0 ) {
+        tp_ajax::delete_document($del_document);
+    }
+    
+    // for adding document headlines
+    $add_document = ( isset( $_GET['add_document'] ) ) ? htmlspecialchars( $_GET['add_document'] ) : '';
+    $course_id = ( isset( $_GET['course_id'] ) ) ? intval($_GET['course_id']) : 0;
+    if ( $add_document !== '' && $course_id !== 0 ) {
+        tp_ajax::add_document_headline($add_document, $course_id);
+    }
+    
+    // for getting a document name
+    $get_document_name = ( isset( $_GET['get_document_name'] ) ) ? intval( $_GET['get_document_name'] ) : 0;
+    if ( $get_document_name !== 0 ) {
+        tp_ajax::get_document_name($get_document_name);
+    }
+    
+    // for changing a document name
+    $change_document = ( isset( $_POST['change_document'] ) ) ? intval( $_POST['change_document'] ) : 0;
+    $new_document_name = ( isset( $_POST['new_document_name'] ) ) ? htmlspecialchars( $_POST['new_document_name'] ) : '';
+    if ( $change_document !== 0 && $new_document_name !== '' ) {
+        tp_ajax::change_document_name($change_document, $new_document_name);
+    }
+
+    // for saving sort order of documents
+    if ( isset( $_POST['tp_file'] ) ) {
+        tp_ajax::set_sort_order($_POST['tp_file']);
     }
 }

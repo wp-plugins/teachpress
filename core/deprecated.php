@@ -20,6 +20,30 @@ function tp_date_shortcode($attr) {
     return tp_coursedate_shortcode($attr);
 }
 
+/** 
+ * teachPress Admin Page Menu
+ * @param int $number_entries       Number of all available entries
+ * @param int $entries_per_page     Number of entries per page
+ * @param int $current_page         current displayed page
+ * @param int $entry_limit          SQL entry limit
+ * @param string $page_link         the name of the page you will insert the menu
+ * @param string $link_attributes   the url attributes for get parameters
+ * @param string $type              top or bottom, default: top
+ * @return string
+ * @deprecated since version 5.0.0
+ * @todo Delete function with teachPress 5.1 or later
+*/
+function tp_admin_page_menu ($number_entries, $entries_per_page, $current_page, $entry_limit, $page_link = '', $link_attributes = '', $type = 'top') {
+    trigger_error( __('The function tp_admin_page_menu() is deprecated since teachpress 5.0.0. Use tp_page_menu() instead.','teachpress') );
+    return tp_page_menu(array('number_entries' => $number_entries,
+                              'entries_per_page' => $entries_per_page,
+                              'current_page' => $current_page,
+                              'entry_limit' => $entry_limit,
+                              'page_link' => $page_link,
+                              'link_attributes' => $link_attributes,
+                              'mode' => $type));
+}
+
 /**
  * This function is deprecated. Please use tp_courses::get_course() instead.
  * @param int $id

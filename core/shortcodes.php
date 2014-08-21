@@ -13,6 +13,36 @@
  */
 class tp_shortcodes {
     
+    
+    
+    public static function get_coursedocs_headline ($row, $numbered, $show_date) {
+        $span = 1;
+        if ( $numbered === 1 ) {
+            $span++;
+        }
+        if ( $show_date === 1 ) {
+            $span++;
+        }
+        $colspan = ( $span > 1 ) ? 'colspan="' . $span . '"' : '';
+        return '<th class="tp_coursedocs_headline" ' . $colspan . '>' . stripcslashes($row['name']) . '</th>';
+    }
+    
+    /**
+     * Returns a single table line for the function tp_courselist()
+     */
+    public static function get_coursedocs_line ($row, $upload_dir, $link_class, $date_format, $numbered, $num, $show_date) {
+        $return = '';
+        $date = date( $date_format, strtotime($row['added']) );
+        if ( $numbered === 1 ) {
+            $return .= '<td>' . $num . '</td>';
+        }
+        if ( $show_date === 1 ) {
+            $return .= '<td><span title="' . __('Published on','teachpress') . ' ' . $date . '">' . $date . '</span></td>';
+        }
+        $return .= '<td><a href="' . $upload_dir['baseurl'] . $row['path'] . '" class="' . $link_class . '">' . stripcslashes($row['name']) . '</a></td>';
+        return $return;
+    }
+
     /**
      * Returns a single table line for the function tp_courselist()
      * @return string
@@ -483,6 +513,7 @@ function tp_courselist_shortcode($atts) {
  *      @type int id                ID of the course 
  *      @type string linkclass      The name of the html class for document links, default is: linksecure
  *      @type string date_format    Default: d.m.Y
+ *      @type int show_date         1 (date is visible) or 0, default is: 1
  *      @type int numbered          1 (use numbering) or 0, default is: 0
  *      @type int headline          1 (display headline) or 0, default is: 1
  * 
@@ -494,6 +525,7 @@ function tp_coursedocs_shortcode($atts) {
        'id' => '',
        'link_class' => 'linksecure',
        'date_format' => 'd.m.Y',
+       'show_date' => 1,
        'numbered' => 0,
        'headline' => 1
     ), $atts));
@@ -501,6 +533,7 @@ function tp_coursedocs_shortcode($atts) {
     $headline = intval($headline);
     $link_class = htmlspecialchars($link_class);
     $date_format = htmlspecialchars($date_format);
+    $show_date = intval($show_date);
     $numbered = intval($numbered);
     $upload_dir = wp_upload_dir();
     $documents = tp_documents::get_documents($course_id);
@@ -516,15 +549,16 @@ function tp_coursedocs_shortcode($atts) {
     $num = 1;
     $body = '<table class="tpcoursedocs">';
     foreach ($documents as $row) {
-        $date = date( $date_format, strtotime($row['added']) );
         $body .= '<tr>';
-        if ( $numbered === 1 ) {
-            $body .= '<td>' . $num . '</td>';
+        if ( $row['path'] === '' ) {
+            $body .= tp_shortcodes::get_coursedocs_headline($row, $numbered, $show_date);
+            $num = 1;
         }
-        $body .= '<td><span title="' . __('Published on','teachpress') . ' ' . $date . '">' . $date . '</span></td>'
-                . '<td><a href="' . $upload_dir['baseurl'] . $row['path'] . '" class="' . $link_class . '">' . stripcslashes($row['name']) . '</a></td>'
-                . '</tr>';
-        $num++;
+        else {
+            $body .= tp_shortcodes::get_coursedocs_line($row, $upload_dir, $link_class, $date_format, $numbered, $num, $show_date);
+            $num++;
+        }
+        $body .= '</tr>';
     }
     $body .= '</table>';
     return $a . $body;
@@ -956,7 +990,15 @@ function tp_cloud_shortcode($atts) {
     if ( $tpz != 0 ) {
         $part2 = '';
         $link_attributes = 'tgid=' . $filter_parameter['tag'] . '&amp;yr=' . $filter_parameter['year'] . '&amp;type=' . $filter_parameter['type'] . '&amp;usr=' . $filter_parameter['user'] . '&amp;auth=' . $filter_parameter['author'] . $settings['html_anchor'];
-        $menu = ( $settings['pagination'] === 1 ) ? tp_admin_page_menu($number_entries, $entries_per_page, $current_page, $entry_limit, $settings['permalink'], $link_attributes, 'bottom') : '';
+        $menu = ( $settings['pagination'] === 1 ) ? tp_page_menu(array('number_entries' => $number_entries,
+                                                                       'entries_per_page' => $entries_per_page,
+                                                                       'current_page' => $current_page,
+                                                                       'entry_limit' => $entry_limit,
+                                                                       'page_link' => $settings['permalink'],
+                                                                       'link_attributes' => $link_attributes,
+                                                                       'mode' => 'bottom',
+                                                                       'before' => '<div class="tablenav">',
+                                                                       'after' => '</div>')) : '';
         $part2 .= $menu;
         $row_year = tp_publications::get_years( array( 'user' => $sql_parameter['user'], 'type' => $sql_parameter['type'], 'order' => 'DESC', 'output_type' => ARRAY_A ) );
         $part2 .= tp_shortcodes::generate_pub_table($tparray, array('number_publications' => $tpz, 
@@ -1091,7 +1133,15 @@ function tp_list_shortcode($atts){
     
     // menu
     $r = '';
-    $menu = ( $pagination === 1 ) ? tp_admin_page_menu($number_entries, $entries_per_page, $current_page, $entry_limit, $page_link, '', 'bottom') : '';
+    $menu = ( $pagination === 1 ) ? tp_page_menu(array('number_entries' => $number_entries,
+                                                       'entries_per_page' => $entries_per_page,
+                                                       'current_page' => $current_page,
+                                                       'entry_limit' => $entry_limit,
+                                                       'page_link' => $page_link,
+                                                       'link_attributes' => '',
+                                                       'mode' => 'bottom',
+                                                       'before' => '<div class="tablenav">',
+                                                       'after' => '</div>')) : '';
     $r .= $menu;
 
     $row_year = ( $headline === 1 ) ? tp_publications::get_years( array('output_type' => ARRAY_A, 'order' => 'DESC') ) : '';
@@ -1199,7 +1249,16 @@ function tp_search_shortcode ($atts) {
         $number_entries = tp_publications::get_publications($args, true);
         
         // menu
-        $menu = tp_admin_page_menu($number_entries, $entries_per_page, $current_page, $entry_limit, $page_link, $link_attributes, 'bottom');
+        
+        $menu = tp_page_menu(array('number_entries' => $number_entries,
+                                   'entries_per_page' => $entries_per_page,
+                                   'current_page' => $current_page,
+                                   'entry_limit' => $entry_limit,
+                                   'page_link' => $page_link,
+                                   'link_attributes' => $link_attributes,
+                                   'mode' => 'bottom',
+                                   'before' => '<div class="tablenav">',
+                                   'after' => '</div>'));
         if ( $search != "" ) {
             $r .= '<h3>' . __('Results for','teachpress') . ' "' . $search . '":</h3>';
         }

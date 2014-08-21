@@ -2,9 +2,9 @@
 Contributors: Michael Winkler
 Tags: publications, enrollments, education, course management, BibTeX, bibliography
 License: GPLv2 or later
-Requires at least: 3.3
+Requires at least: 3.9
 Tested up to: 4.0
-Stable tag: 5.0.0beta
+Stable tag: 5.0.0alpha
 
 With this plugin you can easy manage courses and publications.
 
@@ -139,6 +139,7 @@ It's **strongly** recommended to save your teachpress database tables before upg
 * New: Direct .bib export for selected publications added (via "Show as BibTeX entry")
 * New: Direct creating of related content based on drafts added
 * New: Direct creating of sub courses added
+* New: Page menu for enrollments added
 * New: Shortcode [tpcoursedate] as replacement for [tpdate]
 * New: Shortcode [tpcoursedocs]
 * New: [tpenrollments]: New parameter "date_format" added
@@ -148,8 +149,9 @@ It's **strongly** recommended to save your teachpress database tables before upg
 * Changed: UI modifications for better integration in WordPress 3.8+
 * Changed: Using parameters instead of variables for the definition of database table names
 * Changed: Visible names for some publication types changed
+* Changed: The plugin requires at least WordPress 3.9 instead of 3.3.
 * Killed: The shortcode [tpdate] is deprecated, use [tpcoursedate] instead
-* Killed: The following functions are deprecated: get_tp_course(), get_tp_courses(), get_tp_course_free_places(), get_tp_tags(), get_tp_tag_cloud(), get_tp_publication(), get_tp_publications(), tp_is_user_subscribed(), tp_check_bookmark()
+* Killed: The following functions are deprecated: get_tp_course(), get_tp_courses(), get_tp_course_free_places(), get_tp_tags(), get_tp_tag_cloud(), get_tp_publication(), get_tp_publications(), tp_is_user_subscribed(), tp_check_bookmark(), tp_admin_page_menu()
 
 = 4.3.8 - (29.06.2014) =
 * Bugfix: Prevent adding of `<span>`-tags within publication meta rows in XML and RTF files

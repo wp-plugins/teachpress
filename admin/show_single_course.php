@@ -32,6 +32,27 @@ function tp_show_single_course_page() {
     $link_parameter['order'] = isset ( $_GET['order'] ) ? $_GET['order'] : 'name';
     $action = isset( $_GET['action'] ) ?  $_GET['action'] : 'show';
     
+    // Get screen options
+    $screen = get_current_screen();
+    $screen_option = $screen->get_option('per_page', 'option');
+    $link_parameter['per_page'] = get_user_meta($current_user->ID, $screen_option, true);
+    if ( empty ( $link_parameter['per_page'] ) || $link_parameter['per_page'] < 1 ) {
+        $link_parameter['per_page'] = $screen->get_option( 'per_page', 'default' );
+    }
+    
+    // Handle limits
+    if ( isset($_GET['limit']) ) {
+        $link_parameter['curr_page'] = intval($_GET['limit']);
+        if ( $link_parameter['curr_page'] <= 0 ) {
+            $link_parameter['curr_page'] = 1;
+        }
+        $link_parameter['entry_limit'] = ( $link_parameter['curr_page'] - 1 ) * $link_parameter['per_page'];
+    }
+    else {
+        $link_parameter['entry_limit'] = 0;
+        $link_parameter['curr_page'] = 1;
+    }
+    
     $capability = tp_courses::get_capability($course_id, $current_user->ID);
 
     echo '<div class="wrap">';
@@ -303,6 +324,65 @@ class tp_single_course_page {
     }
     
     /**
+     * Gets the add_students_form for the enrollments tab
+     * @since 5.0.0
+     * @access private
+     */
+    private static function get_add_students_form() {
+        echo '<div class="teachpress_message" id="tp_add_signup_form" style="display: none;">';
+        echo '<p class="teachpress_message_headline">' . __('Add students manually','teachpress') . '</p>';
+        echo '<select name="tp_add_reg_student" id="tp_add_reg_student">';
+        echo '<option value="0">- ' . __('Select student','teachpress') . ' -</option>';
+        $row1 = tp_students::get_students();
+        $zahl = 0;
+        $notice = array();
+        foreach($row1 as $row1) {
+            if ($zahl != 0 && $notice[0] != $row1->lastname[0]) {
+                echo '<option>----------</option>';
+            }
+            echo '<option value="' . $row1->wp_id . '">' . stripslashes($row1->lastname) . ', ' . stripslashes($row1->firstname) . ' (' . $row1->userlogin . ')</option>';
+            $notice = $row1->lastname;
+            $zahl++;
+        }
+        echo '</select>';
+        echo '<p>
+               <input type="submit" name="add_signup" class="button-primary" value="' . __('Add', 'teachpress') . '" />
+               <a onclick="teachpress_showhide(' . "'" . 'tp_add_signup_form' . "'" . ');" class="button-secondary" style="cursor:pointer;">' . __('Cancel', 'teachpress') . '</a>
+             </p>';
+        echo '</div>';   
+    }
+    
+    /**
+     * Gets the move_to_a_course_form for the enrollments tab
+     * @param int $course_id            The ID of the course
+     * @param array $cours_data         An associative array of the course_data
+     * @param array $link_parameter     An associative array of link parameters
+     * @since 5.0.0
+     * @access private
+     */
+    private static function get_move_to_a_course_form($course_id, $cours_data, $link_parameter) {
+        $p = $cours_data['parent'] != 0 ? $cours_data['parent'] : $cours_data['course_id'];
+        $related_courses = tp_courses::get_courses( array('parent' => $p ) );
+        if ( count($related_courses) === 0 ) {
+            get_tp_message(__('Error: There are no related courses.','teachpress'));
+            return;
+        }
+        echo '<div class="teachpress_message" id="tp_move_to_course">';
+        echo '<p class="teachpress_message_headline">' . __('Move to a related course','teachpress') . '</p>';
+        echo '<p>' . __('If you move a signup to an other course the signup status will be not changed. So a waitinglist will be a waitinglist entry.','teachpress') . '</p>';
+        echo '<select name="tp_rel_course" id="tp_rel_course">';
+        foreach ( $related_courses as $rel ) {
+            $selected = $rel->course_id == $cours_data['course_id'] ? ' selected="selected"' : '';
+            echo '<option value="' . $rel->course_id . '"' . $selected . '>' . $rel->course_id . ' - ' . $rel->name . '</option>';
+        }
+        echo ' </select>';
+        echo '<p><input name="move_ok" type="submit" class="button-primary" value="<' . __('Move','teachpress') . '"/>
+                    <a href="admin.php?page=teachpress/teachpress.php&course_id=' . $course_id . '&amp;sem=' . $link_parameter['sem'] . '&amp;search=' . $link_parameter['search'] . '&amp;order=' . $link_parameter['order'] . '&amp;sort=' . $link_parameter['sort'] . '&amp;action=show" class="button-secondary">' . __('Cancel','teachpress') . '</a></p>';    
+        echo '</div>';
+    }
+
+
+    /**
      * Shows the course assessment tab
      * @param int $course_id
      * @since 5.0.0
@@ -431,7 +511,7 @@ class tp_single_course_page {
             echo '<td>';
             echo '<span style="float:left; margin-right:10px;">' . get_avatar($row['wp_id'], 35) . '</span> <strong>' . $user->user_login . '</strong>';
             if ( $row['capability'] !== 'owner' ) {
-                echo '<div class="tp_row_actions"><a href="admin.php?page=teachpress/teachpress.php&course_id=6&sem=Example%20term&search=&action=capabilites" style="color:red;" title="' . __('Delete','teachpress') . '">' . __('Delete','teachpress') . '</a></div>';
+                echo '<div class="tp_row_actions"><a class="tp_row_delete" href="admin.php?page=teachpress/teachpress.php&course_id=6&sem=Example%20term&search=&action=capabilites" style="color:#a00;" title="' . __('Delete','teachpress') . '">' . __('Delete','teachpress') . '</a></div>';
             }
             echo '</td>';
             echo '<td>' . $user->display_name . '</td>';
@@ -564,8 +644,12 @@ class tp_single_course_page {
         $enrollments = tp_courses::get_signups( array('output_type' => ARRAY_A, 
                                                       'course' => $course_id, 
                                                       'order' => $order_s . $sort_s, 
+                                                      'limit' => $link_parameter['entry_limit'] . ',' . $link_parameter['per_page'],
                                                       'waitinglist' => 0) );
-        $count_enrollments = count($enrollments);
+        $count_enrollments = count( tp_courses::get_signups( array('output_type' => ARRAY_A, 
+                                                      'course' => $course_id, 
+                                                      'order' => $order_s . $sort_s,
+                                                      'waitinglist' => 0) ) );
 
         // waitinglist
         $waitinglist = tp_courses::get_signups( array('output_type' => ARRAY_A, 
@@ -596,55 +680,15 @@ class tp_single_course_page {
            </span>
            <a id="teachpress_send_mail" class="button-secondary" href="admin.php?page=teachpress/teachpress.php&amp;course_id=<?php echo $course_id; ?>&amp;sem=<?php echo $link_parameter['sem']; ?>&amp;search=<?php echo $link_parameter['search']; ?>&amp;redirect=<?php echo $link_parameter['redirect']; ?>&amp;action=mail&amp;type=course" title="<?php _e('Send E-Mail','teachpress'); ?>"><?php _e('Send E-Mail','teachpress'); ?></a>
        </div>
-       <!-- Add students -->
-       <div class="teachpress_message" id="tp_add_signup_form" style="display: none;">
-           <p class="teachpress_message_headline"><?php _e('Add students manually','teachpress'); ?></p>
-           <select name="tp_add_reg_student" id="tp_add_reg_student">
-               <option value="0">- <?php _e('Select student','teachpress'); ?>- </option>
-               <?php
-                $row1 = tp_students::get_students();
-                $zahl = 0;
-                foreach($row1 as $row1) {
-                   if ($zahl != 0 && $merke[0] != $row1->lastname[0]) {
-                      echo '<option>----------</option>';
-                   }
-                   echo '<option value="' . $row1->wp_id . '">' . stripslashes($row1->lastname) . ', ' . stripslashes($row1->firstname) . ' (' . $row1->userlogin . ')</option>';
-                   $merke = $row1->lastname;
-                   $zahl++;
-                } ?>
-           </select>
-           <p>
-               <input type="submit" name="add_signup" class="button-primary" value="<?php _e('Add', 'teachpress'); ?>" />
-               <a onclick="teachpress_showhide('tp_add_signup_form');" class="button-secondary" style="cursor:pointer;"><?php _e('Cancel', 'teachpress'); ?></a>
-           </p>
-       </div>
-       <!-- Move to a course -->
-       <?php if ( $reg_action === 'move' ) { 
-           $p = $cours_data['parent'] != 0 ? $cours_data['parent'] : $cours_data['course_id'];
-           $related_courses = tp_courses::get_courses( array('parent' => $p ) );
-           if ( count($related_courses) != 0 ) {
-            ?>
-            <div class="teachpress_message" id="tp_move_to_course">
-                <p class="teachpress_message_headline"><?php _e('Move to a related course','teachpress'); ?></p>
-                <p><?php _e('If you move a signup to an other course the signup status will be not changed. So a waitinglist will be a waitinglist entry.','teachpress'); ?></p>
-                <select name="tp_rel_course" id="tp_rel_course">
-                    <?php
-                    foreach ( $related_courses as $rel ) {
-                        $selected = $rel->course_id == $cours_data['course_id'] ? ' selected="selected"' : '';
-                        echo '<option value="' . $rel->course_id . '"' . $selected . '>' . $rel->course_id . ' - ' . $rel->name . '</option>';
-                    }
-                    ?>
-                </select>
-                <p><input name="move_ok" type="submit" class="button-primary" value="<?php _e('Move','teachpress'); ?>"/>
-                    <a href="admin.php?page=teachpress/teachpress.php&course_id=<?php echo $course_id; ?>&amp;sem=<?php echo $link_parameter['sem']; ?>&amp;search=<?php echo $link_parameter['search']; ?>&amp;order=<?php echo $link_parameter['order']; ?>&amp;sort=<?php echo $link_parameter['sort']; ?>&amp;action=show" class="button-secondary"><?php _e('Cancel','teachpress'); ?></a></p>
-            </div>
-       <?php } 
-             else {
-                get_tp_message(__('Error: There are no related courses.','teachpress'));
-             }
-       } ?>
-       <!-- Delete entries -->
-       <?php if ( $reg_action == 'delete' ) { ?>
+       <?php
+       // Add students
+       tp_single_course_page::get_add_students_form();
+       // Move to a course
+       if ( $reg_action === 'move' ) { 
+            tp_single_course_page::get_move_to_a_course_form($course_id, $cours_data, $link_parameter);
+       }
+       // Delete entries
+       if ( $reg_action == 'delete' ) { ?>
        <div class="teachpress_message" id="tp_delete entries" style="">
            <p class="teachpress_message_headline"><?php _e('Are you sure to delete the selected elements?','teachpress'); ?></p>
            <p><input type="checkbox" name="move_up" id="move_up" checked="checked" /> <label for="move_up"><?php _e('Move up entries from the waitinglist as replacement for deleted signups.','teachpress'); ?></label></p>
@@ -652,7 +696,19 @@ class tp_single_course_page {
                <a href="admin.php?page=teachpress/teachpress.php&course_id=<?php echo $course_id; ?>&amp;sem=<?php echo $link_parameter['sem']; ?>&amp;search=<?php echo $link_parameter['search']; ?>&amp;order=<?php echo $link_parameter['order']; ?>&amp;sort=<?php echo $link_parameter['sort']; ?>&amp;action=show" class="button-secondary"><?php _e('Cancel','teachpress'); ?></a></p>
        <!-- END Menu -->    
        </div>
-       <?php } ?>
+       <?php }
+        $args = array('number_entries' => $count_enrollments,
+                      'entries_per_page' => $link_parameter['per_page'],
+                      'current_page' => $link_parameter['curr_page'],
+                      'entry_limit' => $link_parameter['entry_limit'],
+                      'page_link' => 'admin.php?page=teachpress/teachpress.php&amp;',
+                      'link_attributes' => 'course_id=' . $course_id . '&amp;sem=' . $link_parameter['sem'] . '&amp;search=' . $link_parameter['search'] . '&amp;order=' . $link_parameter['order'] . '&amp;sort=' . $link_parameter['sort'] . '&amp;action=enrollments',
+                      'mode' => 'top',
+                      'class' => 'tablenav-pages',
+                      'before' => '<div class="tablenav" style="float:right;">',
+                      'after' => '</div>');
+        echo tp_page_menu($args);
+       ?>
        <h3><?php _e('Signups','teachpress'); ?></h3>
        <table class="widefat">
         <thead>
@@ -679,7 +735,7 @@ class tp_single_course_page {
                $sort_sign_date = $sort_name == 'asc' ? '&Downarrow;' : '&Uparrow;';
            }
            ?>
-           <th><a href="admin.php?page=teachpress/teachpress.php&course_id=<?php echo $course_id; ?>&amp;sem=<?php echo $link_parameter['sem']; ?>&amp;search=<?php echo $link_parameter['search']; ?>&amp;order=name&amp;sort=<?php echo $sort_name; ?>&amp;action=show"><?php _e('Last name','teachpress'); ?></a> <span style="display: <?php echo $display_name; ?>"><?php echo $sort_sign_name; ?></span></th>
+           <th><a href="admin.php?page=teachpress/teachpress.php&course_id=<?php echo $course_id; ?>&amp;sem=<?php echo $link_parameter['sem']; ?>&amp;search=<?php echo $link_parameter['search']; ?>&amp;order=name&amp;sort=<?php echo $sort_name; ?>&amp;action=enrollments"><?php _e('Last name','teachpress'); ?></a> <span style="display: <?php echo $display_name; ?>"><?php echo $sort_sign_name; ?></span></th>
            <th><?php _e('First name','teachpress'); ?></th>
            <th><?php _e('User account','teachpress'); ?></th>
            <th><?php _e('E-Mail'); ?></th>
@@ -691,12 +747,12 @@ class tp_single_course_page {
                 }
             }
            ?>
-           <th><a href="admin.php?page=teachpress/teachpress.php&course_id=<?php echo $course_id; ?>&amp;sem=<?php echo $link_parameter['sem']; ?>&amp;search=<?php echo $link_parameter['search']; ?>&amp;order=date&amp;sort=<?php echo $sort_date; ?>&amp;action=show"><?php _e('Registered at','teachpress'); ?></a> <span style="display: <?php echo $display_date; ?>"><?php echo $sort_sign_date; ?></span></th>
+           <th><a href="admin.php?page=teachpress/teachpress.php&course_id=<?php echo $course_id; ?>&amp;sem=<?php echo $link_parameter['sem']; ?>&amp;search=<?php echo $link_parameter['search']; ?>&amp;order=date&amp;sort=<?php echo $sort_date; ?>&amp;action=enrollments"><?php _e('Registered at','teachpress'); ?></a> <span style="display: <?php echo $display_date; ?>"><?php echo $sort_sign_date; ?></span></th>
          </tr>
         </thead>  
         <tbody>
        <?php
-       if ($count_enrollments == 0) {
+       if ($count_enrollments === 0) {
            echo '<tr><td colspan="8"><strong>' . __('No entries','teachpress') . '</strong></td></tr>';
        }
        else {
@@ -775,6 +831,11 @@ class tp_single_course_page {
        <?php  }
     }
     
+    /**
+     * Shows the documents tab for show_single_course page
+     * @param int $course_id
+     * @since 5.0.0
+     */
     public static function get_documents_tab ($course_id) {
         ?>
         <div id="plupload-upload-ui" class="hide-if-no-js">
@@ -785,12 +846,25 @@ class tp_single_course_page {
                  <p class="drag-drop-buttons"><input id="plupload-browse-button" type="button" value="<?php esc_attr_e('Select Files'); ?>" class="button" /></p>
                 </div>
             </div>
-            <h3><?php _e('Documents','teachpress') ?></h3>
-            <ul class="filelist" id="tp_sortable">
+            <h3 id="document_headline"><?php _e('Documents','teachpress') ?></h3>
+            <div id="tp_add_headline">
+                <?php _e('Add headline','teachpress'); ?>
+                <input id="tp_add_headline_name" name="tp_add_headline_name" type="text" value="" style="width: 400px;"/>
+                <a id="tp_add_headline_button" class="button-secondary"><?php _e('Add','teachpress'); ?></a>
+            </div>
+            <ul class="tp_filelist" id="tp_sortable">
                 <?php
                 $documents = tp_documents::get_documents($course_id);
                 foreach ($documents as $row) {
-                    echo '<li class="file">' . $row['name'] . '</li>';
+                    if ( $row['path'] !== '' ) {
+                        $class = 'tp_file';
+                        $style = 'background-image: url(' . get_tp_mimetype_images( $row['path'] ) . ');';
+                    }
+                    else {
+                        $class = 'tp_file tp_file_headline';
+                        $style = '';
+                    }
+                    echo '<li class="' . $class . '" id="tp_file_' . $row['doc_id'] . '" style="' . $style . '"><span class="tp_file_name">' . stripslashes($row['name']) . '</span> <span class="tp_file_actions"><a class="tp_file_edit" style="cursor:pointer;" document_id="' . $row['doc_id'] . '" >' . __('Edit','teachpress') . '</a> | <a class="tp_file_delete" style="cursor:pointer;" document_id="' . $row['doc_id'] . '" >' . __('Delete','teachpress') . '</a></span></li>';
                 }
                 ?>
             </ul>
@@ -823,7 +897,7 @@ class tp_single_course_page {
         // we should probably not apply this filter, plugins may expect wp's media uploader...
         $plupload_init = apply_filters('plupload_init', $plupload_init); ?>
 
-        <script type="text/javascript">
+        <script type="text/javascript" charset="utf-8">
           jQuery(document).ready(function($){
 
             // create the uploader and pass the config from above
@@ -853,15 +927,12 @@ class tp_single_course_page {
 
               plupload.each(files, function(file){
                 if (max > hundredmb && file.size > hundredmb && up.runtime != 'html5'){
-                  // file size error?
-
+                    // file size error?
                 } 
                 else{
-
-                  $('.filelist').append('<li class="file" id="' + file.id + '"><b>' +
-
-                  file.name + '</b> (<span>' + plupload.formatSize(0) + '</span>/' + plupload.formatSize(file.size) + ') ' + '<div class="fileprogress"></div></li>');
-                  console.log(file);
+                    $('.tp_filelist').append('<li class="tp_file" id="' + file.id + '"><span class="tp_file_name">' +
+                    file.name + '</span> (<span>' + plupload.formatSize(0) + '</span>/' + plupload.formatSize(file.size) + ') ' + '<div class="tp_fileprogress"></div></li>');
+                    console.log(file);
                 }
               });
 
@@ -869,30 +940,130 @@ class tp_single_course_page {
               up.start();
             });
 
-              uploader.bind('UploadProgress', function(up, file) {
-                  $('#' + file.id + " .fileprogress").width(file.percent + "%");
-                  $('#' + file.id + " span").html(plupload.formatSize(parseInt(file.size * file.percent / 100)));
-              });
+            // while a file is uploaded
+            uploader.bind('UploadProgress', function(up, file) {
+                $('#' + file.id + " .tp_fileprogress").width(file.percent + "%");
+                $('#' + file.id + " span").html(plupload.formatSize(parseInt(file.size * file.percent / 100)));
+            });
 
             // a file was uploaded
             uploader.bind('FileUploaded', function(up, file, response) {
-              // this is your ajax response, update the DOM with it or something...
-              console.log(response);
-
+                
+                // Check uploaded file info
+                console.log(response.response);
+                var response_splitted = response.response.split(" | ");
+                response_splitted[0] = parseInt(response_splitted[0]);
+                if ( isNaN( response_splitted[0] ) === true ) {
+                    $('<div class="teachpress_message teachpress_message_red"><strong>' + response.response + '</strong></div>').prependTo(".wrap");
+                    $('#' + file.id + " .tp_fileprogress").css( "background-color", "red" );
+                    return;
+                }
+                
+                // Change DOM
+                $('#' + file.id + " .tp_fileprogress").width("0%");
+                $('<span class="tp_file_actions"><a class="tp_file_edit" style="cursor:pointer;" document_id="' + response_splitted[0] + '" ><?php _e('Edit','teachpress'); ?></a> | <a class="tp_file_delete" style="cursor:pointer;" document_id="' + response_splitted[0] + '" ><?php _e('Delete','teachpress'); ?></a></span>').appendTo('#' + file.id);
+                $('#' + file.id).attr("id","tp_file_" + response_splitted[0]);
+                
+                // Save new sort order
+                var data = $('#tp_sortable').sortable('serialize');
+                $.ajax({
+                    data: data,
+                    type: 'POST',
+                    url: '<?php echo WP_PLUGIN_URL . '/teachpress/ajax.php' ;?>'
+                });
+                
             });
 
           });  
 
         </script>
         
-        <script>
+        <script type="text/javascript" charset="utf-8">
         jQuery(document).ready(function($){
-          $( "#tp_sortable" ).sortable({
-            placeholder: "ui-state-highlight"
-          });
-          $( "#tp_sortable" ).disableSelection();
+            // Drag & Drop sorting
+            $( '#tp_sortable' ).sortable({
+                placeholder: "ui-state-highlight",
+                opacity:.5,
+                update: function (event, ui) {
+                    var data = $(this).sortable('serialize');
+                    $.ajax({
+                        data: data,
+                        type: 'POST',
+                        url: '<?php echo WP_PLUGIN_URL . '/teachpress/ajax.php' ;?>'
+                    });
+                } 
+            });
+            $( "#tp_sortable" ).disableSelection();
+            
+            // Add headlines
+            $("#tp_add_headline_button").live("click", function() {
+                var value = $("#tp_add_headline_name").val();
+                if ( value !== '' ) {
+                    $.get("<?php echo WP_PLUGIN_URL . '/teachpress/ajax.php' ;?>?add_document=" + value + "&course_id=<?php echo $course_id; ?>", 
+                    function(new_doc_id){
+                        new_doc_id = parseInt(new_doc_id);
+                        $('.tp_filelist').append('<li class="tp_file tp_file_headline" id="tp_file_' + new_doc_id + '" document_id="' + new_doc_id + '"><span class="tp_file_name">' + value + '</span> ' + '</li>');
+                        $('<span class="tp_file_actions"><a class="tp_file_edit" style="cursor:pointer;" document_id="' + new_doc_id + '" ><?php _e('Edit','teachpress'); ?></a> | <a class="tp_file_delete" style="cursor:pointer;" document_id="' + new_doc_id + '" ><?php _e('Delete','teachpress'); ?></a></span>').appendTo('#tp_file_' + new_doc_id);
+                        $("#tp_add_headline_name").val('');
+                        
+                        // Save new sort order
+                        var data = $('#tp_sortable').sortable('serialize');
+                        $.ajax({
+                            data: data,
+                            type: 'POST',
+                            url: '<?php echo WP_PLUGIN_URL . '/teachpress/ajax.php' ;?>'
+                        });
+                    });
+                }
+            });
+            
+            // Edit documents
+            $(".tp_file_edit").live( "click", function() {
+                var document_id = $(this).attr("document_id");
+                
+                $.get("<?php echo WP_PLUGIN_URL . '/teachpress/ajax.php' ;?>?get_document_name=" + document_id, 
+                function(text){
+                    $("#tp_file_" + document_id).append('<div id="tp_file_edit_' + document_id + '"><input id="tp_file_edit_text_' + document_id + '" type="text" value="' + text + '" style="width:75%;" /><p><a class="button-primary tp_file_edit_save" document_id="' + document_id + '"><?php _e('Save'); ?></a> <a class="button-secondary tp_file_edit_cancel" document_id="' + document_id + '"><?php _e('Cancel'); ?></a></p></div>');
+                });
+            });
+            
+            // Edit documents: cancel
+            $(".tp_file_edit_cancel").live( "click", function() {
+                var document_id = $(this).attr("document_id");
+                $("#tp_file_edit_" + document_id).remove();
+            });
+            
+            // Edit documents: save
+            $(".tp_file_edit_save").live( "click", function() {
+                var document_id = $(this).attr("document_id");
+                var value = $("#tp_file_edit_text_" + document_id).val();
+                
+                $.post( "<?php echo WP_PLUGIN_URL . '/teachpress/ajax.php' ;?>", { change_document: document_id, new_document_name: value });
+                $("#tp_file_" + document_id + " .tp_file_name").text(value);
+                $("#tp_file_edit_" + document_id).remove();
+                
+            });
+            
+            
+            // Delete documents
+            $(".tp_file_delete").live( "click", function() {
+                var document_id = $(this).attr("document_id");
+                $("#tp_file_" + document_id).remove().hide();
+                $.get("<?php echo WP_PLUGIN_URL . '/teachpress/ajax.php' ;?>?del_document=" + document_id, 
+                function(text){
+                    if ( text.search('true') !== -1 ) {
+                        $('<div class="teachpress_message teachpress_message_green"><strong><?php _e('Removing successful','teachpress'); ?></strong></div>').prependTo(".wrap");
+                    }
+                    else {
+                        $('<div class="teachpress_message teachpress_message_red"><strong><?php _e('Removing failed','teachpress'); ?></strong></div>').prependTo(".wrap");
+                    }
+                    
+                });
+            });
         });
+        
         </script>
+        
 
         <?php
     }

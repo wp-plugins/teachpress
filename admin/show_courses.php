@@ -22,7 +22,27 @@ function tp_show_course_page_help () {
                         <p><strong>' . __('More information','teachpress') . '</strong></p>
                         <p><a href="http://mtrv.wordpress.com/teachpress/shortcode-reference/" target="_blank" title="teachPress Shortcode Reference (engl.)">teachPress Shortcode Reference (engl.)</a></p>',
     ) );
-} 
+}
+
+/**
+ * Add screen options for show courses page
+ * @since 5.0.0
+ */
+function tp_show_course_page_screen_options() {
+    global $tp_admin_show_courses_page;
+    $screen = get_current_screen();
+ 
+    if( !is_object($screen) || $screen->id != $tp_admin_show_courses_page ) {
+        return;
+    }
+
+    $args = array(
+        'label' => __('Items per page', 'teachpress'),
+        'default' => 50,
+        'option' => 'tp_pubs_per_page'
+    );
+    add_screen_option( 'per_page', $args );
+}
 
 /**
  * Main controller for the show courses page and all single course pages
@@ -291,7 +311,7 @@ class tp_show_courses {
             <td' . $class . '>
                     <a href="admin.php?page=teachpress/teachpress.php&amp;course_id=' . $course['course_id'] . '&amp;sem=' . $static['sem'] . '&amp;search=' . $static['search'] . '&amp;action=show" class="teachpress_link" title="' . __('Click to show','teachpress') . '"><strong>' . $course['name'] . '</strong></a>
                     <div class="tp_row_actions">
-                            <a href="admin.php?page=teachpress/teachpress.php&amp;course_id=' . $course['course_id'] . '&amp;sem=' . $static['sem'] . '&amp;search=' . $static['search'] . '&amp;action=show" title="' . __('Show','teachpress') . '">' . __('Show','teachpress') . '</a> | <a href="admin.php?page=teachpress/teachpress.php&amp;course_id=' . $course['course_id'] . '&amp;sem=' . $static['sem'] . '&amp;search=' . $static['search'] . '&amp;action=edit&amp;ref=overview" title="' . __('Edit','teachpress') . '">' . __('Edit','teachpress') . '</a> | <a href="admin.php?page=teachpress/teachpress.php&amp;sem=' . $static['sem'] . '&amp;search=' . $static['search'] . '&amp;checkbox%5B%5D=' . $course['course_id'] . '&amp;bulk=delete" style="color:red;" title="' . __('Delete','teachpress') . '">' . __('Delete','teachpress') . '</a>
+                            <a href="admin.php?page=teachpress/teachpress.php&amp;course_id=' . $course['course_id'] . '&amp;sem=' . $static['sem'] . '&amp;search=' . $static['search'] . '&amp;action=show" title="' . __('Show','teachpress') . '">' . __('Show','teachpress') . '</a> | <a href="admin.php?page=teachpress/teachpress.php&amp;course_id=' . $course['course_id'] . '&amp;sem=' . $static['sem'] . '&amp;search=' . $static['search'] . '&amp;action=edit&amp;ref=overview" title="' . __('Edit','teachpress') . '">' . __('Edit','teachpress') . '</a> | <a class="tp_row_delete" href="admin.php?page=teachpress/teachpress.php&amp;sem=' . $static['sem'] . '&amp;search=' . $static['search'] . '&amp;checkbox%5B%5D=' . $course['course_id'] . '&amp;bulk=delete" title="' . __('Delete','teachpress') . '">' . __('Delete','teachpress') . '</a>
                     </div>
             </td>
             <td>' . $course['course_id'] . '</td>

@@ -10,29 +10,35 @@
 /** 
  * teachPress Page Menu
  * 
- * possible values for $atts:
- *      number_entries (int)       Number of all available entries
- *      entries_per_page (int)     Number of entries per page
- *      current_page (int)         current displayed page
- *      entry_limit (int)          SQL entry limit
- *      page_link (string)         the name of the page you will insert the menu
- *      link_atrributes (string)   the url attributes for get parameters
- *      type (string)              top or bottom, default: top
+ * possible values for array $atts:
+ *      @type int number_entries       Number of all available entries
+ *      @type int entries_per_page     Number of entries per page
+ *      @type int current_page         current displayed page
+ *      @type string entry_limit       SQL entry limit
+ *      @type string page_link         the name of the page you will insert the menu
+ *      @type string link_atrributes   the url attributes for get parameters
+ *      @type string mode              top or bottom, default: top
  * @param array $atts
  * @return string
  * @since 5.0.0
 */
 function tp_page_menu ($atts) {
     extract(shortcode_atts(array(
-       'number_entries' => '',
+       'number_entries' => 0,
        'entries_per_page' => 50,
-       'current_page' => '',
-       'entry_limit' => '',
+       'current_page' => 1,
+       'entry_limit' => 0,
        'page_link' => '',
        'link_attributes' => '',
        'mode' => 'top',
        'class' => 'tablenav-pages',
+       'before' => '',
+       'after' => ''
     ), $atts));
+    $number_entries = intval($number_entries);
+    $entries_per_page = intval($entries_per_page);
+    $current_page = intval($current_page);
+    $entry_limit = intval($entry_limit);
     
     // if number of entries > number of entries per page
     if ($number_entries > $entries_per_page) {
@@ -61,10 +67,10 @@ function tp_page_menu ($atts) {
 
         // return
         if ($mode === 'top') {
-            return '<div class="' . $class . '"><span class="displaying-num">' . $number_entries . ' ' . __('entries','teachpress') . '</span> ' . $back_links . '' . $page_input . '' . $next_links . '</div>';
+            return $before . '<div class="' . $class . '"><span class="displaying-num">' . $number_entries . ' ' . __('entries','teachpress') . '</span> ' . $back_links . '' . $page_input . '' . $next_links . '</div>' . $after;
         }
         else {
-            return '<div class="tablenav"><div class="' . $class . '"><span class="displaying-num">' . $number_entries . ' ' . __('entries','teachpress') . '</span> ' . $back_links . ' ' . $current_page . ' ' . __('of','teachpress') . ' ' . $num_pages . ' ' . $next_links . '</div></div>';
+            return $before . '<div class="' . $class . '"><span class="displaying-num">' . $number_entries . ' ' . __('entries','teachpress') . '</span> ' . $back_links . ' ' . $current_page . ' ' . __('of','teachpress') . ' ' . $num_pages . ' ' . $next_links . '</div>' . $after;
         }	
     }
 }	

@@ -54,7 +54,7 @@ function tp_show_publications_page() {
     global $current_user;
     get_currentuserinfo();
     
-     // Get screen options
+    // Get screen options
     $screen = get_current_screen();
     $screen_option = $screen->get_option('per_page', 'option');
     $per_page = get_user_meta($current_user->ID, $screen_option, true);
@@ -281,7 +281,7 @@ function tp_show_publications_page_bulk_edit_screen($array_variables) {
  */
 function tp_show_publications_page_main_screen($user, $array_variables) {
     ?>
-    <form id="showlvs" name="form1" method="get" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
+    <form id="showlvs" name="form1" method="get" action="admin.php">
     <input type="hidden" name="page" id="page" value="<?php echo $array_variables['page']; ?>" />
     <input type="hidden" name="tag" id="tag" value="<?php echo $array_variables['tag_id']; ?>" />
     <?php
@@ -375,9 +375,14 @@ function tp_show_publications_page_main_screen($user, $array_variables) {
             <input name="filter-ok" value="<?php _e('Limit selection','teachpress'); ?>" type="submit" class="button-secondary"/>
           </div>
       <?php
-      // Page Menu
-      $link = 'search=' . $array_variables['search'] . '&amp;filter=' . $array_variables['type'] . '&amp;tag=' . $array_variables['tag_id'];
-      echo tp_admin_page_menu ($test, $array_variables['per_page'], $array_variables['curr_page'], $array_variables['entry_limit'], 'admin.php?page=' . $array_variables['page'] . '&amp;', $link); ?>
+        // Page Menu
+        $link = 'search=' . $array_variables['search'] . '&amp;filter=' . $array_variables['type'] . '&amp;tag=' . $array_variables['tag_id'];
+        echo tp_page_menu(array('number_entries' => $test,
+                                'entries_per_page' => $array_variables['per_page'],
+                                'current_page' => $array_variables['curr_page'],
+                                'entry_limit' => $array_variables['entry_limit'],
+                                'page_link' => 'admin.php?page=' . $array_variables['page'] . '&amp;',
+                                'link_attributes' => $link));?>
       </div>
       <table class="widefat">
          <thead>
@@ -449,7 +454,7 @@ function tp_show_publications_page_main_screen($user, $array_variables) {
                   echo '<th class="check-column"><input name="checkbox[]" class="tp_checkbox" type="checkbox" ' . $checked . ' value="' . $row->pub_id . '" /></th>';
                   echo '<td>';
                   echo '<a href="admin.php?page=teachpress/addpublications.php&amp;pub_id=' . $row->pub_id . $get_string . '" class="teachpress_link" title="' . __('Click to edit','teachpress') . '"><strong>' . stripslashes($row->title) . '</strong></a>';
-                  echo '<div class="tp_row_actions"><a href="admin.php?page=teachpress/addpublications.php&amp;pub_id=' . $row->pub_id . $get_string . '" class="teachpress_link" title="' . __('Click to edit','teachpress') . '">' . __('Edit','teachpress') . '</a> | <a href="admin.php?page=' . $array_variables['page']  .'&amp;checkbox%5B%5D=' . $row->pub_id . '&amp;action=delete' . $get_string . '" style="color:red;" title="' . __('Delete','teachpress') . '">' . __('Delete','teachpress') . '</a></div>';
+                  echo '<div class="tp_row_actions"><a href="admin.php?page=teachpress/addpublications.php&amp;pub_id=' . $row->pub_id . $get_string . '" class="teachpress_link" title="' . __('Click to edit','teachpress') . '">' . __('Edit','teachpress') . '</a> | <a class="tp_row_delete" href="admin.php?page=' . $array_variables['page']  .'&amp;checkbox%5B%5D=' . $row->pub_id . '&amp;action=delete' . $get_string . '" title="' . __('Delete','teachpress') . '">' . __('Delete','teachpress') . '</a></div>';
                   echo '</td>';
                   echo '<td>' . $row->pub_id . '</td>';
                   echo '<td>' . tp_translate_pub_type($row->type) . '</td>';
@@ -485,7 +490,13 @@ function tp_show_publications_page_main_screen($user, $array_variables) {
       <div class="tablenav"><div class="tablenav-pages" style="float:right;">
       <?php 
       if ($test > $array_variables['per_page']) {
-         echo tp_admin_page_menu ($test, $array_variables['per_page'], $array_variables['curr_page'], $array_variables['entry_limit'], 'admin.php?page=' . $array_variables['page'] . '&amp;', $link, 'bottom');
+        echo tp_page_menu(array('number_entries' => $test,
+                                'entries_per_page' => $array_variables['per_page'],
+                                'current_page' => $array_variables['curr_page'],
+                                'entry_limit' => $array_variables['entry_limit'],
+                                'page_link' => 'admin.php?page=' . $array_variables['page'] . '&amp;',
+                                'link_attributes' => $link,
+                                'mode' => 'bottom'));
       } 
       else {
          if ($test === 1) {

@@ -42,7 +42,7 @@ class tp_admin {
     public static function get_text_field($field_name, $label, $value, $readonly = false) {
         $readonly = ( $readonly === false ) ? '' : 'readonly="true" ';
         return '<p><label for="' . $field_name . '"><b>' . $label . '</b></label></p>
-                <input name="' . $field_name . '" type="text" id="' . $field_name . '" value="' . $value . '" size="50" ' . $readonly . '/>';
+                <input name="' . $field_name . '" type="text" id="' . $field_name . '" value="' . stripslashes($value) . '" size="50" ' . $readonly . '/>';
     }
     
     /**
@@ -55,7 +55,7 @@ class tp_admin {
      */
     public static function get_textarea_field ($field_name, $label, $value) {
         return '<p><label for="' . $field_name . '"><b>' . $label . '</b></label><p>
-                <textarea name="' . $field_name . '" id="' . $field_name . '" style="width:100%; height:80px;">' . $value . '</textarea>';
+                <textarea name="' . $field_name . '" id="' . $field_name . '" style="width:100%; height:80px;">' . stripslashes($value) . '</textarea>';
     }
     
     /**
@@ -123,7 +123,7 @@ class tp_admin {
     public static function get_checkbox($name, $title, $value, $disabled = false) {
         $checked = ( $value == '1' ) ? 'checked="checked"' : '';
         $disabled = ( $disabled === true ) ? ' disabled="disabled"' : '';
-        return '<input name="' . $name . '" id="' . $name . '" type="checkbox" value="1" ' . $checked . $disabled .'/> <label for="' . $name . '">' . $title . '</label>';
+        return '<input name="' . $name . '" id="' . $name . '" type="checkbox" value="1" ' . $checked . $disabled .'/> <label for="' . $name . '">' . stripslashes($title) . '</label>';
     }
     
     /**
@@ -228,54 +228,6 @@ class tp_admin {
     }
 }
 
-/** 
- * teachPress Admin Page Menu
- * @param int $number_entries       Number of all available entries
- * @param int $entries_per_page     Number of entries per page
- * @param int $current_page         current displayed page
- * @param int $entry_limit          SQL entry limit
- * @param string $page_link         the name of the page you will insert the menu
- * @param string $link_attributes   the url attributes for get parameters
- * @param string $type              top or bottom, default: top
- * @return string
- * @todo Replace it with tp_page_menu()
-*/
-function tp_admin_page_menu ($number_entries, $entries_per_page, $current_page, $entry_limit, $page_link = '', $link_attributes = '', $type = 'top') {
-    // if number of entries > number of entries per page
-    if ($number_entries > $entries_per_page) {
-        $num_pages = floor (($number_entries / $entries_per_page));
-        $mod = $number_entries % $entries_per_page;
-        if ($mod != 0) {
-            $num_pages = $num_pages + 1;
-        }
-
-        // first page / previous page
-        if ($entry_limit != 0) {
-            $back_links = '<a href="' . $page_link . 'limit=1&amp;' . $link_attributes . '" title="' . __('first page','teachpress') . '" class="page-numbers">&laquo;</a> <a href="' . $page_link . 'limit=' . ($current_page - 1) . '&amp;' . $link_attributes . '" title="' . __('previous page','teachpress') . '" class="page-numbers">&lsaquo;</a> ';
-        }
-        else {
-            $back_links = '<a class="first-page disabled">&laquo;</a> <a class="prev-page disabled">&lsaquo;</a> ';
-        }
-        $page_input = ' <input name="limit" type="text" size="2" value="' .  $current_page . '" style="text-align:center;" /> ' . __('of','teachpress') . ' ' . $num_pages . ' ';
-
-        // next page/ last page
-        if ( ( $entry_limit + $entries_per_page ) <= ($number_entries)) { 
-            $next_links = '<a href="' . $page_link . 'limit=' . ($current_page + 1) . '&amp;' . $link_attributes . '" title="' . __('next page','teachpress') . '" class="page-numbers">&rsaquo;</a> <a href="' . $page_link . 'limit=' . $num_pages . '&amp;' . $link_attributes . '" title="' . __('last page','teachpress') . '" class="page-numbers">&raquo;</a> ';
-        }
-        else {
-            $next_links = '<a class="next-page disabled">&rsaquo;</a> <a class="last-page disabled">&raquo;</a> ';
-        }
-
-        // return
-        if ($type == 'top') {
-            return '<div class="tablenav-pages"><span class="displaying-num">' . $number_entries . ' ' . __('entries','teachpress') . '</span> ' . $back_links . '' . $page_input . '' . $next_links . '</div>';
-        }
-        else {
-            return '<div class="tablenav"><div class="tablenav-pages"><span class="displaying-num">' . $number_entries . ' ' . __('entries','teachpress') . '</span> ' . $back_links . ' ' . $current_page . ' ' . __('of','teachpress') . ' ' . $num_pages . ' ' . $next_links . '</div></div>';
-        }	
-    }
-}
-
 /**
  * Gets all drafts of a post type as options for select menus
  * @param string $post_type
@@ -294,9 +246,27 @@ function get_tp_wp_drafts($post_type, $post_status = 'publish', $sort_column = '
 }
 
 /**
+ * This function handles document uploads in teachPress
+ * @since 5.0.0
+ */
+function tp_handle_document_uploads(){
+    check_ajax_referer('document-upload');
+    $course_id = ( isset ($_POST['course_id']) ) ? intval($_POST['course_id']) : 0;
+    $status = tp_handle_upload($_FILES['async-upload'], array('action' => 'tp_document_upload'), $course_id);
+    // print_r($status);
+    if ( isset($status['error']) ) {
+        echo htmlspecialchars($status['error']);
+        exit;
+    }
+    $doc_id = tp_documents::add_document($status['filename'], $status['path'], $course_id);
+    echo $doc_id . ' | Course_id:' . $course_id . ', Uploaded to: '. $status['file'];
+    exit;
+}
+
+/**
  * Handle PHP uploads in teachPress, sanitizing file names, checking extensions for mime type,
  * and moving the file to the appropriate directory within the uploads directory. The function is a modified copy
- * of wp_handle_upload, but uses the teachpress upload directory
+ * of wp_handle_upload(), but uses the teachpress upload directory
  *
  * @since 5.0.0
  *
@@ -405,10 +375,10 @@ function tp_handle_upload( &$file, $overrides = false, $course_id = 0 ) {
 	$new_file = $uploads['basedir'] . "/teachpress$extra_directory_part/$filename";
 	if ( false === @ move_uploaded_file( $file['tmp_name'], $new_file ) ) {
             if ( 0 === strpos( $uploads['basedir'], ABSPATH ) ) {
-                    $error_path = str_replace( ABSPATH, '', $uploads['basedir'] ) . $uploads['subdir'];
+                $error_path = str_replace( ABSPATH, '', $uploads['basedir'] ) . "/teachpress$extra_directory_part/$filename";
             }
             else {
-                    $error_path = basename( $uploads['basedir'] ) . $uploads['subdir'];
+                $error_path = basename( $uploads['basedir'] ) . "/teachpress$extra_directory_part/$filename";
             }
             return $upload_error_handler( $file, sprintf( __('The uploaded file could not be moved to %s.' ), $error_path ) );
 	}
