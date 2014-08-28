@@ -218,4 +218,3 @@ function tp_show_authors_page () {
     <?php
     echo '</div>';
 }
-?>

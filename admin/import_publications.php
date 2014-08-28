@@ -269,6 +269,3 @@ function tp_export_tab() {
     </form>
     <?php
 }
-
-
-?>

@@ -1,7 +1,8 @@
 <?php
 /**
  * This file contains all functions for sql calls
- * @package teachpress\core\database
+ * @package teachpress
+ * @subpackage core
  * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  * @since 4.0.0
  */
@@ -12,8 +13,8 @@
 
 /** 
  * Returns a teachPress option
- * @param string $var           --> sem, db-version, sign_out, login, regnum, studies, termnumber, birthday
- * @param string $category      --> system,... default: system
+ * @param string $var           sem, db-version, sign_out, login, regnum, studies, termnumber, birthday
+ * @param string $category      system,... default: system
  * @return string
  * @since 1.0.0
 */
@@ -27,9 +28,9 @@ function get_tp_option($var, $category = 'system') {
 
 /**
  * Returns all settings of a category
- * @param string $category      --> category name (system, course_of_studies, course_type, semester)
- * @param string $order         --> default: setting_id DESC
- * @param string $output_type   --> default: OBJECT
+ * @param string $category      category name (system, course_of_studies, course_type, semester)
+ * @param string $order         default: setting_id DESC
+ * @param string $output_type   default: OBJECT
  * @return object|array
  * @since 4.0.0
  */
@@ -47,7 +48,8 @@ function get_tp_options($category, $order = "`setting_id` DESC", $output_type = 
 
 /**
  * Database access class for course artefacts
- * @package teachpress\core\database
+ * @package teachpress
+ * @subpackage database
  * @since 5.0.0
  */
 class tp_artefacts {
@@ -115,7 +117,8 @@ class tp_artefacts {
 
 /**
  * Database access class for course assessments
- * @package teachpress\core\database
+ * @package teachpress
+ * @subpackage database
  * @since 5.0.0
  */
 class tp_assessments {
@@ -136,13 +139,13 @@ class tp_assessments {
     /**
      * Get assessments
      * @param int $wp_id
-     * @param int $artefact_id
+     * @param string $artefact_id   A string of artefact IDs separated by comma
      * @param int $course_id
      * @param string $output_type
      * @return array|object
      * @since 5.0.0
      */
-    public static function get_assessments ($wp_id, $artefact_id = '', $course_id = '', $output_type = ARRAY_A) {
+    public static function get_assessments ($wp_id, $artefact_id, $course_id, $output_type = ARRAY_A) {
         global $wpdb;
         $wp_id = intval($wp_id);
         if ( $artefact_id === '' ) {
@@ -186,7 +189,8 @@ class tp_assessments {
 
 /**
  * Database access class for publication authors
- * @package teachpress\core\database
+ * @package teachpress
+ * @subpackage database
  * @since 5.0.0
  */
 class tp_authors  {
@@ -196,17 +200,17 @@ class tp_authors  {
     * Note: If you only need a list of used tags, set group_by to true.
     * In this case you should ignore the columns con_id and pub_id from return
     * 
-    * Possible values for $args:
-    *  pub_id          publication IDs (separated by comma)
-    *  user            user IDs (separated by comma)
-    *  exclude         authors IDs you want to exclude from result (separated by comma)
-    *  order           ASC or DESC; default is ASC
-    *  limit           the sql search limit, example: 0,30
-    *  search          a normal search string
-    *  inclue_editors  boolean flag, set it to true if you want to include editors (default: false)
-    *  group by        boolean flag for the group by clause (default: false)
-    *  count           set it to true if you only need an number of authors which will be returned by your selection (default: false)
-    *  output type     OBJECT, ARRAY_A, ARRAY_N 
+    * Possible values for the array $args:
+    *       pub_id (STRING)          Publication IDs (separated by comma)
+    *       user (STRING)            User IDs (separated by comma)
+    *       exclude (STRING)         Authors IDs you want to exclude from result (separated by comma)
+    *       order (STRING)           ASC or DESC; default is ASC
+    *       limit (STRING)           The sql search limit, example: 0,30
+    *       search (STRING)          A normal search string
+    *       inclue_editors (BOOLEAN) Boolean flag, set it to true if you want to include editors (default: false)
+    *       group by (BOOLEAN)       Boolean flag for the group by clause (default: false)
+    *       count (BOOLEAN)          Set it to true if you only need an number of authors which will be returned by your selection (default: false)
+    *       output type (STRING)     OBJECT, ARRAY_A, ARRAY_N 
     * 
     * @param array $args
     * @return array|object
@@ -308,8 +312,8 @@ class tp_authors  {
      * Adds a new author - publication relation
      * @param int $pub_id
      * @param int $author_id
-     * @param int $is_author    --> 1 (true) or 0 (false)
-     * @param int $is_editor    --> 1 (true) or 0 (false)
+     * @param int $is_author    1 (true) or 0 (false)
+     * @param int $is_editor    1 (true) or 0 (false)
      * @return int
      * @since 5.0.0
      */
@@ -321,9 +325,9 @@ class tp_authors  {
     
      /**
      * Returns an array|object with the name, author_id and occurence of all authors
-     * @param string $search            --> normal search string
-     * @param string $limit             --> SQL limit like 0,50
-     * @param string $output_type       --> ARRAY_A, ARRAY_N, OBJECT
+     * @param string $search            normal search string
+     * @param string $limit             SQL limit like 0,50
+     * @param string $output_type       ARRAY_A, ARRAY_N, OBJECT
      * @return array|object
      * @since 5.0.0
      */
@@ -346,7 +350,7 @@ class tp_authors  {
     }
     
     /**
-     * Delete auhtor - publication relations
+     * Deletes author to publication relations
      * @param int $pub_id
      * @since 5.0.0
      */
@@ -357,7 +361,7 @@ class tp_authors  {
     }
     
     /**
-     * Delete authors
+     * Deletes authors
      * @param array $checkbox
      * @since 5.0.0
      */
@@ -387,7 +391,8 @@ class tp_authors  {
 
 /**
  * Contains functions for getting, adding and deleting of bookmarks
- * @package teachpress\core\database
+ * @package teachpress
+ * @subpackage database
  * @since 5.0.0
  */
 class tp_bookmarks {
@@ -395,9 +400,9 @@ class tp_bookmarks {
     /**
      * Returns an arrayor object of bookmarks of an user
      * 
-     * Possible values for $args:
-     *      user            --> user_id
-     *      output_type     --> ARRAY_A, ARRAY_N or OBJECT
+     * Possible values for the array $args:
+     *      user (INT)               user_id
+     *      output_type (STRING)     ARRAY_A, ARRAY_N or OBJECT
      *
      * @since 5.0.0
      * @param array $args
@@ -422,9 +427,9 @@ class tp_bookmarks {
     
     /** 
      * Adds a new bookmark for a user
-     * @param int $pub_id   --> publication id
-     * @param int $user     --> user_id
-     * @return int          --> the id of the created element
+     * @param int $pub_id   The publication ID
+     * @param int $user     The user ID
+     * @return int          The id of the created element
      * @since 5.0.0
     */
    public static function add_bookmark($pub_id, $user) {
@@ -435,8 +440,8 @@ class tp_bookmarks {
     
     /** 
      * Delete a bookmark 
-     * @param int $del_id   --> IDs of the publications
-     * @param int $user     --> user_id
+     * @param int $del_id   IDs of the publications
+     * @param int $user     user ID
      * @since 5.0.0
     */
     public static function delete_bookmark($del_id) {
@@ -467,7 +472,8 @@ class tp_bookmarks {
 
 /**
  * Contains functions for getting, adding and deleting of courses
- * @package teachpress\core\database
+ * @package teachpress
+ * @subpackage database
  * @since 5.0.0
  */
 class tp_courses {
@@ -577,15 +583,15 @@ class tp_courses {
     /**
      * Returns all data of one or more courses
      * 
-     * possible values for $args:
-     *      semester    --> the semester/term of the courses
-     *      visibility  --> the visibility of the coures (1,2,3) separated by comma
-     *      parent      --> the course_id of the parent
-     *      search      --> a general search string
-     *      exclude     --> the course_ids you want to exclude
-     *      order       --> default: semester DESC, name
-     *      limit       --> the sql search limit, ie: 0,30
-     *      output_type --> ARRAY_A, ARRAY_N or OBJECT
+     * possible values for the array $args:
+     *      semester (STRING)    The semester/term of the courses
+     *      visibility (STRING)  The visibility of the coures (1,2,3) separated by comma
+     *      parent (STRING)      The course_id of the parent
+     *      search (STRING)      A general search string
+     *      exclude (STRING)     The course_ids you want to exclude
+     *      order (STRING)       Default: semester DESC, name
+     *      limit (STRING)       The sql search limit, ie: 0,30
+     *      output_type (STRING) ARRAY_A, ARRAY_N or OBJECT
      * 
      * @param array $args
      * @return object|array
@@ -721,8 +727,8 @@ class tp_courses {
     
     /**
      * Returns the number of free places in a course
-     * @param int $course_id    --> ID of the course
-     * @param int $places       --> Number of places
+     * @param int $course_id    ID of the course
+     * @param int $places       Number of places
      * @return int
      * @since 5.0.0
      */
@@ -826,7 +832,7 @@ class tp_courses {
     
     /** 
      * Change a course
-     * @param int $course_id    --> course ID
+     * @param int $course_id    course ID
      * @param array $data
      * @since 5.0.0
     */ 
@@ -867,7 +873,7 @@ class tp_courses {
     
     /**
      * Delete courses
-     * @param array $checkbox   --> IDs of the courses
+     * @param array $checkbox   IDs of the courses
      * @since 5.0.0
      */
     public static function delete_courses($checkbox){
@@ -900,16 +906,26 @@ class tp_courses {
     
     /**
      * Returns course signups or waitinglist entries
+     * 
+     * Possible values for the array $args:
+     *      course_id (INT)         The ID of the course
+     *      waitinglist (STRING)    The waitinglist flag (0 or 1 or '')
+     *      order (STRING)          The SQL order by statement
+     *      limit (STRING)          The SQL limit statement
+     *      count (BOOLEAN)         If this flag is true, only the number of rows will be returned, Deflaut is false
+     *      output_type (STRING)    ARRAY_A, ARRAY_N or OBJECT
+     * 
      * @param array $args
      * @return object|array
      * @since 5.0.0
      */
     public static function get_signups ( $args = array() ) {
         $defaults = array(
-            'course' => '',
+            'course_id' => '',
             'waitinglist' => '',
             'order' => '',
             'limit' => '',
+            'count' => false,
             'output_type' => OBJECT
         );
         $args = wp_parse_args( $args, $defaults );
@@ -917,7 +933,7 @@ class tp_courses {
 
         global $wpdb;
 
-        $course = esc_sql($course);
+        $course_id = intval($course_id);
         $order = esc_sql($order);
         $output_type = esc_sql($output_type);
         $waitinglist = esc_sql($waitinglist);
@@ -933,33 +949,42 @@ class tp_courses {
         $fields = get_tp_options('teachpress_stud','`setting_id` ASC');
         $selects = '';
         $joins = '';
-        $count = 1;
+        $where = '';
+        $i = 1;
         foreach ($fields as $row) {
-            $table_id = 'm' . $count; 
+            $table_id = 'm' . $i; 
             $selects = $selects . ', ' . $table_id .'.meta_value AS ' . $row->variable;
             $joins = $joins . ' INNER JOIN ' . TEACHPRESS_STUD_META . ' ' . $table_id . " ON ( " . $table_id . ".wp_id = s.wp_id AND " . $table_id . ".meta_key = '" . $row->variable . "' ) ";
-            $count++;
+            $i++;
         }
 
-        $where = '';
-        $sql = "SELECT DISTINCT st.wp_id, st.firstname, st.lastname, st.userlogin, st.email, s.date, s.con_id, s.waitinglist $selects "
+        if ( $count === true ) {
+            $select = "COUNT(st.wp_id)";
+        }
+        else {
+            $select = "st.wp_id, st.firstname, st.lastname, st.userlogin, st.email, s.date, s.con_id, s.waitinglist $selects";
+        }
+        
+        $sql = "SELECT DISTINCT $select "
                 . "FROM " . TEACHPRESS_SIGNUP . " s "
                 . "INNER JOIN " . TEACHPRESS_STUD . " st ON st.wp_id = s.wp_id $joins"
-                . "WHERE s.course_id = '$course' ";
+                . "WHERE s.course_id = '$course_id' ";
 
         if ( $waitinglist !== '' ) {
             $where = " AND s.waitinglist = '$waitinglist'";
         }
         
         // get_tp_message($sql . $where . $order . $limit, 'orange');
-        $result = $wpdb->get_results($sql . $where . $order . $limit, $output_type);
-        return $result;
+        if ( $count === true ) {
+            return $wpdb->get_var($sql . $where);
+        }
+        return $wpdb->get_results($sql . $where . $order . $limit, $output_type);
     }
     
     /** 
      * Subscribe a student manually
-     * @param int $student      --> ID of the student
-     * @param int $course       --> ID of the course
+     * @param int $student      ID of the student
+     * @param int $course       ID of the course
      * @return boolean
      * @since 5.0.0
     */	
@@ -976,8 +1001,8 @@ class tp_courses {
     
     /**
      * Moves a signup to an other course
-     * @param array $checkbox     --> ID's of registrations
-     * @param int $course         --> course_id
+     * @param array $checkbox     An array of registration IDs
+     * @param int $course         The course ID
      * @since 5.0.0
      */
     public static function move_signup($checkbox, $course) {
@@ -995,8 +1020,8 @@ class tp_courses {
     
     /** 
      * Change the status of one or more course signups
-     * @param array $checkbox   --> IDs of the signups
-     * @param string $status    --> the new status for the signups (course or waitinglist)
+     * @param array $checkbox   IDs of the signups
+     * @param string $status    The new status for the signups (course or waitinglist)
      * @since 5.0.0
     */
     public static function change_signup_status($checkbox, $status = 'course') {
@@ -1012,8 +1037,8 @@ class tp_courses {
     
     /** 
      * Delete signup and add an entry from the waitinglist to the course (if possible). Please note that this function doesn't use transactions like tp_delete_signup_student().
-     * @param array $checkbox   --> An array with course IDs
-     * @param boolean $move_up  --> A flag for the automatic move up from waitinglist entries
+     * @param array $checkbox   An array with course IDs
+     * @param boolean $move_up  A flag for the automatic move up from waitinglist entries
      * @since 5.0.0
     */
     public static function delete_signup($checkbox, $move_up = true) {
@@ -1087,7 +1112,8 @@ class tp_courses {
 
 /**
  * Contains all functions for the access to course documents
- * @package teachpress\core\database
+ * @package teachpress
+ * @subpackage database
  * @since 5.0.0
  */
 class tp_documents {
@@ -1101,7 +1127,7 @@ class tp_documents {
     /**
      * Returns the documents of a course
      * @param int $course_id
-     * @param string $output_type (OBJECT, ARRAY_A or ARRAY_N)
+     * @param string $output_type   OBJECT, ARRAY_A or ARRAY_N
      * @return array|object
      * @since 5.0.0
      */
@@ -1168,7 +1194,8 @@ class tp_documents {
 
 /**
  * Contains all functions for getting, adding and deleting of plugin options
- * @package teachpress\core\database
+ * @package teachpress
+ * @subpackage database
  * @since 5.0.0
  */
 class tp_options {
@@ -1206,7 +1233,7 @@ class tp_options {
      * Updates an option
      * @param string $variable
      * @param string $value
-     * @param string $type      --> normal or checkbox
+     * @param string $type      normal or checkbox
      * @since 5.0.0
      */
     public static function change_option ($variable, $value, $type = 'normal') {
@@ -1234,7 +1261,8 @@ class tp_options {
 
 /**
  * Contains functions for getting, adding and deleting of publications
- * @package teachpress\core\database
+ * @package teachpress
+ * @subpackage database
  * @since 5.0.0
  */
 class tp_publications {
@@ -1242,7 +1270,7 @@ class tp_publications {
     /**
      * Returns a single publication
      * @param int $id
-     * @param string $output_type (OBJECT, ARRAY_A or ARRAY_N)
+     * @param string $output_type   OBJECT, ARRAY_A or ARRAY_N
      * @return mixed
      * @since 5.0.0
      */
@@ -1256,7 +1284,7 @@ class tp_publications {
     /**
      * Returns a single publication selected by bibtex key
      * @param int $key
-     * @param string $output_type (OBJECT, ARRAY_A or ARRAY_N)
+     * @param string $output_type   OBJECT, ARRAY_A or ARRAY_N
      * @return mixed
      * @since 5.0.0
      */
@@ -1270,21 +1298,21 @@ class tp_publications {
     /**
      * Returns an array or object of publications
      * 
-     * Possible values for $args:
-     *  user            --> user IDs (separated by comma)
-     *  type            --> type name (separated by comma)
-     *  tag             --> tag IDs (separated by comma)
-     *  author_id       --> author IDs (separated by comma)
-     *  year            --> years (separated by comma)
-     *  author          --> author name (separated by comma)
-     *  editor          --> editor name (separated by comma)
-     *  exclude         --> the ids of the publications you want to exclude (separated by comma)
-     *  include         --> the ids of the publications you want to include (separated by comma)
-     *  exclude_tags    --> use it to exclude publications via tag IDs (separated by comma)
-     *  order           --> the order of the list
-     *  limit           --> the sql search limit, ie: 0,30
-     *  search          --> the search string
-     *  output type     --> OBJECT, ARRAY_A, ARRAY_N	
+     * Possible values for the array $args:
+     *      user (STRING)            User IDs (separated by comma)
+     *      type (STRING)            Type name (separated by comma)
+     *      tag (STRING)             Tag IDs (separated by comma)
+     *      author_id (STRING)       Author IDs (separated by comma)
+     *      year (STRING)            Years (separated by comma)
+     *      author (STRING)          Author name (separated by comma)
+     *      editor (STRING)          Editor name (separated by comma)
+     *      exclude (STRING)         The ids of the publications you want to exclude (separated by comma)
+     *      include (STRING)         The ids of the publications you want to include (separated by comma)
+     *      exclude_tags (STRING)    Use it to exclude publications via tag IDs (separated by comma)
+     *      order (STRING)           The order of the list
+     *      limit (STRING)           The sql search limit, ie: 0,30
+     *      search (STRING)          The search string
+     *      output_type (STRING)     OBJECT, ARRAY_A, ARRAY_N	
      *
      * @since 5.0.0
      * @param array $args
@@ -1547,7 +1575,7 @@ class tp_publications {
      * @param array $data
      * @param string $tags
      * @param array $bookmark
-     * @return int      --> id of the new publication
+     * @return int      id of the new publication
      * @since 5.0.0
     */
     public static function add_publication($data, $tags, $bookmark) {
@@ -1658,11 +1686,11 @@ class tp_publications {
     
     /** 
      * Edit a publication
-     * @param int $pub_id           --> ID of the publication
-     * @param array_a $data         --> Publication data
-     * @param array $bookmark       --> An array with WP_USER_ids
-     * @param array $delbox         --> An array with tag IDs you want to delete
-     * @param string $tags          --> A string of Tags seperate by comma
+     * @param int $pub_id           ID of the publication
+     * @param array_a $data         Publication data
+     * @param array $bookmark       An array with WP_USER_ids
+     * @param array $delbox         An array with tag IDs you want to delete
+     * @param string $tags          A string of Tags seperate by comma
      * @since 5.0.0
     */
    public static function change_publication($pub_id, $data, $bookmark, $delbox, $tags) {
@@ -1755,7 +1783,7 @@ class tp_publications {
     
     /** 
      * Delete publications
-     * @param array $checkbox       --> An array with IDs of publication
+     * @param array $checkbox       An array with IDs of publication
      * @since 5.0.0
     */
    public static function delete_publications($checkbox){	
@@ -1791,8 +1819,8 @@ class tp_publications {
      * Add new relations (for tags,authors,etc)
      * @param int $pub_id
      * @param string $input_string
-     * @param string $delimiter         --> example: ','
-     * @param string $rel_type          --> tags, authors, editors
+     * @param string $delimiter         Example: ','
+     * @param string $rel_type          tags, authors, editors
      * @since 5.0.0
      */
     public static function add_relation ($pub_id, $input_string, $delimiter = ',', $rel_type = 'tags') {
@@ -1839,7 +1867,8 @@ class tp_publications {
 
 /**
  * Contains functions for getting, adding and deleting of students
- * @package teachpress\core\database
+ * @package teachpress
+ * @subpackage database
  * @since 5.0.0
  */
 class tp_students {
@@ -1937,8 +1966,8 @@ class tp_students {
     
     /** 
      * Add student
-     * @param int $wp_id    --> WordPress user ID
-     * @param array $data   --> an array with the user data
+     * @param int $wp_id    WordPress user ID
+     * @param array $data   An assocative array with the user data
      * @return boolean
      * @since 5.0.0
     */
@@ -1987,7 +2016,7 @@ class tp_students {
     
     /** 
      * Delete student
-     * @param array $checkbox       --> ID of the enrollment
+     * @param array $checkbox       ID of the enrollment
      * @since 5.0.0
     */ 
    public static function delete_student($checkbox){
@@ -2030,15 +2059,22 @@ class tp_students {
     
     /**
      * Returns an array or object of all signups of a student
+     * 
+     * possible values for $args:
+     *      wp_id (INT)             The user ID
+     *      mode (STRING)           all, reg or wtl. Default is: all
+     *      course_id (INT)         The course ID
+     *      output_type (STRING)    ARRAY_A, ARRAY_N or OBJECT
+     * 
      * @param array $args
      * @return array|object 
      * @since 5.0.0
      */
     public static function get_signups ( $args = array()) {
         $defaults = array(
-            'wp_id' => '',
+            'wp_id' => 0,
             'mode' => 'all',
-            'course_id' => '',
+            'course_id' => 0,
             'output_type' => OBJECT,
         );
         $args = wp_parse_args( $args, $defaults );
@@ -2072,7 +2108,8 @@ class tp_students {
 
 /**
  * Database access class for tags
- * @package teachpress\core\database
+ * @package teachpress
+ * @subpackage database
  * @since 5.0.0
  */
 class tp_tags {
@@ -2083,16 +2120,16 @@ class tp_tags {
     * Note: If you only need a list of used tags, set group_by to true.
     * In this case you should ignore the columns con_id and pub_id from return
     * 
-    * Possible values for $args:
-    *  pub_id          --> publication IDs (separated by comma)
-    *  user            --> user IDs (separated by comma)
-    *  exclude         --> tag IDs you want to exclude from result (separated by comma)
-    *  order           --> ASC or DESC; default is ASC
-    *  limit           --> the sql limit, example: 0,30
-    *  search          --> a normal search string
-    *  group by        --> boolean flag for the group by clause
-    *  count           --> set it to true if you only need an number of tags which will be returned by your selection
-    *  output type     --> OBJECT, ARRAY_A, ARRAY_N 
+    * Possible values for array $args:
+    *       pub_id (STRING)          Publication IDs (separated by comma)
+    *       user (STRING)            User IDs (separated by comma)
+    *       exclude (STRING)         Tag IDs you want to exclude from result (separated by comma)
+    *       order (STRING)           ASC or DESC; default is ASC
+    *       limit (STRING)           The SQL limit, example: 0,30
+    *       search (STRING)          A normal search string
+    *       group by (BOOLEAN)       Boolean flag for the group by clause. Default is: false
+    *       count (BOOLEAN)          Set it to true if you only need an number of tags which will be returned by your selection. Default is: false
+    *       output type (STRING)     OBJECT, ARRAY_A, ARRAY_N 
     * 
     * @param array $args
     * @return array|object
@@ -2176,8 +2213,8 @@ class tp_tags {
    
    /**
     * Adds a new tag
-    * @param string $name          --> the new tag
-    * @return int                  --> the id of the created tag
+    * @param string $name          the new tag
+    * @return int                  the id of the created tag
     * @since 5.0.0
     */
    public static function add_tag($name) {
@@ -2199,8 +2236,8 @@ class tp_tags {
    
    /**
     * Adds a relation between a tag and a publication
-    * @param int $pub_id
-    * @param int $tag_id
+    * @param int $pub_id    The ID of the publication
+    * @param int $tag_id    The ID of the tag
     * @return int
     * @since 5.0.0
     */
@@ -2212,9 +2249,9 @@ class tp_tags {
    
    /**
     * Changes tag relations for more than one publication
-    * @param array $publications       --> Array of publication IDs
-    * @param string $new_tags          --> New tags separated by comma
-    * @param array $delete             --> Array of tag IDs whose relations with publications (given in the first parameter) should be deleted
+    * @param array $publications       Array of publication IDs
+    * @param string $new_tags          New tags separated by comma
+    * @param array $delete             Array of tag IDs whose relations with publications (given in the first parameter) should be deleted
     * @since 5.0.0
     */
    public static function change_tag_relations ($publications, $new_tags, $delete) {
@@ -2254,7 +2291,7 @@ class tp_tags {
    
    /** 
     * Deletes tags
-    * @param array $checkbox       --> an array with tag IDs
+    * @param array $checkbox       An array with tag IDs
     * @since 5.0.0
    */
    public static function delete_tags($checkbox) {
@@ -2281,9 +2318,9 @@ class tp_tags {
     
     /**
      * Returns an array|object with the name, tag_id and occurence of all_tags
-     * @param string $search            --> normal search string
-     * @param string $limit             --> SQL limit like 0,50
-     * @param string $output_type       --> ARRAY_A, ARRAY_N, OBJECT
+     * @param string $search            normal search string
+     * @param string $limit             SQL limit like 0,50
+     * @param string $output_type       ARRAY_A, ARRAY_N, OBJECT
      * @return array|object
      * @since 5.0.0
      */
@@ -2391,18 +2428,19 @@ class tp_tags {
 
 /**
  * Contains database helper functions
- * @package teachpress\core\database
+ * @package teachpress
+ * @subpackage database
  * @since 5.0.0
  */
 class tp_db_helpers {
     
     /**
      * Generate a where clause
-     * @param string $input         --> an array with values
-     * @param string $column        --> name of the table column
-     * @param string $connector     --> the connector: AND, OR
-     * @param string $operator      --> the operator: = !=
-     * @param string $pattern       --> things like %
+     * @param string $input         An array with values
+     * @param string $column        Name of the table column
+     * @param string $connector     The connector: AND, OR
+     * @param string $operator      The operator: = !=
+     * @param string $pattern       Things like %
      * @return string
      * @since 5.0.0
      */
@@ -2454,6 +2492,5 @@ class tp_db_helpers {
         }
         return $return;
     }
-    
     
 }

@@ -77,8 +77,8 @@ function tp_page_menu ($atts) {
 
 /** 
  * Print message
- * @param string $message   -> Content
- * @param string $color     -> green (default), orange, red
+ * @param string $message   The html content of the message
+ * @param string $color     green (default), orange, red
  * @version 2
  * @since 5.0.0
 */ 
@@ -326,4 +326,3 @@ function tp_update_userrole($roles, $capability) {
         $wp_roles->remove_cap($role, $capability);
     }
 }
-?>

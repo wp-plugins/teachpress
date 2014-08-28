@@ -128,4 +128,3 @@ function tp_show_mail_page() {
     </div>
     <?php
 }
-?>

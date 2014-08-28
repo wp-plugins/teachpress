@@ -497,7 +497,7 @@ class tp_settings_page {
         echo '<td colspan="2">';
         echo '<h4>' . __('Add new field','teachpress') . '</h4>';
 
-        echo '<p><input name="field_name" type="text" id="field_name" size="30" title="' . __('Allowed chars','teachpress') . ': A-Z,a-z,0-9,_" value="' . __('Fieldname','teachpress') . '" onblur="if(this.value==' . "''" .') this.value='. "'" . __('Fieldname','teachpress') . "'" . ';" onfocus="if(this.value=='. "'" . __('Fieldname','teachpress') . "'" . ') this.value=' . "''" . ';"/></p>';
+        echo '<p><input name="field_name" type="text" id="field_name" size="30" title="' . __('Allowed chars','teachpress') . ': A-Z,a-z,0-9,_" value="' . __('Fieldname','teachpress') . '" onblur="if(this.value==' . "''" .') this.value='. "'" . __('Fieldname','teachpress') . "'" . ';" onfocus="if(this.value=='. "'" . __('Field name','teachpress') . "'" . ') this.value=' . "''" . ';"/></p>';
         echo '<p><input name="field_label" type="text" id="field_name" size="30" value="' . __('Label') . '" onblur="if(this.value==' . "''" .') this.value='. "'" . __('Label') . "'" . ';" onfocus="if(this.value=='. "'" . __('Label') . "'" . ') this.value=' . "''" . ';"/></p>';
 
         echo '<p><label for="field_type">' . __('Field type','teachpress') . '</label>: <select name="field_type" id="field_type">';
@@ -568,7 +568,7 @@ class tp_settings_page {
      * @since 5.0.0
      */
     private static function add_meta_fields ($table) {
-        $forbidden_names = array('system', 'teachpress_stud', 'teachpress_pub', 'teachpress_courses', 'course_type', 'semester', __('Fieldname','teachpress'));
+        $forbidden_names = array('system', 'teachpress_stud', 'teachpress_pub', 'teachpress_courses', 'course_type', 'semester', __('Field name','teachpress'));
         $options = get_tp_options($table);
         foreach ( $options as $row) {
             array_push( $forbidden_names, $row->variable );
@@ -706,4 +706,3 @@ class tp_settings_page {
         }
     }
 }
-?>

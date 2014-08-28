@@ -195,5 +195,3 @@ function tp_edit_student_page() {
     echo tp_registration_form($user_id, 'admin');
     echo '</div>';
 }
-
-?>

@@ -383,7 +383,7 @@ class tp_bibtex {
     */
     public static function import_bibtex ($input, $settings, $test = false) {
         // Try to set the time limit for the script
-        set_time_limit(180);
+        set_time_limit(TEACHPRESS_TIME_LIMIT);
         global $PARSEENTRIES;
         $input = tp_bibtex::replace_bibtex_chars($input);
         $parse = NEW PARSEENTRIES();

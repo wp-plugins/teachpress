@@ -100,20 +100,20 @@ class tp_update_db {
         $teachpress_ver = $wpdb->prefix . 'teachpress_ver';
 
         if ($wpdb->query("SHOW COLUMNS FROM $teachpress_ver LIKE 'veranstaltungs_id'") == '1') {
-             // create new table teachpress_courses
-             if($wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_COURSES . "'") != TEACHPRESS_COURSES) {
-                 $sql = "CREATE TABLE " . TEACHPRESS_COURSES . " ( `course_id` INT UNSIGNED AUTO_INCREMENT, `name` VARCHAR(100), `type` VARCHAR(100), `room` VARCHAR(100), `lecturer` VARCHAR (100), `date` VARCHAR(60), `places` INT(4), `start` DATETIME, `end` DATETIME, `semester` VARCHAR(100), `comment` VARCHAR(500), `rel_page` INT, `parent` INT, `visible` INT(1), `waitinglist` INT(1), `image_url` VARCHAR(400), `strict_signup` INT(1), PRIMARY KEY (course_id)
-                 ) $charset_collate;";			
-                 $wpdb->query($sql);
-             }
-             // copy all data
-             $row = $wpdb->get_results("SELECT * FROM $teachpress_ver");
-             foreach ($row as $row) {
-                 $sql = "INSERT INTO " . TEACHPRESS_COURSES . " (`course_id`, `name`, `type`, `room`, `lecturer`, `date`, `places`, `start`, `end`, `semester`, `comment`, `rel_page`, `parent`, `visible`, `waitinglist`) VALUES('$row->veranstaltungs_id', '$row->name', '$row->vtyp', '$row->raum', '$row->dozent', '$row->termin', '$row->plaetze', '$row->startein', '$row->endein', '$row->semester', '$row->bemerkungen', '$row->rel_page', '$row->parent', '$row->sichtbar', '$row->warteliste')";
-                 $wpdb->query($sql);
-             }
-             // delete old table
-             $wpdb->query("DROP TABLE $teachpress_ver");
+            // create new table teachpress_courses
+            if($wpdb->get_var("SHOW TABLES LIKE '" . TEACHPRESS_COURSES . "'") != TEACHPRESS_COURSES) {
+                $sql = "CREATE TABLE " . TEACHPRESS_COURSES . " ( `course_id` INT UNSIGNED AUTO_INCREMENT, `name` VARCHAR(100), `type` VARCHAR(100), `room` VARCHAR(100), `lecturer` VARCHAR (100), `date` VARCHAR(60), `places` INT(4), `start` DATETIME, `end` DATETIME, `semester` VARCHAR(100), `comment` VARCHAR(500), `rel_page` INT, `parent` INT, `visible` INT(1), `waitinglist` INT(1), `image_url` VARCHAR(400), `strict_signup` INT(1), PRIMARY KEY (course_id)
+                ) $charset_collate;";			
+                $wpdb->query($sql);
+            }
+            // copy all data
+            $row = $wpdb->get_results("SELECT * FROM $teachpress_ver");
+            foreach ($row as $row) {
+                $sql = "INSERT INTO " . TEACHPRESS_COURSES . " (`course_id`, `name`, `type`, `room`, `lecturer`, `date`, `places`, `start`, `end`, `semester`, `comment`, `rel_page`, `parent`, `visible`, `waitinglist`) VALUES('$row->veranstaltungs_id', '$row->name', '$row->vtyp', '$row->raum', '$row->dozent', '$row->termin', '$row->plaetze', '$row->startein', '$row->endein', '$row->semester', '$row->bemerkungen', '$row->rel_page', '$row->parent', '$row->sichtbar', '$row->warteliste')";
+                $wpdb->query($sql);
+            }
+            // delete old table
+            $wpdb->query("DROP TABLE $teachpress_ver");
         }
     }
     
@@ -575,7 +575,7 @@ class tp_update_db {
     public static function fill_table_authors () {
         global $wpdb;
         // Try to set the time limit for the script
-        set_time_limit(240);
+        set_time_limit(TEACHPRESS_TIME_LIMIT);
         $pubs = $wpdb->get_results("SELECT pub_id, author, editor FROM " . TEACHPRESS_PUB, ARRAY_A);
         foreach ( $pubs as $row ) {
             if ( $row['author'] != '' ) {
@@ -595,7 +595,7 @@ class tp_update_db {
     public static function fill_table_stud_meta () {
         global $wpdb;
         // Try to set the time limit for the script
-        set_time_limit(240);
+        set_time_limit(TEACHPRESS_TIME_LIMIT);
         $students = $wpdb->get_results("SELECT wp_id, course_of_studies, birthday, semesternumber, matriculation_number FROM " . TEACHPRESS_STUD, ARRAY_A);
         foreach ( $students as $row ) {
             tp_students::add_student_meta($row['wp_id'], 'course_of_studies', $row['course_of_studies']);

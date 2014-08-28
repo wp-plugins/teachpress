@@ -13,8 +13,14 @@
  */
 class tp_shortcodes {
     
-    
-    
+    /**
+     * Returns a table headline for a course document list
+     * @param array $row        An associative array of document data (i.e. name)
+     * @param int $numbered     Display a numbered list (1) or not (0)
+     * @param int $show_date    Display the upload date (1) or not (0)
+     * @return string
+     * @since 5.0.0
+     */
     public static function get_coursedocs_headline ($row, $numbered, $show_date) {
         $span = 1;
         if ( $numbered === 1 ) {
@@ -29,6 +35,15 @@ class tp_shortcodes {
     
     /**
      * Returns a single table line for the function tp_courselist()
+     * @param array $row            An associative array of document data (i.e. name, added)
+     * @param array $upload_dir     An associative array of upload dir data
+     * @param string $link_class    The link class
+     * @param string $date_format   A typical date format string like d.m.Y
+     * @param int $numbered         Display a numbered list (1) or not (0)
+     * @param int $num              The current position in a numbered list
+     * @param int $show_date        Display the upload date (1) or not (0)
+     * @return string
+     * @since 5.0.0
      */
     public static function get_coursedocs_line ($row, $upload_dir, $link_class, $date_format, $numbered, $num, $show_date) {
         $return = '';
@@ -426,11 +441,11 @@ class tp_shortcodes {
  * Shows an overview of courses
  * 
  * possible values for $atts:
- *      image      - left, right, bottom or none, default: none
- *      image_size - default: 0
- *      headline   - 0 for hide headline, 1 for show headline (default:1)
- *      text       - a custom text under the headline
- *      term       - the term/semester you want to show
+ *      image (STRING)      left, right, bottom or none, default: none
+ *      image_size (INT)    default: 0
+ *      headline (INT)      0 for hide headline, 1 for show headline (default:1)
+ *      text (STRING)       a custom text under the headline
+ *      term (STRING)       the term/semester you want to show
  * 
  * @param array $atts
  * @param string $semester (GET)
@@ -509,13 +524,13 @@ function tp_courselist_shortcode($atts) {
 /**
  * Displays the attached documents of a course
  * 
- *  * possible values of $atts:
- *      @type int id                ID of the course 
- *      @type string linkclass      The name of the html class for document links, default is: linksecure
- *      @type string date_format    Default: d.m.Y
- *      @type int show_date         1 (date is visible) or 0, default is: 1
- *      @type int numbered          1 (use numbering) or 0, default is: 0
- *      @type int headline          1 (display headline) or 0, default is: 1
+ * possible values of $atts:
+ *      id (INT)                ID of the course 
+ *      linkclass (STRING)      The name of the html class for document links, default is: linksecure
+ *      date_format (STRING)    Default: d.m.Y
+ *      show_date (INT)         1 (date is visible) or 0, default is: 1
+ *      numbered (INT)          1 (use numbering) or 0, default is: 0
+ *      headline (INT)          1 (display headline) or 0, default is: 1
  * 
  * @param array $atts
  * @since 5.0.0
@@ -568,7 +583,7 @@ function tp_coursedocs_shortcode($atts) {
  * Displays information about a single course and his childs
  * 
  * possible values of $attr:
- *  @type int id      ID of the course 
+ *       id (INT)   -   ID of the course 
  * 
  * @param array $attr
  * @return string
@@ -614,15 +629,14 @@ function tp_coursedate_shortcode($attr) {
  * Shorcode for a single publication
  * 
  * possible values of $atts:
- *  id (INT)                --> id of a publication
- *  key (STRING)            --> bibtex key of a publication 
- *  author_name (STRING)    --> last, initials or old, default: simple
- *  author_name (STRING)    --> last, initials or old, default: last
- *  date_format (STRING)    --> the format for date; needed for the types: presentations, online; default: d.m.Y
- *  image (STRING)          --> none, left or right; default: none
- *  image_size (STRING)     --> image width in px; default: 0
- *  link (STRING)           --> Set it to "true" if you want to show a link in addition of the publication title. 
- *                              If there are more than one link, the first one is used.
+ *      id (INT)                id of a publication
+ *      key (STRING)            bibtex key of a publication 
+ *      author_name (STRING)    last, initials or old, default: simple
+ *      author_name (STRING)    last, initials or old, default: last
+ *      date_format (STRING)    the format for date; needed for the types: presentations, online; default: d.m.Y
+ *      image (STRING)          none, left or right; default: none
+ *      image_size (STRING)     image width in px; default: 0
+ *      link (STRING)           Set it to "true" if you want to show a link in addition of the publication title. If there are more than one link, the first one is used.                 
  * 
  * @param array $atts
  * @return string
@@ -685,8 +699,9 @@ function tp_single_shortcode ($atts) {
  * Shorcode for the BibTeX of a single publication
  * 
  * possible values of $atts:
- *  id (INT)                --> id of a publication
- *  key (STRING)            --> bibtex key of a publication 
+ *      id (INT)        id of a publication
+ *      key (STRING)    bibtex key of a publication 
+ * 
  * If neither is given, the publication of the most recent [tpsingle] will be reused
  * 
  * @param array $atts
@@ -717,8 +732,9 @@ function tp_bibtex_shortcode ($atts) {
  * Shorcode for the abstract of a single publication
  * 
  * possible values of $atts:
- *  id (INT)                --> id of a publication
- *  key (STRING)            --> bibtex key of a publication 
+ *      id (INT)        id of a publication
+ *      key (STRING)    bibtex key of a publication 
+ * 
  * If neither is given, the publication of the most recent [tpsingle] will be reused
  * 
  * @param array $atts
@@ -750,8 +766,9 @@ function tp_abstract_shortcode ($atts) {
  * Shortcode for the related websites (url) of a publication 
  * 
  * possible values of $atts:
- *  id (INT)                --> id of a publication
- *  key (STRING)            --> bibtex key of a publication 
+ *      id (INT)        id of a publication
+ *      key (STRING)    bibtex key of a publication 
+ * 
  * If neither is given, the publication of the most recent [tpsingle] will be reused
  * 
  * @param array $atts
@@ -784,33 +801,40 @@ function tp_links_shortcode ($atts) {
  * Publication list with tag cloud
  * 
  * Parameters for the array $atts:
- *   user (STRING)          --> the id of on or more users (separated by comma)
- *   type (STRING)          --> the publication types you want to show (separated by comma)
- *   exclude (INT)          --> one or more IDs of publications you don't want to show (separated by comma)
- *   order (STRING)         --> name, year, bibtex or type, default: date DESC
- *   headline (INT)         --> show headlines with years(1), with publication types(2), with years and types (3), with types and years (4) or not(0), default: 1
- *   maxsize (INT)          --> maximal font size for the tag cloud, default: 35
- *   minsize (INT)          --> minimal font size for the tag cloud, default: 11
- *   limit (INT)            --> number of tags, default: 30
- *   hide_tags (STRING)     --> ids of the tags you want to hide from your users (separated by comma)
- *   exclude_tags (STRING)  --> similar to hide_tags but with influence on publications; if exclude_tags is defined hide_tags will be ignored
- *   image (STRING)         --> none, left, right or bottom, default: none 
- *   image_size (INT)       --> max. Image size, default: 0
- *   anchor (INT)           --> 0 (false) or 1 (true), default: 1
- *   author_name (STRING)   --> simple, last, initials or old, default: last
- *   editor_name (STRING)   --> simple, last, initials or old, default: last
- *   style (STRING)         --> simple, numbered, numbered_desc or std, default: std
- *   link_style (STRING)    --> inline or images, default: inline
- *   date_format (STRING)   --> the format for date; needed for the types: presentations, online; default: d.m.Y
- *   pagination (INT)       --> activate pagination (1) or not (0), default: 0
- *   entries_per_page (INT) --> number of publications per page (pagination must be set to 1), default: 30
- *   sort_list (STRING)     --> a list of publication types (separated by comma) which overwrites the default sort order for headline = 2 
+ *      user (STRING)          the id of on or more users (separated by comma)
+ *      type (STRING)          the publication types you want to show (separated by comma)
+ *      exclude (INT)          one or more IDs of publications you don't want to show (separated by comma)
+ *      order (STRING)         name, year, bibtex or type, default: date DESC
+ *      headline (INT)         show headlines with years(1), with publication types(2), with years and types (3), with types and years (4) or not(0), default: 1
+ *      maxsize (INT)          maximal font size for the tag cloud, default: 35
+ *      minsize (INT)          minimal font size for the tag cloud, default: 11
+ *      limit (INT)            number of tags, default: 30
+ *      hide_tags (STRING)     ids of the tags you want to hide from your users (separated by comma)
+ *      exclude_tags (STRING)  similar to hide_tags but with influence on publications; if exclude_tags is defined hide_tags will be ignored
+ *      image (STRING)         none, left, right or bottom, default: none 
+ *      image_size (INT)       max. Image size, default: 0
+ *      anchor (INT)           0 (false) or 1 (true), default: 1
+ *      author_name (STRING)   simple, last, initials or old, default: last
+ *      editor_name (STRING)   simple, last, initials or old, default: last
+ *      style (STRING)         simple, numbered, numbered_desc or std, default: std
+ *      link_style (STRING)    inline or images, default: inline
+ *      date_format (STRING)   the format for date; needed for the types: presentations, online; default: d.m.Y
+ *      pagination (INT)       activate pagination (1) or not (0), default: 0
+ *      entries_per_page (INT) number of publications per page (pagination must be set to 1), default: 30
+ *      sort_list (STRING)     a list of publication types (separated by comma) which overwrites the default sort order for headline = 2 
  * 
- *   WARNING: id has been removed with teachPress 4.0.0, please use "user" instead!
+ * WARNING: id has been removed with teachPress 4.0.0, please use "user" instead!
  * 
- * GET-Parameter: $yr (Year, int), $type (Type, string), $auth (Author, int), $tg (tag id, int), $usr (User, int)
+ * Parameters from $_GET: 
+ *      $yr (INT)              Year 
+ *      $type (STRING)         Publication type 
+ *      $auth (INT)            Author ID
+ *      $tg (INT)              Tag ID
+ *      $usr (INT)             User ID
+ * 
  * @param array $atts
  * @return string
+ * @since 0.10.0
 */
 function tp_cloud_shortcode($atts) {
     extract(shortcode_atts(array(
@@ -1021,27 +1045,28 @@ function tp_cloud_shortcode($atts) {
  * Publication list without tag cloud
  * 
  * possible values for $atts:
- *   user (STRING)          --> user_ids (separated by comma)
- *   tag (STRING)           --> tag_ids (separated by comma)
- *   type (STRING)          --> publication types (separated by comma)
- *   exclude (STRING)       --> a string with one or more IDs of publication you don't want to display
- *   include (STRING)       --> a string with one or more IDs of publication you want to display
- *   year (STRING)          --> the publication years (separated by comma)
- *   order (STRING)         --> name, year, bibtex or type, default: date DESC
- *   headline (INT)         --> show headlines with years(1), with publication types(2), with years and types (3), with types and years (4) or not(0), default: 1
- *   image (STRING)         --> none, left, right or bottom, default: none 
- *   image_size (INT)       --> max. Image size, default: 0
- *   author_name (STRING)   --> last, initials or old, default: last
- *   editor_name (STRING)   --> last, initials or old, default: last
- *   style (STRING)         --> simple, numbered, numbered_desc or std, default: std
- *   link_style (STRING)    --> inline or images, default: inline
- *   date_format (STRING)   --> the format for date; needed for the types: presentations, online; default: d.m.Y
- *   pagination (INT)       --> activate pagination (1) or not (0), default: 0
- *   entries_per_page (INT) --> number of publications per page (pagination must be set to 1), default: 30
- *   sort_list (STRING)     --> a list of publication types (separated by comma) which overwrites the default sort order for headline = 2 
+ *      user (STRING)          user_ids (separated by comma)
+ *      tag (STRING)           tag_ids (separated by comma)
+ *      type (STRING)          publication types (separated by comma)
+ *      exclude (STRING)       a string with one or more IDs of publication you don't want to display
+ *      include (STRING)       a string with one or more IDs of publication you want to display
+ *      year (STRING)          the publication years (separated by comma)
+ *      order (STRING)         name, year, bibtex or type, default: date DESC
+ *      headline (INT)         show headlines with years(1), with publication types(2), with years and types (3), with types and years (4) or not(0), default: 1
+ *      image (STRING)         none, left, right or bottom, default: none 
+ *      image_size (INT)       max. Image size, default: 0
+ *      author_name (STRING)   last, initials or old, default: last
+ *      editor_name (STRING)   last, initials or old, default: last
+ *      style (STRING)         simple, numbered, numbered_desc or std, default: std
+ *      link_style (STRING)    inline or images, default: inline
+ *      date_format (STRING)   the format for date; needed for the types: presentations, online; default: d.m.Y
+ *      pagination (INT)       activate pagination (1) or not (0), default: 0
+ *      entries_per_page (INT) number of publications per page (pagination must be set to 1), default: 30
+ *      sort_list (STRING)     a list of publication types (separated by comma) which overwrites the default sort order for headline = 2 
  * 
  * @param array $atts
  * @return string
+ * @since 0.12.0
 */
 function tp_list_shortcode($atts){
     extract(shortcode_atts(array(
@@ -1159,17 +1184,17 @@ function tp_list_shortcode($atts){
  * tpsearch: Frontend search function for publications
  *
  * possible values for $atts:
- *   user (STRING)          --> user_ids (separated by comma)
- *   tag (STRING)           --> tag_ids (separated by comma)
- *   entries_per_page (INT) --> number of entries per page (default: 20)
- *   image (STRING)         --> none, left, right or bottom, default: none 
- *   image_size (INT)       --> max. Image size, default: 0
- *   author_name (STRING)   --> last, initials or old, default: last
- *   editor_name (STRING)   --> last, initials or old, default: last
- *   style (STRING)         --> simple, numbered or std, default: numbered
- *   link_style (STRING)    --> inline or images, default: inline
- *   as_filter (STRING)     --> set it to "true" if you want to display publications by default
- *   date_format (STRING)   --> the format for date; needed for presentations, default: d.m.Y
+ *      user (STRING)           user_ids (separated by comma)
+ *      tag (STRING)            tag_ids (separated by comma)
+ *      entries_per_page (INT)  number of entries per page (default: 20)
+ *      image (STRING)          none, left, right or bottom, default: none 
+ *      image_size (INT)        max. Image size, default: 0
+ *      author_name (STRING)    last, initials or old, default: last
+ *      editor_name (STRING)    last, initials or old, default: last
+ *      style (STRING)          simple, numbered or std, default: numbered
+ *      link_style (STRING)     inline or images, default: inline
+ *      as_filter (STRING)      set it to "true" if you want to display publications by default
+ *      date_format (STRING)    the format for date; needed for presentations, default: d.m.Y
  * 
  * @param array $atts
  * @return string
@@ -1284,8 +1309,11 @@ function tp_search_shortcode ($atts) {
 
 /** 
  * Private Post shortcode
+ * 
+ * possible values for atts:
+ *      id (INT)        The id of the course
+ * 
  * @param array $atts includes
- *   @type int id
  * @param string $content
  * @return string
  * @since 2.0.0

@@ -97,4 +97,4 @@ function tp_add_student_page() {
     </p>
 </form>
 </div>
-<?php } ?>
+<?php }

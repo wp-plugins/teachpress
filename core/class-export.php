@@ -22,7 +22,7 @@ class tp_export {
      * @since 3.0.0
      */
     static function get_course_registration_table($course_id, $option, $waitinglist = '') {
-        $row = tp_courses::get_signups( array('course' => $course_id, 'waitinglist' => $waitinglist, 'output_type' => ARRAY_A, 'order' => 'st.lastname ASC') );
+        $row = tp_courses::get_signups( array('course_id' => $course_id, 'waitinglist' => $waitinglist, 'output_type' => ARRAY_A, 'order' => 'st.lastname ASC') );
         echo '<table border="1" cellpadding="5" cellspacing="0">';
         echo '<thead>';
         echo '<tr>';
@@ -136,7 +136,7 @@ class tp_export {
         // load settings
         $option['regnum'] = get_tp_option('regnum');
         $option['studies'] = get_tp_option('studies');
-        $row = tp_courses::get_signups( array('course' => $course_id, 'waitinglist' => 0, 'output_type' => ARRAY_A, 'order' => 'st.lastname ASC') );
+        $row = tp_courses::get_signups( array('course_id' => $course_id, 'waitinglist' => 0, 'output_type' => ARRAY_A, 'order' => 'st.lastname ASC') );
         $fields = get_tp_options('teachpress_stud','`setting_id` ASC');
         
         $extra_headlines = '';
@@ -172,7 +172,7 @@ class tp_export {
         
         $user_id = intval($user_id);
         // Try to set the time limit for the script
-        set_time_limit(180);
+        set_time_limit(TEACHPRESS_TIME_LIMIT);
         $row = tp_publications::get_publications( array('user' => $user_id, 'output_type' => ARRAY_A) );
         if ( $format === 'bibtex' ) {
             foreach ($row as $row) {

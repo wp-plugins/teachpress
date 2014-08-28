@@ -198,12 +198,10 @@ class tp_admin {
      */
     public static function display_meta_data($fields, $meta_input) {
     
-        echo '<table class="widefat" style="margin-top: 15px;">';
-        echo '<thead>';
-        echo '<tr><th>' . __('Custom meta data','teachpress') . '</th></tr>';
-        echo '</thead>';
+        echo '<div class="postbox">';
+        echo '<h3 class="tp_postbox"><span>' . __('Custom meta data','teachpress') . '</span></h3>';
     
-        echo '<tbody><tr><td>';   
+        echo '<div class="inside">';   
         foreach ($fields as $row) {
             $col_data = tp_db_helpers::extract_column_data($row['value']);
             $value = '';
@@ -223,8 +221,8 @@ class tp_admin {
                 echo tp_admin::get_text_field($row['variable'], $col_data['title'], $value);
             }
         }
-        echo '</td></tr></tbody>';
-        echo '</table>'; 
+        echo '</div>';
+        echo '</div>'; 
     }
 }
 

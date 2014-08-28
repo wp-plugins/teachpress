@@ -72,7 +72,7 @@ function tp_show_courses_page() {
     if ( $action === 'edit' ) {
         tp_add_course_page();
     }
-    elseif ( $action === 'show' || $action === 'assessments' || $action === 'enrollments' || $action === 'capabilites' || $action === 'documents' ) {
+    elseif ( $action === 'show' || $action === 'assessments' || $action === 'add_assessments' || $action === 'enrollments' || $action === 'capabilites' || $action === 'documents' ) {
         tp_show_single_course_page();
     }
     elseif ( $action === 'list' ) {
@@ -82,7 +82,7 @@ function tp_show_courses_page() {
         tp_show_mail_page();
     }
     else {
-        tp_show_courses::get_tab();
+        tp_courses_page::get_tab();
     }
 }
 
@@ -90,7 +90,7 @@ function tp_show_courses_page() {
  * This class contains all function for the show courses page
  * @since 5.0.0
  */
-class tp_show_courses {
+class tp_courses_page {
     
     /**
      * @since 5.0.0
@@ -126,7 +126,7 @@ class tp_show_courses {
            }
            // copy a course, part 1
            if ( $bulk === "copy" ) { 
-               tp_show_courses::get_copy_course_form($terms, $sem, $search);
+               tp_courses_page::get_copy_course_form($terms, $sem, $search);
            }
            // copy a course, part 2
            if ( isset($_GET['copy_ok']) ) {
@@ -180,7 +180,7 @@ class tp_show_courses {
                if ($search != '') {
                    $order = 'semester DESC, name';	
                }
-               tp_show_courses::get_courses($search, $sem, $bulk, $checkbox);
+               tp_courses_page::get_courses($search, $sem, $bulk, $checkbox);
   
             ?>
             </tbody>
@@ -251,11 +251,11 @@ class tp_show_courses {
                 // alternate table rows
                 $static['tr_class'] = ( $class_alternate === true ) ? ' class="alternate"' : '';
                 $class_alternate = ( $class_alternate === true ) ? false : true;
-                echo tp_show_courses::get_single_table_row($courses[$i], $checkbox, $static);
+                echo tp_courses_page::get_single_table_row($courses[$i], $checkbox, $static);
                 // Search childs
                 for ($j = 0; $j < $z; $j++) {
                     if ($courses[$i]['course_id'] == $courses[$j]['parent']) {
-                        echo tp_show_courses::get_single_table_row($courses[$j], $checkbox, $static, $courses[$i]['name'],'child');
+                        echo tp_courses_page::get_single_table_row($courses[$j], $checkbox, $static, $courses[$i]['name'],'child');
                     }
                 }
                 // END search childs
@@ -264,7 +264,7 @@ class tp_show_courses {
             // table design for searches
             else {
                 $parent_name = ( $courses[$i]['parent'] != 0 ) ? tp_courses::get_course_data($courses[$i]['parent'], 'name') : '';
-                echo tp_show_courses::get_single_table_row($courses[$i], $checkbox, $static, $parent_name, 'search');
+                echo tp_courses_page::get_single_table_row($courses[$i], $checkbox, $static, $parent_name, 'search');
             }
         }	
              

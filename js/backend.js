@@ -1,46 +1,4 @@
 // teachPress javascript for the admin menu
-/**
-* Open a assessment description
-* @param {int} id
-* @param {int} pos
-* @since 5.0.0
-*/
-function teachpress_open_description(id, pos) {
-    var table = document.getElementById('tp_assessment_overview');
-    var assessment = 'tp_assessment_' + id;
-    var comment_text = 'tp_desc_comment_' + id;
-    var comment_date = 'tp_desc_date_' + id;
-    var text;
-    pos = pos + 1;
-    if (isNaN(document.getElementById("tp_description_open"))) {
-    }
-    else {
-        var row = table.insertRow(pos);
-        // create row
-        var description = document.createElement('td');
-        description.colSpan = 8;
-        description.id = 'tp_description_open';
-        // create text
-        var text = document.getElementById(comment_text).value;
-        var exam_date = document.getElementById(comment_date).value;
-        // create cancel button
-        var cancel_button = document.createElement('input');
-        cancel_button.value = 'Close';
-        cancel_button.type = 'button';
-        cancel_button.className = 'button';
-        cancel_button.onclick = function () { 
-                                    document.getElementById('tp_assessment_overview').deleteRow(pos);
-                                    teachpress_removeClass(assessment, 'tp_assessment_selected');
-                                };
-        // add to table        
-	row.appendChild(description);
-        document.getElementById("tp_description_open").innerHTML = "<h4>Assessment details</h4><p>" + exam_date + "</p><p>" + text + "</p>";
-        description.appendChild(cancel_button);
-        // change style of assessment
-        document.getElementById(assessment).className += ' tp_assessment_selected';
-        
-    }
-}
 
 /**
  * Removes a class from a given element

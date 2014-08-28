@@ -22,7 +22,7 @@ Max WP Version: 4.0
 
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
@@ -30,61 +30,159 @@ Max WP Version: 4.0
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/**
- * Define teachpress database tables. If you want, you can owerwrite this parameters in your wpconfig.php.
+/*************/
+/* Constants */
+/*************/
+
+/*
+ * If you want, you can owerwrite this parameters in your wpconfig.php.
  */
+
 global $wpdb;
-// Artefacts
+
 if ( !defined('TEACHPRESS_ARTEFACTS') ) {
-    define('TEACHPRESS_ARTEFACTS', $wpdb->prefix . 'teachpress_artefacts'); }
-// Assessments
+    /**
+     * This constants defines the table name for teachpress_artefacts.
+     * @since 5.0.0
+    */
+    define('TEACHPRESS_ARTEFACTS', $wpdb->prefix . 'teachpress_artefacts');
+}
+
 if ( !defined('TEACHPRESS_ASSESSMENTS') ) {
-    define('TEACHPRESS_ASSESSMENTS', $wpdb->prefix . 'teachpress_assessments'); }
-// Students
+    /**
+     * This constants defines the table name for teachpress_assessments.
+     * @since 5.0.0
+    */
+    define('TEACHPRESS_ASSESSMENTS', $wpdb->prefix . 'teachpress_assessments');
+}
+
 if ( !defined('TEACHPRESS_STUD') ) {
+    /**
+     * This constants defines the table name for teachpress_stud.
+     * @since 5.0.0
+    */
     define('TEACHPRESS_STUD', $wpdb->prefix . 'teachpress_stud');}
-// Student meta data
+
 if ( !defined('TEACHPRESS_STUD_META') ) {
-    define('TEACHPRESS_STUD_META', $wpdb->prefix . 'teachpress_stud_meta');}
-// Courses
+    /**
+     * This constants defines the table name for teachpress_stud_meta.
+     * @since 5.0.0
+    */
+    define('TEACHPRESS_STUD_META', $wpdb->prefix . 'teachpress_stud_meta');
+}
+
 if ( !defined('TEACHPRESS_COURSES') ) {
-    define('TEACHPRESS_COURSES', $wpdb->prefix . 'teachpress_courses');}
-// Course meta data
+    /**
+     * This constants defines the table name for teachpress_courses.
+     * @since 5.0.0
+    */
+    define('TEACHPRESS_COURSES', $wpdb->prefix . 'teachpress_courses');
+}
+
 if ( !defined('TEACHPRESS_COURSE_META') ) {
-    define('TEACHPRESS_COURSE_META', $wpdb->prefix . 'teachpress_course_meta');}
-// Course Capabilities
+    /**
+     * This constants defines the table name for teachpress_course_meta.
+     * @since 5.0.0
+    */
+    define('TEACHPRESS_COURSE_META', $wpdb->prefix . 'teachpress_course_meta');
+}
+
 if ( !defined('TEACHPRESS_COURSE_CAPABILITES') ) {
-    define('TEACHPRESS_COURSE_CAPABILITES', $wpdb->prefix . 'teachpress_course_capabilites');}
-// Course Documents
+    /**
+     * This constants defines the table name for teachpress_course_cababilites.
+     * @since 5.0.0
+    */
+    define('TEACHPRESS_COURSE_CAPABILITES', $wpdb->prefix . 'teachpress_course_capabilites');
+}
+
 if ( !defined('TEACHPRESS_COURSE_DOCUMENTS') ) {
+    /**
+     * This constants defines the table name for teachpress_course_documents.
+     * @since 5.0.0
+    */
     define('TEACHPRESS_COURSE_DOCUMENTS', $wpdb->prefix . 'teachpress_course_documents');}
-// Enrollments
+
 if ( !defined('TEACHPRESS_SIGNUP') ) {
-    define('TEACHPRESS_SIGNUP', $wpdb->prefix . 'teachpress_signup');}
-// Settings
+    /**
+     * This constants defines the table name for teachpress_signups.
+     * @since 5.0.0
+    */
+    define('TEACHPRESS_SIGNUP', $wpdb->prefix . 'teachpress_signup');
+}
 if ( !defined('TEACHPRESS_SETTINGS') ) {
-    define('TEACHPRESS_SETTINGS', $wpdb->prefix . 'teachpress_settings');}
-// Publications
+    /**
+     * This constants defines the table name for teachpress_settings.
+     * @since 5.0.0
+    */
+    define('TEACHPRESS_SETTINGS', $wpdb->prefix . 'teachpress_settings');
+}
+
 if ( !defined('TEACHPRESS_PUB') ) {
-    define('TEACHPRESS_PUB', $wpdb->prefix . 'teachpress_pub');}
-// Publication meta data
+    /**
+     * This constants defines the table name for teachpress_pub.
+     * @since 5.0.0
+    */
+    define('TEACHPRESS_PUB', $wpdb->prefix . 'teachpress_pub');
+}
+
 if ( !defined('TEACHPRESS_PUB_META') ) {
-    define('TEACHPRESS_PUB_META', $wpdb->prefix . 'teachpress_pub_meta');}
-// Tags
+    /**
+     * This constants defines the table name for teachpress_pub_meta.
+     * @since 5.0.0
+    */
+    define('TEACHPRESS_PUB_META', $wpdb->prefix . 'teachpress_pub_meta');
+}
+
 if ( !defined('TEACHPRESS_TAGS') ) {
-    define('TEACHPRESS_TAGS', $wpdb->prefix . 'teachpress_tags');}
-// Relationship tags - publications
+    /**
+     * This constants defines the table name for teachpress_tags.
+     * @since 5.0.0
+    */
+    define('TEACHPRESS_TAGS', $wpdb->prefix . 'teachpress_tags');
+    
+}
+
 if ( !defined('TEACHPRESS_RELATION') ) {
-    define('TEACHPRESS_RELATION', $wpdb->prefix . 'teachpress_relation');}
-// Relationship publications - users
+    /**
+     * This constants defines the table name for teachpress_relation. This is the relationship tags to publications.
+     * @since 5.0.0
+    */
+    define('TEACHPRESS_RELATION', $wpdb->prefix . 'teachpress_relation');
+}
+
 if ( !defined('TEACHPRESS_USER') ) {
-    define('TEACHPRESS_USER', $wpdb->prefix . 'teachpress_user');}
-// Authors
+    /**
+     * This constants defines the table name for teachpress_user. This is the relationship publications to users.
+     * @since 5.0.0
+    */
+    define('TEACHPRESS_USER', $wpdb->prefix . 'teachpress_user');
+    
+}
+
 if ( !defined('TEACHPRESS_AUTHORS') ) {
-    define('TEACHPRESS_AUTHORS', $wpdb->prefix . 'teachpress_authors');}
-// Relationship publications - authors
+    /**
+     * This constants defines the table name for teachpress_authors.
+     * @since 5.0.0
+    */
+    define('TEACHPRESS_AUTHORS', $wpdb->prefix . 'teachpress_authors');
+}
+
 if ( !defined('TEACHPRESS_REL_PUB_AUTH') ) {
-    define('TEACHPRESS_REL_PUB_AUTH', $wpdb->prefix . 'teachpress_rel_pub_auth');}
+    /**
+     * This constants defines the table name for teachpress_rel_pub_auth. This is the relationship publications to authors.
+     * @since 5.0.0
+    */
+    define('TEACHPRESS_REL_PUB_AUTH', $wpdb->prefix . 'teachpress_rel_pub_auth');
+    
+}
+
+if ( !defined('TEACHPRESS_TIME_LIMIT') ) {
+    /**
+     * This value is used for PHP's set_time_limit(). The plugin set this value before an import or export of publications
+     * @since 5.0.0
+    */
+    define('TEACHPRESS_TIME_LIMIT', 240);
+}
 
 /*********/
 /* Menus */
@@ -102,7 +200,7 @@ function tp_add_menu() {
     $logo = (version_compare($wp_version, '3.8', '>=')) ? plugins_url() . '/teachpress/images/logo_small.png' : plugins_url() . '/teachpress/images/logo_small_black.png';
     
     $tp_admin_show_courses_page = add_menu_page(__('Course','teachpress'), __('Course','teachpress'),'use_teachpress_courses', __FILE__, 'tp_show_courses_page', $logo);
-    $tp_admin_add_course_page = add_submenu_page('teachpress/teachpress.php',__('Add New','teachpress'), __('Add New', 'teachpress'),'use_teachpress_courses','teachpress/add_course.php','tp_add_course_page');
+    $tp_admin_add_course_page = add_submenu_page('teachpress/teachpress.php',__('Add new','teachpress'), __('Add new', 'teachpress'),'use_teachpress_courses','teachpress/add_course.php','tp_add_course_page');
     add_submenu_page('teachpress/teachpress.php',__('Students','teachpress'), __('Students','teachpress'),'use_teachpress_courses', 'teachpress/students.php', 'tp_students_page');
     add_action("load-$tp_admin_add_course_page", 'tp_add_course_page_help');
     add_action("load-$tp_admin_show_courses_page", 'tp_show_course_page_help');
@@ -126,7 +224,7 @@ function tp_add_menu2() {
     
     $tp_admin_all_pub_page = add_menu_page (__('Publications','teachpress'), __('Publications','teachpress'), 'use_teachpress', 'publications.php', 'tp_show_publications_page', $logo);
     $tp_admin_your_pub_page = add_submenu_page('publications.php',__('Your publications','teachpress'), __('Your publications','teachpress'),'use_teachpress','teachpress/publications.php','tp_show_publications_page');
-    $tp_admin_add_pub_page = add_submenu_page('publications.php',__('Add New', 'teachpress'), __('Add New','teachpress'),'use_teachpress','teachpress/addpublications.php','tp_add_publication_page');
+    $tp_admin_add_pub_page = add_submenu_page('publications.php',__('Add new', 'teachpress'), __('Add new','teachpress'),'use_teachpress','teachpress/addpublications.php','tp_add_publication_page');
     $tp_admin_import_page = add_submenu_page('publications.php',__('Import/Export'), __('Import/Export'), 'use_teachpress', 'teachpress/import.php','tp_import_page');
     $tp_admin_show_authors_page = add_submenu_page('publications.php',__('Authors'),__('Authors'),'use_teachpress','teachpress/authors.php','tp_show_authors_page');
     $tp_admin_edit_tags_page = add_submenu_page('publications.php',__('Tags'),__('Tags'),'use_teachpress','teachpress/tags.php','tp_tags_page');
@@ -199,16 +297,15 @@ if ( !class_exists( 'PARSEENTRIES' ) ) {
  * @return string
 */
 function get_tp_version() {
-    return '5.0.0alpha7';
+    return '5.0.0alpha8';
 }
 
 /** Function for the integrated registration mode */
 function tp_advanced_registration() {
     $user = wp_get_current_user();
     global $wpdb;
-    global $teachpress_stud;
     global $current_user;
-    $test = $wpdb->query("SELECT `wp_id` FROM $teachpress_stud WHERE `wp_id` = '$current_user->ID'");
+    $test = $wpdb->query("SELECT `wp_id` FROM " . TEACHPRESS_STUD . " WHERE `wp_id` = '$current_user->ID'");
     if ($test == '0' && $user->ID != '0') {
         if ($user->user_firstname == '') {
             $user->user_firstname = $user->display_name;
@@ -305,7 +402,7 @@ function tp_backend_scripts() {
     // Define $page
     $page = isset($_GET['page']) ? $_GET['page'] : '';
     wp_enqueue_style('teachpress-print-css', plugins_url() . '/teachpress/styles/print.css', false, false, 'print');
-    // Load scripts only, when it's a teachpress page
+    // Load scripts only, if it's a teachpress page
     if ( strpos($page, 'teachpress') !== false || strpos($page, 'publications') !== false ) {
         wp_enqueue_script('teachpress-standard', plugins_url() . '/teachpress/js/backend.js');
         wp_enqueue_style('teachpress.css', plugins_url() . '/teachpress/styles/teachpress.css');
@@ -326,7 +423,7 @@ function tp_backend_scripts() {
  */
 function tp_frontend_scripts() {
     $version = get_tp_version();
-    echo chr(13) . chr(10) . '<!-- teachPress ' . $version . ' -->' . chr(13) . chr(10);
+    echo chr(13) . chr(10) . '<!-- teachPress -->' . chr(13) . chr(10);
     echo '<script type="text/javascript" src="' . plugins_url() . '/teachpress/js/frontend.js?ver=' . $version . '"></script>' . chr(13) . chr(10);
     $value = get_tp_option('stylesheet');
     if ($value == '1') {

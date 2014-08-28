@@ -148,7 +148,7 @@ function tp_create_attendance_list($course_id, $number, $extra_fields) {
     $count = 1;
     
     
-    $sql = tp_courses::get_signups( array('course' => $course_id, 'order' => 'st.lastname', 'waitinglist' => 0, 'output_type' => ARRAY_A ) );
+    $sql = tp_courses::get_signups( array('course_id' => $course_id, 'order' => 'st.lastname', 'waitinglist' => 0, 'output_type' => ARRAY_A ) );
     foreach($sql as $row3) {
         echo '<tr>';
         echo '<td>' . $count . '</td>';
@@ -167,4 +167,3 @@ function tp_create_attendance_list($course_id, $number, $extra_fields) {
     echo '</tbody>';
     echo '</table>';
 }
-?>

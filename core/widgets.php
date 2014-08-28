@@ -90,4 +90,3 @@ class tp_books_widget extends WP_Widget {
             echo '</select></label></p>';
     }
 }
-?>
