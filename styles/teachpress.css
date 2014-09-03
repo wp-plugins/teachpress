@@ -17,6 +17,7 @@ td.tp_course_child {padding-left:25px; background: url(../images/child.png) no-r
 .tp_checkbox {margin-left:8px; padding-left:7px; text-align:left;}
 .tp_actions {padding: 0 0 10px 0;}
 .teachpress_cloud a {text-decoration: none;}
+.tp_open_readme{cursor: pointer; color: #444;}
 
 /* Message menu */
 .tp_row_actions {visibility: hidden;padding: 2px 0 0; color:#ddd;}

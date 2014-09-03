@@ -22,6 +22,7 @@ class tp_enrollments {
      */
     public static function add_signups ($user_id, $checkbox) {
         global $wpdb;
+        $return = '';
         $max = count( $checkbox );
         for ($n = 0; $n < $max; $n++) {
             $row = $wpdb->get_row("SELECT `name`, `parent` FROM " . TEACHPRESS_COURSES . " WHERE `course_id` = '$checkbox[$n]'");
@@ -29,14 +30,15 @@ class tp_enrollments {
                 $parent = tp_courses::get_course_data($row->parent, 'name');
                 $row->name = ( $row->name != $parent ) ? $parent . ' ' . $row->name : $row->name;
             }
-            $code = tp_enrollments::add_signup($checkbox[$n], $user_id);
-            tp_enrollments::send_notification($code, $user_id, $row->name);
-            $message = tp_enrollments::get_signup_message($code);
+            $code = self::add_signup($checkbox[$n], $user_id);
+            self::send_notification($code, $user_id, $row->name);
+            $message = self::get_signup_message($code);
             if ($code === 201) { $class = 'teachpress_message_success'; }
             elseif ($code === 202) { $class = 'teachpress_message_info'; }
             else { $class = 'teachpress_message_error'; }
-            return '<div class="' . $class . '">&quot;' . stripslashes($row->name) . '&quot;: ' . $message . '</div>';
+            $return .= '<div class="' . $class . '">&quot;' . stripslashes($row->name) . '&quot;: ' . $message . '</div>';
         }
+        return $return;
         
     }
     
@@ -126,7 +128,7 @@ class tp_enrollments {
         );
         $ret = tp_students::add_student($user_id, $data);
         if ($ret !== false) {
-            tp_enrollments::add_student_meta( $user_id, $fields, $post );
+            self::add_student_meta( $user_id, $fields, $post );
             return '<div class="teachpress_message_success"><strong>' . __('Registration successful','teachpress') . '</strong></div>';
         }
         else {
@@ -340,47 +342,56 @@ class tp_enrollments {
      * @since 5.0.0
      */
     public static function get_menu ($tab, $user) {
-        global $pagenow;
-        
-        // No Permalinks: Page or Post?
-        $page = (is_page()) ? 'page_id' : 'p';
-       
-        // Define permalinks
-        if ( get_option('permalink_structure') ) {
-           $url["link"] = $pagenow;
-           $url["link"] = str_replace("index.php", "", $url["link"]);
-           $url["link"] = $url["link"] . '?tab=';
-        }
-        else {
-           $url["post_id"] = get_the_id();
-           $url["link"] = $pagenow;
-           $url["link"] = str_replace("index.php", "", $url["link"]);
-           $url["link"] = $url["link"] . '?' . $page . '=' . $url["post_id"] . '&amp;tab=';
-        }
+        $url = self::get_url();
         // Create Tabs
-        $tab1 = ( $tab === '' || $tab === 'current' ) ? '<span class="teachpress_active_tab">' . __('Current enrollments','teachpress') . '</span>' : '<a href="' . $url["link"] . 'current">' . __('Current enrollments','teachpress') . '</a>';
+        $tab1 = ( $tab === '' || $tab === 'current' ) ? '<span class="teachpress_active_tab">' . __('Current enrollments','teachpress') . '</span>' : '<a href="' . $url . 'current">' . __('Current enrollments','teachpress') . '</a>';
         
-        $tab2 = ( $tab === 'old' ) ? '<span class="teachpress_active_tab">' . __('Your enrollments','teachpress') . '</span>' : '<a href="' . $url["link"] . 'old">' . __('Your enrollments','teachpress') . '</a>';
+        $tab2 = ( $tab === 'old' ) ? '<span class="teachpress_active_tab">' . __('Your enrollments','teachpress') . '</span>' : '<a href="' . $url . 'old">' . __('Your enrollments','teachpress') . '</a>';
         
-        $tab3 = ( $tab === 'data' ) ? '<span class="teachpress_active_tab">' . __('Your data','teachpress') . '</span>' : '<a href="' . $url["link"] . 'data">' . __('Your data','teachpress') . '</a>';
+        $tab3 = ( $tab === 'results' ) ? '<span class="teachpress_active_tab">' . __('Your results','teachpress') . '</span>' : '<a href="' . $url . 'results">' . __('Your results','teachpress') . '</a>';
+        
+        $tab4 = ( $tab === 'data' ) ? '<span class="teachpress_active_tab">' . __('Your data','teachpress') . '</span>' : '<a href="' . $url . 'data">' . __('Your data','teachpress') . '</a>';
         
         $rtn = '<div class="tp_user_menu">
                    <h4>' . __('Hello','teachpress') . ', ' . stripslashes($user['firstname']) . ' ' . stripslashes($user['lastname']) . '</h4>'
-                . '<p>' . $tab1 . ' | ' . $tab2 . ' | ' . $tab3 . '</p></div>'; 
+                . '<p>' . $tab1 . ' | ' . $tab2 . ' | ' . $tab3 . ' | ' . $tab4 . '</p></div>'; 
         return $rtn;
     }
     
     /**
-     * Creates the table for signups/waitinglist entries for old tab
-     * @param object $row
-     * @param int $is_sign_out
+     * Returns the url for the page, where the shortcode is used.
+     * @global type $pagenow
      * @return string
      * @since 5.0.0
      */
-    private static function create_signups_table ($row, $is_sign_out) {
-        $rtn = '<table class="teachpress_enr_old" border="1" cellpadding="5" cellspacing="0">';
+    public static function get_url () {
+        global $pagenow;
+        
+        $page = (is_page()) ? 'page_id' : 'p';
+        $url = str_replace("index.php", "", $pagenow);
+        
+        // Define permalinks
+        if ( get_option('permalink_structure') ) {
+           $url .= '?tab=';
+        }
+        else {
+           $url .= '?' . $page . '=' . get_the_id() . '&amp;tab=';
+        }
+        return $url;
+    }
+    
+    /**
+     * Creates the table for signups/waitinglist entries for old tab
+     * @param int $user_id          The user ID
+     * @param object $row           An object of course_data
+     * @param int $is_sign_out      0 or 1
+     * @return string
+     * @since 5.0.0
+     */
+    private static function create_signups_table ($user_id, $row, $is_sign_out) {
+        $rtn = '<table class="teachpress_enr_old">';
         $rtn .= '<tr>';
-        if ($is_sign_out == '0') {
+        if ( $is_sign_out == '0' ) {
             $rtn .= '<th width="15">&nbsp;</th>';
         }
         $rtn .= '<th>' . __('Name','teachpress') . '</th>
@@ -389,28 +400,27 @@ class tp_enrollments {
                 <th>' . __('Room','teachpress') . '</th>
                 <th>' . __('Term','teachpress') . '</th>
                </tr>';
-        // Select all courses where user is registered
-        if ( count($row) != 0 ) {
-            foreach($row as $row1) {
-                $row1->parent_name = stripslashes($row1->parent_name);
-                $row1->name = stripslashes($row1->name);
-                if ($row1->parent_name != '') {
-                    $row1->parent_name = $row1->parent_name . ' -';
-                }
-                $rtn .= '<tr>';
-                if ($is_sign_out == '0') {
-                    $rtn .= '<td><input name="checkbox2[]" type="checkbox" value="' . $row1->con_id . '" title="' . $row1->name . '" id="ver_' . $row1->con_id . '"/></td>';
-                }		
-                $rtn .= '<td><label for="ver_' . $row1->con_id . '" style="line-height:normal;" title="' . $row1->parent_name . ' ' .  $row1->name . '">' . $row1->parent_name . ' ' .  $row1->name . '</label></td>
-                        <td>' . stripslashes($row1->type) . '</td>
-                        <td>' . stripslashes($row1->date) . '</td>
-                        <td>' . stripslashes($row1->room) . '</td> 
-                        <td>' . stripslashes($row1->semester) . '</td>
-                        </tr>';
-            }
+        // If there is nothing
+        if ( count($row) === 0 ) {
+            return '<tr><td colspan="6">' . __('No enrollments','teachpress') . '</td></tr>'
+                    . '</table>';
         }
-        else {
-            $rtn .= '<tr><td colspan="6">' . __('No enrollments','teachpress') . '</td></tr>';
+        // Select all courses where user is registered
+        foreach($row as $row1) {
+            if ($row1->parent_name != '') {
+                $row1->parent_name .= ' -';
+            }
+            $rtn .= '<tr>';
+            if ( $is_sign_out == '0') {
+                $checkbox = ( tp_assessments::has_assessment($user_id, $row1->course_id) === true ) ? '<input name="checkbox2[]" type="checkbox" value="' . $row1->con_id . '" title="' . $row1->name . '" id="ver_' . $row1->con_id . '"/>' : '';
+                $rtn .='<td>' . $checkbox . '</td>';
+            }		
+            $rtn .= '<td><label for="ver_' . $row1->con_id . '" style="line-height:normal;" title="' . $row1->parent_name . ' ' .  $row1->name . '">' . stripslashes($row1->parent_name) . ' ' .  stripslashes($row1->name) . '</label></td>
+                    <td>' . stripslashes($row1->type) . '</td>
+                    <td>' . stripslashes($row1->date) . '</td>
+                    <td>' . stripslashes($row1->room) . '</td> 
+                    <td>' . stripslashes($row1->semester) . '</td>
+                    </tr>';
         }
         $rtn .= '</table>';
         return $rtn;
@@ -422,19 +432,20 @@ class tp_enrollments {
      * @param int $is_sign_out
      * @return string
      * @since 5.0.0
+     * @access private
      */
-    public static function get_old_tab ($user_id, $is_sign_out) { 
+    private static function get_old_tab ($user_id, $is_sign_out) { 
         $rtn = '<p><strong>' . __('Signed up for','teachpress') . '</strong></p>';
         
         // signups
         $row1 = tp_students::get_signups( array('wp_id' => $user_id, 'mode' => 'reg') );
-        $rtn .= tp_enrollments::create_signups_table($row1, $is_sign_out);
+        $rtn .= self::create_signups_table($user_id, $row1, $is_sign_out);
         
         // waitinglist entries
         $row2 = tp_students::get_signups( array('wp_id' => $user_id, 'mode' => 'wtl') );
         if ( count($row2) !== 0 ) {
             $rtn .= '<p><strong>' . __('Waiting list','teachpress') . '</strong></p>';
-            $rtn .= tp_enrollments::create_signups_table($row2, $is_sign_out);
+            $rtn .= self::create_signups_table($user_id, $row2, $is_sign_out);
         }
         if ($is_sign_out == '0') {
             $rtn .= '<p><input name="austragen" type="submit" value="' . __('unsubscribe','teachpress') . '" id="austragen" /></p>';
@@ -443,10 +454,165 @@ class tp_enrollments {
     }
     
     /**
+     * Returns the results tab
+     * @param int $user_id
+     * @return string
+     * @since 5.0.0
+     * @access private
+     */
+    private static function get_results_tab($user_id) {
+        $url = self::get_url();
+        $course_id = ( isset($_GET['course_id']) ) ? intval($_GET['course_id'] ) : 0;
+        if ( $course_id !== 0 ) {
+            return self::get_results_details($course_id, $user_id, $url);
+        }
+        return self::get_results_overview($user_id, $url);
+    }
+    
+    /**
+     * Returns the result details page for the results tab
+     * @param int $course_id
+     * @param int $user_id
+     * @param string $url
+     * @return string
+     * @since 5.0.0
+     * @access private
+     */
+    private static function get_results_details($course_id, $user_id, $url){
+        $course_data = tp_courses::get_course($course_id, ARRAY_A);
+        $assessment = tp_assessments::get_assessments($user_id, '', $course_id);
+        $rtn = '';
+        $parent_name = '';
+        $rtn .= '<a href="' . $url . 'results" class="teachpress_enr_button">' . __('Back','teachpress') . '</a>';
+        
+        // Handle course name
+        if ( $course_data["parent"] != 0 ) {
+            $parent = tp_courses::get_course($course_data["parent"], ARRAY_A);
+            $parent_name = $parent['name'] . ' -';
+        }
+        $rtn .= '<h3>' . stripslashes($parent_name) . ' ' . stripslashes($course_data['name']) . '</h3>';
+        
+        // Main Course Result
+        $rtn .= '<table class="">';
+        if ( count($assessment) !== 0 ) {
+            $passed = ( $assessment[0]['passed'] == 1 ) ? __('passed','teachpress') : __('not passed','teachpress');
+            $rtn .= '<tr>'
+                    . '<td>' . __('Course result','teachpress') . '</td>'
+                    . '<td>' . stripslashes($assessment[0]['comment']) . '</td>'
+                    . '<td>' . stripslashes($assessment[0]['value']) . '</td>'
+                    . '<td>' . $passed . '</td>'
+                    . '</tr>';
+        }
+        // Artefacts
+        $artefacts = tp_artefacts::get_artefacts($course_id, 0);
+        foreach ($artefacts as $row) {
+            $assessments = tp_assessments::get_assessments($user_id, $row['artefact_id'], $course_id);
+            $x = 1;
+            foreach ($assessments as $inner_row) {
+                $title = ( $x === 1 ) ? stripslashes($row['title']) : '';
+                $rtn .= '<tr>'
+                        . '<td>' . $title . '</td>'
+                        . '<td>' . stripslashes($inner_row['comment']) . '</td>'
+                        . '<td>' . stripslashes($inner_row['value']) . '</td>'
+                        . '<td>' . $passed . '</td>'
+                        . '</tr>';
+                $x++;
+            }
+        }
+        $rtn .= '</table>';
+        return $rtn;
+    }
+    
+    /**
+     * Returns the overview table for the results tab
+     * @param int $user_id
+     * @param string $url
+     * @since 5.0.0
+     * @access private
+     */
+    private static function get_results_overview($user_id, $url) {
+        $rtn = '';
+        $rtn .= '<table class="teachpress_enr_results">'
+                . '<tr>'
+                . '<th>' . __('Name','teachpress') . '</th>'
+                . '<th>' . __('Type') . '</th>'
+                . '<th>' . __('Term','teachpress') . '</th>'
+                . '<th>' . __('Result','teachpress') . '</th>'
+                . '</tr>';
+        $courses = tp_students::get_signups( array('wp_id' => $user_id, 'mode' => 'reg') );
+        if ( count($courses) === 0 ) {
+            $rtn .= '<tr><td>' . __('No results available','teachpress') . '</td></tr>';
+        }
+        foreach ($courses as $row) {
+            // read assessment
+            $result = '';
+            $assessment = tp_assessments::get_assessments($user_id, '', $row->course_id);
+            if ( count($assessment) !== 0 ) {
+                $result = $assessment[0]['value'];
+            }
+            // Handle course name
+            if ($row->parent_name != '') {
+                $row->parent_name .= ' -';
+            }
+            $rtn .= '<tr>';
+            $rtn .= '<td>' . stripslashes($row->parent_name) . ' ' .  stripslashes($row->name) . '</td>';
+            $rtn .= '<td>' . stripslashes($row->type) . '</td>';
+            $rtn .= '<td>' . stripslashes($row->semester) . '</td>';
+            $rtn .= '<td>' . stripslashes($result) . '</td>';
+            $rtn .= '<td><a href="' . $url . 'results&amp;course_id=' . $row->course_id . '">' . __('Show details','teachpress') . '</a></td>';
+            $rtn .= '</tr>';
+        }
+        $rtn .= '</table>';
+        return $rtn;
+    }
+    
+    /**
+     * Returns the interface for logged in users
+     * @param int $user_id          The user ID
+     * @param string $user_login    The user login name
+     * @param string $user_email    The email adress of the user
+     * @param boolean $user_exists  TRUE or FALSE
+     * @param string $tab           The selected tab (old, results, data)
+     * @return string
+     * @since 5.0.0
+     */
+    public static function get_interface_for_users($user_id, $user_login, $user_email, $user_exists, $tab){
+        $is_sign_out = get_tp_option('sign_out');
+        $rtn = '';
+        
+        // if user is not registered: Registration
+        if ( $user_exists === false ) {
+            $user = array('userlogin' => $user_login, 'email'=> $user_email);
+            return tp_registration_form($user);
+        }
+
+        // Select all user information
+        $row = tp_students::get_student($user_id);
+        // Menu
+        $rtn .= self::get_menu($tab, $row);
+
+        // Old Enrollments / Sign out
+        if ( $tab === 'old' ) {
+            $rtn .= self::get_old_tab($user_id, $is_sign_out); 
+        }
+        // Results / Assessments
+        if ( $tab === 'results'  ) {
+            $rtn .= self::get_results_tab($user_id);
+        }
+        // Edit userdata
+        if ( $tab === 'data' ) {
+            $rtn .= tp_registration_form($row, 'edit'); 
+        }
+        return $rtn;
+     
+    }
+
+
+    /**
      * Returns the enrollment tab
      * @param string $sem
      * @param string $date_format
-     * @param string $user_exists
+     * @param boolean $user_exists
      * @return string
      * @since 5.0.0
      */
@@ -456,9 +622,9 @@ class tp_enrollments {
         // Select all courses where enrollments in the current term are available
         $row = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_COURSES . " WHERE `semester` = '$sem' AND `parent` = '0' AND (`visible` = '1' OR `visible` = '2') ORDER BY `type` DESC, `name`");
         foreach( $row as $row ) {
-            $rtn .= tp_enrollments::load_course_entry($row, $date_format, $user_exists);	
+            $rtn .= self::load_course_entry($row, $date_format, $user_exists);	
         }	
-        if (is_user_logged_in() && $user_exists != '') {
+        if ( $user_exists === true ) {
             $rtn .= '<input name="einschreiben" type="submit" value="' . __('Sign up','teachpress') . '" />';
         }
         return $rtn;
@@ -468,7 +634,7 @@ class tp_enrollments {
      * Returns a table with a course and his sub courses for enrollments tab
      * @param object $row
      * @param string $date_format
-     * @param string $user_exists
+     * @param boolean $user_exists
      * @return string
      * @since 5.0.0
      * @access private
@@ -490,9 +656,9 @@ class tp_enrollments {
         $rtn = '<div class="teachpress_course_group">';
         $rtn .= '<div class="teachpress_course_name">' . $course_name . '</div>';
         $rtn .= '<table class="teachpress_enr" width="100%" border="0">';
-        $rtn .= tp_enrollments::create_course_entry($row, $date_format, $user_exists);
+        $rtn .= self::create_course_entry($row, $date_format, $user_exists);
         foreach ( $childs as $child ) {
-            $rtn .= tp_enrollments::create_course_entry($child, $date_format, $user_exists, $row->name);
+            $rtn .= self::create_course_entry($child, $date_format, $user_exists, $row->name);
         }
         $rtn .= '</table>';
         $rtn .= '</div>';
@@ -503,7 +669,7 @@ class tp_enrollments {
      * Returns a single course entry for the function load_course_entry()
      * @param object $row
      * @param string $date_format
-     * @param string $user_exists
+     * @param boolean $user_exists
      * @param string $parent_name
      * @return string
      * @since 5.0.0
@@ -527,7 +693,7 @@ class tp_enrollments {
         // checkbox
         $checkbox = '&nbsp;';
         $checkbox_label = stripslashes($row->type);
-        if (is_user_logged_in() && $user_exists != '') {
+        if ( $user_exists === true ) {
             if ($date1 != '0000-00-00 00:00:00' && current_time('mysql') >= $date1 && current_time('mysql') <= $date2) {
                $checkbox = '<input type="checkbox" name="checkbox[]" value="' . $row->course_id . '" title="' . stripslashes($row->name) . ' ' . __('Select','teachpress') . '" id="checkbox_' . $row->course_id . '"/>';
                $checkbox_label = '<label for="checkbox_' . $row->course_id . '" style="line-height:normal;">' . stripslashes($row->type) . '</label>';
@@ -693,14 +859,12 @@ function tp_enrollments_shortcode($atts) {
          tp_advanced_registration();
     }
     // WordPress
-    global $wpdb;
     global $user_ID;
     global $user_email;
     global $user_login;
     get_currentuserinfo();
 
     // teachPress
-    $is_sign_out = get_tp_option('sign_out');
     $sem = ( $term != '' ) ? $term : get_tp_option('sem');
     $fields = get_tp_options('teachpress_stud','`setting_id` ASC', ARRAY_A);
 
@@ -741,33 +905,12 @@ function tp_enrollments_shortcode($atts) {
     } 
 
     /*
-     * User status
-    */ 
+     * User tabs
+    */
+    $user_exists = false;
     if ( is_user_logged_in() ) {
-        $user_exists = $wpdb->get_var("SELECT `wp_id` FROM " . TEACHPRESS_STUD . " WHERE `wp_id` = '$user_ID'");
-        // if user is not registered: Registration
-        if ( $user_exists == '' ) {
-           $user = array('userlogin' => $user_login, 'email'=> $user_email);
-           $rtn .= tp_registration_form($user);
-        }
-        else {
-            // Select all user information
-            $row = tp_students::get_student($user_ID);
-            // Menu
-            $rtn .= tp_enrollments::get_menu($tab, $row);
-
-            // Old Enrollments / Sign out
-            if ($tab === 'old') {
-                $rtn .= tp_enrollments::get_old_tab($user_ID, $is_sign_out); 
-            }	
-            // Edit userdata
-            if ($tab === 'data') {
-                $rtn .= tp_registration_form($row, 'edit'); 
-            }
-        }
-    }
-    else {
-        $user_exists = '';
+       $user_exists = ( tp_students::is_student($user_ID) === false ) ? false : true;
+       $rtn .= tp_enrollments::get_interface_for_users($user_ID, $user_login, $user_email, $user_exists, $tab);
     }
     
    /*

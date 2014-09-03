@@ -426,6 +426,7 @@ class tp_single_course_page {
         $enrollments_tab = '';
         $assessment_tab = '';
         $capability_tab = '';
+        $documents_tab = '';
         
         $set_info_tab = ( $action === 'show' ) ? 'nav-tab nav-tab-active' : 'nav-tab';
         $info_tab = '<a href="admin.php?page=teachpress/teachpress.php&amp;course_id=' . $course_id . '&amp;sem=' . $link_parameter['sem'] . '&amp;search=' . $link_parameter['search'] . '&amp;action=show" class="' . $set_info_tab . '">' . __('Info','teachpress') . '</a> ';
@@ -717,7 +718,7 @@ class tp_single_course_page {
         }
         foreach ($users as $user) {
             if (!in_array($user->ID, $array_caps) && user_can( $user->ID, 'use_teachpress_courses' )  ) {
-                echo '<option>' . $user->display_name . '</option>';
+                echo '<option value="' . $user->ID . '">' . $user->display_name . '</option>';
             }
         }
         echo '</select>';

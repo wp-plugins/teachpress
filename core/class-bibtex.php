@@ -24,7 +24,7 @@ class tp_bibtex {
     */
     public static function get_single_publication_bibtex ($row, $all_tags = '') {
         $string = '';
-        $pub_fields = array('type','bibtex','title','author','editor','url','isbn','date','urldate','booktitle','issuetitle','journal','volume','number','pages','publisher','address','edition','chapter','institution','organization','school','series','crossref','abstract','howpublished','key','techtype','note');
+        $pub_fields = array('type', 'bibtex', 'title', 'author', 'editor', 'url', 'doi', 'isbn', 'date', 'urldate', 'booktitle', 'issuetitle', 'journal', 'volume', 'number', 'pages', 'publisher', 'address', 'edition', 'chapter', 'institution', 'organization', 'school', 'series', 'crossref', 'abstract', 'howpublished', 'key', 'techtype', 'note');
         $isbn_label = ( $row['is_isbn'] == 1 ) ? 'isbn' : 'issn';
         // initial string
         if ( $row['type'] === 'presentation' ) {
@@ -176,7 +176,7 @@ class tp_bibtex {
                 $url = '<a id="tp_links_sh_' . $row['pub_id'] . '" class="tp_show" onclick="teachpress_pub_showhide(' . "'" . $row['pub_id'] . "'" . ',' . "'" . 'tp_links' . "'" . ')" title="' . __('Show links and resources','teachpress') . '" style="cursor:pointer;">' . __('Links','teachpress') . '</a> | ';
             }
             else {
-                $url = ' | ' . __('Links','teachpress') . ': ' . tp_bibtex::prepare_url($row['url'], 'enumeration') . '';
+                $url = ' | ' . __('Links','teachpress') . ': ' . tp_bibtex::prepare_url($row['url'], $row['doi'], 'enumeration') . '';
             }
         }
         // if with tags
@@ -236,7 +236,7 @@ class tp_bibtex {
         // div links
         if ( $row['url'] != '' && ( $settings['link_style'] === 'inline' || $settings['link_style'] === 'direct' ) ) {
             $a3 .= '<div class="tp_links" id="tp_links_' . $row['pub_id'] . '" style="display:none;">';
-            $a3 .= '<div class="tp_links_entry">' . tp_bibtex::prepare_url($row['url'], 'list') . '</div>';
+            $a3 .= '<div class="tp_links_entry">' . tp_bibtex::prepare_url($row['url'], $row['doi'], 'list') . '</div>';
             $a3 .= '<p class="tp_close_menu"><a class="tp_close" onclick="teachpress_pub_showhide(' . "'" . $row['pub_id'] . "'" . ',' . "'" . 'tp_links' . "'" . ')">' . __('Close','teachpress') . '</a></p>';
             $a3 .= '</div>';
         }
@@ -698,12 +698,15 @@ class tp_bibtex {
 
     /**
      * Prepare a url link for publication resources 
-     * @param string $url
-     * @param string $mode     -> list or enumeration
+     * @param string $url       The url string
+     * @param string $doi       The DOI number
+     * @param string $mode      list or enumeration
      * @return string
      * @since 3.0.0
+     * @version 2
+     * @access public
      */
-    public static function prepare_url($url, $mode = 'list') {
+    public static function prepare_url($url, $doi = '', $mode = 'list') {
         $end = '';
         $url = explode(chr(13) . chr(10), $url);
         foreach ($url as $url) {
@@ -711,22 +714,38 @@ class tp_bibtex {
             $parts[0] = trim( $parts[0] );
             $parts[1] = isset( $parts[1] ) ? $parts[1] : $parts[0];
             // list mode 
-            if ( $mode == 'list' ) {
+            if ( $mode === 'list' ) {
                 $length = strlen($parts[1]);
                 $parts[1] = substr($parts[1], 0 , 80);
-                if ($length > 80) {
-                    $parts[1] = $parts[1] . '[...]';
+                if ( $length > 80 ) {
+                    $parts[1] .= '[...]';
                 }
-                $end = $end . '<li><a class="tp_pub_list" style="background-image: url(' . get_tp_mimetype_images( $parts[0] ) . ')" href="' . $parts[0] . '" title="' . $parts[1] . '" target="_blank">' . $parts[1] . '</a></li>';
+                $end .= '<li><a class="tp_pub_list" style="background-image: url(' . get_tp_mimetype_images( $parts[0] ) . ')" href="' . $parts[0] . '" title="' . $parts[1] . '" target="_blank">' . $parts[1] . '</a></li>';
             }
             // enumeration mode
             else {
-                $end = $end . '<a class="tp_pub_link" href="' . $parts[0] . '" title="' . $parts[1] . '" target="_blank"><img class="tp_pub_link_image" alt="" src="' . get_tp_mimetype_images( $parts[0] ) . '"/></a>';
+                $end .= '<a class="tp_pub_link" href="' . $parts[0] . '" title="' . $parts[1] . '" target="_blank"><img class="tp_pub_link_image" alt="" src="' . get_tp_mimetype_images( $parts[0] ) . '"/></a>';
             }
         }
-        if ( $mode == 'list' ) {
+        
+        /**
+         * Add DOI-URL
+         * @since 5.0.0
+         */
+        if ( $doi !== '' ) {
+            $doi_url = 'http://dx.doi.org/' . $doi;
+            if ( $mode === 'list' ) {
+                $end .= '<li><a class="tp_pub_list" style="background-image: url(' . get_tp_mimetype_images( 'html' ) . ')" href="' . $doi_url . '" title="' . __('Follow doi:','teachpress') . $doi . '" target="_blank">doi:' . $doi . '</a></li>';
+            }
+            else {
+                $end .= '<a class="tp_pub_link" href="' . $doi_url . '" title="' . __('Follow doi:','teachpress') . $doi . '" target="_blank"><img class="tp_pub_link_image" alt="" src="' . get_tp_mimetype_images( 'html' ) . '"/></a>';
+            }
+        }
+        
+        if ( $mode === 'list' ) {
             $end = '<ul class="tp_pub_list">' . $end . '</ul>';
         }
+        
         return $end;
     }
     

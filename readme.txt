@@ -56,6 +56,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 = Licence information of external resources =
 * Graphics for mimetypes, user-new-3.png, folder-new-7.png and document-new-6.png by Oxygen Icons 4.3.1 http://www.oxygen-icons.org/ (Licence: LPGL)
+* jquery-ui-icons.png by The jQuery Foundation (License: MIT)
 * view-refresh-3.png by GNOME Icon Theme 2.26.0 http://art.gnome.org (License: GPLv2)
 * bookmark-new-4.png by Tango Icon Library (License: Public Domain)
 * bibtexParse by Mark Grimshaw & Guillaume Gardey (Licence: GPL)
@@ -140,9 +141,11 @@ It's **strongly** recommended to save your teachpress database tables before upg
 * New: Direct creating of related content based on drafts added
 * New: Direct creating of sub courses added
 * New: Page menu for enrollments added
+* New: DOI field for publications added
 * New: Shortcode [tpcoursedate] as replacement for [tpdate]
 * New: Shortcode [tpcoursedocs]
 * New: [tpenrollments]: New parameter "date_format" added
+* New: Editable time limit for exports and uploads (new constant TEACHPRESS_TIME_LIMIT);
 * Changed: Rewritten core API
 * Changed: Rewritten Shortcode [tpcloud]
 * Changed: Rewritten Shortcdoe [tpenrollments]

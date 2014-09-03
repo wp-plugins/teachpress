@@ -52,7 +52,8 @@ class tp_settings_page {
             tp_install();
         }
         
-        if ( isset($_GET['drop_tp']) || isset($_GET['drop_tp_ok']) ) {
+        // delete database
+        if ( isset( $_GET['drop_tp'] ) || isset( $_GET['drop_tp_ok'] ) ) {
             tp_settings_page::delete_database();
         }
 
@@ -96,7 +97,7 @@ class tp_settings_page {
         }
 
         // test if database is installed
-        tp_settings_page::is_database_installed();
+        tp_admin::database_test();
 
         echo '<h2 style="padding-bottom:0px;">' . __('teachPress settings','teachpress') . '</h2>';
 
@@ -230,7 +231,7 @@ class tp_settings_page {
             'count_title' => __('Number of courses','teachpress'),
             'delete_title' => __('Delete type','teachpress'),
             'add_title' => __('Add type','teachpress'),
-            'tab' => 'coures'
+            'tab' => 'courses'
             );
         tp_admin::get_course_option_box(__('Types of courses','teachpress'), 'type', $args3);
 
@@ -250,7 +251,7 @@ class tp_settings_page {
 
         echo '<tr>';
         echo '<th width="160">' . __('teachPress version','teachpress') . '</th>';
-        echo '<td width="250">' . get_tp_option('db-version') . '</td>';
+        echo '<td width="250"><a id="tp_open_readme" class="tp_open_readme">' . get_tp_option('db-version') . '</a></td>';
         echo '<td></td>';
         echo '</tr>';
 
@@ -369,6 +370,36 @@ class tp_settings_page {
         echo '<h3>' . __('Uninstalling','teachpress') . '</h3> ';
         echo '<a href="options-general.php?page=teachpress/settings.php&amp;tab=general&amp;drop_tp=1">' . __('Remove teachPress from database','teachpress') . '</a>';
         echo '<p><input name="einstellungen" type="submit" id="teachpress_settings" value="' . __('Save') . '" class="button-primary" /></p>';
+        ?>
+        <script>
+          jQuery(document).ready(function($){
+            $( "#dialog" ).dialog({
+              autoOpen: false,
+              width: 500,
+              show: {
+                effect: "blind",
+                duration: 1000
+              },
+              hide: {
+                effect: "explode",
+                duration: 1000
+              }
+            });
+
+            $( "#tp_open_readme" ).click(function() {
+              $( "#dialog" ).dialog( "open" );
+            });
+          });
+          </script>
+          <div id="dialog" title="About">
+              <div style="text-align: center;">
+              <p><img src="<?php echo plugins_url() ?>/teachpress/images/full.png" width="400" /></p>
+              <p style="font-size: 16px; font-weight: bold;"><?php echo get_tp_option('db-version'); ?> "Cranberry Pie"</p>
+              <p><a href="http://mtrv.wordpress.com/teachpress/">Website</a> | <a href="http://mtrv.wordpress.com/teachpress/changelog/">Changelog</a> | <a href="http://mtrv.wordpress.com/teachpress/shortcode-reference/">Shortcode Reference</a> | <a href="http://mtrv.wordpress.com/teachpress/function-reference/">Function Reference</a></p>
+              <p>&copy; 2008-2014 by Michael Winkler | License: GPLv2 or later<br/></p>
+              </div>
+          </div>
+        <?php
     }
     
     /**
@@ -497,7 +528,7 @@ class tp_settings_page {
         echo '<td colspan="2">';
         echo '<h4>' . __('Add new field','teachpress') . '</h4>';
 
-        echo '<p><input name="field_name" type="text" id="field_name" size="30" title="' . __('Allowed chars','teachpress') . ': A-Z,a-z,0-9,_" value="' . __('Fieldname','teachpress') . '" onblur="if(this.value==' . "''" .') this.value='. "'" . __('Fieldname','teachpress') . "'" . ';" onfocus="if(this.value=='. "'" . __('Field name','teachpress') . "'" . ') this.value=' . "''" . ';"/></p>';
+        echo '<p><input name="field_name" type="text" id="field_name" size="30" title="' . __('Allowed chars','teachpress') . ': A-Z,a-z,0-9,_" value="' . __('Fieldname','teachpress') . '" onblur="if(this.value==' . "''" .') this.value='. "'" . __('Fieldname','teachpress') . "'" . ';" onfocus="if(this.value=='. "'" . __('Fieldname','teachpress') . "'" . ') this.value=' . "''" . ';"/></p>';
         echo '<p><input name="field_label" type="text" id="field_name" size="30" value="' . __('Label') . '" onblur="if(this.value==' . "''" .') this.value='. "'" . __('Label') . "'" . ';" onfocus="if(this.value=='. "'" . __('Label') . "'" . ') this.value=' . "''" . ';"/></p>';
 
         echo '<p><label for="field_type">' . __('Field type','teachpress') . '</label>: <select name="field_type" id="field_type">';
@@ -653,23 +684,6 @@ class tp_settings_page {
     }
     
     /**
-     * Tests if the databae is installed and up to date
-     * @since 5.0.0
-     */
-    private static function is_database_installed() {
-        $test = get_tp_option('db-version');
-        if ($test !== '') {
-           $version = get_tp_version();
-           if ($test !== $version) { 
-               get_tp_message( __('A database update is necessary','teachpress') . '. <a href="options-general.php?page=teachpress/settings.php&up=1">' . __('Update to','teachpress') . ' ' . $version . '</a>.' );
-           }
-        }
-        else {
-            get_tp_message( '<a href="options-general.php?page=teachpress/settings.php&ins=1">' . __('Install database','teachpress') . '</a>' );
-        }
-    }
-    
-    /**
      * Handles start of database updates
      * @param string $site
      * @access private
@@ -697,7 +711,7 @@ class tp_settings_page {
      */
     private static function delete_database () {
         if ( isset($_GET['drop_tp']) ) {
-            $message = '<p>' . __('Do you really want to delete all teachpress database tables?','teachpress') . '</p>' . '<a class="button-primary" href="options-general.php?page=teachpress/settings.php&amp;drop_tp_ok=1&amp;tab=general">'. __('OK') . '</a> <a class="button-secondary" href="options-general.php?page=teachpress/settings.php&amp;tab=general">'. __('Cancel') . '</a>';
+            $message = '<p>' . __('Do you really want to delete all teachpress database tables?','teachpress') . '</p>' . '<a class="button-primary" href="options-general.php?page=teachpress/settings.php&amp;tab=general&amp;drop_tp_ok=1">'. __('OK') . '</a> <a class="button-secondary" href="options-general.php?page=teachpress/settings.php&amp;tab=general">'. __('Cancel') . '</a>';
             get_tp_message($message,'orange');
         }
         if ( isset($_GET['drop_tp_ok']) ) {

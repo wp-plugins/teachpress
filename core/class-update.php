@@ -531,6 +531,10 @@ class tp_update_db {
         if ($wpdb->query("SHOW COLUMNS FROM " . TEACHPRESS_COURSES . " LIKE 'use_capabilites'") == '0') { 
             $wpdb->query("ALTER TABLE " . TEACHPRESS_COURSES . " ADD `use_capabilites` INT( 1 ) NULL DEFAULT NULL AFTER `strict_signup`");
         }
+        // add column doi to table teachpress_pub
+        if ($wpdb->query("SHOW COLUMNS FROM " . TEACHPRESS_PUB . " LIKE 'doi'") == '0') { 
+            $wpdb->query("ALTER TABLE " . TEACHPRESS_PUB . " ADD `doi` VARCHAR( 100 ) NULL DEFAULT NULL AFTER `image_url`");
+        }
         // expand char limit for tp_settings::value
         if ($wpdb->query("SHOW COLUMNS FROM " . TEACHPRESS_SETTINGS . " LIKE 'value'") == '1') {
             $wpdb->query("ALTER TABLE " . TEACHPRESS_SETTINGS . " CHANGE `value` `value` LONGTEXT $charset_collate NULL DEFAULT NULL");
@@ -658,6 +662,7 @@ class tp_update_db {
         if ($wpdb->query("SELECT value FROM " . TEACHPRESS_SETTINGS . " WHERE `variable` = 'sem' AND `category` = ''") == '0') {
             $wpdb->query("UPDATE " . TEACHPRESS_SETTINGS . " SET `category` = 'system' WHERE `variable` = 'sem'");
         }
+        
         // course_of_studies
         if ($wpdb->query("SELECT value FROM " . TEACHPRESS_SETTINGS . " WHERE `variable` = 'course_of_studies' AND `category` = 'teachpress_stud'") == '0') {
             $value = 'name = {course_of_studies}, title = {' . __('Course of studies','teachpress') . '}, type = {SELECT}, required = {false}, unique = {false}, visibility = {admin}';

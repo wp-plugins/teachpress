@@ -791,7 +791,7 @@ function tp_links_shortcode ($atts) {
     }
     
     if ( isset($publication['url']) ) {
-        return '<h2 class="tp_links">' . __('Links','teachpress') . '</h2><p class="tp_abstract">' . tp_bibtex::prepare_url($publication['url'], 'list') . '</p>';
+        return '<h2 class="tp_links">' . __('Links','teachpress') . '</h2><p class="tp_abstract">' . tp_bibtex::prepare_url($publication['url'], $publication['doi'], 'list') . '</p>';
     } 
     return;
     

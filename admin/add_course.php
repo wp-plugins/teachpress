@@ -185,14 +185,15 @@ function tp_add_course_page() {
         </div>
      </div>
      </div>
+      
+      </form>
       <script type="text/javascript" charset="utf-8">
         jQuery(document).ready(function($) {
+            $('#comment').resizable({handles: "se", minHeight: 55, minWidth: 400});
             $('#start').datepicker({showWeek: true, changeMonth: true, changeYear: true, showOtherMonths: true, firstDay: 1, renderer: $.extend({}, $.datepicker.weekOfYearRenderer), onShow: $.datepicker.showStatus, dateFormat: 'yy-mm-dd', yearRange: '2008:c+5'}); 
             $('#end').datepicker({showWeek: true, changeMonth: true, changeYear: true, showOtherMonths: true, firstDay: 1, renderer: $.extend({}, $.datepicker.weekOfYearRenderer), onShow: $.datepicker.showStatus, dateFormat: 'yy-mm-dd', yearRange: '2008:c+5'});
-            $('#comment').resizable({handles: "se", minHeight: 55, minWidth: 400});
         });
       </script>
-      </form>
    </div>
 <?php }
 
@@ -445,7 +446,7 @@ class tp_add_course {
             <h3 class="tp_postbox"><span><?php _e('Sub courses','teachpress'); ?></span></h3>
             <div class="inside">
                 <p><label for="sub_course_type" title="<?php _e('The course type','teachpress'); ?>"><strong><?php _e('Type'); ?></strong></label></p>
-                 <select name="sub_course_type" id="sub_course_type" title="<?php _e('The course type','teachpress'); ?>" tabindex="2">
+                 <select name="sub_course_type" id="sub_course_type" title="<?php _e('The course type','teachpress'); ?>" tabindex="17">
                  <?php 
                      foreach ($course_types as $row) {
                          $check = $course_data["type"] == $row->value ? ' selected="selected"' : '';
@@ -454,9 +455,9 @@ class tp_add_course {
                  </select>
                  <?php
                  // number of subcourses
-                 echo tp_admin::get_form_field('sub_number', __('Number of sub courses','teachpress'), __('Number of sub courses','teachpress'), 'input' , 'course', '0', array('course'), 11, 'width:70px;');
+                 echo tp_admin::get_form_field('sub_number', __('Number of sub courses','teachpress'), __('Number of sub courses','teachpress'), 'input' , 'course', '0', array('course'), 18, 'width:70px;');
                  // places
-                 echo tp_admin::get_form_field('sub_places', __('Number of places per course','teachpress'), __('Number of places per course','teachpress'), 'input' , 'course', '0', array('course'), 12, 'width:70px;');
+                 echo tp_admin::get_form_field('sub_places', __('Number of places per course','teachpress'), __('Number of places per course','teachpress'), 'input' , 'course', '0', array('course'), 19, 'width:70px;');
              ?>
             </div>
          </div>

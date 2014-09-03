@@ -1,15 +1,10 @@
 /***************************/
 /* jQuery UI plugin styles */
 /***************************/
-/*.ui-dialog{position:absolute;top:0;left:0;padding:.2em;outline:0}*/
-.ui-dialog .ui-dialog-titlebar{padding:.4em 1em;position:relative}
-.ui-dialog .ui-dialog-title{float:left;margin:.1em 0;white-space:nowrap;width:90%;overflow:hidden;text-overflow:ellipsis}
-.ui-dialog .ui-dialog-titlebar-close{position:absolute;right:.3em;top:50%;width:21px;margin:-10px 0 0 0;padding:1px;height:20px}
-.ui-dialog .ui-dialog-content{position:relative;border:0;padding:.5em 1em;background:0;overflow:auto}
-.ui-dialog .ui-dialog-buttonpane{text-align:left;border-width:1px 0 0;background-image:none;margin-top:.5em;padding:.3em 1em .5em .4em}
-.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset{float:right}
-.ui-dialog .ui-dialog-buttonpane button{margin:.5em .4em .5em 0;cursor:pointer}
-.ui-dialog{width:12px;height:12px;right:-5px;bottom:-5px;background-position:16px 16px}
+.ui-widget-header .ui-icon {background-image: url("../images/jquery-ui-icons.png");}
+.ui-icon {width: 16px;height: 16px;}
+.ui-icon-circle-triangle-w {background-position: -80px -192px;}
+.ui-icon-circle-triangle-e {background-position: -48px -192px;}
 /* jquery UI resizable */
 .ui-resizable { position: relative;}
 .ui-resizable-handle { position: absolute;font-size: 0.1px;z-index: 0 !important; display: block; }
@@ -31,7 +26,7 @@
 .ui-datepicker .ui-datepicker-prev, .ui-datepicker .ui-datepicker-next { position:absolute; top: 2px; width: 1.8em; height: 1.8em; }
 .ui-datepicker .ui-datepicker-prev { left:8px; font-weight: bold; }
 .ui-datepicker .ui-datepicker-next { right:8px; font-weight: bold; }
-.ui-datepicker .ui-datepicker-prev span, .ui-datepicker .ui-datepicker-next span { display: block; position: absolute; left: 50%; margin-left: -8px; top: 50%; margin-top: -8px; cursor: pointer; }
+.ui-datepicker .ui-datepicker-prev span, .ui-datepicker .ui-datepicker-next span { display: block; position: absolute; left: 50%; margin-left: -8px; top: 50%; margin-top: -4px; cursor: pointer; }
 .ui-datepicker .ui-datepicker-title { margin: 0 2.3em; line-height: 1.8em; text-align: center; }
 .ui-datepicker .ui-datepicker-title select { font-size:1em; margin:1px 0; }
 .ui-datepicker select.ui-datepicker-month-year {width: 100%;}

@@ -297,7 +297,7 @@ if ( !class_exists( 'PARSEENTRIES' ) ) {
  * @return string
 */
 function get_tp_version() {
-    return '5.0.0alpha8';
+    return '5.0.0alpha9';
 }
 
 /** Function for the integrated registration mode */
@@ -388,7 +388,7 @@ function tp_install() {
  */
 function tp_uninstall() {
     require_once 'core/class-tables.php';
-    tp_install::remove();
+    tp_tables::remove();
 }
 
 /*********************/
@@ -409,8 +409,9 @@ function tp_backend_scripts() {
         wp_enqueue_script('media-upload');
         add_thickbox();
         // Load jQuery + ui plugins + plupload
-        wp_enqueue_script(array('jquery-ui-core', 'jquery-ui-datepicker', 'jquery-ui-resizable', 'jquery-ui-autocomplete', 'jquery-ui-sortable', 'plupload'));
+        wp_enqueue_script(array('jquery-ui-core', 'jquery-ui-datepicker', 'jquery-ui-resizable', 'jquery-ui-autocomplete', 'jquery-ui-sortable', 'jquery-ui-dialog', 'plupload'));
         wp_enqueue_style('teachpress-jquery-ui.css', plugins_url() . '/teachpress/styles/jquery.ui.css');
+        wp_enqueue_style('teachpress-jquery-ui-dialog.css', includes_url() . '/css/jquery-ui-dialog.min.css');
         $lang = array('de_DE','it_IT','es_ES', 'sk_SK');
         if ( in_array( WPLANG , $lang) ) {
             wp_enqueue_script('teachpress-datepicker-de', plugins_url() . '/teachpress/js/datepicker/jquery.ui.datepicker-' . WPLANG . '.js');

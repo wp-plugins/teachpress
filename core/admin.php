@@ -21,11 +21,19 @@ class tp_admin {
      */
     public static function database_test($before = '', $after = '') {
         $test = get_tp_option('db-version');
-        $version = get_tp_version();
-        if ( $test != $version ) {
-            $message = __('An database update is necessary.','teachpress') . ' <a href="options-general.php?page=teachpress/settings.php&amp;up=1">' . __('Update','teachpress') . '</a>';
+        
+        // Don't use !== operator here
+        if ($test != '') {
+           $version = get_tp_version();
+           if ($test !== $version) {
+               echo $before;
+               get_tp_message( __('A database update is necessary','teachpress') . '. <a href="options-general.php?page=teachpress/settings.php&up=1">' . __('Update to','teachpress') . ' ' . $version . '</a>.', 'orange' );
+               echo $after;
+           }
+        }
+        else {
             echo $before;
-            get_tp_message($message);
+            get_tp_message( '<a href="options-general.php?page=teachpress/settings.php&ins=1">' . __('Install database','teachpress') . '</a>', 'orange' );
             echo $after;
         }
     }

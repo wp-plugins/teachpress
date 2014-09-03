@@ -298,6 +298,7 @@ function get_tp_var_types($type) {
                         'comment' => '',
                         'note' => '',
                         'image_url' => '',
+                        'doi' => '',
                         'is_isbn' => '',
                         'rel_page' => '');
      }
