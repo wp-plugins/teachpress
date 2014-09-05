@@ -146,7 +146,104 @@ class tp_settings_page {
         echo '</form>';
         echo '</div>';
     }
+    
+    /**
+     * Gets the about dialog for the general tab
+     * @since 5.0.0
+     * @access private
+     */
+    private static function get_about_dialog () {
+        echo '<div id="dialog" title="About">
+                <div style="text-align: center;">
+                <p><img src="' . plugins_url() . '/teachpress/images/full.png" width="400" /></p>
+                <p style="font-size: 16px; font-weight: bold;">' . get_tp_option('db-version') . ' "Cranberry Pie"</p>
+                <p><a href="http://mtrv.wordpress.com/teachpress/">Website</a> | <a href="http://mtrv.wordpress.com/teachpress/changelog/">Changelog</a> | <a href="http://mtrv.wordpress.com/teachpress/shortcode-reference/">Shortcode Reference</a> | <a href="http://mtrv.wordpress.com/teachpress/function-reference/">Function Reference</a></p>
+                <p>&copy; 2008-2014 by Michael Winkler | License: GPLv2 or later<br/></p>
+                </div>
+              </div>';
+    }
 
+    /**
+     * Gets the add meta field form
+     * @param string $tab   student_data, publication_data or course_data       
+     * @since 5.0.0
+     * @access private
+     */
+    private static function get_add_meta_field_form ($tab) {
+        echo '<h4>' . __('Add new field','teachpress') . '</h4>';
+        echo '<table class="form-table">';
+        
+        // fieldname
+        echo '<tr>';
+        echo '<td><label for="field_name">' . __('Fieldname','teachpress') . '</label></td>';
+        echo '<td><input name="field_name" type="text" id="field_name" size="30" title="' . __('Allowed chars','teachpress') . ': A-Z,a-z,0-9,_" required="required"/></td>';
+        echo '</tr>';
+        
+        // label
+        echo '<tr>';
+        echo '<td><label for="field_label">' . __('Label','teachpress') . '</label></td>';
+        echo '<td><input name="field_label" type="text" id="field_label" size="30" title="' . __('The visible name of the field','teachpress') . '" required="required" /></td>';
+        echo '</tr>';
+        
+        // fieldtype
+        echo '<tr>';
+        echo '<td><label for="field_type">' . __('Fieldtype','teachpress') . '</label></td>';
+        echo '<td>';
+        echo '<select name="field_type" id="field_type">';
+        echo '<option value="TEXT">TEXT</option>';
+        echo '<option value="TEXTAREA">TEXTAREA</option>';
+        echo '<option value="INT">NUMBER</option>';
+        echo '<option value="DATE">DATE</option>';
+        echo '<option value="SELECT">SELECT</option>';
+        // echo '<option value="CHECKBOX">CHECKBOX</option>'; Disabled: Problems with saving of arrays
+        echo '<option value="RADIO">RADIO</option>';
+        echo '</select>';
+        echo '</td>';
+        echo '</tr>';
+        
+        // min
+        echo '<tr class="options_for_number">';
+        echo '<td><label for="number_min">' . __('Min','teachpress') . '</label></td>';
+        echo '<td><input name="number_min" id="number_min" type="number" size="10"/></td>';
+        echo '</tr>';
+        
+        // max
+        echo '<tr class="options_for_number">';
+        echo '<td><label for="number_max">' . __('Max','teachpress') . '</label></td>';
+        echo '<td><input name="number_max" id="number_max" type="number" size="10"/></td>';
+        echo '</tr>';
+        
+        // step
+        echo '<tr class="options_for_number">';
+        echo '<td><label for="number_step">' . __('Step','teachpress') . '</label></td>';
+        echo '<td><input name="number_step" id="number_step" type="text" size="10"/></td>';
+        echo '</tr>';
+        
+        // visibility
+        echo '<tr>';
+        echo '<td><label for="visibility">' . __('Visibility','teachpress') . '</label></td>';
+        echo '<td>';
+        echo '<select name="visibility" id="visibility">';
+        echo '<option value="normal">' . __('Normal','teachpress') . '</option>';
+        if ( $tab === 'student_data' ) {
+            echo '<option value="admin">' . __('Admin','teachpress') . '</option>';
+        }
+        echo '<option value="hidden">' . __('Hidden','teachpress') . '</option>';
+        echo '</select>';
+        echo '</td>';
+        echo '</tr>';
+        
+        // required
+        if ( $tab === 'student_data' ) {
+        echo '<tr>';
+        echo '<td colspan="2"><input type="checkbox" name="is_required" id="is_required" value="true"/> <label for="is_required">' . __('Required field','teachpress') . '</label></td>';
+        echo '</tr>';
+        }
+           
+        echo '</table>';
+        echo '<p><input type="submit" name="add_field" class="button-secondary" value="' . __('Create','teachpress') . '"/></p>';
+        echo '<script type="text/javascript" src="' . plugins_url() . '/teachpress/js/admin_settings.js"></script>';
+    }
 
     /**
      * Returns the select form for rel_page option
@@ -370,36 +467,9 @@ class tp_settings_page {
         echo '<h3>' . __('Uninstalling','teachpress') . '</h3> ';
         echo '<a href="options-general.php?page=teachpress/settings.php&amp;tab=general&amp;drop_tp=1">' . __('Remove teachPress from database','teachpress') . '</a>';
         echo '<p><input name="einstellungen" type="submit" id="teachpress_settings" value="' . __('Save') . '" class="button-primary" /></p>';
-        ?>
-        <script>
-          jQuery(document).ready(function($){
-            $( "#dialog" ).dialog({
-              autoOpen: false,
-              width: 500,
-              show: {
-                effect: "blind",
-                duration: 1000
-              },
-              hide: {
-                effect: "explode",
-                duration: 1000
-              }
-            });
-
-            $( "#tp_open_readme" ).click(function() {
-              $( "#dialog" ).dialog( "open" );
-            });
-          });
-          </script>
-          <div id="dialog" title="About">
-              <div style="text-align: center;">
-              <p><img src="<?php echo plugins_url() ?>/teachpress/images/full.png" width="400" /></p>
-              <p style="font-size: 16px; font-weight: bold;"><?php echo get_tp_option('db-version'); ?> "Cranberry Pie"</p>
-              <p><a href="http://mtrv.wordpress.com/teachpress/">Website</a> | <a href="http://mtrv.wordpress.com/teachpress/changelog/">Changelog</a> | <a href="http://mtrv.wordpress.com/teachpress/shortcode-reference/">Shortcode Reference</a> | <a href="http://mtrv.wordpress.com/teachpress/function-reference/">Function Reference</a></p>
-              <p>&copy; 2008-2014 by Michael Winkler | License: GPLv2 or later<br/></p>
-              </div>
-          </div>
-        <?php
+        
+        echo '<script type="text/javascript" src="' . plugins_url() . '/teachpress/js/admin_settings.js"></script>';
+        self::get_about_dialog();
     }
     
     /**
@@ -459,7 +529,7 @@ class tp_settings_page {
     
     /**
      * Shows the student settings tab
-     * @param string $tab
+     * @param string $tab   student_data, publication_data or course_data
      * @access private
      * @since 5.0.0
      */
@@ -486,7 +556,7 @@ class tp_settings_page {
 
         echo '<tr>';
         echo '<th></th>';
-        echo '<th>' . __('Field name','teachpress') . '</th>';
+        echo '<th>' . __('Fieldname','teachpress') . '</th>';
         echo '<th>' . __('Properties','teachpress') . '</th>';
         echo '</tr>';
 
@@ -497,7 +567,7 @@ class tp_settings_page {
         $fields = get_tp_options($table,'`setting_id` ASC');
         foreach ($fields as $field) {
             $data = tp_db_helpers::extract_column_data($field->value);
-            if ( $data['type'] === 'SELECT' || $data['type'] === 'CHECKBOX' ) {
+            if ( $data['type'] === 'SELECT' || $data['type'] === 'CHECKBOX' || $data['type'] === 'RADIO' ) {
                 array_push($select_fields, $field->variable);
                 // search for select options and add it
                 if ( isset( $_POST['add_' . $field->variable] ) && $_POST['new_' . $field->variable] != __('Add element','teachpress') ) {
@@ -515,42 +585,29 @@ class tp_settings_page {
             echo '<tr ' . $tr_class . '>
                 <td><a class="teachpress_delete" href="options-general.php?page=teachpress/settings.php&amp;delete_field=' . $field->setting_id . '&amp;tab=' . $tab . '">X</a></td>
                 <td>' . $field->variable . '</td>
-                <td>Label: <b>' . $data['title'] . '</b><br/> 
-                    Type: <b>' . $data['type'] . '</b><br/>
-                    Visibility: <b>' . $data['visibility'] . '</b><br/>
-                    Unique: <b>' . $data['unique'] . '</b><br/>
-                    Required: <b>' . $data['required'] . '</b></td>
-                </tr>';
+                <td>';
+            if ( isset( $data['title'] ) ) {
+                echo 'Label: <b>' . stripslashes($data['title']) . '</b><br/>'; }
+            if ( isset( $data['type'] ) ) {
+                echo 'Type: <b>' . stripslashes($data['type']) . '</b><br/>';}
+            if ( isset( $data['visibility'] ) ) {
+                echo 'Visibility: <b>' . stripslashes($data['visibility']) . '</b><br/>'; }
+            if ( isset( $data['min'] ) ) {
+                echo 'Min: <b>' . stripslashes($data['min']) . '</b><br/>'; }
+            if ( isset( $data['max'] ) ) {
+                echo 'Max: <b>' . stripslashes($data['max']) . '</b><br/>'; }
+            if ( isset( $data['step'] ) ) {
+                echo 'Step: <b>' . stripslashes($data['step']) . '</b><br/>'; }
+            if ( isset( $data['required'] ) ) {
+                echo 'Required: <b>' . stripslashes($data['required']) . '</b>'; }
+            echo '</td>';
+            echo '</tr>';
         }
 
         echo '<tr>';
         echo '<td></td>';
         echo '<td colspan="2">';
-        echo '<h4>' . __('Add new field','teachpress') . '</h4>';
-
-        echo '<p><input name="field_name" type="text" id="field_name" size="30" title="' . __('Allowed chars','teachpress') . ': A-Z,a-z,0-9,_" value="' . __('Fieldname','teachpress') . '" onblur="if(this.value==' . "''" .') this.value='. "'" . __('Fieldname','teachpress') . "'" . ';" onfocus="if(this.value=='. "'" . __('Fieldname','teachpress') . "'" . ') this.value=' . "''" . ';"/></p>';
-        echo '<p><input name="field_label" type="text" id="field_name" size="30" value="' . __('Label') . '" onblur="if(this.value==' . "''" .') this.value='. "'" . __('Label') . "'" . ';" onfocus="if(this.value=='. "'" . __('Label') . "'" . ') this.value=' . "''" . ';"/></p>';
-
-        echo '<p><label for="field_type">' . __('Field type','teachpress') . '</label>: <select name="field_type" id="field_type">';
-        echo '<option value="TEXT">TEXT</option>';
-        echo '<option value="TEXTAREA">TEXTAREA</option>';
-        echo '<option value="INT">INT</option>';
-        echo '<option value="DATE">DATE</option>';
-        echo '<option value="SELECT">SELECT</option>';
-        echo '<option value="CHECKBOX">CHECKBOX</option>';
-        echo '</select></p>';
-        echo '<p><label for="visibility">' . __('Visibility','teachpress') . '</label>: <select name="visibility" id="visibility"';
-        echo '<option value="normal">' . __('Normal','teachpress') . '</option>';
-        echo '<option value="admin">' . __('Admin','teachpress') . '</option>';
-        echo '<option value="hiddem">' . __('Hidden','teachpress') . '</option>';
-        echo '</select></p>';
-
-        if ( $tab === 'student_data' ) {
-            echo '<p><input type="checkbox" name="is_unique" id="is_unique" value="true"/> <label for="is_unique">' . __('Allow only unique values (only for the types INT and TEXT)','teachpress') . '</label></p>';
-            echo '<p><input type="checkbox" name="is_required" id="is_required" value="true"/> <label for="is_required">' . __('Required field','teachpress') . '</label></p>';    
-        }
-        echo '<p><input type="submit" name="add_field" class="button-secondary" value="' . __('Create','teachpress') . '"/></p>';
-        
+        self::get_add_meta_field_form($tab);
         echo '</td>';
         echo '</tr>';
 
@@ -599,7 +656,7 @@ class tp_settings_page {
      * @since 5.0.0
      */
     private static function add_meta_fields ($table) {
-        $forbidden_names = array('system', 'teachpress_stud', 'teachpress_pub', 'teachpress_courses', 'course_type', 'semester', __('Field name','teachpress'));
+        $forbidden_names = array('system', 'teachpress_stud', 'teachpress_pub', 'teachpress_courses', 'course_type', 'semester', __('Fieldname','teachpress'));
         $options = get_tp_options($table);
         foreach ( $options as $row) {
             array_push( $forbidden_names, $row->variable );
@@ -608,14 +665,16 @@ class tp_settings_page {
         $data['title'] = isset( $_POST['field_label'] ) ? htmlspecialchars($_POST['field_label']) : '';
         $data['type'] = isset( $_POST['field_type'] ) ? htmlspecialchars($_POST['field_type']) : '';
         $data['visibility'] = isset( $_POST['visibility'] ) ? htmlspecialchars($_POST['visibility']) : '';
+        $data['min'] = isset( $_POST['number_min'] ) ? intval($_POST['number_min']) : 'false';
+        $data['max'] = isset( $_POST['number_max'] ) ? intval($_POST['number_max']) : 'false';
+        $data['step'] = isset( $_POST['number_step'] ) ? intval($_POST['number_step']) : 'false';
         $data['required'] = isset( $_POST['is_required'] ) ? 'true' : 'false';
-        $data['unique'] = isset( $_POST['is_unique'] ) ? 'true' : 'false';
         if ( !in_array($field_name, $forbidden_names) && $data['title'] != __('Label') && preg_match("#^[_A-Za-z0-9]+$#", $field_name) ) {
             tp_db_helpers::register_column($table, $field_name, $data);
             get_tp_message(  __('Field added','teachpress') );
         }
         else {
-            get_tp_message(  __('Warning: This field name is not possible.','teachpress'), 'red' );
+            get_tp_message(  __('Warning: This fieldname is not possible.','teachpress'), 'red' );
         }
     }
     

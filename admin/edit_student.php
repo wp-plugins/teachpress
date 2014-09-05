@@ -73,7 +73,6 @@ function tp_show_student_page() {
                 
             }
             echo '</tr>';
-           
         }
         ?>
       </thead>   

@@ -60,6 +60,103 @@ class tp_ajax {
         return true;
     }
     
+    public static function get_artefact_screen($artefact_id) {
+        $artefact = tp_artefacts::get_artefact($artefact_id);
+        echo '<!doctype html>';
+        echo '<html>';
+        echo '<head>';
+        echo '<meta charset="utf-8">';
+	echo '<title>teachPress - Assessment details</title>';
+        echo '</head>';
+        echo '<body>';
+        echo '<div id="content">';
+        echo '<form method="post">';
+        echo '<input name="tp_artefact_id" type="hidden" value="' . $artefact_id . '"/>';
+        echo '<table class="form-table">';
+        echo '<tr>';
+        echo '<td>' . __('Title','teachpress') . '</td>';
+        echo '<td><input name="tp_artefact_title" cols="50" value="' . stripslashes($artefact['title']) . '"/></td>';
+        echo '</tr>';
+        echo '</table>';
+        echo '<p><input name="tp_save_artefact" type="submit" class="button-primary" value="' . __('Save') . '"/> <input name="tp_delete_artefact" type="submit" class="button-secondary" value="' . __('Delete','teachpress') . '"/></p>';
+        echo '</form>';
+        echo '</div>';
+        echo '</body>';
+        echo '</html>';
+    }
+    
+    /**
+     * Gets the info screen for a single assessment.
+     * @param type $assessment_id
+     * @since 5.0.0
+     * @access public
+     */
+    public static function get_assessment_screen($assessment_id) {
+        global $current_user;
+        $assessment = tp_assessments::get_assessment($assessment_id);
+        $artefact = tp_artefacts::get_artefact($assessment['artefact_id']);
+        $course_id = ( $assessment['course_id'] !== '' ) ? $assessment['course_id'] : $artefact['course_id'];
+        $capability = tp_courses::get_capability($course_id, $current_user->ID);
+        $student = tp_students::get_student($assessment['wp_id']);
+        $examiner = get_userdata($assessment['examiner_id']);
+
+        // Check capability
+        if ( $capability !== 'owner' && $capability !== 'approved' ) {
+            return;
+        }
+
+        $artefact['title'] = ( $artefact['title'] == '' ) ? __('Complete Course','teachpress') : $artefact['title'];
+        echo '<!doctype html>';
+        echo '<html>';
+        echo '<head>';
+        echo '<meta charset="utf-8">';
+	echo '<title>teachPress - Assessment details</title>';
+        echo '</head>';
+        echo '<body>';
+        echo '<div id="content">';
+        echo '<form method="post">';
+        echo '<input name="tp_assessment_id" type="hidden" value="' . $assessment_id . '"/>';
+        echo '<table class="form-table">';
+        echo '<tr>';
+        echo '<td>' . __('Name','teachpress') . '</td>';
+        echo '<td>' . stripslashes($student['firstname']) . ' ' . stripslashes($student['lastname']) . '</td>';
+        echo '</tr>';
+        echo '<tr>';
+        echo '<td>' . __('Artefact','teachpress') . '</td>';
+        echo '<td>' . stripslashes($artefact['title'])  . '</td>';
+        echo '</tr>';
+        echo '<tr>';
+        echo '<td>' . __('Type') . '</td>';
+        echo '<td>' . tp_admin::get_assessment_type_field('tp_type', $assessment['type']) . '</td>';
+        echo '</tr>';
+        echo '<tr>';
+        echo '<td>' . __('Value/Grade','teachpress') . '</td>';
+        echo '<td><input name="tp_value" type="text" size="50" value="' . $assessment['value'] . '" /></td>';
+        echo '</tr>';
+        echo '<tr>';
+        echo '<td>' . __('Comment','teachpress') . '</td>';
+        echo '<td><textarea name="tp_comment" rows="4" cols="50">' . stripslashes($assessment['comment']) . '</textarea></td>';
+        echo '</tr>';
+        echo '<tr>';
+        echo '<td>' . __('Has passed','teachpress') . '</td>';
+        echo '<td>' . tp_admin::get_assessment_passed_field('tp_passed', $assessment['passed']) . '</td>';
+        echo '</tr>';
+        echo '<tr>';
+        echo '<td>' . __('Date','teachpress') . '</td>';
+        echo '<td>' . $assessment['exam_date'] . '</td>';
+        echo '</tr>';
+        echo '<tr>';
+        echo '<td>' . __('Examiner','teachpress') . '</td>';
+        echo '<td>' . stripslashes($examiner->display_name) . '</td>';
+        echo '</tr>';
+        echo '</table>';
+        echo '<p><input name="tp_save_assessment" type="submit" class="button-primary" value="' . __('Save') . '"/> <input name="tp_delete_assessment" type="submit" class="button-secondary" value="' . __('Delete','teachpress') . '"/></p>';
+        echo '</form>';
+        echo '</div>';
+        echo '</body>';
+        echo '</html>';
+    }
+    
     /**
      * Gets a list of publications of a single author. This function is used for teachpress/admin/show_authors.php
      * @param int $author_id

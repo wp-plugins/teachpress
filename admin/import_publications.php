@@ -231,6 +231,7 @@ function tp_import_show_results($entries) {
 
 /**
  * Displays the export tab of the import page
+ * @since 3.0.0
  */
 function tp_export_tab() {
     ?>

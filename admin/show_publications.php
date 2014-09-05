@@ -444,7 +444,7 @@ class tp_publications_page {
         // Delete publications - part 1
         if ( $array_variables['action'] == "delete" ) {
             echo '<div class="teachpress_message">
-                  <p class="teachpress_message_headline">' . __('Are you sure to delete the selected elements?','teachpress') . '</p>
+                  <p class="teachpress_message_headline">' . __('Do you want to delete the selected items?','teachpress') . '</p>
                   <p><input name="delete_ok" type="submit" class="button-primary" value="' . __('Delete','teachpress') . '"/>
                   <a href="admin.php?page=publications.php&search=' . $array_variables['search'] . '&amp;limit=' . $array_variables['curr_page'] . '" class="button-secondary"> ' . __('Cancel','teachpress') . '</a></p>
                   </div>';

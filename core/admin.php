@@ -39,6 +39,45 @@ class tp_admin {
     }
     
     /**
+     * Returns a select field for assessment types
+     * @param string $field_name
+     * @param string $value
+     * @param string $tabindex
+     * @return string
+     * @since 5.0.0
+     */
+    public static function get_assessment_type_field($field_name, $value, $tabindex = ''){
+        $return = '';
+        $return .= '<select name="' . $field_name . '" id="' . $field_name . '" tabindex="' . $tabindex . '">';
+        $options = array( 
+                    array( 'value' => 'grade', 'title' => __('Grade','teachpress') ),
+                    array( 'value' => 'percentage', 'title' => __('Percentage','teachpress') ),
+                    array( 'value' => 'points', 'title' => __('Points','teachpress') ) 
+                   );
+        foreach ($options as $opt) {
+            $selected = ( $value == $opt['value'] ) ? 'selected="selected"' : '';
+            $return .= '<option value="' . $opt['value'] . '" ' . $selected . '>' . $opt['title'] . '</option>';
+        }
+        $return .= '</select>';
+        return $return;
+    }
+    
+    public static function get_assessment_passed_field($field_name, $value, $tabindex = '') {
+        $return = '';
+        $return .= '<select name="' . $field_name . '" id="' . $field_name . '" tabindex="' . $tabindex . '">';
+        $options = array( 
+                    array( 'value' => '0', 'title' => __('not passed','teachpress') ),
+                    array( 'value' => '1', 'title' => __('passed','teachpress') ) 
+                   );
+        foreach ($options as $opt) {
+            $selected = ( $value == $opt['value'] ) ? 'selected="selected"' : '';
+            $return .= '<option value="' . $opt['value'] . '" ' . $selected . '>' . $opt['title'] . '</option>';
+        }
+        $return .= '</select>';
+        return $return;
+    }
+    
+    /**
      * Returns a text field for admin/settings screens
      * @param string $field_name
      * @param string $label

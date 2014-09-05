@@ -127,14 +127,14 @@ class tp_enrollments {
          'email' => $user_email
         );
         $ret = tp_students::add_student($user_id, $data);
-        if ($ret !== false) {
-            self::add_student_meta( $user_id, $fields, $post );
-            return '<div class="teachpress_message_success"><strong>' . __('Registration successful','teachpress') . '</strong></div>';
+        if ( $data['firstname'] === '' && $data['lastname'] === '' ) {
+            return '<div class="teachpress_message_error"><strong>' . __('Error: Please enter your first- and lastname','teachpress') . '</strong></div>';
         }
-        else {
+        if ( $ret === false ) {
             return '<div class="teachpress_message_error"><strong>' . __('Error: User already exist','teachpress') . '</strong></div>';
         }
-        
+        self::add_student_meta( $user_id, $fields, $post );
+        return '<div class="teachpress_message_success"><strong>' . __('Registration successful','teachpress') . '</strong></div>';
     }
     
     /**
@@ -223,79 +223,30 @@ class tp_enrollments {
     }
     
     /**
-     * Returns a text field for user form
+     * Returns a checkbox field for user form
      * @param string $field_name    name/id of the field
      * @param string $label         label for the field
-     * @param string $value         value for the field
-     * @param boolean $readonly     true or false
+     * @param string $checked       value for the field
+     * @param boolean $readonly     true or false, default is false
+     * @param boolean $required     true or false, default is false
      * @return string
      * @since 5.0.0
      */
-    public static function get_form_text_field($field_name, $label, $value, $readonly = false) {
-        $readonly = ( $readonly === false ) ? '' : 'readonly="true" ';
-        return '<tr>
-                    <td><label for="' . $field_name . '"><b>' . $label . '</b></label></td>
-                    <td><input name="' . $field_name . '" type="text" id="' . $field_name . '" value="' . $value . '" size="50" ' . $readonly . '/></td>
-                 </tr>';
-    }
-    
-    /**
-     * Returns a number field for user form
-     * @param string $field_name    name/id of the field
-     * @param string $label         label for the field
-     * @param int $value            value for the field
-     * @param boolean $readonly     true or false
-     * @return string
-     * @todo min and max values are not editable
-     * @since 5.0.0
-     */
-    public static function get_form_int_field($field_name, $label, $value, $readonly = false) {
-        $readonly = ( $readonly === false ) ? '' : 'readonly="true" ';
-        return '<tr>
-                    <td><label for="' . $field_name . '"><b>' . $label . '</b></label></td>
-                    <td><input name="' . $field_name . '" type="number" id="' . $field_name . '" value="' . $value . '" size="50" ' . $readonly . ' min="0" max="999"/></td>
-                 </tr>';
-    }
-    
-    /**
-     * Returns a texteara field for user form
-     * @param string $field_name    name/id of the field
-     * @param string $label         label for the field
-     * @param string $value         value for the field
-     * @return string
-     * @since 5.0.0
-     */
-    public static function get_form_textarea_field ($field_name, $label, $value) {
-        return '<tr>
-                    <td><label for="' . $field_name . '"><b>' . $label . '</b></label></td>
-                    <td><textarea name="' . $field_name . '" id="' . $field_name . '" style="width:100%; height:80px;">' . $value . '</textarea></td>
-                 </tr>';
-    }
-    
-    /**
-     * Returns a select box for user form
-     * @global type $wpdb
-     * @param string $field_name    name/id of the field
-     * @param string $label         label for the field
-     * @param string $value         value for the field
-     * @return string
-     * @since 5.0.0
-     */
-    public static function get_form_select_field ($field_name, $label, $value) {
+    public static function get_form_checkbox_field($field_name, $label, $checked, $readonly = false, $required = false){
         global $wpdb;
-        $return = '';
-        $return .= '<tr>';
-        $return .= '<td><label for="' . $field_name . '"><b>' . $label . '</b></label></td>';
-        $return .= '<td><select name="' . $field_name . '" id="' . $field_name . '">';
         $options = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '" . $field_name . "' ORDER BY value ASC");
-        if ( $value == '' ) {
-            $return .= '<option value="">- ' . __('Please select','teachpress') . ' -</option>';
-        }
+        $readonly = ( $readonly === true ) ? 'readonly="true" ' : '' ;
+        $required = ( $required === true ) ? 'required="required"' : '';
+        $return = '<tr>';
+        $return .= '<td><label for="' . $field_name . '"><b>' . $label . '</b></label></td>';
+        $return .= '<td>';
+        $i = 1;
         foreach ($options as $opt) {
-            $selected = ( $value == $opt->value ) ? 'selected="selected"' : '';
-            $return .= '<option value="' . $opt->value . '" ' . $selected . '>' . $opt->value . '</option>';
+            $checked = ( $checked == $opt->value ) ? 'checked="checked"' : '';
+            $return .= '<input name="' . $field_name . '[]" type="checkbox" id="' . $field_name . '_' . $i . '" value="' . $opt->value . '" ' . $checked . ' ' . $readonly . ' ' . $required . '/> <label for="' . $field_name . '_' . $i . '">' . $opt->value . '</label><br/>';
+            $i++;
         }
-        $return .= '</select></td>';
+        $return .= '</td>';
         $return .= '</tr>';
         return $return;
     }
@@ -332,6 +283,133 @@ class tp_enrollments {
         $return .= '</td>';
         $return .= '</tr>';
         return $return;
+    }
+    
+    /**
+     * Returns a hidden field for user form
+     * @param string $field_name    name/id of the field
+     * @param int $value            value for the field
+     * @return string
+     * @since 5.0.0
+     */
+    public static function get_form_hidden_field($field_name, $value) {
+        return '<tr style="visible:hidden;">
+                    <td></td>
+                    <td><input name="' . $field_name . '" type="hidden" id="' . $field_name . '" value="' . $value . '"/></td>
+                 </tr>';
+    }
+    
+    /**
+     * Returns a number field for user form
+     * @param string $field_name    name/id of the field
+     * @param string $label         label for the field
+     * @param int $value            value for the field
+     * @param int $min              default is 0
+     * @param int $max              default is 999
+     * @param int step             default is 1
+     * @param boolean $readonly     true or false, default is false
+     * @param boolean $required     true or false, default is false
+     * @return string
+     * @since 5.0.0
+     */
+    public static function get_form_int_field ($field_name, $label, $value, $min = 0, $max = 999, $step = 1, $readonly = false, $required = false) {
+        $readonly = ( $readonly === true ) ? 'readonly="true" ' : '' ;
+        $required = ( $required === true ) ? 'required="required"' : '';
+        return '<tr>
+                    <td><label for="' . $field_name . '"><b>' . $label . '</b></label></td>
+                    <td><input name="' . $field_name . '" type="number" id="' . $field_name . '" value="' . $value . '" size="50" ' . $readonly . ' ' . $required . ' min="' . $min . '" max="' . $max . '" step="' . $step . '"/></td>
+                 </tr>';
+    }
+    
+    /**
+     * Returns a checkbox field for user form
+     * @param string $field_name    name/id of the field
+     * @param string $label         label for the field
+     * @param string $checked       value for the field
+     * @param boolean $readonly     true or false, default is false
+     * @param boolean $required     true or false, default is false
+     * @return string
+     * @since 5.0.0
+     */
+    public static function get_form_radio_field ($field_name, $label, $checked, $readonly = false, $required = false) {
+        global $wpdb;
+        $options = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '" . $field_name . "' ORDER BY value ASC");
+        $readonly = ( $readonly === true ) ? 'readonly="true" ' : '' ;
+        $required = ( $required === true ) ? 'required="required"' : '';
+        $return = '<tr>';
+        $return .= '<td><label for="' . $field_name . '"><b>' . $label . '</b></label></td>';
+        $return .= '<td>';
+        $i = 1;
+        foreach ($options as $opt) {
+            $checked = ( $checked == $opt->value ) ? 'checked="checked"' : '';
+            $return .= '<input name="' . $field_name . '" type="radio" id="' . $field_name . '_' . $i . '" value="' . $opt->value . '" ' . $checked . ' ' . $readonly . ' ' . $required . '/> <label for="' . $field_name . '_' . $i . '">' . $opt->value . '</label><br/>';
+            $i++;
+        }
+        $return .= '</td>';
+        $return .= '</tr>';
+        return $return;
+    }
+    
+    /**
+     * Returns a select box for user form
+     * @global type $wpdb
+     * @param string $field_name    name/id of the field
+     * @param string $label         label for the field
+     * @param string $value         value for the field
+     * @return string
+     * @since 5.0.0
+     */
+    public static function get_form_select_field ($field_name, $label, $value) {
+        global $wpdb;
+        $return = '';
+        $return .= '<tr>';
+        $return .= '<td><label for="' . $field_name . '"><b>' . $label . '</b></label></td>';
+        $return .= '<td><select name="' . $field_name . '" id="' . $field_name . '">';
+        $options = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '" . $field_name . "' ORDER BY value ASC");
+        if ( $value == '' ) {
+            $return .= '<option value="">- ' . __('Please select','teachpress') . ' -</option>';
+        }
+        foreach ($options as $opt) {
+            $selected = ( $value == $opt->value ) ? 'selected="selected"' : '';
+            $return .= '<option value="' . $opt->value . '" ' . $selected . '>' . $opt->value . '</option>';
+        }
+        $return .= '</select></td>';
+        $return .= '</tr>';
+        return $return;
+    }
+    
+    /**
+     * Returns a text field for user form
+     * @param string $field_name    name/id of the field
+     * @param string $label         label for the field
+     * @param string $value         value for the field
+     * @param boolean $readonly     true or false, default is false
+     * @param boolean $required     true or false, default is false
+     * @return string
+     * @since 5.0.0
+     */
+    public static function get_form_text_field($field_name, $label, $value, $readonly = false, $required = false) {
+        $readonly = ( $readonly === true ) ? 'readonly="true" ' : '' ;
+        $required = ( $required === true ) ? 'required="required"' : '';
+        return '<tr>
+                    <td><label for="' . $field_name . '"><b>' . $label . '</b></label></td>
+                    <td><input name="' . $field_name . '" type="text" id="' . $field_name . '" value="' . $value . '" size="50" ' . $readonly . ' ' . $required . '/></td>
+                 </tr>';
+    }
+    
+    /**
+     * Returns a texteara field for user form
+     * @param string $field_name    name/id of the field
+     * @param string $label         label for the field
+     * @param string $value         value for the field
+     * @return string
+     * @since 5.0.0
+     */
+    public static function get_form_textarea_field ($field_name, $label, $value) {
+        return '<tr>
+                    <td><label for="' . $field_name . '"><b>' . $label . '</b></label></td>
+                    <td><textarea name="' . $field_name . '" id="' . $field_name . '" style="width:100%; height:80px;">' . $value . '</textarea></td>
+                 </tr>';
     }
     
     /**
@@ -412,7 +490,7 @@ class tp_enrollments {
             }
             $rtn .= '<tr>';
             if ( $is_sign_out == '0') {
-                $checkbox = ( tp_assessments::has_assessment($user_id, $row1->course_id) === true ) ? '<input name="checkbox2[]" type="checkbox" value="' . $row1->con_id . '" title="' . $row1->name . '" id="ver_' . $row1->con_id . '"/>' : '';
+                $checkbox = ( tp_students::has_assessment($user_id, $row1->course_id) === true ) ? '<input name="checkbox2[]" type="checkbox" value="' . $row1->con_id . '" title="' . $row1->name . '" id="ver_' . $row1->con_id . '"/>' : '';
                 $rtn .='<td>' . $checkbox . '</td>';
             }		
             $rtn .= '<td><label for="ver_' . $row1->con_id . '" style="line-height:normal;" title="' . $row1->parent_name . ' ' .  $row1->name . '">' . stripslashes($row1->parent_name) . ' ' .  stripslashes($row1->name) . '</label></td>
@@ -790,22 +868,23 @@ function tp_registration_form ($user_id, $mode = 'register') {
         $rtn .= tp_enrollments::get_form_text_field('wp_id', __('WordPress User-ID','teachpress'), $user['wp_id'], true);
     }
     
-    $value = ( $mode === 'register' ) ? '' : stripslashes($user['firstname']);
-    $rtn .= tp_enrollments::get_form_text_field('firstname', __('First name','teachpress'), $value);
+    $firstname = ( $mode === 'register' ) ? '' : stripslashes($user['firstname']);
+    $rtn .= tp_enrollments::get_form_text_field('firstname', __('First name','teachpress'), $firstname, false, true);
  
-    $value = ( $mode === 'register' ) ? '' : stripslashes($user['lastname']);
-    $rtn .= tp_enrollments::get_form_text_field('lastname', __('Last name','teachpress'), $value);
+    $lastname = ( $mode === 'register' ) ? '' : stripslashes($user['lastname']);
+    $rtn .= tp_enrollments::get_form_text_field('lastname', __('Last name','teachpress'), $lastname, false, true);
     
-    $value = ( is_array( $user_id ) ) ? $user_id['userlogin'] : $user['userlogin'];
-    $rtn .= tp_enrollments::get_form_text_field('userlogin', __('User account','teachpress'), $value, true);
+    $userlogin = ( is_array( $user_id ) ) ? $user_id['userlogin'] : $user['userlogin'];
+    $rtn .= tp_enrollments::get_form_text_field('userlogin', __('User account','teachpress'), $userlogin, true);
     
     $readonly = !isset($user['email']) ? false : true;
-    $value = isset($user['email']) ? stripslashes($user['email']) : '';
-    $rtn .= tp_enrollments::get_form_text_field('email', __('E-Mail'), $value, $readonly);
+    $email = isset($user['email']) ? stripslashes($user['email']) : '';
+    $rtn .= tp_enrollments::get_form_text_field('email', __('E-Mail'), $email, $readonly);
     
     // Show custom fields
     foreach ($fields as $row) {
         $data = tp_db_helpers::extract_column_data($row['value']);
+        $required = ( $data['required'] === 'true' ) ? true : false; 
         $value = '';
         foreach ( $user_meta as $row_meta ) {
             if ( $row['variable'] === $row_meta['meta_key'] ) {
@@ -813,7 +892,10 @@ function tp_registration_form ($user_id, $mode = 'register') {
                 break;
             }
         }
-        if ( $data['type'] === 'SELECT' ) {
+        if ( $data['visibility'] === 'hidden' ) {
+            $rtn .= tp_enrollments::get_form_hidden_field($row['variable'], $value);
+        }
+        else if ( $data['type'] === 'SELECT' ) {
             $rtn .= tp_enrollments::get_form_select_field($row['variable'], $data['title'], $value);
         }
         elseif ( $data['type'] === 'TEXTAREA' ) {
@@ -823,16 +905,25 @@ function tp_registration_form ($user_id, $mode = 'register') {
             $rtn .= tp_enrollments::get_form_date_field($row['variable'], $data['title'], $value);
         }
         elseif ( $data['type'] === 'INT' ) {
-            $rtn .= tp_enrollments::get_form_int_field($row['variable'], $data['title'], $value);
+            $data['min'] = ( $data['min'] !== 'false' ) ? intval($data['min']) : 0;
+            $data['max'] = ( $data['max'] !== 'false' ) ? intval($data['max']) : 999;
+            $data['step'] = ( $data['step'] !== 'false' ) ? intval($data['step']) : 1;
+            $rtn .= tp_enrollments::get_form_int_field($row['variable'], $data['title'], $value, $data['min'], $data['max'], $data['step'], false, $required);
+        }
+        elseif ( $data['type'] === 'CHECKBOX' ) {
+            $rtn .= tp_enrollments::get_form_checkbox_field($row['variable'], $data['title'], $value, false, $required);
+        }
+        elseif ( $data['type'] === 'RADIO' ) {
+            $rtn .= tp_enrollments::get_form_radio_field($row['variable'], $data['title'], $value, false, $required);
         }
         else {
-            $rtn .= tp_enrollments::get_form_text_field($row['variable'], $data['title'], $value);
+            $rtn .= tp_enrollments::get_form_text_field($row['variable'], $data['title'], $value, false, $required);
         }
     }
     $rtn .= '</table>';
     
     $name = ( $mode === 'register' ) ? 'tp_add_user' : 'tp_change_user';
-    $rtn .= '<input name="' . $name . '" type="submit" class="button-primary" id="' . $name . '" onclick="teachpress_validateForm(' . "'firstname','','R','lastname','','R'" . ');return document.teachpress_returnValue" value="' . __('Send','teachpress') . '" />
+    $rtn .= '<input name="' . $name . '" type="submit" class="button-primary" id="' . $name . '" value="' . __('Send','teachpress') . '" />
              </div>
          </form>';
     return $rtn;

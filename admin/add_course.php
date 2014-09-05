@@ -187,13 +187,7 @@ function tp_add_course_page() {
      </div>
       
       </form>
-      <script type="text/javascript" charset="utf-8">
-        jQuery(document).ready(function($) {
-            $('#comment').resizable({handles: "se", minHeight: 55, minWidth: 400});
-            $('#start').datepicker({showWeek: true, changeMonth: true, changeYear: true, showOtherMonths: true, firstDay: 1, renderer: $.extend({}, $.datepicker.weekOfYearRenderer), onShow: $.datepicker.showStatus, dateFormat: 'yy-mm-dd', yearRange: '2008:c+5'}); 
-            $('#end').datepicker({showWeek: true, changeMonth: true, changeYear: true, showOtherMonths: true, firstDay: 1, renderer: $.extend({}, $.datepicker.weekOfYearRenderer), onShow: $.datepicker.showStatus, dateFormat: 'yy-mm-dd', yearRange: '2008:c+5'});
-        });
-      </script>
+      <script type="text/javascript" charset="utf-8" src="<?php echo plugins_url(); ?>/teachpress/js/admin_add_course.js"></script>
    </div>
 <?php }
 

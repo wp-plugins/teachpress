@@ -64,7 +64,7 @@ class tp_artefacts {
     public static function get_artefact ($artefact_id, $output_type = ARRAY_A) {
         global $wpdb;
         $artefact_id = intval($artefact_id);
-        return $wpdb->get_results("SELECT * FROM " . TEACHPRESS_ARTEFACTS . " WHERE `artefact_id` = '$artefact_id'", $output_type);
+        return $wpdb->get_row("SELECT * FROM " . TEACHPRESS_ARTEFACTS . " WHERE `artefact_id` = '$artefact_id'", $output_type);
     }
     
     /**
@@ -121,12 +121,31 @@ class tp_artefacts {
     }
     
     /**
-     * Changes an artefact
-     * @todo This function is not complete
-     * @since x.x.x
+     * Changes an artefact name
+     * @param int $artefact_id
+     * @param string $title
+     * @return type int|false
+     * @since 5.0.0
      */
-    public static function change_artefact () {
-
+    public static function change_artefact_title ($artefact_id, $title) {
+        global $wpdb;
+        return $wpdb->update( TEACHPRESS_ARTEFACTS, array( 'title' => $title), array( 'artefact_id' => $artefact_id ), array( '%s' ), array( '%d' ) );
+    }
+    
+    /**
+     * Checks if an artefact has assessments. If yes, the function returns true. If not, the function returns false.
+     * @param int $artefact_id
+     * @return boolean
+     * @since 5.0.0
+     */
+    public static function has_assessments($artefact_id) {
+        global $wpdb;
+        $artefact_id = intval($artefact_id);
+        $test = $wpdb->query("SELECT assessment_id FROM " . TEACHPRESS_ASSESSMENTS . " WHERE `artefact_id` = '$artefact_id'");
+        if ( $test === 0 ) {
+            return false;
+        }
+        return true;
     }
 }
 
@@ -182,11 +201,23 @@ class tp_assessments {
         global $wpdb;
         $wpdb->insert(TEACHPRESS_ASSESSMENTS, array('wp_id' => $data['wp_id'], 'value' => $data['value'], 'max_value' => $data['max_value'], 'type' => $data['type'], 'examiner_id' => $data['examiner_id'], 'exam_date' => $data['exam_date'], 'comment' => $data['comment'], 'passed' => $data['passed']), array('%d', '%s', '%s', '%s', '%d', '%s', '%s', '%d'));
         $insert_id = $wpdb->insert_id;
-
-        $data['artefact_id'] = $data['artefact_id'] === NULL ? "NULL" : intval($data['artefact_id']);
-        $data['course_id'] = $data['course_id'] === NULL ? "NULL" : intval($data['course_id']);
+        // For possible NULL values
+        $data['artefact_id'] = ( $data['artefact_id'] === NULL ) ? "NULL" : intval($data['artefact_id']);
+        $data['course_id'] = ( $data['course_id'] === NULL ) ? "NULL" : intval($data['course_id']);
         $wpdb->query("UPDATE " . TEACHPRESS_ASSESSMENTS . " SET `artefact_id` = " . $data['artefact_id'] . ", `course_id` = " . $data['course_id'] . " WHERE `assessment_id` = $insert_id");
         return $insert_id;
+    }
+    
+    /**
+     * Changes an assessment. Returns false if errors, or the number of rows affected if successful.
+     * @param int $assessment_id        The assessment ID
+     * @param array $data               An associative array with new assessment_data (type, value, exminer_id, exam_date, comment, passed)
+     * @return int|false
+     * @since 5.0.0
+     */
+    public static function change_assessment($assessment_id, $data) {
+        global $wpdb;
+        return $wpdb->update( TEACHPRESS_ASSESSMENTS, array( 'type' => $data['type'], 'value' => $data['value'], 'examiner_id' => $data['examiner_id'], 'exam_date' => $data['exam_date'], 'comment' => $data['comment'], 'passed' => $data['passed']), array( 'assessment_id' => $assessment_id ), array( '%s', '%s', '%d', '%s', '%s', '%d' ), array( '%d' ) );
     }
     
    /**
@@ -198,32 +229,6 @@ class tp_assessments {
        global $wpdb;
        $assessment_id = intval($assessment_id);
        $wpdb->query("DELETE FROM " . TEACHPRESS_ASSESSMENTS . " WHERE `assessment_id` = '$assessment_id'");
-   }
-   
-   /**
-    * Checks if the student has assessments. If yes, the function returns true. If not, the function returns false.
-    * @param int $wp_id         The user ID
-    * @param int $course_id     The course ID
-    * @return boolean
-    * @since 5.0.0
-    */
-   public static function has_assessment ($wp_id, $course_id) {
-       global $wpdb;
-       $wp_id = intval($wp_id);
-       $course_id = intval($course_id);
-       $artefacts = tp_artefacts::get_artefact_ids($course_id, 0);
-       
-       // Define where clause
-       $where = '';
-       foreach ( $artefacts as $row ) {
-           $where .= " OR `artefact_id` = '" . $row['artefact_id'] . "'";
-       }
-       
-       $test = $wpdb->query("SELECT assessment_id FROM " . TEACHPRESS_ASSESSMENTS . " WHERE `wp_id` = '$wp_id' AND ( `course_id` = '$course_id' $where)");
-       if ( $test === 0 ) {
-           return false;
-       }
-       return true;
    }
     
 }
@@ -887,9 +892,10 @@ class tp_courses {
     }
     
     /** 
-     * Changes course data
+     * Changes course data. Returns false if errors, or the number of rows affected if successful.
      * @param int $course_id    course ID
      * @param array $data
+     * @return int|false
      * @since 5.0.0
     */ 
    public static function change_course($course_id, $data){
@@ -910,7 +916,7 @@ class tp_courses {
 
         $data['start'] = $data['start'] . ' ' . $data['start_hour'] . ':' . $data['start_minute'] . ':00';
         $data['end'] = $data['end'] . ' ' . $data['end_hour'] . ':' . $data['end_minute'] . ':00';
-        $wpdb->update( TEACHPRESS_COURSES, array( 'name' => $data['name'], 'type' => $data['type'], 'room' => $data['room'], 'lecturer' => $data['lecturer'], 'date' => $data['date'], 'places' => $data['places'], 'start' => $data['start'], 'end' => $data['end'], 'semester' => $data['semester'], 'comment' => $data['comment'], 'rel_page' => $data['rel_page'], 'parent' => $data['parent'], 'visible' => $data['visible'], 'waitinglist' => $data['waitinglist'], 'image_url' => $data['image_url'], 'strict_signup' => $data['strict_signup'], 'use_capabilites' => $data['use_capabilites'] ), array( 'course_id' => $course_id ), array( '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%d', '%d' ), array( '%d' ) );
+        return $wpdb->update( TEACHPRESS_COURSES, array( 'name' => $data['name'], 'type' => $data['type'], 'room' => $data['room'], 'lecturer' => $data['lecturer'], 'date' => $data['date'], 'places' => $data['places'], 'start' => $data['start'], 'end' => $data['end'], 'semester' => $data['semester'], 'comment' => $data['comment'], 'rel_page' => $data['rel_page'], 'parent' => $data['parent'], 'visible' => $data['visible'], 'waitinglist' => $data['waitinglist'], 'image_url' => $data['image_url'], 'strict_signup' => $data['strict_signup'], 'use_capabilites' => $data['use_capabilites'] ), array( 'course_id' => $course_id ), array( '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%d', '%d' ), array( '%d' ) );
     }
     
     /**
@@ -1232,26 +1238,28 @@ class tp_documents {
     }
     
     /**
-     * Sets the value of the name field for a document entry
+     * Sets the value of the name field for a document entry. Returns false if errors, or the number of rows affected if successful.
      * @param int $doc_id
      * @param string $doc_name
+     * @return int|false
      * @since 5.0.0
      */
     public static function change_document_name($doc_id, $doc_name) {
         global $wpdb;
-        $wpdb->update( TEACHPRESS_COURSE_DOCUMENTS, array( 'name' => $doc_name ), array( 'doc_id' => $doc_id ), array( '%s', ), array( '%d' ) );
+        return $wpdb->update( TEACHPRESS_COURSE_DOCUMENTS, array( 'name' => $doc_name ), array( 'doc_id' => $doc_id ), array( '%s', ), array( '%d' ) );
     }
 
 
     /**
-     * Sets the value of the sort field for a document entry
+     * Sets the value of the sort field for a document entry. Returns false if errors, or the number of rows affected if successful.
      * @param int $doc_id
      * @param int $sort
+     * @return int|false
      * @since 5.0.0
      */
     public static function set_sort($doc_id, $sort) {
         global $wpdb;
-        $wpdb->update( TEACHPRESS_COURSE_DOCUMENTS, array( 'sort' => $sort ), array( 'doc_id' => $doc_id ), array( '%d', ), array( '%d' ) );
+        return $wpdb->update( TEACHPRESS_COURSE_DOCUMENTS, array( 'sort' => $sort ), array( 'doc_id' => $doc_id ), array( '%d', ), array( '%d' ) );
     }
 
         /**
@@ -2198,6 +2206,32 @@ class tp_students {
         }
     }
     
+    /**
+    * Checks if the student has assessments. If yes, the function returns true. If not, the function returns false.
+    * @param int $wp_id         The user ID
+    * @param int $course_id     The course ID
+    * @return boolean
+    * @since 5.0.0
+    */
+   public static function has_assessment ($wp_id, $course_id) {
+       global $wpdb;
+       $wp_id = intval($wp_id);
+       $course_id = intval($course_id);
+       $artefacts = tp_artefacts::get_artefact_ids($course_id, 0);
+       
+       // Define where clause
+       $where = '';
+       foreach ( $artefacts as $row ) {
+           $where .= " OR `artefact_id` = '" . $row['artefact_id'] . "'";
+       }
+       
+       $test = $wpdb->query("SELECT assessment_id FROM " . TEACHPRESS_ASSESSMENTS . " WHERE `wp_id` = '$wp_id' AND ( `course_id` = '$course_id' $where)");
+       if ( $test === 0 ) {
+           return false;
+       }
+       return true;
+   }
+    
 }
 
 /**
@@ -2318,14 +2352,15 @@ class tp_tags {
    }
     
    /** 
-    * Edit a tag
+    * Edit a tag. Returns false if errors, or the number of rows affected if successful.
     * @param int $tag_id 
     * @param string $name
+    * @return int|false
     * @since 5.0.0
    */
    public static function edit_tag($tag_id, $name) {
        global $wpdb;
-       $wpdb->update( TEACHPRESS_TAGS, array( 'name' => $name ), array( 'tag_id' => $tag_id ), array( '%s' ), array( '%d' ) );
+       return $wpdb->update( TEACHPRESS_TAGS, array( 'name' => $name ), array( 'tag_id' => $tag_id ), array( '%s' ), array( '%d' ) );
    }
    
    /**
@@ -2565,7 +2600,7 @@ class tp_db_helpers {
      * @since 5.0.0
      */
     public static function register_column ($table, $column, $data) {
-        $value = 'name = {' . $column. '}, title = {' . $data['title'] . '}, type = {' . $data['type'] . '}, required = {' . $data['required'] . '}, unique = {' . $data['unique'] . '}, visibility = {' . $data['visibility'] . '}';
+        $value = 'name = {' . $column. '}, title = {' . $data['title'] . '}, type = {' . $data['type'] . '}, required = {' . $data['required'] . '}, min = {' . $data['min'] . '}, max = {' . $data['max'] . '}, step = {' . $data['step'] . '}, visibility = {' . $data['visibility'] . '}';
         tp_options::add_option($column, $value, $table);
     }
     

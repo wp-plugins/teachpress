@@ -218,6 +218,33 @@ class tp_single_course_actions {
     }
     
     /**
+     * Deletes an artefact
+     * @param int $artefact_id
+     * @since 5.0.0
+     * @access private
+     */
+    private static function delete_artefact($artefact_id) {
+        if ( tp_artefacts::has_assessments($artefact_id) === true ) {
+            get_tp_message( __('Removing not possible. Delete the assessments first.','teachpress'), 'red' );
+            return;
+        }
+        tp_artefacts::delete_artefact($artefact_id);
+        get_tp_message( __('Removing successful','teachpress') );
+    }
+    
+    /**
+     * Deletes an assessment
+     * @param array $post
+     * @since 5.0.0
+     * @access private
+     */
+    private static function delete_assessment($post) {
+        $assessment_id = isset ( $post['tp_assessment_id'] ) ? intval($post['tp_assessment_id']) : 0;
+        tp_assessments::delete_assessment($assessment_id);
+        get_tp_message( __('Removing successful','teachpress') );
+    }
+    
+    /**
      * Deletes signups
      * @param array $post
      * @param array $checkbox
@@ -230,6 +257,43 @@ class tp_single_course_actions {
         tp_courses::delete_signup($checkbox, $move_up);
         tp_courses::delete_signup($waiting, $move_up);
         get_tp_message( __('Removing successful','teachpress') );	
+    }
+    
+    /**
+     * Changes an artefact
+     * @param array $post
+     * @since 5.0.0
+     * @access private
+     */
+    private static function change_artefact($post) {
+        $artefact_id = isset( $post['tp_artefact_id'] ) ? intval($post['tp_artefact_id']) : 0;
+        $artefact_title = isset( $post['tp_artefact_title'] ) ? htmlspecialchars($post['tp_artefact_title']) : '';
+        if ( $artefact_id === 0 ) {
+            return;
+        }
+        tp_artefacts::change_artefact_title($artefact_id, $artefact_title);
+        get_tp_message( __('Saved') );
+    }
+    
+    /**
+     * Changes an assessment
+     * @param array $post
+     * @since 5.0.0
+     * @access private
+     */
+    private static function change_assessment($post) {
+        $assessment_id = isset ( $post['tp_assessment_id'] ) ? intval($post['tp_assessment_id']) : 0;
+        $data = array('value' => isset ( $post['tp_value'] ) ? htmlspecialchars($post['tp_value']) : '', 
+                      'type' => isset ( $post['tp_type'] ) ? htmlspecialchars($post['tp_type']) : '',
+                      'examiner_id' => get_current_user_id(),
+                      'exam_date' => date('Y-m-d H:i:s'), 
+                      'comment' => isset ( $post['tp_comment'] ) ? htmlspecialchars($post['tp_comment']) : '', 
+                      'passed' =>  isset ( $post['tp_passed'] ) ? htmlspecialchars($post['tp_passed']) : '' );
+        if ( $assessment_id === 0 ) {
+            return;
+        }
+        tp_assessments::change_assessment($assessment_id, $data);
+        get_tp_message( __('Saved') );
     }
     
     /**
@@ -283,9 +347,26 @@ class tp_single_course_actions {
         if ( isset( $post['add_artefact'] ) && ( $capability === 'owner' || $capability === 'approved' ) ) {
             self::add_artefact($course_id, $post);
         }
+        // Edit artefact
+        if ( isset( $post['tp_save_artefact'] ) && ( $capability === 'owner' || $capability === 'approved' ) ) {
+            self::change_artefact($post);
+        }
+        // Delete artefact
+        if ( isset( $_GET['delete_artefact'] ) && ( $capability === 'owner' || $capability === 'approved' ) ) {
+            self::delete_artefact($_GET['delete_artefact']);
+            
+        }
         // Add assessment
         if ( isset( $post['add_assessment'] ) && ( $capability === 'owner' || $capability === 'approved' ) ) {
             self::add_assessment($course_id, $post);
+        }
+        // Edit assessment
+        if ( isset( $post['tp_save_assessment'] ) && ( $capability === 'owner' || $capability === 'approved' ) ) {
+            self::change_assessment($post);
+        }
+        // Delete assessment
+        if ( isset( $post['tp_delete_assessment'] ) && ( $capability === 'owner' || $capability === 'approved' ) ) {
+            self::delete_assessment($post);
         }
         // Ass multiple assessments
         if ( isset( $post['add_multiple_assessments'] ) && ( $capability === 'owner' || $capability === 'approved' ) ) {
@@ -343,11 +424,7 @@ class tp_single_course_page {
 
         echo '<p><label for="assessment_value">' . __('Value/Grade','teachpress') . '</label></p>';
         echo '<input name="assessment_value" id="assessment_value" type="text" style="width:100px;"/>';
-        echo '<select name="assessment_value_type" id="assessment_value_type">';
-            echo '<option value="grade">' . __('Grade','teachpress') . '</option>';
-            echo '<option value="percentage">' . __('Percentage','teachpress') . '</option>';
-            echo '<option value="points">' . __('Points','teachpress') . '</option>';
-        echo '</select> ';
+        echo tp_admin::get_assessment_type_field('assessment_value_type', '');
         echo '<input type="checkbox" name="assessment_passed" id="assessment_passed" value="1"/> <label for="assessment_passed">' . __('Participant has passed','teachpress') . '</label>';
 
         echo '<p><label for="assessment_target">' . __('Assessment for','teachpress') . '</label></p>';
@@ -532,7 +609,8 @@ class tp_single_course_page {
             echo '<option value="' . $row['artefact_id'] . '">' . stripslashes($row['title']) . '</option>';
         }
         echo '</select> ';
-        echo '<input name="add_multiple_assessments" type="submit" class="button-primary" value="' . __('Save') . '"/>';
+        echo '<input name="add_multiple_assessments" type="submit" class="button-primary" value="' . __('Save') . '"/> ';
+        echo '<a href="admin.php?page=teachpress/teachpress.php&amp;course_id=' . $course_id . '&amp;sem=' . $link_parameter['sem'] . '&amp;search=' . $link_parameter['search'] . '&amp;action=assessments" class="button-secondary">'. __('Cancel') . '</a>';
         echo '</div>';
         echo '<table id="tp_add_assessments" class="widefat">';
         echo '<thead>';
@@ -565,11 +643,7 @@ class tp_single_course_page {
             echo '<td><input name="result_' . $stud['wp_id'] . '" type="text" size="10" tabindex="' . $pos . '" /></td>';
             $pos++;
             echo '<td>';
-            echo '<select name="result_type_' . $stud['wp_id'] . '" id="assessment_value_type" tabindex="' . $pos . '">';
-                echo '<option value="grade">' . __('Grade','teachpress') . '</option>';
-                echo '<option value="percentage">' . __('Percentage','teachpress') . '</option>';
-                echo '<option value="points">' . __('Points','teachpress') . '</option>';
-            echo '</select>';
+            echo tp_admin::get_assessment_type_field('result_type_' . $stud['wp_id'], '', $pos);
             echo '</td>';
             $pos++;
             echo '<td><textarea name="result_comment_' . $stud['wp_id'] . '" rows="3" cols="40" tabindex="' . $pos . '"></textarea></td>';
@@ -601,7 +675,7 @@ class tp_single_course_page {
             if ( $single_assessment['comment'] != '' ) {
                 $class .= ' tp_assessment_comment';
             }
-            echo '<a href="" class="tp_assessment ' . $class . '" id="tp_assessment_' . $single_assessment['assessment_id'] . '">' . $single_assessment['value'] . '</a>';
+            echo '<a href="' . plugins_url() . '/teachpress/ajax.php?assessment_id=' . $single_assessment['assessment_id'] . '" title="' . __('Edit Assessment','teachpress') . '" class="tp_assessment ' . $class . '" id="tp_assessment_' . $single_assessment['assessment_id'] . '">' . $single_assessment['value'] . '</a>';
         }
         echo '</td>';
     }
@@ -627,6 +701,15 @@ class tp_single_course_page {
         echo '<span style="margin-right:15px;"><a onclick="teachpress_showhide(' . "'tp_add_assessment_form'" . ');" style="cursor:pointer;" id="teachpress_add_assessment" class="button-secondary">' . __('Add single assessment','teachpress') . '</a></span> ';
         echo '<span style="margin-right:15px;"><a href="admin.php?page=teachpress/teachpress.php&course_id=' . $course_id . '&sem=' . $link_parameter['sem'] . '&search=' . $link_parameter['search'] . '&action=add_assessments" style="cursor:pointer;" id="teachpress_add_assessment" class="button-secondary">' . __('Add a set of assessments','teachpress') . '</a></span> ';
         echo '</div>';
+        // Delete artefact
+        if ( isset( $_POST['tp_delete_artefact'] ) ) {
+            $tp_artefact_id = ( isset($_POST['tp_artefact_id']) ) ? intval($_POST['tp_artefact_id']) : 0;
+            echo '<div class="teachpress_message" teachpress_message_orange">';
+            echo '<p class="teachpress_message_headline">' . __('Do you want to delete the selected items?','teachpress') . '</p>';
+            echo '<p><a href="admin.php?page=teachpress/teachpress.php&course_id=' . $course_id . '&amp;sem=' . $link_parameter['sem'] . '&amp;search=' . $link_parameter['search'] . '&amp;action=assessments&amp;delete_artefact=' . $tp_artefact_id . '" class="button-primary">' . __('Delete','teachpress') . '</a> ';
+            echo '<a href="admin.php?page=teachpress/teachpress.php&course_id=' . $course_id . '&amp;sem=' . $link_parameter['sem'] . '&amp;search=' . $link_parameter['search'] . '&amp;action=assessments" class="button-secondary">' . __('Cancel','teachpress') . '</a></p>';
+            echo '</div>';
+        }
         tp_single_course_page::get_artefact_form();
         tp_single_course_page::get_assessment_form($course_id);
         $args = array('number_entries' => $count_students,
@@ -650,7 +733,7 @@ class tp_single_course_page {
         echo '<th>' . __('First name','teachpress') . '</th>';
         $artefacts = tp_artefacts::get_artefacts($course_id, 0);
         foreach ( $artefacts as $row ) {
-            echo '<th>' . stripslashes($row['title']) . '</th>';
+            echo '<th><a href="' . plugins_url() . '/teachpress/ajax.php?artefact_id=' . $row['artefact_id'] . '" class="tp_edit_artefact" title="' . __('Edit Artefact','teachpress') . '">' . stripslashes($row['title']) . '</a></th>';
         }
         echo '<th>' . __('Course','teachpress') . '</th>';
         echo '</tr>';
@@ -685,8 +768,35 @@ class tp_single_course_page {
         ?>
         <script type="text/javascript" charset="utf-8">
             jQuery(document).ready(function($){
-                $(".tp_assessment").live("click", function() {
-                    
+                $(".tp_assessment").each(function() {
+                    var $link = $(this);
+                    var $dialog = $('<div></div>')
+                        .load($link.attr('href') + ' #content')
+                        .dialog({
+                                autoOpen: false,
+                                title: '<?php _e('Edit Assessment','teachpress'); ?>',
+                                width: 600
+                        });
+
+                    $link.click(function() {
+                        $dialog.dialog('open');
+                        return false;
+                    });
+                });
+                $(".tp_edit_artefact").each(function() {
+                    var $link = $(this);
+                    var $dialog = $('<div></div>')
+                        .load($link.attr('href') + ' #content')
+                        .dialog({
+                                autoOpen: false,
+                                title: '<?php _e('Edit Artefact','teachpress'); ?>',
+                                width: 600
+                        });
+
+                    $link.click(function() {
+                        $dialog.dialog('open');
+                        return false;
+                    });
                 });
             });
         </script>
@@ -1018,7 +1128,7 @@ class tp_single_course_page {
        // Delete entries
        if ( $reg_action == 'delete' ) { 
            echo '<div class="teachpress_message" teachpress_message_orange">';
-           echo '<p class="teachpress_message_headline">' . __('Are you sure to delete the selected elements?','teachpress') . '</p>';
+           echo '<p class="teachpress_message_headline">' . __('Do you want to delete the selected items?','teachpress') . '</p>';
            echo '<p><input type="checkbox" name="move_up" id="move_up" checked="checked" /> <label for="move_up">' . __('Move up entries from the waitinglist as replacement for deleted signups.','teachpress') . '</label></p>';
            echo '<p><input name="delete_ok" type="submit" class="button-primary" value="' . __('Delete','teachpress') . '"/> ';
            echo '<a href="admin.php?page=teachpress/teachpress.php&course_id=' . $course_id . '&amp;sem=' . $link_parameter['sem'] . '&amp;search=' . $link_parameter['search'] . '&amp;order=' . $link_parameter['order'] . '&amp;sort=' .$link_parameter['sort'] . '&amp;action=enrollments" class="button-secondary">' . __('Cancel','teachpress') . '</a></p>';
@@ -1224,7 +1334,7 @@ class tp_single_course_page {
                 } 
                 else{
                     $('.tp_filelist').append('<li class="tp_file" id="' + file.id + '"><span class="tp_file_name">' +
-                    file.name + '</span> (<span>' + plupload.formatSize(0) + '</span>/' + plupload.formatSize(file.size) + ') ' + '<div class="tp_fileprogress"></div></li>');
+                    file.name + '</span> (<span class="tp_file_size">' + plupload.formatSize(0) + '</span>/' + plupload.formatSize(file.size) + ') ' + '<div class="tp_fileprogress"></div></li>');
                     console.log(file);
                 }
               });
@@ -1236,7 +1346,7 @@ class tp_single_course_page {
             // while a file is uploaded
             uploader.bind('UploadProgress', function(up, file) {
                 $('#' + file.id + " .tp_fileprogress").width(file.percent + "%");
-                $('#' + file.id + " span").html(plupload.formatSize(parseInt(file.size * file.percent / 100)));
+                $('#' + file.id + " .tp_file_size").html(plupload.formatSize(parseInt(file.size * file.percent / 100)));
             });
 
             // a file was uploaded

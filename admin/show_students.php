@@ -68,7 +68,7 @@ function tp_students_page() {
         // Delete students part 1
         if ( $bulk === "delete" ) {
             echo '<div class="teachpress_message">
-            <p class="teachpress_message_headline">' . __('Are you sure to delete the selected elements?','teachpress') . '</p>
+            <p class="teachpress_message_headline">' . __('Do you want to delete the selected items?','teachpress') . '</p>
             <p><input name="delete_ok" type="submit" class="button-primary" value="' . __('Delete','teachpress') . '"/>
             <a href="admin.php?page=teachpress/students.php&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $curr_page . '" class="button-secondary"> ' . __('Cancel','teachpress') . '</a></p>
             </div>';
@@ -184,12 +184,14 @@ function tp_students_page() {
                 echo '<td><a href="admin.php?page=teachpress/teachpress.php&amp;student_id=' . $row3['wp_id'] . '&amp;search=' . $search . '&amp;students_group=' . $students_group . '&amp;limit=' . $curr_page . '&amp;action=mail&amp;single=' . $row3['email'] . '" title="' . __('send E-Mail','teachpress') . '">' . $row3['email'] . '</a></td>';
                 $max2 = count($visible_fields);
                 for ( $i = 0; $i < $max2; $i++ ) {
+                    $value = '';
                     foreach ($student_meta as $meta) {
                         if ( $meta['meta_key'] === $visible_fields[$i] ) {
-                            echo '<td>' . $meta['meta_value'] . '</td>';
+                            $value = stripslashes($meta['meta_value']);
                             continue;
                         }
                     }
+                    echo '<td>' . $value . '</td>';
                 }
                 echo '</tr>';
             } 

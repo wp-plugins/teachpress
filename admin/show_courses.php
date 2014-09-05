@@ -113,7 +113,7 @@ class tp_courses_page {
            // delete a course, part 1
            if ( $bulk === 'delete' ) {
                 echo '<div class="teachpress_message">
-                <p class="teachpress_message_headline">' . __('Are you sure to delete the selected elements?','teachpress') . '</p>
+                <p class="teachpress_message_headline">' . __('Do you want to delete the selected items?','teachpress') . '</p>
                 <p><input name="delete_ok" type="submit" class="button-primary" value="' . __('Delete','teachpress') . '"/>
                 <a href="admin.php?page=teachpress/teachpress.php&sem=' . $sem . '&search=' . $search . '" class="button-secondary"> ' . __('Cancel','teachpress') . '</a></p>
                 </div>';

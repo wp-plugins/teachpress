@@ -1,16 +1,6 @@
 // teachPress javascript for the admin menu
 
 /**
- * Removes a class from a given element
- * @param {string} element
- * @param {string} clas
- * @since 5.0.0
- */
-function teachpress_removeClass(element,clas) {
-    document.getElementById(element).className = document.getElementById(element).className.replace( new RegExp('(?:^|\\s)'+clas+'(?!\\S)') ,'');
-}
-
-/**
  * Delele node
  * @param {type} id
  * @since 5.0.0

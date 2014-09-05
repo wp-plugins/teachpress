@@ -16,6 +16,18 @@ if ( is_user_logged_in() && current_user_can('use_teachpress') ) {
         tp_ajax::get_author_publications($author_id);
     }
     
+    // for show_single_course.php (assessment screen)
+    $assessment_id = ( isset( $_GET['assessment_id'] ) ) ? intval( $_GET['assessment_id'] ) : 0;
+    if ( $assessment_id !== 0 ) {
+        tp_ajax::get_assessment_screen($assessment_id);
+    }
+    
+    // for show_single_course.php (artefact screen)
+    $artefact_id = ( isset( $_GET['artefact_id'] ) ) ? intval( $_GET['artefact_id'] ) : 0;
+    if ( $artefact_id !== 0 ) {
+        tp_ajax::get_artefact_screen($artefact_id);
+    }
+    
     // for removing documents
     $del_document = ( isset( $_GET['del_document'] ) ) ? intval( $_GET['del_document'] ) : 0;
     if ( $del_document !== 0 ) {

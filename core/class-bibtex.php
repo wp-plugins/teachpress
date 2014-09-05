@@ -735,10 +735,10 @@ class tp_bibtex {
         if ( $doi !== '' ) {
             $doi_url = 'http://dx.doi.org/' . $doi;
             if ( $mode === 'list' ) {
-                $end .= '<li><a class="tp_pub_list" style="background-image: url(' . get_tp_mimetype_images( 'html' ) . ')" href="' . $doi_url . '" title="' . __('Follow doi:','teachpress') . $doi . '" target="_blank">doi:' . $doi . '</a></li>';
+                $end .= '<li><a class="tp_pub_list" style="background-image: url(' . get_tp_mimetype_images( 'html' ) . ')" href="' . $doi_url . '" title="' . __('Follow DOI:','teachpress') . $doi . '" target="_blank">doi:' . $doi . '</a></li>';
             }
             else {
-                $end .= '<a class="tp_pub_link" href="' . $doi_url . '" title="' . __('Follow doi:','teachpress') . $doi . '" target="_blank"><img class="tp_pub_link_image" alt="" src="' . get_tp_mimetype_images( 'html' ) . '"/></a>';
+                $end .= '<a class="tp_pub_link" href="' . $doi_url . '" title="' . __('Follow DOI:','teachpress') . $doi . '" target="_blank"><img class="tp_pub_link_image" alt="" src="' . get_tp_mimetype_images( 'html' ) . '"/></a>';
             }
         }
         

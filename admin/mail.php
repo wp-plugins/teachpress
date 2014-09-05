@@ -116,14 +116,7 @@ function tp_show_mail_page() {
         </table>
         <br />
         <input type="submit" class="button-primary" name="send_mail" value="<?php _e('Send','teachpress'); ?>"/>
-        <script type="text/javascript" charset="utf-8">
-        jQuery(document).ready(function($) {
-            $('#mail_text').resizable({handles: "se", minHeight: 55, minWidth: 400});
-	});
-        jQuery(document).ready(function($) {
-            $('#mail_recipients').resizable({handles: "se", minHeight: 55, minWidth: 400});
-	});
-        </script>
+        <script type="text/javascript" charset="utf-8" src="<?php echo plugins_url(); ?>/teachpress/js/admin_mail.js"></script>
         </form>
     </div>
     <?php

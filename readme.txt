@@ -150,6 +150,7 @@ It's **strongly** recommended to save your teachpress database tables before upg
 * Changed: Rewritten Shortcode [tpcloud]
 * Changed: Rewritten Shortcdoe [tpenrollments]
 * Changed: UI modifications for better integration in WordPress 3.8+
+* Changed: Using HTML5 required attribute for fields in registration forms
 * Changed: Using parameters instead of variables for the definition of database table names
 * Changed: Visible names for some publication types changed
 * Changed: The plugin requires at least WordPress 3.9 instead of 3.3.

@@ -82,7 +82,7 @@ function tp_show_authors_page () {
     // Delete tags - part 1
     if ( $action === 'delete' ) {
         echo '<div class="teachpress_message teachpress_message_orange">
-            <p class="teachpress_message_headline">' . __('Are you sure to delete the selected elements?','teachpress') . '</p>
+            <p class="teachpress_message_headline">' . __('Do you want to delete the selected items?','teachpress') . '</p>
             <p><input name="delete_ok" type="submit" class="button-secondary" value="' . __('Delete','teachpress') . '"/>
             <a href="admin.php?page=' . $page . '&search=' . $search . '&amp;limit=' . $curr_page . '"> ' . __('Cancel','teachpress') . '</a></p>
             </div>';
