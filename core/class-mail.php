@@ -23,8 +23,9 @@ class tp_mail {
      * @param string $options
      * @param string $attachments
      * @return boolean
+     * @since 3.0.0
      */
-    static function sendMail($from, $to, $subject, $message, $options, $attachments = '') {
+    public static function sendMail($from, $to, $subject, $message, $options, $attachments = '') {
         global $current_user;
         get_currentuserinfo();
         $message = htmlspecialchars($message);
@@ -49,7 +50,7 @@ class tp_mail {
             
             // Preprare header attribute: Bcc
             if ( $options['recipients'] === 'Bcc' ) {
-                $headers[] = tp_mail::prepareBCC($to);
+                $headers[] = self::prepareBCC($to);
                 $to = $current_user->user_email;
             }
             
@@ -91,11 +92,13 @@ class tp_mail {
     }
 
     /**
-    * Prepare BCC field for E-Mail header
-    * @param string $recipients
-    * @return string
+     * Prepare BCC field for E-Mail header
+     * @param string $recipients
+     * @return string
+     * @since 3.0.0
+     * @access private
     */
-    function prepareBCC($recipients) {
+    private static function prepareBCC($recipients) {
         $array = explode(",",$recipients);
         $bcc = '';
         foreach ($array as $recipient) {

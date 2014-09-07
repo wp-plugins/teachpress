@@ -352,7 +352,7 @@ class tp_courses_page {
      * @since 5.0.0
      * @access public
      */
-    public static function  get_copy_course_form($terms, $sem, $search) {
+    public static function get_copy_course_form($terms, $sem, $search) {
         ?>
         <div class="teachpress_message">
             <p class="teachpress_message_headline"><?php _e('Copy courses','teachpress'); ?></p>

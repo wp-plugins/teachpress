@@ -20,8 +20,9 @@ class tp_export {
      * @param array $option
      * @param int $waitinglist 
      * @since 3.0.0
+     * @access private
      */
-    static function get_course_registration_table($course_id, $option, $waitinglist = '') {
+    private static function get_course_registration_table($course_id, $option, $waitinglist = '') {
         $row = tp_courses::get_signups( array('course_id' => $course_id, 'waitinglist' => $waitinglist, 'output_type' => ARRAY_A, 'order' => 'st.lastname ASC') );
         echo '<table border="1" cellpadding="5" cellspacing="0">';
         echo '<thead>';
@@ -69,58 +70,52 @@ class tp_export {
      * @param int $course_id 
      * @since 3.0.0
      */
-    static function get_course_xls($course_id) {
-        global $wpdb;
+    public static function get_course_xls($course_id) {
         $parent = '';
 
         // load course data
-        $daten = $wpdb->get_row("SELECT * FROM " . TEACHPRESS_COURSES . " WHERE `course_id` = '$course_id'", ARRAY_A);
-        if ($daten['parent'] != '0') {
-            $id = $daten['parent'];
-            $parent = $wpdb->get_var("SELECT `name` FROM " . TEACHPRESS_COURSES . " WHERE `course_id` = '$id'");
-        }
-        if ($parent != '') {
-            $course_name = $parent . ' ' . $daten['name'];
-        }
-        else {
-            $course_name = $daten['name'];
+        $data = tp_courses::get_course($course_id, ARRAY_A);
+        $course_name = $data['name'];
+        if ($data['parent'] != '0') {
+            $parent = tp_courses::get_course($data['parent'], ARRAY_A);
+            $course_name = $parent['name'] . ' ' . $data['name'];
         }
 
         // load settings
         $option['regnum'] = get_tp_option('regnum');
         $option['studies'] = get_tp_option('studies');
 
-        echo '<h2>' . stripslashes(utf8_decode($course_name)) . ' ' . stripslashes(utf8_decode($daten['semester'])) . '</h2>';
+        echo '<h2>' . stripslashes(utf8_decode($course_name)) . ' ' . stripslashes(utf8_decode($data['semester'])) . '</h2>';
         echo '<table border="1" cellspacing="0" cellpadding="5">';
         echo '<thead>';
         echo '<tr>';
         echo '<th>' . __('Lecturer','teachpress') . '</th>';
-        echo '<td>' . stripslashes(utf8_decode($daten['lecturer'])) . '</td>';
+        echo '<td>' . stripslashes(utf8_decode($data['lecturer'])) . '</td>';
         echo '<th>' . __('Date','teachpress') . '</th>';
-        echo '<td>' . $daten['date'] . '</td>';
+        echo '<td>' . $data['date'] . '</td>';
         echo '<th>' . __('Room','teachpress') . '</th>';
-        echo '<td>' . stripslashes(utf8_decode($daten['room'])) . '</td>';
+        echo '<td>' . stripslashes(utf8_decode($data['room'])) . '</td>';
         echo '</tr>';
         echo '<tr>';
         echo '<th>' . __('Places','teachpress') . '</th>';
-        echo '<td>' . $daten['places'] . '</td>';
+        echo '<td>' . $data['places'] . '</td>';
         echo '<th>' . __('free places','teachpress') . '</th>';
-		$used_places = $wpdb->get_var("SELECT COUNT(`course_id`) FROM " . TEACHPRESS_SIGNUP . " WHERE `course_id` = '" . $daten["course_id"] . "' AND `waitinglist` = 0");
-        echo '<td>' . ($daten["places"] - $used_places) . '</td>';
+        $free_places = tp_courses::get_free_places($data["course_id"], $data["places"]);
+        echo '<td>' . $free_places . '</td>';
         echo '<td>&nbsp;</td>';
         echo '<td>&nbsp;</td>';
         echo '</tr>';
         echo '<tr>';
         echo '<th>' . __('Comment','teachpress') . '</th>';
-        echo '<td colspan="5">' . stripslashes(utf8_decode($daten['comment'])) . '</td>';
+        echo '<td colspan="5">' . stripslashes(utf8_decode($data['comment'])) . '</td>';
         echo '</tr>';
         echo '</thead>';
         echo '</table>';
 
         echo '<h3>' . __('Registered participants','teachpress') . '</h3>'; 
-        tp_export::get_course_registration_table($course_id, $option, 0);
+        self::get_course_registration_table($course_id, $option, 0);
         echo '<h3>' . __('Waiting list','teachpress') . '</h3>'; 
-        tp_export::get_course_registration_table($course_id, $option, 1);
+        self::get_course_registration_table($course_id, $option, 1);
 
         global $tp_version;
         echo '<p style="font-size:11px; font-style:italic;">' . __('Created on','teachpress') . ': ' . date("d.m.Y") . ' | teachPress ' . $tp_version . '</p>';
@@ -132,7 +127,7 @@ class tp_export {
      * @param array $options 
      * @since 3.0.0
      */
-    static function get_course_csv($course_id) {
+    public static function get_course_csv($course_id) {
         // load settings
         $option['regnum'] = get_tp_option('regnum');
         $option['studies'] = get_tp_option('studies');
@@ -168,7 +163,6 @@ class tp_export {
      * @sinsce 4.2.0 
      */
     public static function get_publications($user_id, $format = 'bibtex') {
-        global $wpdb;
         
         $user_id = intval($user_id);
         // Try to set the time limit for the script
@@ -176,12 +170,12 @@ class tp_export {
         $row = tp_publications::get_publications( array('user' => $user_id, 'output_type' => ARRAY_A) );
         if ( $format === 'bibtex' ) {
             foreach ($row as $row) {
-                $tags = $wpdb->get_results("SELECT DISTINCT t.name FROM " . TEACHPRESS_TAGS . " t INNER JOIN " . TEACHPRESS_RELATION . " r ON r.`tag_id` = t.`tag_id` WHERE r.pub_id = '" . $row['pub_id'] . "' ", ARRAY_A);
+                $tags = tp_tags::get_tags( array('pub_id' => $row['pub_id'], 'output_type' => ARRAY_A ) );
                 echo tp_bibtex::get_single_publication_bibtex($row, $tags);
             }
         }     
         if ( $format === 'rtf' ) {
-            echo tp_export::rtf($row);
+            echo self::rtf($row);
         }
     }
     
@@ -192,17 +186,16 @@ class tp_export {
      * @since 5.0.0
      */
     public static function get_selected_publications($selection, $format = 'bibtex') {
-        global $wpdb;
         $row = tp_publications::get_publications( array( 'include' => $selection, 'output_type' => ARRAY_A) );
         
         if ( $format === 'bibtex' ) {
             foreach ($row as $row) {
-                $tags = $wpdb->get_results("SELECT DISTINCT t.name FROM " . TEACHPRESS_TAGS . " t INNER JOIN " . TEACHPRESS_RELATION . " r ON r.`tag_id` = t.`tag_id` WHERE r.pub_id = '" . $row['pub_id'] . "' ", ARRAY_A);
+                $tags = tp_tags::get_tags( array('pub_id' => $row['pub_id'], 'output_type' => ARRAY_A) );
                 echo tp_bibtex::get_single_publication_bibtex($row, $tags);
             }
         }     
         if ( $format === 'rtf' ) {
-            echo tp_export::rtf($row);
+            echo self::rtf($row);
         }
     }
 
@@ -222,23 +215,27 @@ class tp_export {
      * Generate rtf document format
      * @param array $row
      * @return string
+     * @since 3.0.0
+     * @access private
      */
-    static function rtf ($row) {
+    private static function rtf ($row) {
         $head = '{\rtf1';
         $line = '';
         foreach ($row as $row) {
-            $line = $line . tp_export::rtf_row($row) . '\par'. '\par';
+            $line .= self::rtf_row($row) . '\par'. '\par';
         }
         $foot = '}';
         return $head . $line . $foot;
     }
 
     /**
-    * Get single line for rtf file
-    * @param array $row
-    * @return string 
+     * Returns a single line for rtf file
+     * @param array $row
+     * @return string
+     * @since 3.0.0
+     * @access private
     */
-    static function rtf_row ($row) {
+    private static function rtf_row ($row) {
         $settings['editor_name'] = 'initials';
         $settings['style'] = 'simple';
         $settings['use_span'] = false;
@@ -256,11 +253,13 @@ class tp_export {
     }
 
     /**
-    * Decode chars
-    * @param string $char
-    * @return string 
+     * Decode chars with wrong charset to UTF-8
+     * @param string $char
+     * @return string
+     * @since 3.0.0
+     * @access private 
     */
-    static function decode ($char) {
+    private static function decode ($char) {
         $array_1 = array('Ã¼','Ã¶', 'Ã¤', 'Ã¤', 'Ã?','Â§','Ãœ','Ã','Ã–','&Uuml;','&uuml;', '&Ouml;', '&ouml;', '&Auml;','&auml;', '&nbsp;', '&szlig;', '&sect;', '&ndash;', '&rdquo;', '&ldquo;', '&eacute;', '&egrave;', '&aacute;', '&agrave;', '&ograve;','&oacute;', '&copy;', '&reg;', '&micro;', '&pound;', '&raquo;', '&laquo;', '&yen;', '&Agrave;', '&Aacute;', '&Egrave;', '&Eacute;', '&Ograve;', '&Oacute;', '&shy;', '&amp;');
         $array_2 = array('ü','ö', 'ä', 'ä', 'ß', '§','Ü','Ä','Ö','Ü','ü', 'Ö', 'ö', 'Ä', 'ä', ' ', 'ß', '§', '-', '”', '“', 'é', 'è', 'á', 'à', 'ò', 'ó', '©', '®', 'µ', '£', '»', '«', '¥', 'À', 'Á', 'È', 'É', 'Ò', 'Ó', '­', '&');
         $char = str_replace($array_1, $array_2, $char);

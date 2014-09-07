@@ -40,9 +40,9 @@ class tp_admin {
     
     /**
      * Returns a select field for assessment types
-     * @param string $field_name
-     * @param string $value
-     * @param string $tabindex
+     * @param string $field_name    The name of the field
+     * @param string $value         the value of the field
+     * @param string $tabindex         The tabindex number
      * @return string
      * @since 5.0.0
      */
@@ -62,6 +62,13 @@ class tp_admin {
         return $return;
     }
     
+    /**
+     * Returns a select field for assessment_passed
+     * @param string $field_name    The name of the field
+     * @param string $value         the value of the field
+     * @param string $tabindex         The tabindex number
+     * @return string
+     */
     public static function get_assessment_passed_field($field_name, $value, $tabindex = '') {
         $return = '';
         $return .= '<select name="' . $field_name . '" id="' . $field_name . '" tabindex="' . $tabindex . '">';
@@ -78,38 +85,86 @@ class tp_admin {
     }
     
     /**
-     * Returns a text field for admin/settings screens
-     * @param string $field_name
-     * @param string $label
-     * @param string $value
-     * @param boolean $readonly
+     * Returns date select fields for admin form
+     * @param string $field_name    name/id of the field
+     * @param string $label         label for the field
+     * @param string $value         value for the field
      * @return string
      * @since 5.0.0
      */
-    public static function get_text_field($field_name, $label, $value, $readonly = false) {
-        $readonly = ( $readonly === false ) ? '' : 'readonly="true" ';
-        return '<p><label for="' . $field_name . '"><b>' . $label . '</b></label></p>
-                <input name="' . $field_name . '" type="text" id="' . $field_name . '" value="' . stripslashes($value) . '" size="50" ' . $readonly . '/>';
+    public static function get_date_field ($field_name, $label, $value) {
+        if ( $value != '' ) {
+            $b = tp_datesplit($value);
+        }
+        $day = ( $value != '' ) ? $b[0][2] : '01';
+        $month = ( $value != '' ) ? $b[0][1] : '01';
+        $year = ( $value != '' ) ? $b[0][0] : '19xx';
+        $months = array ( __('Jan','teachpress'), __('Feb','teachpress'), __('Mar','teachpress'), __('Apr','teachpress'), __('May','teachpress'), __('Jun','teachpress'), __('Jul','teachpress'), __('Aug','teachpress'), __('Sep','teachpress'), __('Oct','teachpress'), __('Nov','teachpress'), __('Dec','teachpress') );
+        $return = '';
+        $return .= '<p><b>' . $label . '</b></p>';
+        $return .= '<input name="' . $field_name . '_day" id="' . $field_name . '_day" type="text" title="Day" size="2" value="' . $day . '"/>';
+        $return .= '<select name="' . $field_name . '_month" id="' . $field_name . '_month" title="' . __('Month','teachpress') . '">';
+        for ( $i = 1; $i <= 12; $i++ ) {
+            $m = ( $i < 10 ) ? '0' . $i : $i;
+            $selected = ($month == $m) ? 'selected="selected"' : '';
+            $return .= '<option value="' . $m . '" ' . $selected . '>' . $months[$i-1] . '</option>';
+        }
+        $return .= '</select>';
+        $return .= '<input name="' . $field_name . '_year" id="' . $field_name . '_year" type="text" title="' . __('Year','teachpress') . '" size="4" value="' . $year . '"/>';
+        return $return;
     }
     
     /**
-     * Returns a textarea field for admin/settings screens
-     * @param string $field_name
-     * @param string $label
-     * @param string $value
+     * Returns a number field for admin form
+     * @param string $field_name    name/id of the field
+     * @param string $label         label for the field
+     * @param int $value            value for the field
+     * @param int $min              default is 0
+     * @param int $max              default is 999
+     * @param int step              default is 1
+     * @param boolean $readonly     true or false, default is false
+     * @param boolean $required     true or false, default is false
      * @return string
      * @since 5.0.0
      */
-    public static function get_textarea_field ($field_name, $label, $value) {
-        return '<p><label for="' . $field_name . '"><b>' . $label . '</b></label><p>
-                <textarea name="' . $field_name . '" id="' . $field_name . '" style="width:100%; height:80px;">' . stripslashes($value) . '</textarea>';
+    public static function get_int_field($field_name, $label, $value, $min = 0, $max = 999, $step = 1, $readonly = false, $required = false){
+        $readonly = ( $readonly === true ) ? 'readonly="true" ' : '' ;
+        $required = ( $required === true ) ? 'required="required"' : '';
+        return '<p><label for="' . $field_name . '"><b>' . $label . '</b></label></p>
+                <input name="' . $field_name . '" type="number" id="' . $field_name . '" value="' . $value . '" size="50" ' . $readonly . ' ' . $required . ' min="' . $min . '" max="' . $max . '" step="' . $step . '"/>';
+    }
+    
+    /**
+     * Returns a checkbox field for admin form
+     * @param string $field_name    name/id of the field
+     * @param string $label         label for the field
+     * @param string $checked       value for the field
+     * @param boolean $readonly     true or false, default is false
+     * @param boolean $required     true or false, default is false
+     * @return string
+     * @since 5.0.0
+     */
+    public static function get_radio_field ($field_name, $label, $checked, $readonly = false, $required = false) {
+        global $wpdb;
+        $return = '';
+        $options = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '" . $field_name . "' ORDER BY value ASC");
+        $readonly = ( $readonly === true ) ? 'readonly="true" ' : '' ;
+        $required = ( $required === true ) ? 'required="required"' : '';
+        $return .= '<p><label for="' . $field_name . '"><b>' . $label . '</b></label></p>';
+        $i = 1;
+        foreach ($options as $opt) {
+            $checked = ( $checked == $opt->value ) ? 'checked="checked"' : '';
+            $return .= '<input name="' . $field_name . '" type="radio" id="' . $field_name . '_' . $i . '" value="' . $opt->value . '" ' . $checked . ' ' . $readonly . ' ' . $required . '/> <label for="' . $field_name . '_' . $i . '">' . $opt->value . '</label><br/>';
+            $i++;
+        }
+        return $return;
     }
     
     /**
      * Returns a select field for admin/settings screens
-     * @param string $field_name
-     * @param string $label
-     * @param string $value
+     * @param string $field_name    name/id of the field
+     * @param string $label         label for the field
+     * @param string $value         value for the field
      * @return string
      * @since 5.0.0
      */
@@ -128,6 +183,34 @@ class tp_admin {
         }
         $return .= '</select>';
         return $return;
+    }
+    
+    /**
+     * Returns a text field for admin/settings screens
+     * @param string $field_name    name/id of the field
+     * @param string $label         label for the field
+     * @param string $value         value for the field
+     * @param boolean $readonly
+     * @return string
+     * @since 5.0.0
+     */
+    public static function get_text_field($field_name, $label, $value, $readonly = false) {
+        $readonly = ( $readonly === false ) ? '' : 'readonly="true" ';
+        return '<p><label for="' . $field_name . '"><b>' . $label . '</b></label></p>
+                <input name="' . $field_name . '" type="text" id="' . $field_name . '" value="' . stripslashes($value) . '" size="50" ' . $readonly . '/>';
+    }
+    
+    /**
+     * Returns a textarea field for admin/settings screens
+     * @param string $field_name    name/id of the field
+     * @param string $label         label for the field
+     * @param string $value         value for the field
+     * @return string
+     * @since 5.0.0
+     */
+    public static function get_textarea_field ($field_name, $label, $value) {
+        return '<p><label for="' . $field_name . '"><b>' . $label . '</b></label><p>
+                <textarea name="' . $field_name . '" id="' . $field_name . '" style="width:100%; height:80px;">' . stripslashes($value) . '</textarea>';
     }
     
     /**
@@ -251,6 +334,7 @@ class tp_admin {
         echo '<div class="inside">';   
         foreach ($fields as $row) {
             $col_data = tp_db_helpers::extract_column_data($row['value']);
+            $required = ( $col_data['required'] === 'true' ) ? true : false;
             $value = '';
             foreach ( $meta_input as $row_meta ) {
                 if ( $row['variable'] === $row_meta['meta_key'] ) {
@@ -261,8 +345,20 @@ class tp_admin {
             if ( $col_data['type'] === 'SELECT' ) {
                 echo tp_admin::get_select_field($row['variable'], $col_data['title'], $value);
             }
+            elseif ( $col_data['type'] === 'DATE' ) {
+                echo tp_admin::get_date_field($row['variable'], $col_data['title'], $value);
+            }
+            elseif ( $col_data['type'] === 'RADIO' ) {
+                echo tp_admin::get_radio_field($row['variable'], $col_data['title'], $value, false, $required);
+            }
             elseif ( $col_data['type'] === 'TEXTAREA' ) {
                 echo tp_admin::get_textarea_field($row['variable'], $col_data['title'], $value);
+            }
+            elseif ( $col_data['type'] === 'INT' ) {
+                $col_data['min'] = ( $col_data['min'] !== 'false' ) ? intval($col_data['min']) : 0;
+                $col_data['max'] = ( $col_data['max'] !== 'false' ) ? intval($col_data['max']) : 999;
+                $col_data['step'] = ( $col_data['step'] !== 'false' ) ? intval($col_data['step']) : 1;
+                echo tp_admin::get_int_field($row['variable'], $col_data['title'], $value, $col_data['min'], $col_data['max'], $col_data['step'], false, $required);
             }
             else {
                 echo tp_admin::get_text_field($row['variable'], $col_data['title'], $value);

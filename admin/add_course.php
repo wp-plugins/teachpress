@@ -55,7 +55,6 @@ function tp_add_course_page_help () {
 */
 function tp_add_course_page() {
 
-   global $wpdb;
    global $current_user;
    get_currentuserinfo();
    $fields = get_tp_options('teachpress_courses','`setting_id` ASC', ARRAY_A);
@@ -165,7 +164,7 @@ function tp_add_course_page() {
      <div style="width:67%; float:left;">
         <div id="post-body">
            <div id="post-body-content">
-               <div id="titlediv">
+               <div id="titlediv" style="padding-bottom: 15px;">
                    <div id="titlewrap">
                       <label class="hide-if-no-js" style="display:none;" id="title-prompt-text" for="title"><?php _e('Course name','teachpress'); ?></label>
                       <input type="text" name="post_title" title="<?php _e('Course name','teachpress'); ?>" size="30" tabindex="1" value="<?php echo stripslashes($course_data["name"]); ?>" id="title" autocomplete="off" />
@@ -260,14 +259,12 @@ class tp_add_course {
 
     /**
      * Gets the general box
-     * @global type $wpdb
      * @param int $course_id
      * @param array $course_types
      * @param array $course_data
      * @since 5.0.0
      */
     public static function get_general_box ($course_id, $course_types, $course_data) {
-        global $wpdb;
         $post_type = get_tp_option('rel_page_courses');
         $selected_sem = ( $course_id === 0 ) ? get_tp_option('sem') : 0;
         $semester = get_tp_options('semester', '`setting_id` DESC');
@@ -309,10 +306,11 @@ class tp_add_course {
             ?>
             <p><label for="places" title="<?php _e('The number of available places.','teachpress'); ?>"><strong><?php _e('Number of places','teachpress'); ?></strong></label></p>
             <input name="places" type="text" id="places" title="<?php _e('The number of available places.','teachpress'); ?>" style="width:70px;" tabindex="7" value="<?php echo $course_data["places"]; ?>" />
-            <?php if ($course_id != 0) {
-                    $used_places = $wpdb->get_var("SELECT COUNT(`course_id`) FROM " . TEACHPRESS_SIGNUP . " WHERE `course_id` = '" . $course_data["course_id"] . "' AND `waitinglist` = 0");
-                    echo ' | ' . __('free places','teachpress') . ': ' . ($course_data["places"] - $used_places); ?>
-            <?php } 
+            <?php 
+            if ($course_id != 0) {
+                $free_places = tp_courses::get_free_places($course_data["course_id"], $course_data["places"]);
+                echo ' | ' . __('free places','teachpress') . ': ' . $free_places;
+            } 
             tp_add_course::get_parent_select_field($course_id, $course_data);
             ?>
             

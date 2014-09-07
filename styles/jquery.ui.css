@@ -6,11 +6,11 @@
 .ui-icon-circle-triangle-w {background-position: -80px -192px;}
 .ui-icon-circle-triangle-e {background-position: -48px -192px;}
 /* jquery UI resizable */
-.ui-resizable { position: relative;}
-.ui-resizable-handle { position: absolute;font-size: 0.1px;z-index: 0 !important; display: block; }
-.ui-resizable-disabled .ui-resizable-handle, .ui-resizable-autohide .ui-resizable-handle { display: none; }
-.ui-resizable-se { cursor: se-resize; width: 12px; height: 12px; right: 18px; bottom: 22px;  }
-.ui-icon-gripsmall-diagonal-se { width: 12px; height: 12px; background: url(../images/resize.png) no-repeat; }
+.ui-wrapper .ui-resizable { position: relative !important;}
+.ui-wrapper .ui-resizable-handle { position: absolute !important;font-size: 0.1px !important;z-index: 0 !important; display: block !important; }
+.ui-resizable-disabled .ui-resizable-handle, .ui-resizable-autohide .ui-resizable-handle { display: none !important; }
+.ui-wrapper .ui-resizable-se { cursor: se-resize !important; width: 12px !important; height: 12px !important; right: 18px !important; bottom: 22px !important;  }
+.ui-wrapper .ui-icon-gripsmall-diagonal-se { width: 12px; height: 12px; background: url(../images/resize.png) no-repeat; }
 /* jquery UI autocomplete */
 .ui-autocomplete { position: absolute; cursor: default; background: #F9F9F9; border: 1px solid #DFDFDF; }
 .ui-autocomplete .ui-menu-item {padding:5px;}

@@ -176,13 +176,13 @@ class tp_settings_page {
         // fieldname
         echo '<tr>';
         echo '<td><label for="field_name">' . __('Fieldname','teachpress') . '</label></td>';
-        echo '<td><input name="field_name" type="text" id="field_name" size="30" title="' . __('Allowed chars','teachpress') . ': A-Z,a-z,0-9,_" required="required"/></td>';
+        echo '<td><input name="field_name" type="text" id="field_name" size="30" title="' . __('Allowed chars','teachpress') . ': A-Z,a-z,0-9,_"/></td>';
         echo '</tr>';
         
         // label
         echo '<tr>';
         echo '<td><label for="field_label">' . __('Label','teachpress') . '</label></td>';
-        echo '<td><input name="field_label" type="text" id="field_label" size="30" title="' . __('The visible name of the field','teachpress') . '" required="required" /></td>';
+        echo '<td><input name="field_label" type="text" id="field_label" size="30" title="' . __('The visible name of the field','teachpress') . '" /></td>';
         echo '</tr>';
         
         // fieldtype

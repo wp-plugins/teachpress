@@ -12,7 +12,7 @@
  * @since 3.0.0
  */
 function tp_show_mail_page() {
-    global $wpdb;
+
     global $current_user;
     get_currentuserinfo();
 
@@ -25,22 +25,20 @@ function tp_show_mail_page() {
     $students_group = isset( $_GET['students_group'] ) ? htmlspecialchars($_GET['students_group']) : '';
     $limit = isset( $_GET['limit'] ) ? intval($_GET['limit']) : 0;
     $group = isset( $_GET['group'] ) ? htmlspecialchars($_GET['group']) : '';
+    $waitinglist = '';
 
-    if( !isset( $_GET['single'] ) ) {
-        $sql = "SELECT DISTINCT st.email 
-                FROM " . TEACHPRESS_SIGNUP . " s 
-                INNER JOIN " . TEACHPRESS_STUD . " st ON st.wp_id=s.wp_id
-                WHERE s.course_id = '$course_id'";	
+    if( !isset( $_GET['single'] ) ) {	
         // E-Mails of registered participants
-        if ( $group == 'reg' ) {
-            $sql = $sql . " AND s.waitinglist = '0'";	
+        if ( $group === 'reg' ) {
+            $waitinglist = 0;	
         }
         // E-Mails of participants in waitinglist
-        if ( $group == 'wtl' ) {
-            $sql = $sql . " AND s.waitinglist = '1'";		
+        if ( $group === 'wtl' ) {
+            $waitinglist = 1;		
         }
-        $sql = $sql . " ORDER BY st.lastname ASC";	
-        $mails = $wpdb->get_results($sql, ARRAY_A);
+        $mails = tp_courses::get_signups(array('output_type' => ARRAY_A, 
+                                                'course_id' => $course_id, 
+                                                'waitinglist' => $waitinglist ) );
     }
     ?>
     <div class="wrap">
@@ -90,9 +88,8 @@ function tp_show_mail_page() {
                     if( !isset( $_GET['single'] ) ) {
                         $to = '';
                         foreach($mails as $mail) { 
-                            $to = $to . $mail["email"] . ', '; 
-                        } 
-                        $to = substr($to, 0, -2);
+                            $to = ( $to === '' ) ? $mail["email"] : $to . ', ' . $mail["email"]; 
+                        }
                     }
                     else {
                         $to = $single;

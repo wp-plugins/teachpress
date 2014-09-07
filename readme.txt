@@ -153,7 +153,8 @@ It's **strongly** recommended to save your teachpress database tables before upg
 * Changed: Using HTML5 required attribute for fields in registration forms
 * Changed: Using parameters instead of variables for the definition of database table names
 * Changed: Visible names for some publication types changed
-* Changed: The plugin requires at least WordPress 3.9 instead of 3.3.
+* Changed: The plugin requires at least WordPress 3.9 instead of 3.3
+* Bugfix: teachPress books widget works again
 * Killed: The shortcode [tpdate] is deprecated, use [tpcoursedate] instead
 * Killed: The following functions are deprecated: get_tp_course(), get_tp_courses(), get_tp_course_free_places(), get_tp_tags(), get_tp_tag_cloud(), get_tp_publication(), get_tp_publications(), tp_is_user_subscribed(), tp_check_bookmark(), tp_admin_page_menu()
 

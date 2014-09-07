@@ -281,7 +281,7 @@ if ( !class_exists( 'PARSEENTRIES' ) ) {
  * @return string
 */
 function get_tp_version() {
-    return '5.0.0alpha10';
+    return '5.0.0alpha11';
 }
 
 /** Function for the integrated registration mode */

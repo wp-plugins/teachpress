@@ -43,7 +43,7 @@ function get_tp_options($category, $order = "`setting_id` DESC", $output_type = 
 }
 
 /*******************************************************************************
- * NEW (teachPress 5.0)
+ * NEW since teachPress 5.0
  *******************************************************************************/
 
 /**
@@ -56,8 +56,8 @@ class tp_artefacts {
     
     /**
      * Returns an artefact by ID
-     * @param int $artefact_id
-     * @param string $output_type
+     * @param int $artefact_id      The artefact ID
+     * @param string $output_type   OBJECT, ARRAY_N or ARRAY_A, default is ARRAY_A
      * @return array|object
      * @since 5.0.0
      */
@@ -69,9 +69,9 @@ class tp_artefacts {
     
     /**
      * Returns artefacts
-     * @param int $course_id
-     * @param int $parent_id
-     * @param string $output_type
+     * @param int $course_id        The course ID
+     * @param int $parent_id        The ID of the parent artefact
+     * @param string $output_type   OBJECT, ARRAY_N or ARRAY_A, default is ARRAY_A
      * @return array|object
      * @since 5.0.0
      */
@@ -86,7 +86,7 @@ class tp_artefacts {
      * Returns the artefact IDs of a selected course
      * @param int $course_id        The course ID
      * @param int $parent_id        0 for the main artefacts
-     * @param string $output_type
+     * @param string $output_type   OBJECT, ARRAY_N or ARRAY_A, default is ARRAY_A
      * @return array|object
      * @since 5.0.0
      */
@@ -111,7 +111,7 @@ class tp_artefacts {
     
     /**
      * Deletes an artefact
-     * @param int $artefact_id
+     * @param int $artefact_id      The artefact ID
      * @since 5.0.0
      */
     public static function delete_artefact ($artefact_id) {
@@ -122,8 +122,8 @@ class tp_artefacts {
     
     /**
      * Changes an artefact name
-     * @param int $artefact_id
-     * @param string $title
+     * @param int $artefact_id      The artefact ID
+     * @param string $title         The new title for the artefact
      * @return type int|false
      * @since 5.0.0
      */
@@ -134,7 +134,7 @@ class tp_artefacts {
     
     /**
      * Checks if an artefact has assessments. If yes, the function returns true. If not, the function returns false.
-     * @param int $artefact_id
+     * @param int $artefact_id      The artefact ID
      * @return boolean
      * @since 5.0.0
      */
@@ -159,8 +159,8 @@ class tp_assessments {
     
     /**
      * Returns an assessment by id
-     * @param int $assessment_id
-     * @param string $output_type
+     * @param int $assessment_id        The assessment ID
+     * @param string $output_type       OBJECT, ARRAY_N or ARRAY_A, default is ARRAY_A
      * @return array|object
      * @since 5.0.0
      */
@@ -175,7 +175,7 @@ class tp_assessments {
      * @param int $wp_id            The user ID
      * @param string $artefact_id   A string of artefact IDs separated by comma
      * @param int $course_id        The course ID
-     * @param string $output_type   ARRAY_A, ARRAY_N or OBJECT
+     * @param string $output_type   OBJECT, ARRAY_N or ARRAY_A, default is ARRAY_A
      * @return array|object
      * @since 5.0.0
      */
@@ -193,7 +193,7 @@ class tp_assessments {
     
     /**
      * Adds a new assessment
-     * @param array_a $data
+     * @param array_a $data     An associative array with new assessment_data (wp_id, type, value, exam_date,...)
      * @return int
      * @since 5.0.0
      */
@@ -222,7 +222,7 @@ class tp_assessments {
     
    /**
     * Deletes an assessment
-    * @param int $assessment_id
+    * @param int $assessment_id     The assessment ID
     * @since 5.0.0
     */
    public static function delete_assessment ($assessment_id) {
@@ -256,7 +256,7 @@ class tp_authors  {
     *       inclue_editors (BOOLEAN) Boolean flag, set it to true if you want to include editors (default: false)
     *       group by (BOOLEAN)       Boolean flag for the group by clause (default: false)
     *       count (BOOLEAN)          Set it to true if you only need an number of authors which will be returned by your selection (default: false)
-    *       output type (STRING)     OBJECT, ARRAY_A, ARRAY_N 
+    *       output type (STRING)     OBJECT, ARRAY_A, ARRAY_N, default is OBJECT
     * 
     * @param array $args
     * @return array|object
@@ -344,7 +344,7 @@ class tp_authors  {
     
     /**
      * Adds a new author
-     * @param string $name
+     * @param string $name      The name of the author
      * @return int
      * @since 5.0.0
      */
@@ -356,8 +356,8 @@ class tp_authors  {
     
     /**
      * Adds a new author - publication relation
-     * @param int $pub_id
-     * @param int $author_id
+     * @param int $pub_id       The publication ID
+     * @param int $author_id    The author ID
      * @param int $is_author    1 (true) or 0 (false)
      * @param int $is_editor    1 (true) or 0 (false)
      * @return int
@@ -373,7 +373,7 @@ class tp_authors  {
      * Returns an array|object with the name, author_id and occurence of all authors
      * @param string $search            normal search string
      * @param string $limit             SQL limit like 0,50
-     * @param string $output_type       ARRAY_A, ARRAY_N, OBJECT
+     * @param string $output_type       OBJECT, ARRAY_N or ARRAY_A, default is ARRAY_A
      * @return array|object
      * @since 5.0.0
      */
@@ -397,7 +397,7 @@ class tp_authors  {
     
     /**
      * Deletes author to publication relations
-     * @param int $pub_id
+     * @param int $pub_id       The author ID
      * @since 5.0.0
      */
     public static function delete_author_relations ($pub_id) {
@@ -422,8 +422,8 @@ class tp_authors  {
    
    /**
     * Returns an array or object of related publications of an author/editor
-    * @param int $author_id
-    * @param string $output_type
+    * @param int $author_id         The author ID
+    * @param string $output_type    OBJECT, ARRAY_N or ARRAY_A, default is ARRAY_A
     * @since 5.0.0
     */
    public static function get_related_authors($author_id, $output_type = ARRAY_A){
@@ -447,8 +447,8 @@ class tp_bookmarks {
      * Returns an arrayor object of bookmarks of an user
      * 
      * Possible values for the array $args:
-     *      user (INT)               user_id
-     *      output_type (STRING)     ARRAY_A, ARRAY_N or OBJECT
+     *      user (INT)               The user ID
+     *      output_type (STRING)     OBJECT, ARRAY_N or ARRAY_A, default is OBJECT
      *
      * @since 5.0.0
      * @param array $args
@@ -498,8 +498,8 @@ class tp_bookmarks {
     
     /**
      * Checks if an user has bookmarked a publication. Returns true the bookmark exists.
-     * @param int $pub_id
-     * @param int $user_id
+     * @param int $pub_id       The publication ID
+     * @param int $user_id      The user ID
      * @return boolean
      * @since 5.0.0
      */
@@ -544,12 +544,12 @@ class tp_courses {
 
     /**
     * Get course capabilites
-    * @param int $course_id
-    * @param string $output_type
+    * @param int $course_id         The course ID
+    * @param string $output_type    OBJECT, ARRAY_N or ARRAY_A, default is ARRAY_A
     * @return array|object
     * @since 5.0.0
     */
-   public static function get_capabilities ($course_id, $output_type = 'ARRAY_A') {
+   public static function get_capabilities ($course_id, $output_type = ARRAY_A) {
        global $wpdb;
        $course_id = intval($course_id);
        return $wpdb->get_results("SELECT * FROM " . TEACHPRESS_COURSE_CAPABILITES . " WHERE `course_id` = '$course_id'",$output_type);
@@ -557,9 +557,9 @@ class tp_courses {
    
    /**
     * Add course capability
-    * @param int $course_id     The course ID
-    * @param int $wp_id         WordPress user ID
-    * @param string $capability
+    * @param int $course_id         The course ID
+    * @param int $wp_id             WordPress user ID
+    * @param string $capability     The capability name (owner, approved)
     * @return int|false
     * @since 5.0.0
     */
@@ -576,7 +576,7 @@ class tp_courses {
    
    /**
     * Delete course capability
-    * @param int $cap_id
+    * @param int $cap_id    The capability ID
     * @since 5.0.0
     * @todo unused
     */
@@ -612,7 +612,7 @@ class tp_courses {
    
    /**
     * Checks if there is an owner of the selected course. If not, the function returns false, if yes, the user_id is returned.
-    * @param int $course_id
+    * @param int $course_id     The course ID
     * @return boolean|int
     * @since 5.0.0
     */
@@ -629,8 +629,8 @@ class tp_courses {
 
     /**
      * Returns all data of a single course
-     * @param int $id
-     * @param string $output_type
+     * @param int $id               The course ID
+     * @param string $output_type   OBJECT, ARRAY_N or ARRAY_A, default is OBJECT
      * @return mixed
      * @since 5.0.0
      */
@@ -652,7 +652,7 @@ class tp_courses {
      *      exclude (STRING)     The course_ids you want to exclude
      *      order (STRING)       Default: semester DESC, name
      *      limit (STRING)       The sql search limit, ie: 0,30
-     *      output_type (STRING) ARRAY_A, ARRAY_N or OBJECT
+     *      output_type (STRING) OBJECT, ARRAY_N or ARRAY_A, default is OBJECT
      * 
      * @param array $args
      * @return object|array
@@ -741,8 +741,8 @@ class tp_courses {
     
     /**
      * Returns course meta data
-     * @param int $course_id
-     * @param string $meta_key
+     * @param int $course_id        The course ID
+     * @param string $meta_key      The name of the meta field
      * @since 5.0.0
      */
     public static function get_course_meta($course_id, $meta_key = ''){
@@ -759,9 +759,9 @@ class tp_courses {
     
     /**
      * Add course meta
-     * @param int $course_id
-     * @param string $meta_key
-     * @param string $meta_value
+     * @param int $course_id        The course ID
+     * @param string $meta_key      The name of the meta field
+     * @param string $meta_value    The value of the meta field
      * @since 5.0.0
      */
     public static function add_course_meta ($course_id, $meta_key, $meta_value) {
@@ -771,8 +771,8 @@ class tp_courses {
     
     /**
      * Deletes curse meta
-     * @param int $course_id
-     * @param string $meta_key
+     * @param int $course_id    The course ID
+     * @param string $meta_key  The name of the meta field
      * @since 5.0.0
      */
     public static function delete_course_meta ($course_id, $meta_key = '') {
@@ -802,7 +802,7 @@ class tp_courses {
     }
     
     /**
-    * Returns the number of used places in all couses
+    * Returns an array with the number of used places for each course. The array key is the course_id, the value is the number of used places.
     * @return array
     * @since 5.0.0
     */
@@ -894,7 +894,7 @@ class tp_courses {
     /** 
      * Changes course data. Returns false if errors, or the number of rows affected if successful.
      * @param int $course_id    course ID
-     * @param array $data
+     * @param array $data       An associative array of couse data (name, places, type, room, ...)
      * @return int|false
      * @since 5.0.0
     */ 
@@ -956,12 +956,13 @@ class tp_courses {
      * Returns course signups or waitinglist entries
      * 
      * Possible values for the array $args:
-     *      course_id (INT)         The ID of the course
-     *      waitinglist (STRING)    The waitinglist flag (0 or 1 or '')
-     *      order (STRING)          The SQL order by statement
-     *      limit (STRING)          The SQL limit statement
-     *      count (BOOLEAN)         If this flag is true, only the number of rows will be returned, Deflaut is false
-     *      output_type (STRING)    ARRAY_A, ARRAY_N or OBJECT
+     *      course_id (INT)             The ID of the course
+     *      waitinglist (STRING)        The waitinglist flag (0 or 1 or '')
+     *      order (STRING)              The SQL order by statement
+     *      limit (STRING)              The SQL limit statement
+     *      count (BOOLEAN)             If this flag is true, only the number of rows will be returned, default is false
+     *      meta_visibility (STRING)    The visibility level of considered meta data fields (normal, admin, hidden, all), default is admin
+     *      output_type (STRING)        OBJECT, ARRAY_N or ARRAY_A, default is OBJECT
      * 
      * @param array $args
      * @return object|array
@@ -974,6 +975,7 @@ class tp_courses {
             'order' => '',
             'limit' => '',
             'count' => false,
+            'meta_visibility' => 'admin',
             'output_type' => OBJECT
         );
         $args = wp_parse_args( $args, $defaults );
@@ -1000,9 +1002,13 @@ class tp_courses {
         $where = '';
         $i = 1;
         foreach ($fields as $row) {
+            $settings = tp_db_helpers::extract_column_data($row->value);
+            if ( $settings['visibility'] !== $meta_visibility || $meta_visibility === 'all' ) {
+                continue;
+            }
             $table_id = 'm' . $i; 
-            $selects = $selects . ', ' . $table_id .'.meta_value AS ' . $row->variable;
-            $joins = $joins . ' INNER JOIN ' . TEACHPRESS_STUD_META . ' ' . $table_id . " ON ( " . $table_id . ".wp_id = s.wp_id AND " . $table_id . ".meta_key = '" . $row->variable . "' ) ";
+            $selects .= ', ' . $table_id .'.meta_value AS ' . $row->variable;
+            $joins = $joins . ' LEFT JOIN ' . TEACHPRESS_STUD_META . ' ' . $table_id . " ON ( " . $table_id . ".wp_id = s.wp_id AND " . $table_id . ".meta_key = '" . $row->variable . "' ) ";
             $i++;
         }
 
@@ -1116,8 +1122,8 @@ class tp_courses {
     
     /**
      * Returns true if the current user is subscribed in the tested course or false if not.
-     * @param integer $course_id
-     * @param boolean $consider_childcourses
+     * @param integer $course_id                The course ID
+     * @param boolean $consider_childcourses    Default is false
      * @return boolean
      * @since 5.0.0
      */
@@ -1198,6 +1204,12 @@ class tp_courses {
  */
 class tp_documents {
     
+    /**
+     * Returns the data of a document
+     * @param type $doc_id          The document ID
+     * @param type $output_type     OBJECT, ARRAY_N or ARRAY_A, default is ARRAY_A
+     * @return type
+     */
     public static function get_document($doc_id, $output_type = ARRAY_A) {
         global $wpdb;
         $doc_id = intval($doc_id);
@@ -1205,9 +1217,9 @@ class tp_documents {
     }
     
     /**
-     * Returns the documents of a course
-     * @param int $course_id
-     * @param string $output_type   OBJECT, ARRAY_A or ARRAY_N
+     * Returns the data of documents of a course
+     * @param int $course_id        The course ID
+     * @param string $output_type   OBJECT, ARRAY_N or ARRAY_A, default is ARRAY_A
      * @return array|object
      * @since 5.0.0
      */
@@ -1219,9 +1231,9 @@ class tp_documents {
     
     /**
      * Adds a connection between a course and a document file
-     * @param string $name
-     * @param string $path
-     * @param int $course_id
+     * @param string $name      The document name
+     * @param string $path      The document path
+     * @param int $course_id    The course ID
      * @return int The id of the added document entry
      * @since 5.0.0
      */
@@ -1239,8 +1251,8 @@ class tp_documents {
     
     /**
      * Sets the value of the name field for a document entry. Returns false if errors, or the number of rows affected if successful.
-     * @param int $doc_id
-     * @param string $doc_name
+     * @param int $doc_id           The document ID
+     * @param string $doc_name      The document name
      * @return int|false
      * @since 5.0.0
      */
@@ -1252,8 +1264,8 @@ class tp_documents {
 
     /**
      * Sets the value of the sort field for a document entry. Returns false if errors, or the number of rows affected if successful.
-     * @param int $doc_id
-     * @param int $sort
+     * @param int $doc_id       The document ID
+     * @param int $sort         The sort value
      * @return int|false
      * @since 5.0.0
      */
@@ -1262,9 +1274,9 @@ class tp_documents {
         return $wpdb->update( TEACHPRESS_COURSE_DOCUMENTS, array( 'sort' => $sort ), array( 'doc_id' => $doc_id ), array( '%d', ), array( '%d' ) );
     }
 
-        /**
+    /**
      * Deletes a document entry in the database
-     * @param int $doc_id
+     * @param int $doc_id       The document ID
      * @since 5.0.0
      */
     public static function delete_document($doc_id) {
@@ -1284,7 +1296,7 @@ class tp_options {
     
     /**
      * Returns an option by ID
-     * @param int $id
+     * @param int $id       The option ID
      * @return array
      * @since 5.0.0
      */
@@ -1298,8 +1310,8 @@ class tp_options {
      * Adds an option
      * @param string $name      Name of the option
      * @param string $value     Nalue of the option
-     * @param string $category  Category name (system, course_of_studies, course_type, semester)
-     * @return int The ID if the added option
+     * @param string $category  Category name (system, course_of_studies, course_type, semester,...)
+     * @return int              The ID if the added option
      * @since 5.0.0
     */
     public static function add_option($name, $value, $category) { 
@@ -1313,9 +1325,9 @@ class tp_options {
     
     /**
      * Updates an option
-     * @param string $variable
-     * @param string $value
-     * @param string $type      normal or checkbox
+     * @param string $variable      The option variable
+     * @param string $value         The option value
+     * @param string $type          normal or checkbox
      * @since 5.0.0
      */
     public static function change_option ($variable, $value, $type = 'normal') {
@@ -1330,7 +1342,7 @@ class tp_options {
     
     /** 
      * Deletes an option
-     * @param int $delete 
+     * @param int $delete   The option ID
      * @since 5.0.0
     */
     public static function delete_option($delete) {
@@ -1351,8 +1363,8 @@ class tp_publications {
     
     /**
      * Returns a single publication
-     * @param int $id
-     * @param string $output_type   OBJECT, ARRAY_A or ARRAY_N
+     * @param int $id               The publication ID
+     * @param string $output_type   OBJECT, ARRAY_N or ARRAY_A, default is OBJECT
      * @return mixed
      * @since 5.0.0
      */
@@ -1364,9 +1376,9 @@ class tp_publications {
     }
     
     /**
-     * Returns a single publication selected by bibtex key
-     * @param int $key
-     * @param string $output_type   OBJECT, ARRAY_A or ARRAY_N
+     * Returns a single publication selected by BibTeX key
+     * @param int $key              The BibTeX key
+     * @param string $output_type   OBJECT, ARRAY_N or ARRAY_A, default is OBJECT
      * @return mixed
      * @since 5.0.0
      */
@@ -1394,7 +1406,7 @@ class tp_publications {
      *      order (STRING)           The order of the list
      *      limit (STRING)           The sql search limit, ie: 0,30
      *      search (STRING)          The search string
-     *      output_type (STRING)     OBJECT, ARRAY_A, ARRAY_N	
+     *      output_type (STRING)     OBJECT, ARRAY_N or ARRAY_A, default is OBJECT
      *
      * @since 5.0.0
      * @param array $args
@@ -1546,8 +1558,8 @@ class tp_publications {
     
     /**
      * Returns course meta data
-     * @param int $pub_id
-     * @param string $meta_key
+     * @param int $pub_id           The publication ID
+     * @param string $meta_key      The name of the meta field
      * @since 5.0.0
      */
     public static function get_pub_meta($pub_id, $meta_key = ''){
@@ -1564,6 +1576,10 @@ class tp_publications {
     
     /**
      * Returns an array or object of users who has a publication list
+     * 
+     * Possible values for the array $args:
+     *       output type (STRING)     OBJECT, ARRAY_A, ARRAY_N, default is OBJECT
+     * 
      * @param array $args
      * @return object|array
      * @since 5.0.0
@@ -1585,6 +1601,12 @@ class tp_publications {
     
     /**
      * Returns an array or object of publication types which are used for existing publication entries
+     * 
+     * Possible values for the array $args:
+     *       user (STRING)            User IDs (separated by comma)
+     *       output type (STRING)     OBJECT, ARRAY_A, ARRAY_N, default is ARRAY_A
+     * 
+     * 
      * @param array $args
      * @return object|array
      * @since 5.0.0
@@ -1614,6 +1636,13 @@ class tp_publications {
     
     /**
      * Returns an object or array with the years where publications are written
+     * 
+     * Possible values for the array $args:
+     *       type (STRING)            Publication types (separated by comma)
+     *       user (STRING)            User IDs (separated by comma)
+     *       order (STRING)           ASC or DESC; default is ASC
+     *       output type (STRING)     OBJECT, ARRAY_A, ARRAY_N, default is OBJECT
+     * 
      * @param array $args
      * @return object|array
      * @since 5.0.0
@@ -1654,10 +1683,10 @@ class tp_publications {
     
     /** 
      * Adds a publication
-     * @param array $data
-     * @param string $tags
-     * @param array $bookmark
-     * @return int      id of the new publication
+     * @param array $data       An associative array of publication data (title, type, bibtex, author, editor,...)
+     * @param string $tags      An associative array of tags
+     * @param array $bookmark   An associative array of bookmark IDs
+     * @return int              The ID of the new publication
      * @since 5.0.0
     */
     public static function add_publication($data, $tags, $bookmark) {
@@ -1757,9 +1786,9 @@ class tp_publications {
     
     /**
      * Add publication meta data
-     * @param int $pub_id
-     * @param string $meta_key
-     * @param string $meta_value
+     * @param int $pub_id           The publication Id
+     * @param string $meta_key      The name of the meta field
+     * @param string $meta_value    The value of the meta field
      * @since 5.0.0
      */
     public static function add_pub_meta ($pub_id, $meta_key, $meta_value) {
@@ -1822,9 +1851,9 @@ class tp_publications {
     
     /**
      * Update a publication by key (import option); Returns FALSE if no publication with the given key was found
-     * @param string $key
-     * @param array $data
-     * @param string $tags
+     * @param string $key       The BibTeX key
+     * @param array $data       An associative array of publication data
+     * @param string $tags      An associative array of tags
      * @return boolean|int
      * @since 5.0.0
      */
@@ -1884,8 +1913,8 @@ class tp_publications {
     
     /**
      * Deletes curse meta
-     * @param int $pub_id
-     * @param string $meta_key
+     * @param int $pub_id           The publication ID
+     * @param string $meta_key      the name of the meta field
      * @since 5.0.0
      */
     public static function delete_pub_meta ($pub_id, $meta_key = '') {
@@ -1901,10 +1930,10 @@ class tp_publications {
     
     /**
      * Add new relations (for tags,authors,etc)
-     * @param int $pub_id
-     * @param string $input_string
-     * @param string $delimiter         Example: ','
-     * @param string $rel_type          tags, authors, editors
+     * @param int $pub_id               The publication ID
+     * @param string $input_string      A sting of tags
+     * @param string $delimiter         The separator for the tags, Default is: ','
+     * @param string $rel_type          The relation type: tags, authors or editors, default is tags
      * @since 5.0.0
      */
     public static function add_relation ($pub_id, $input_string, $delimiter = ',', $rel_type = 'tags') {
@@ -1950,7 +1979,7 @@ class tp_publications {
 }
 
 /**
- * Contains functions for getting, adding and deleting of students
+ * Contains functions for getting, adding and deleting students
  * @package teachpress
  * @subpackage database
  * @since 5.0.0
@@ -1973,6 +2002,15 @@ class tp_students {
     
     /**
      * Returns the data of all students
+     * 
+     * Possible values for the array $args:
+     *       course_of_studies (STRING)     A course of studies
+     *       search (STRING)                A normal search string
+     *       order (STRING)                 ASC or DESC; default is ASC
+     *       limit (STRING)                 The sql search limit, example: 0,30
+     *       output type (STRING)           OBJECT, ARRAY_A, ARRAY_N, default is OBJECT
+     *       count (BOOLEAN)                Set it to true if you only need an number of authors which will be returned by your selection (default: false)
+     * 
      * @param array $args
      * @return object or array
      * @since 5.0.0
@@ -2032,8 +2070,8 @@ class tp_students {
     
     /**
      * Returns user meta data
-     * @param int $wp_id
-     * @param string $meta_key
+     * @param int $wp_id            The user ID
+     * @param string $meta_key      The name of the meta field
      * @since 5.0.0
      */
     public static function get_student_meta($wp_id, $meta_key = ''){
@@ -2048,6 +2086,20 @@ class tp_students {
         return $wpdb->get_results($sql, ARRAY_A);
     }
     
+    /**
+     * Returns an array|object with ID and user_login of WordPress users, which are not registered in teachPress 
+     * @param string $output_type   ARRAY_A, ARRAY_N or OBJECT, default is ARRAY_A
+     * @return array|object
+     * @since 5.0.0
+     */
+    public static function get_unregistered_students($output_type = ARRAY_A) {
+        global $wpdb;
+        $sql = "SELECT u.ID, u.user_login FROM " . $wpdb->users . " u "
+                . "LEFT JOIN " . TEACHPRESS_STUD . " s ON u.ID = s.wp_id "
+                . "WHERE s.wp_id IS NULL";
+        return $wpdb->get_results($sql, $output_type);
+    }
+
     /** 
      * Add student
      * @param int $wp_id    WordPress user ID
@@ -2072,9 +2124,9 @@ class tp_students {
     
     /**
      * Add student meta
-     * @param int $wp_id
-     * @param string $meta_key
-     * @param string $meta_value
+     * @param int $wp_id            The user ID
+     * @param string $meta_key      The name of the meta field
+     * @param string $meta_value    The value of the meta field
      * @since 5.0.0
      */
     public static function add_student_meta ($wp_id, $meta_key, $meta_value) {
@@ -2084,9 +2136,9 @@ class tp_students {
     
     /** 
      * Edit userdata
-     * @param int $wp_id
-     * @param array_a $data
-     * @param boolean $show_message
+     * @param int $wp_id                The user ID
+     * @param array_a $data             An associative array of user data (firstname, lastname, userlogin,...)
+     * @param boolean $show_message     Default is true
      * @return string
      * @since 5.0.0
     */
@@ -2148,7 +2200,7 @@ class tp_students {
      *      wp_id (INT)             The user ID
      *      mode (STRING)           all, reg or wtl. Default is: all
      *      course_id (INT)         The course ID
-     *      output_type (STRING)    ARRAY_A, ARRAY_N or OBJECT
+     *      output_type (STRING)    OBJECT, ARRAY_N or ARRAY_A, default is OBJECT
      * 
      * @param array $args
      * @return array|object 
@@ -2178,12 +2230,13 @@ class tp_students {
 
         $sql = "SELECT con_id, wp_id, course_id, waitinglist, name, type, room, date, semester, parent_name, timestamp FROM (SELECT s.con_id as con_id, s.wp_id as wp_id, s.course_id as course_id, s.waitinglist as waitinglist, c.name as name, c.type as type, c.room as room, c.date as date, c.semester as semester, c2.name as parent_name, s.date as timestamp FROM " . TEACHPRESS_SIGNUP . " s INNER JOIN " . TEACHPRESS_COURSES . " c ON s.course_id = c.course_id LEFT JOIN " . TEACHPRESS_COURSES . " c2 ON c.parent = c2.course_id $where) AS temp WHERE `wp_id` = '$wp_id'";
         if ( $mode == 'reg' ) {
-            $sql = $sql . " AND `waitinglist` = '0'";
+            $sql .= " AND `waitinglist` = '0'";
         }
         if ( $mode == 'wtl' ) {
-            $sql = $sql . " AND `waitinglist` = '1'";
+            $sql .= " AND `waitinglist` = '1'";
         }
-        $sql = $sql . " ORDER BY con_id DESC";
+        $sql .= " ORDER BY con_id DESC";
+        // get_tp_message($sql);
         $result = $wpdb->get_results($sql, $output_type);
         return $result;
     }
@@ -2257,7 +2310,7 @@ class tp_tags {
     *       search (STRING)          A normal search string
     *       group by (BOOLEAN)       Boolean flag for the group by clause. Default is: false
     *       count (BOOLEAN)          Set it to true if you only need an number of tags which will be returned by your selection. Default is: false
-    *       output type (STRING)     OBJECT, ARRAY_A, ARRAY_N 
+    *       output type (STRING)     OBJECT, ARRAY_A, ARRAY_N, default is OBJECT
     * 
     * @param array $args
     * @return array|object
@@ -2334,7 +2387,7 @@ class tp_tags {
 
        // End
        $sql = $select . $join . $where . $group_by . " ORDER BY t.name $order $limit";
-       // echo $sql . '<br/><br/>';
+       // echo get_tp_message($sql, 'orange');
        $sql = $count == false ? $wpdb->get_results($sql, $output_type): $wpdb->get_var($sql);
        return $sql;
    }
@@ -2353,8 +2406,8 @@ class tp_tags {
     
    /** 
     * Edit a tag. Returns false if errors, or the number of rows affected if successful.
-    * @param int $tag_id 
-    * @param string $name
+    * @param int $tag_id        The tag ID
+    * @param string $name       the tag name
     * @return int|false
     * @since 5.0.0
    */
@@ -2449,7 +2502,7 @@ class tp_tags {
      * Returns an array|object with the name, tag_id and occurence of all_tags
      * @param string $search            normal search string
      * @param string $limit             SQL limit like 0,50
-     * @param string $output_type       ARRAY_A, ARRAY_N, OBJECT
+     * @param string $output_type       OBJECT, ARRAY_N or ARRAY_A, default is ARRAY_A
      * @return array|object
      * @since 5.0.0
      */
@@ -2606,7 +2659,7 @@ class tp_db_helpers {
     
     /**
      * Extract column settings from a string
-     * @param string $data
+     * @param string $data      The data string has the following structure: name1 = {value1}, name2 = {value2}, ...
      * @return array
      * @since 5.0.0
      */

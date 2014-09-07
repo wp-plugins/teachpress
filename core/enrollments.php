@@ -306,7 +306,7 @@ class tp_enrollments {
      * @param int $value            value for the field
      * @param int $min              default is 0
      * @param int $max              default is 999
-     * @param int step             default is 1
+     * @param int step              default is 1
      * @param boolean $readonly     true or false, default is false
      * @param boolean $required     true or false, default is false
      * @return string
@@ -352,7 +352,6 @@ class tp_enrollments {
     
     /**
      * Returns a select box for user form
-     * @global type $wpdb
      * @param string $field_name    name/id of the field
      * @param string $label         label for the field
      * @param string $value         value for the field
@@ -402,13 +401,15 @@ class tp_enrollments {
      * @param string $field_name    name/id of the field
      * @param string $label         label for the field
      * @param string $value         value for the field
+     * @param boolean $required     true or false, default is false
      * @return string
      * @since 5.0.0
      */
-    public static function get_form_textarea_field ($field_name, $label, $value) {
+    public static function get_form_textarea_field ($field_name, $label, $value, $required = false) {
+        $required = ( $required === true ) ? 'required="required"' : '';
         return '<tr>
                     <td><label for="' . $field_name . '"><b>' . $label . '</b></label></td>
-                    <td><textarea name="' . $field_name . '" id="' . $field_name . '" style="width:100%; height:80px;">' . $value . '</textarea></td>
+                    <td><textarea name="' . $field_name . '" id="' . $field_name . '" style="width:100%; height:80px;" ' . $required . '>' . $value . '</textarea></td>
                  </tr>';
     }
     
@@ -899,7 +900,7 @@ function tp_registration_form ($user_id, $mode = 'register') {
             $rtn .= tp_enrollments::get_form_select_field($row['variable'], $data['title'], $value);
         }
         elseif ( $data['type'] === 'TEXTAREA' ) {
-            $rtn .= tp_enrollments::get_form_textarea_field($row['variable'], $data['title'], $value);
+            $rtn .= tp_enrollments::get_form_textarea_field($row['variable'], $data['title'], $value, $required);
         }
         elseif ( $data['type'] === 'DATE' ) {
             $rtn .= tp_enrollments::get_form_date_field($row['variable'], $data['title'], $value);
