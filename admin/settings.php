@@ -195,7 +195,7 @@ class tp_settings_page {
         echo '<option value="INT">NUMBER</option>';
         echo '<option value="DATE">DATE</option>';
         echo '<option value="SELECT">SELECT</option>';
-        // echo '<option value="CHECKBOX">CHECKBOX</option>'; Disabled: Problems with saving of arrays
+        echo '<option value="CHECKBOX">CHECKBOX</option>';
         echo '<option value="RADIO">RADIO</option>';
         echo '</select>';
         echo '</td>';

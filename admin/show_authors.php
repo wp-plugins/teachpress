@@ -96,7 +96,7 @@ function tp_show_authors_page () {
     echo '<h2>' . __('Authors','teachpress') . '</h2>';
     echo '<div id="searchbox" style="float:right; padding-bottom:10px;">';
     if ($search != "") {
-        echo '<a href="admin.php?page=teachpress/tags.php" style="font-size:14px; font-weight:bold; text-decoration:none; padding-right:3px;" title="' . __('Cancel the search','teachpress') . '">X</a>';
+        echo '<a href="admin.php?page=teachpress/authors.php" style="font-size:14px; font-weight:bold; text-decoration:none; padding-right:3px;" title="' . __('Cancel the search','teachpress') . '">X</a>';
     }
     echo '<input type="text" name="search" id="pub_search_field" value="' . stripslashes($search) . '"/>';
     echo '<input type="submit" name="button" id="button" value="' . __('Search','teachpress') . '" class="button-secondary"/>';
@@ -149,7 +149,7 @@ function tp_show_authors_page () {
             }
             echo '<tr class="' . $tr_class . '" id="resultbox_' . $row['author_id'] . '">';
             echo '<th class="check-column"><input name="checkbox[]" class="tp_checkbox" type="checkbox" ' . $checked . ' type="checkbox" value="' . $row['author_id'] . '"></th>';
-            echo '<td><a class="tp_show_pub_info" author_id="' . $row['author_id'] . '" title="' . __('Show publications','teachpress') . '" style_class="' . $tr_class . '" style="cursor:pointer;"><b>' . stripslashes($row['name']) . '</b></a>';
+            echo '<td><a class="tp_show_pub_info" author_id="' . $row['author_id'] . '" title="' . __('Show publications','teachpress') . '" style_class="' . $tr_class . '" style="cursor:pointer;"><b>' . tp_bibtex::parse_author_simple($row['name']) . '</b></a>';
                 echo '<div class="tp_row_actions">';
                 echo '<a class="tp_row_delete" href="admin.php?page=' . $page . '&amp;checkbox%5B%5D=' . $row['author_id'] . '&amp;search=' . $search . '&amp;action=delete' . '" title="' . __('Delete','teachpress') . '">' . __('Delete', 'teachpress') . '</a>';
                 echo '</div>';

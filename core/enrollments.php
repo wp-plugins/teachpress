@@ -138,7 +138,7 @@ class tp_enrollments {
     }
     
     /**
-     * Add student meta
+     * Prepares and adds meta data for a student
      * @param int $user_id
      * @param array $fields
      * @param array $post
@@ -151,11 +151,22 @@ class tp_enrollments {
             }
             
             $column_info = tp_db_helpers::extract_column_data($row['value']);
+            // For DATE fields
             if ( $column_info['type'] === 'DATE' ) {
                 $day = intval( $post[$row['variable'] . '_day'] );
                 $day2 = ( $day < 10 ) ? '0' . $day : $day;
                 $value = $post[$row['variable'] . '_year'] . '-' . $post[$row['variable'] . '_month'] . '-' . $day2;
             }
+            // For CHECKBOX fields
+            else if ( $column_info['type'] === 'CHECKBOX' ) {
+                $max = count($post[$row['variable']]);
+                $val = '';
+                for ( $i = 0; $i < $max; $i++ ) {
+                    $val = ( $val === '' ) ? '{' . $post[$row['variable']][$i] . '}' : $val . ',{' . $post[$row['variable']][$i] . '}';
+                }
+                $value = $val;
+            }
+            // For all other fields
             else {
                 $value = $post[$row['variable']];
             }
@@ -223,10 +234,30 @@ class tp_enrollments {
     }
     
     /**
+     * Extracts checkbox data for meta data fields and returns an array with the saved values. 
+     * 
+     * A string for checkbox data has the following structure:
+     * {value1},{value2},{value3}
+     * 
+     * @param string $input
+     * @return array
+     * @since 5.0.0
+     */
+    public static function extract_checkbox_data($input) {
+        $values = array();
+        $array_values = explode(',', $input);
+        foreach( $array_values as $element ) {
+            $element = str_replace(array('{','}'), array('',''), $element);
+            array_push($values, $element);
+        }
+        return $values;
+    }
+    
+    /**
      * Returns a checkbox field for user form
      * @param string $field_name    name/id of the field
      * @param string $label         label for the field
-     * @param string $checked       value for the field
+     * @param string $checked       current value for the field
      * @param boolean $readonly     true or false, default is false
      * @param boolean $required     true or false, default is false
      * @return string
@@ -237,13 +268,17 @@ class tp_enrollments {
         $options = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '" . $field_name . "' ORDER BY value ASC");
         $readonly = ( $readonly === true ) ? 'readonly="true" ' : '' ;
         $required = ( $required === true ) ? 'required="required"' : '';
+        // extrakt checkbox_values
+        $array_checked = self::extract_checkbox_data($checked);
         $return = '<tr>';
-        $return .= '<td><label for="' . $field_name . '"><b>' . $label . '</b></label></td>';
+        $return .= '<td><label for="' . $field_name . '"><b>' . stripslashes($label) . '</b></label></td>';
         $return .= '<td>';
         $i = 1;
+        $max = count($options);
         foreach ($options as $opt) {
-            $checked = ( $checked == $opt->value ) ? 'checked="checked"' : '';
-            $return .= '<input name="' . $field_name . '[]" type="checkbox" id="' . $field_name . '_' . $i . '" value="' . $opt->value . '" ' . $checked . ' ' . $readonly . ' ' . $required . '/> <label for="' . $field_name . '_' . $i . '">' . $opt->value . '</label><br/>';
+            $checked = ( in_array($opt->value, $array_checked) ) ? 'checked="checked"' : '';
+            $required = ( $max === 1 ) ? $required : '';  // The required optopns is only available for single checkboxes
+            $return .= '<input name="' . $field_name . '[]" type="checkbox" id="' . $field_name . '_' . $i . '" value="' . stripslashes($opt->value) . '" ' . $checked . ' ' . $readonly . ' ' . $required . '/> <label for="' . $field_name . '_' . $i . '">' . stripslashes($opt->value) . '</label><br/>';
             $i++;
         }
         $return .= '</td>';
@@ -269,7 +304,7 @@ class tp_enrollments {
         $months = array ( __('Jan','teachpress'), __('Feb','teachpress'), __('Mar','teachpress'), __('Apr','teachpress'), __('May','teachpress'), __('Jun','teachpress'), __('Jul','teachpress'), __('Aug','teachpress'), __('Sep','teachpress'), __('Oct','teachpress'), __('Nov','teachpress'), __('Dec','teachpress') );
         $return = '';
         $return .= '<tr>';
-        $return .= '<td><b>' . $label . '</b></td>';
+        $return .= '<td><b>' . stripslashes($label) . '</b></td>';
         $return .= '<td>';
         $return .= '<input name="' . $field_name . '_day" id="' . $field_name . '_day" type="text" title="Day" size="2" value="' . $day . '"/>';
         $return .= '<select name="' . $field_name . '_month" id="' . $field_name . '_month" title="' . __('Month','teachpress') . '">';
@@ -295,7 +330,7 @@ class tp_enrollments {
     public static function get_form_hidden_field($field_name, $value) {
         return '<tr style="visible:hidden;">
                     <td></td>
-                    <td><input name="' . $field_name . '" type="hidden" id="' . $field_name . '" value="' . $value . '"/></td>
+                    <td><input name="' . $field_name . '" type="hidden" id="' . $field_name . '" value="' . stripslashes($value) . '"/></td>
                  </tr>';
     }
     
@@ -316,7 +351,7 @@ class tp_enrollments {
         $readonly = ( $readonly === true ) ? 'readonly="true" ' : '' ;
         $required = ( $required === true ) ? 'required="required"' : '';
         return '<tr>
-                    <td><label for="' . $field_name . '"><b>' . $label . '</b></label></td>
+                    <td><label for="' . $field_name . '"><b>' . stripslashes($label) . '</b></label></td>
                     <td><input name="' . $field_name . '" type="number" id="' . $field_name . '" value="' . $value . '" size="50" ' . $readonly . ' ' . $required . ' min="' . $min . '" max="' . $max . '" step="' . $step . '"/></td>
                  </tr>';
     }
@@ -337,12 +372,12 @@ class tp_enrollments {
         $readonly = ( $readonly === true ) ? 'readonly="true" ' : '' ;
         $required = ( $required === true ) ? 'required="required"' : '';
         $return = '<tr>';
-        $return .= '<td><label for="' . $field_name . '"><b>' . $label . '</b></label></td>';
+        $return .= '<td><label for="' . $field_name . '"><b>' . stripslashes($label) . '</b></label></td>';
         $return .= '<td>';
         $i = 1;
         foreach ($options as $opt) {
             $checked = ( $checked == $opt->value ) ? 'checked="checked"' : '';
-            $return .= '<input name="' . $field_name . '" type="radio" id="' . $field_name . '_' . $i . '" value="' . $opt->value . '" ' . $checked . ' ' . $readonly . ' ' . $required . '/> <label for="' . $field_name . '_' . $i . '">' . $opt->value . '</label><br/>';
+            $return .= '<input name="' . $field_name . '" type="radio" id="' . $field_name . '_' . $i . '" value="' . stripslashes($opt->value) . '" ' . $checked . ' ' . $readonly . ' ' . $required . '/> <label for="' . $field_name . '_' . $i . '">' . stripslashes($opt->value) . '</label><br/>';
             $i++;
         }
         $return .= '</td>';
@@ -362,7 +397,7 @@ class tp_enrollments {
         global $wpdb;
         $return = '';
         $return .= '<tr>';
-        $return .= '<td><label for="' . $field_name . '"><b>' . $label . '</b></label></td>';
+        $return .= '<td><label for="' . $field_name . '"><b>' . stripslashes($label) . '</b></label></td>';
         $return .= '<td><select name="' . $field_name . '" id="' . $field_name . '">';
         $options = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '" . $field_name . "' ORDER BY value ASC");
         if ( $value == '' ) {
@@ -370,7 +405,7 @@ class tp_enrollments {
         }
         foreach ($options as $opt) {
             $selected = ( $value == $opt->value ) ? 'selected="selected"' : '';
-            $return .= '<option value="' . $opt->value . '" ' . $selected . '>' . $opt->value . '</option>';
+            $return .= '<option value="' . stripslashes($opt->value) . '" ' . $selected . '>' . stripslashes($opt->value) . '</option>';
         }
         $return .= '</select></td>';
         $return .= '</tr>';
@@ -391,8 +426,8 @@ class tp_enrollments {
         $readonly = ( $readonly === true ) ? 'readonly="true" ' : '' ;
         $required = ( $required === true ) ? 'required="required"' : '';
         return '<tr>
-                    <td><label for="' . $field_name . '"><b>' . $label . '</b></label></td>
-                    <td><input name="' . $field_name . '" type="text" id="' . $field_name . '" value="' . $value . '" size="50" ' . $readonly . ' ' . $required . '/></td>
+                    <td><label for="' . $field_name . '"><b>' . stripslashes($label) . '</b></label></td>
+                    <td><input name="' . $field_name . '" type="text" id="' . $field_name . '" value="' . stripslashes($value) . '" size="50" ' . $readonly . ' ' . $required . '/></td>
                  </tr>';
     }
     
@@ -408,8 +443,8 @@ class tp_enrollments {
     public static function get_form_textarea_field ($field_name, $label, $value, $required = false) {
         $required = ( $required === true ) ? 'required="required"' : '';
         return '<tr>
-                    <td><label for="' . $field_name . '"><b>' . $label . '</b></label></td>
-                    <td><textarea name="' . $field_name . '" id="' . $field_name . '" style="width:100%; height:80px;" ' . $required . '>' . $value . '</textarea></td>
+                    <td><label for="' . $field_name . '"><b>' . stripslashes($label) . '</b></label></td>
+                    <td><textarea name="' . $field_name . '" id="' . $field_name . '" style="width:100%; height:80px;" ' . $required . '>' . stripslashes($value) . '</textarea></td>
                  </tr>';
     }
     
@@ -981,7 +1016,7 @@ function tp_enrollments_shortcode($atts) {
         );
         tp_students::delete_student_meta($user_ID);
         $rtn .= tp_students::change_student($user_ID, $data2, true);
-        tp_enrollments::add_student_meta( $user_ID, $fields, filter_input_array(INPUT_POST, $_POST) );
+        tp_enrollments::add_student_meta( $user_ID, $fields, $_POST );
     }
     // delete signup
     if ( isset( $_POST['austragen'] ) && $checkbox2 != '' ) {

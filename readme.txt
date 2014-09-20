@@ -142,20 +142,22 @@ It's **strongly** recommended to save your teachpress database tables before upg
 * New: Direct creating of sub courses added
 * New: Page menu for enrollments added
 * New: DOI field for publications added
-* New: Shortcode [tpcoursedate] as replacement for [tpdate]
+* New: Shortcode [tpcourseinfo] as replacement for [tpdate]
 * New: Shortcode [tpcoursedocs]
 * New: [tpenrollments]: New parameter "date_format" added
-* New: Editable time limit for exports and uploads (new constant TEACHPRESS_TIME_LIMIT);
+* New: Editable time limit for exports and uploads (new constant TEACHPRESS_TIME_LIMIT)
 * Changed: Rewritten core API
 * Changed: Rewritten Shortcode [tpcloud]
 * Changed: Rewritten Shortcdoe [tpenrollments]
-* Changed: UI modifications for better integration in WordPress 3.8+
-* Changed: Using HTML5 required attribute for fields in registration forms
+* Changed: [tpcloud, tplist]: Pagination is enabled by default, the parameter entries_per_page is set to 50 by default (before: 30)
+* Changed: UI modifications for better integration in WordPress 3.9+
+* Changed: Using HTML5s "required" attribute for required fields in registration forms
 * Changed: Using parameters instead of variables for the definition of database table names
 * Changed: Visible names for some publication types changed
 * Changed: The plugin requires at least WordPress 3.9 instead of 3.3
+* Bugfix: Fixed the handling of curly-brackets for the definition of surnames in author/editor names
 * Bugfix: teachPress books widget works again
-* Killed: The shortcode [tpdate] is deprecated, use [tpcoursedate] instead
+* Killed: The shortcode [tpdate] is deprecated, use [tpcourseinfo] instead
 * Killed: The following functions are deprecated: get_tp_course(), get_tp_courses(), get_tp_course_free_places(), get_tp_tags(), get_tp_tag_cloud(), get_tp_publication(), get_tp_publications(), tp_is_user_subscribed(), tp_check_bookmark(), tp_admin_page_menu()
 
 = 4.3.8 - (29.06.2014) =

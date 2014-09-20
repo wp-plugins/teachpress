@@ -56,7 +56,7 @@ class tp_admin {
                    );
         foreach ($options as $opt) {
             $selected = ( $value == $opt['value'] ) ? 'selected="selected"' : '';
-            $return .= '<option value="' . $opt['value'] . '" ' . $selected . '>' . $opt['title'] . '</option>';
+            $return .= '<option value="' . stripslashes($opt['value']) . '" ' . $selected . '>' . stripslashes($opt['title']) . '</option>';
         }
         $return .= '</select>';
         return $return;
@@ -78,9 +78,39 @@ class tp_admin {
                    );
         foreach ($options as $opt) {
             $selected = ( $value == $opt['value'] ) ? 'selected="selected"' : '';
-            $return .= '<option value="' . $opt['value'] . '" ' . $selected . '>' . $opt['title'] . '</option>';
+            $return .= '<option value="' . stripslashes($opt['value']) . '" ' . $selected . '>' . stripslashes($opt['title']) . '</option>';
         }
         $return .= '</select>';
+        return $return;
+    }
+    
+    /**
+     * Returns checkbox fields for admin form
+     * @param string $field_name    name/id of the field
+     * @param string $label         label for the field
+     * @param string $checked       value for the field
+     * @param boolean $readonly     true or false, default is false
+     * @param boolean $required     true or false, default is false
+     * @return string
+     * @since 5.0.0
+     */
+    public static function get_checkbox_field ($field_name, $label, $checked, $readonly = false, $required = false) {
+        global $wpdb;
+        $return = '';
+        $options = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '" . $field_name . "' ORDER BY value ASC");
+        $readonly = ( $readonly === true ) ? 'readonly="true" ' : '' ;
+        $required = ( $required === true ) ? 'required="required"' : '';
+        // extrakt checkbox_values
+        $array_checked = tp_enrollments::extract_checkbox_data($checked);
+        $return .= '<p><label for="' . $field_name . '"><b>' . stripslashes($label) . '</b></label></p>';
+        $i = 1;
+        $max = count($options);
+        foreach ($options as $opt) {
+            $checked = ( in_array($opt->value, $array_checked) ) ? 'checked="checked"' : '';
+            $required = ( $max === 1 ) ? $required : '';  // The required optopns is only available for single checkboxes
+            $return .= '<input name="' . $field_name . '[]" type="checkbox" id="' . $field_name . '_' . $i . '" value="' . stripslashes($opt->value) . '" ' . $checked . ' ' . $readonly . ' ' . $required . '/> <label for="' . $field_name . '_' . $i . '">' . stripslashes($opt->value) . '</label><br/>';
+            $i++;
+        }
         return $return;
     }
     
@@ -101,7 +131,7 @@ class tp_admin {
         $year = ( $value != '' ) ? $b[0][0] : '19xx';
         $months = array ( __('Jan','teachpress'), __('Feb','teachpress'), __('Mar','teachpress'), __('Apr','teachpress'), __('May','teachpress'), __('Jun','teachpress'), __('Jul','teachpress'), __('Aug','teachpress'), __('Sep','teachpress'), __('Oct','teachpress'), __('Nov','teachpress'), __('Dec','teachpress') );
         $return = '';
-        $return .= '<p><b>' . $label . '</b></p>';
+        $return .= '<p><b>' . stripslashes($label) . '</b></p>';
         $return .= '<input name="' . $field_name . '_day" id="' . $field_name . '_day" type="text" title="Day" size="2" value="' . $day . '"/>';
         $return .= '<select name="' . $field_name . '_month" id="' . $field_name . '_month" title="' . __('Month','teachpress') . '">';
         for ( $i = 1; $i <= 12; $i++ ) {
@@ -130,12 +160,12 @@ class tp_admin {
     public static function get_int_field($field_name, $label, $value, $min = 0, $max = 999, $step = 1, $readonly = false, $required = false){
         $readonly = ( $readonly === true ) ? 'readonly="true" ' : '' ;
         $required = ( $required === true ) ? 'required="required"' : '';
-        return '<p><label for="' . $field_name . '"><b>' . $label . '</b></label></p>
+        return '<p><label for="' . $field_name . '"><b>' . stripslashes($label) . '</b></label></p>
                 <input name="' . $field_name . '" type="number" id="' . $field_name . '" value="' . $value . '" size="50" ' . $readonly . ' ' . $required . ' min="' . $min . '" max="' . $max . '" step="' . $step . '"/>';
     }
     
     /**
-     * Returns a checkbox field for admin form
+     * Returns radio fields for admin form
      * @param string $field_name    name/id of the field
      * @param string $label         label for the field
      * @param string $checked       value for the field
@@ -150,11 +180,11 @@ class tp_admin {
         $options = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '" . $field_name . "' ORDER BY value ASC");
         $readonly = ( $readonly === true ) ? 'readonly="true" ' : '' ;
         $required = ( $required === true ) ? 'required="required"' : '';
-        $return .= '<p><label for="' . $field_name . '"><b>' . $label . '</b></label></p>';
+        $return .= '<p><label for="' . $field_name . '"><b>' . stripslashes($label) . '</b></label></p>';
         $i = 1;
         foreach ($options as $opt) {
             $checked = ( $checked == $opt->value ) ? 'checked="checked"' : '';
-            $return .= '<input name="' . $field_name . '" type="radio" id="' . $field_name . '_' . $i . '" value="' . $opt->value . '" ' . $checked . ' ' . $readonly . ' ' . $required . '/> <label for="' . $field_name . '_' . $i . '">' . $opt->value . '</label><br/>';
+            $return .= '<input name="' . $field_name . '" type="radio" id="' . $field_name . '_' . $i . '" value="' . stripslashes($opt->value) . '" ' . $checked . ' ' . $readonly . ' ' . $required . '/> <label for="' . $field_name . '_' . $i . '">' . stripslashes($opt->value) . '</label><br/>';
             $i++;
         }
         return $return;
@@ -171,7 +201,7 @@ class tp_admin {
     public static function get_select_field ($field_name, $label, $value) {
         global $wpdb;
         $return = '';
-        $return .= '<p><label for="' . $field_name . '"><b>' . $label . '</b></label></p>';
+        $return .= '<p><label for="' . $field_name . '"><b>' . stripslashes($label) . '</b></label></p>';
         $return .= '<select name="' . $field_name . '" id="' . $field_name . '">';
         $options = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '" . $field_name . "' ORDER BY value ASC");
         if ( $value == '' ) {
@@ -179,7 +209,7 @@ class tp_admin {
         }
         foreach ($options as $opt) {
             $selected = ( $value == $opt->value ) ? 'selected="selected"' : '';
-            $return .= '<option value="' . $opt->value . '" ' . $selected . '>' . $opt->value . '</option>';
+            $return .= '<option value="' . stripslashes($opt->value) . '" ' . $selected . '>' . stripslashes($opt->value) . '</option>';
         }
         $return .= '</select>';
         return $return;
@@ -196,7 +226,7 @@ class tp_admin {
      */
     public static function get_text_field($field_name, $label, $value, $readonly = false) {
         $readonly = ( $readonly === false ) ? '' : 'readonly="true" ';
-        return '<p><label for="' . $field_name . '"><b>' . $label . '</b></label></p>
+        return '<p><label for="' . $field_name . '"><b>' . stripslashes($label) . '</b></label></p>
                 <input name="' . $field_name . '" type="text" id="' . $field_name . '" value="' . stripslashes($value) . '" size="50" ' . $readonly . '/>';
     }
     
@@ -209,7 +239,7 @@ class tp_admin {
      * @since 5.0.0
      */
     public static function get_textarea_field ($field_name, $label, $value) {
-        return '<p><label for="' . $field_name . '"><b>' . $label . '</b></label><p>
+        return '<p><label for="' . $field_name . '"><b>' . stripslashes($label) . '</b></label><p>
                 <textarea name="' . $field_name . '" id="' . $field_name . '" style="width:100%; height:80px;">' . stripslashes($value) . '</textarea>';
     }
     
@@ -230,13 +260,13 @@ class tp_admin {
     public static function get_form_field ($name, $title, $label, $field_type, $pub_type, $pub_value, $availabe_for, $tabindex, $style = '') {
         $display = ( in_array($pub_type, $availabe_for) ) ? 'style="display:block;"' : 'style="display:none;"';
         if ( $field_type === 'textarea' ) {
-            $field = '<textarea name="' . $name . '" id="' . $name . '" wrap="virtual" style="' . $style . '" tabindex="' . $tabindex . '" title="' . $title . '">' . stripslashes($pub_value) . '</textarea>';
+            $field = '<textarea name="' . $name . '" id="' . $name . '" wrap="virtual" style="' . $style . '" tabindex="' . $tabindex . '" title="' . stripslashes($title) . '">' . stripslashes($pub_value) . '</textarea>';
         }
         else {
-            $field = '<input name="' . $name . '" id="' . $name . '" type="text" title="' . $title . '" style="' . $style . '" value="' . stripslashes($pub_value) . '" tabindex="' . $tabindex . '" />';
+            $field = '<input name="' . $name . '" id="' . $name . '" type="text" title="' . stripslashes($title) . '" style="' . $style . '" value="' . stripslashes($pub_value) . '" tabindex="' . $tabindex . '" />';
         }
         $a = '<div id="div_' . $name . '" ' . $display . '>
-              <p><label for="' . $name . '" title="' . $title . '"><strong>' . $label . '</strong></label></p>
+              <p><label for="' . $name . '" title="' . stripslashes($title) . '"><strong>' . stripslashes($label) . '</strong></label></p>
               ' . $field . '</div>';
         return $a;
     }
@@ -350,6 +380,9 @@ class tp_admin {
             }
             elseif ( $col_data['type'] === 'RADIO' ) {
                 echo tp_admin::get_radio_field($row['variable'], $col_data['title'], $value, false, $required);
+            }
+            elseif ( $col_data['type'] === 'CHECKBOX' ) {
+                echo tp_admin::get_checkbox_field($row['variable'], $col_data['title'], $value, false, $required);
             }
             elseif ( $col_data['type'] === 'TEXTAREA' ) {
                 echo tp_admin::get_textarea_field($row['variable'], $col_data['title'], $value);

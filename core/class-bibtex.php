@@ -376,10 +376,10 @@ class tp_bibtex {
     /**
     * Import a BibTeX String
     * @global class $PARSEENTRIES
-    * @param string $input      --> the input string with bibtex entries
-    * @param array $settings    --> with index names: keyword_separator, author_format
-    * @param string $test       --> set it to true for test mode ( = disable the inserting of publications into database )
-    * @todo Needs to be simplified
+    * @param string $input      The input string with bibtex entries
+    * @param array $settings    With index names: keyword_separator, author_format
+    * @param string $test       Set it to true for test mode. This mode disables the inserting of publications into database
+    * @since 3.0.0
     */
     public static function import_bibtex ($input, $settings, $test = false) {
         // Try to set the time limit for the script
@@ -404,26 +404,13 @@ class tp_bibtex {
             $entries[$i]['isbn'] = array_key_exists('isbn', $entries[$i]) === true ? $entries[$i]['isbn'] : '';
             $entries[$i]['issn'] = array_key_exists('issn', $entries[$i]) === true ? $entries[$i]['issn'] : '';
             $entries[$i]['tppubtype'] = array_key_exists('tppubtype', $entries[$i]) === true ? $entries[$i]['tppubtype'] : '';
+            
             // for the date of publishing
-            if ( $entries[$i]['date'] != '' ) {
-                $entries[$i]['date'] = $entries[$i]['date'];
-            }
-            elseif ($entries[$i]['month'] != '' && $entries[$i]['day'] != '' && $entries[$i]['year'] != '') {
-                $entries[$i]['date'] = $entries[$i]['year'] . '-' . $entries[$i]['month'] . '-' . $entries[$i]['day'];
-            }
-            else {
-                $entries[$i]['date'] = $entries[$i]['year'] . '-01-01';
-            }
+            $entries[$i]['date'] = self::set_date_of_publishing($entries[$i]);
+            
             // for tags
-            if ($entries[$i]['keywords'] != '') {
-                $tags = str_replace($settings['keyword_separator'],",",$entries[$i]['keywords']);
-            }
-            elseif ($entries[$i]['tags'] != '') {
-                $tags = str_replace($settings['keyword_separator'],",",$entries[$i]['tags']);
-            }
-            else {
-                $tags = '';
-            }
+            $tags = self::set_tags($entries[$i], $settings);
+            
             // correct name | title bug of old teachPress versions
             if ($entries[$i]['name'] != '') {
                 $entries[$i]['title'] = $entries[$i]['name'];
@@ -433,24 +420,13 @@ class tp_bibtex {
             if ( $entries[$i]['location'] != '' ) {
                 $entries[$i]['address'] = $entries[$i]['location'];
             }
+            
             // for author / editor
             // for format lastname1, firstname1 and lastname2, firstname2
             if ($settings['author_format'] == 2) {
-                $end = '';
-                $new = explode(' and ', $entries[$i]['author'] );
-                foreach ( $new as $new ) {
-                    $parts = explode(',', $new); 
-                    $num = count($parts); 
-                    $one = ''; 
-                    for ($j = 1; $j < $num; $j++) {
-                        $parts[$j] = trim($parts[$j]);
-                        $one = $one . ' '. $parts[$j];
-                    }
-                    $one = $one . ' ' . trim($parts[0]);
-                    $end = $end != '' ? $end . ' and ' . $one : $one;
-                }
-                $entries[$i]['author'] = $end;
+                $entries[$i]['author'] = self::set_author_name($entries[$i]);
             }
+            
             // for isbn/issn detection
             if ( $entries[$i]['issn'] != '' ) {
                 $entries[$i]['is_isbn'] = 0;
@@ -459,35 +435,57 @@ class tp_bibtex {
             else {
                 $entries[$i]['is_isbn'] = 1;
             }
+            
             // rename to teachPress keys
             $entries[$i]['type'] = $entries[$i]['bibtexEntryType'];
             $entries[$i]['bibtex'] = $entries[$i]['bibtexCitation'];
+            
             // handle export data from teachPress
             if ( $entries[$i]['tppubtype'] != '' ) {
                 $entries[$i]['type'] = $entries[$i]['tppubtype'];
             }
+            
             // replace bibtex chars
             foreach ($entries[$i] as $key => $value) {
+                if ( $key == 'author' || $key == 'editor' ) {
+                    continue;
+                }
                 $entries[$i][$key] = str_replace(array('{','}'), array('',''), $value);
             }
+            
+            // Try to fix problems with line breaks
+            if ( $tags != '' ) {
+                $tags = str_replace (array("\r\n", "\n", "\r"), ' ', $tags);
+            }
+            
+            // Add the string to database
             if ( $test === false ) {
-                // Try to fix problems with line breaks
-                if ( $tags != '' ) {
-                    $tags = str_replace (array("\r\n", "\n", "\r"), ' ', $tags);
-                }
-                // update/overwrite existing publication
-                $check = true;
-                if ( $settings['overwrite'] === true ) {
-                    $entries[$i]['entry_id'] = tp_publications::change_publication_by_key($entries[$i]['bibtex'], $entries[$i], $tags);
-                    $check = ( $entries[$i]['entry_id'] === false ) ? false : true;
-                }
-                if ( $settings['overwrite'] === false || $check === false ) {
-                    $entries[$i]['entry_id'] = tp_publications::add_publication($entries[$i], $tags, '');
-                }    
+                $entries[$i]['entry_id'] = self::import_publication_to_database($entries[$i], $tags, $settings);
             }
         }
         return $entries;
 
+    }
+    
+    /**
+     * This function is used for the import and adds publications to the database or owerwrites existing publications
+     * @param array $entry
+     * @param array $tags
+     * @param array $settings
+     * @return int Returns the ID of the new or changed publication
+     * @since 5.0.0
+     * @access private
+     */
+    private static function import_publication_to_database ($entry, $tags, $settings) {
+        $check = true;
+        if ( $settings['overwrite'] === true ) {
+            $entry['entry_id'] = tp_publications::change_publication_by_key($entry['bibtex'], $entry, $tags);
+            $check = ( $entry['entry_id'] === false ) ? false : true;
+        }
+        if ( $settings['overwrite'] === false || $check === false ) {
+            $entry['entry_id'] = tp_publications::add_publication($entry, $tags, '');
+        }
+        return $entry['entry_id'];
     }
 
     /**
@@ -584,39 +582,104 @@ class tp_bibtex {
     }
     
     /**
-     * Prepare an (html) input for bibtex and replace expressions for bold, italic, lists, etc. with their latex equivalents
+     * This function is used for the import and sets the author in a correct bibtex format.
+     * @param array $entry
+     * @return string
+     * @since 5.0.0
+     * @access private
+     */
+    private static function set_author_name ($entry) {
+        $end = '';
+        $new = explode(' and ', $entry['author'] );
+        foreach ( $new as $new ) {
+            $parts = explode(',', $new); 
+            $num = count($parts); 
+            $one = ''; 
+            for ($j = 1; $j < $num; $j++) {
+                $parts[$j] = trim($parts[$j]);
+                $one .= ' '. $parts[$j];
+            }
+            $one .= ' ' . trim($parts[0]);
+            $end = ( $end != '' ) ? $end . ' and ' . $one : $one;
+        }
+        return $end;
+    }
+    
+    /**
+     * This function is used for the import and sets the date of publishing for a publications.
+     * @param array $entry
+     * @return string
+     * @since 5.0.0
+     * @acces private
+     */
+    private static function set_date_of_publishing ($entry) {
+        if ( $entry['date'] != '' ) {
+            $entry['date'] = $entry['date'];
+        }
+        elseif ($entry['month'] != '' && $entry['day'] != '' && $entry['year'] != '') {
+            $entry['date'] = $entry['year'] . '-' . $entry['month'] . '-' . $entry['day'];
+        }
+        else {
+            $entry['date'] = $entry['year'] . '-01-01';
+        }
+        return $entry['date'];
+    }
+    
+    /**
+     * This function is used for the import and sets the tags.
+     * @param array $entry
+     * @param array $settings
+     * @return string
+     * @since 5.0.0
+     * @access private
+     */
+    private static function set_tags ($entry, $settings) {
+        if ( $entry['keywords'] != '' ) {
+            $tags = str_replace($settings['keyword_separator'],",",$entry['keywords']);
+        }
+        elseif ( $entry['tags'] != '' ) {
+            $tags = str_replace($settings['keyword_separator'],",",$entry['tags']);
+        }
+        else {
+            $tags = '';
+        }
+        return $tags;
+    }
+    
+    /**
+     * Prepare a (html) input for bibtex and replace expressions for bold, italic, lists, etc. with their latex equivalents
      * @param string $text      The (html) input
      * @param string $fieldname The bibtex field name
      * @return string
      * @since 4.2.0
      */
     public static function prepare_text($text, $fieldname = 'abstract') {
-        if ($text != '') {
-	    $text = htmlspecialchars_decode($text);
-            // Replace expressions
-            $search = array ('/<sub>/i', '/<sup>/i',
-                             '/<i>/i', '/<b>/i', '/<em>/i', 
-                             '/<\/(sub|sup|i|b|em)>/i',
-                             '/<ul>/i', '/<\/ul>/i',
-                             '/<ol>/i', '/<\/ol>/i',
-                             '/<li>/i', '/<\/li>/i');
-            $replace = array ('_{', '^{',
-                              '\textit{', '\textbf{', '\emph{',
-                              '}',
-                              '\begin{itemize}', '\end{itemize}' . "\n",
-                              '\begin{enumerate}', '\end{enumerate} . "\n"',
-                              '\item ', '');
-	    $text = preg_replace($search, $replace, $text);
-            /* Add wordwrap if necessary
-             * Disabled since 4.2.1
-            if (strpos($text, "\n") === false ) {
-                $text = wordwrap($text, 80, "\r\n");
-            } */
-            return tp_bibtex::prepare_bibtex_line($text, $fieldname, false);
-        }
-        else {
+        if ( $text == '' ) {
             return '';
         }
+        
+        $text = htmlspecialchars_decode($text);
+        // Replace expressions
+        $search = array ('/<sub>/i', '/<sup>/i',
+                         '/<i>/i', '/<b>/i', '/<em>/i', 
+                         '/<\/(sub|sup|i|b|em)>/i',
+                         '/<ul>/i', '/<\/ul>/i',
+                         '/<ol>/i', '/<\/ol>/i',
+                         '/<li>/i', '/<\/li>/i');
+        $replace = array ('_{', '^{',
+                          '\textit{', '\textbf{', '\emph{',
+                          '}',
+                          '\begin{itemize}', '\end{itemize}' . "\n",
+                          '\begin{enumerate}', '\end{enumerate} . "\n"',
+                          '\item ', '');
+        $text = preg_replace($search, $replace, $text);
+        /* Add wordwrap if necessary
+         * Disabled since 4.2.1
+        if (strpos($text, "\n") === false ) {
+            $text = wordwrap($text, 80, "\r\n");
+        } 
+         */
+        return tp_bibtex::prepare_bibtex_line($text, $fieldname, false);
     }
     
     /**
@@ -778,61 +841,102 @@ class tp_bibtex {
      * @since 3.0.0
     */
     public static function parse_author ($input, $mode = '') {
-        global $PARSECREATORS;
-        /* the new teachpress parsing
-         * last: 	Adolf F. Weinhold and Ludwig van Beethoven --> Weinhold, Adolf; van Beethoven, Ludwig
-         * initials: 	Adolf F. Weinhold and Ludwig van Beethoven --> Weinhold, Adolf F; van Beethoven, Ludwig
-        */
-        if ($mode == 'last' || $mode == 'initials') {
-            $creator = new PARSECREATORS();
-            $creatorArray = $creator->parse($input);
-            $all_authors = '';
-            for ($i = 0; $i < count($creatorArray); $i++) {
-                $one_author = '';
-                if ($mode == 'last' || $mode == 'initials') {
-                    if ($creatorArray[$i][3] != '') { $one_author = trim($creatorArray[$i][3]);}
-                    if ($creatorArray[$i][2] != '') { $one_author .= ' ' .trim($creatorArray[$i][2]) . ',';}
-                    if ($creatorArray[$i][0] != '') { $one_author .= ' ' .trim($creatorArray[$i][0]);}
-                    if ($mode == 'initials') { 
-                        if ($creatorArray[$i][1] != '') { $one_author = $one_author . ' ' .trim($creatorArray[$i][1]);}
-                    }
-                    $all_authors = $all_authors . stripslashes($one_author);
-                    if ($i < count($creatorArray) -1) {$all_authors = $all_authors . '; ';}
-                }
-            }
+        if ( $mode === 'last' || $mode === 'initials' ) {
+            $all_authors = self::parse_author_default($input, $mode);
         }
-        /* the original (old) teachpress parsing
-         * example: Adolf F. Weinhold and Ludwig van Beethoven --> Weinhold, Adolf F.; van Beethoven, Ludwig
-        */
-        elseif ($mode == 'old') {
-            $all_authors = '';
-            $one_author = '';
-            $array = explode(" and ",$input);
-            $lenth = count ($array);
-            for ($i=0; $i < $lenth; $i++) {
-                $array[$i] = trim($array[$i]);
-                $names = explode(" ",$array[$i]);
-                $lenth2 = count($names);
-                for ( $j=0; $j < $lenth2-1; $j++ ) {
-                    $one_author = $one_author . ' ' . trim( $names[$j] );
-                }
-                $one_author = trim( $names[$lenth2 - 1] ). ', ' . $one_author;
-                $all_authors = $all_authors . $one_author;
-                if ($i < $lenth - 1) {
-                    $all_authors = $all_authors . '; ';
-                }
-                $one_author = '';
-            }
+        elseif ( $mode === 'old' ) {
+            $all_authors = self::parse_author_deprecated($input);
         }
-        /* the simple teachpress parsing
-         * example: Adolf F. Weinhold and Albert Einstein --> Adolf F. Weinhold, Albert Einstein
-        */
         else {
-            $all_authors = str_replace(' and ', ', ', $input);
+            $all_authors = self::parse_author_simple($input);
         }
         return $all_authors;
     }
     
+    /**
+     * This is the default parsing function for author names
+     * 
+     * Some examples for the parsing:
+     * last:            Adolf F. Weinhold and Ludwig van Beethoven --> Weinhold, Adolf; van Beethoven, Ludwig
+     * initials: 	Adolf F. Weinhold and Ludwig van Beethoven --> Weinhold, Adolf F; van Beethoven, Ludwig
+     * 
+     * @param string $input
+     * @param string $mode
+     * @return string
+     * @since 5.0.0
+     * @access public
+     * @uses PARSECREATORS() This class is a part of bibtexParse
+     */
+    public static function parse_author_default ($input, $mode) {
+        global $PARSECREATORS;
+        $creator = new PARSECREATORS();
+        $creatorArray = $creator->parse($input);
+        $all_authors = '';
+        $max = count($creatorArray);
+        for ( $i = 0; $i < $max; $i++ ) {
+            $one_author = '';
+            if ($creatorArray[$i][3] != '') { $one_author = trim($creatorArray[$i][3]);}
+            if ($creatorArray[$i][2] != '') { $one_author .= ' ' .trim($creatorArray[$i][2]) . ',';}
+            if ($creatorArray[$i][0] != '') { $one_author .= ' ' .trim($creatorArray[$i][0]);}
+            if ( $mode == 'initials' && $creatorArray[$i][1] != '' ) { 
+                $one_author .= ' ' .trim($creatorArray[$i][1]);
+            }
+            $all_authors .= stripslashes($one_author);
+            if ($i < count($creatorArray) -1) {$all_authors = $all_authors . '; ';}
+        }
+        return $all_authors;
+    }
+    
+    /**
+     * This is the original (deprecated) parsing function for author names
+     * 
+     * Some examples for the parsing:
+     * Adolf F. Weinhold and Ludwig van Beethoven --> Weinhold, Adolf F.; van Beethoven, Ludwig
+     * 
+     * @param string $input
+     * @return string
+     * @since 5.0.0
+     * @access public
+     */
+    public static function parse_author_deprecated ($input) {
+        $all_authors = '';
+        $one_author = '';
+        $array = explode(" and ",$input);
+        $lenth = count ($array);
+        for ( $i = 0; $i < $lenth; $i++ ) {
+            $array[$i] = trim($array[$i]);
+            $names = explode(" ",$array[$i]);
+            $lenth2 = count($names);
+            for ( $j = 0; $j < $lenth2 - 1; $j++ ) {
+                $one_author .= ' ' . trim( $names[$j] );
+            }
+            $one_author = trim( $names[$lenth2 - 1] ). ', ' . $one_author;
+            $all_authors = $all_authors . $one_author;
+            if ( $i < $lenth - 1 ) {
+                $all_authors .= '; ';
+            }
+            $one_author = '';
+        }
+        return $all_authors;
+    }
+    
+    /**
+     * This is the simple parsing function which just replaces the "and" with ","
+     * 
+     * Some examples for the parsing:
+     * Adolf F. Weinhold and Albert Einstein --> Adolf F. Weinhold, Albert Einstein
+     * 
+     * @param string $input
+     * @return string
+     * @since 5.0.0
+     * @acces public
+     */
+    public static function parse_author_simple ($input) {
+        $all_authors = str_replace( array(' and ', '{', '}'), array(', ', '', ''), $input );
+        return stripslashes($all_authors);
+    }
+
+
     /**
      * Checks if a string is encoded with UTF-8 or not
      * from http://floern.com/webscripting/is-utf8-auf-utf-8-prüfen

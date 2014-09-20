@@ -989,7 +989,7 @@ class tp_single_course_page {
                             }
                         }
                         echo '<tr>
-                               <td width="230"><strong>' . $col_data['title'] . '</strong></td>
+                               <td width="230"><strong>' . stripslashes($col_data['title']) . '</strong></td>
                                <td> ' . stripslashes($value) . '</td>
                              </tr>';
                      }
@@ -1329,7 +1329,7 @@ class tp_single_course_page {
               var hundredmb = 100 * 1024 * 1024, max = parseInt(up.settings.max_file_size, 10);
 
               plupload.each(files, function(file){
-                if (max > hundredmb && file.size > hundredmb && up.runtime != 'html5'){
+                if (max > hundredmb && file.size > hundredmb && up.runtime !== 'html5'){
                     // file size error?
                 } 
                 else{

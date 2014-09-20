@@ -99,11 +99,7 @@ function tp_add_course_page() {
    // Add new course
    if ( isset($_POST['create']) ) {
         $course_id = tp_courses::add_course($data, $sub);
-        foreach ($fields as $row) {
-            if ( isset( $_POST[$row['variable']] ) && $_POST[$row['variable']] !== '' ) {
-                tp_courses::add_course_meta($course_id, $row['variable'], $_POST[$row['variable']]);
-            }
-        }
+        tp_add_course::add_course_meta($course_id, $fields, $_POST);
         $message = __('Course created successful.','teachpress') . ' <a href="admin.php?page=teachpress/teachpress.php&amp;course_id=' . $course_id . '&amp;action=show&amp;search=&amp;sem=' . get_tp_option('sem') . '">' . __('Show course','teachpress') . '</a> | <a href="admin.php?page=teachpress/add_course.php">' . __('Add new','teachpress') . '</a>';
         get_tp_message($message);
    }
@@ -111,12 +107,8 @@ function tp_add_course_page() {
    // Saves changes
    if ( isset($_POST['save']) ) {
         tp_courses::delete_course_meta($course_id);
-        foreach ($fields as $row) {
-            if ( isset( $_POST[$row['variable']] ) && $_POST[$row['variable']] !== '' ) {
-                tp_courses::add_course_meta($course_id, $row['variable'], $_POST[$row['variable']]);
-            }
-        }
         tp_courses::change_course($course_id, $data);
+        tp_add_course::add_course_meta($course_id, $fields, $_POST);
         $message = __('Saved');
         get_tp_message($message);
    }
@@ -195,6 +187,42 @@ function tp_add_course_page() {
  * @since 5.0.0
  */
 class tp_add_course {
+    
+    /**
+     * Prepares and adds meta data for a course
+     * @param int $course_id
+     * @param array $fields
+     * @param array $post
+     * @since 5.0.0
+     */
+    public static function add_course_meta ($course_id, $fields, $post) {
+        foreach ($fields as $row) {
+            if ( !isset( $post[$row['variable']] ) && !isset( $post[$row['variable'] . '_day'] ) ) {
+                continue;
+            }
+            $column_info = tp_db_helpers::extract_column_data($row['value']);
+            // For DATE fields
+            if ( $column_info['type'] === 'DATE' ) {
+                $day = intval( $post[$row['variable'] . '_day'] );
+                $day2 = ( $day < 10 ) ? '0' . $day : $day;
+                $value = $post[$row['variable'] . '_year'] . '-' . $post[$row['variable'] . '_month'] . '-' . $day2;
+            }
+            // For CHECKBOX fields
+            else if ( $column_info['type'] === 'CHECKBOX' ) {
+                $max = count($post[$row['variable']]);
+                $val = '';
+                for ( $i = 0; $i < $max; $i++ ) {
+                    $val = ( $val === '' ) ? '{' . $post[$row['variable']][$i] . '}' : $val . ',{' . $post[$row['variable']][$i] . '}';
+                }
+                $value = $val;
+            }
+            // For all other fields
+            else {
+                $value = $post[$row['variable']];
+            }
+            tp_courses::add_course_meta($course_id, $row['variable'], $value);
+        }
+    }
     
     /**
      * Gets the enrollment box

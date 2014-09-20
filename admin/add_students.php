@@ -8,11 +8,10 @@
 
 /**
  * Form for manual edits in the enrollment system
+ * @param array $fields       An associative array with the settings of the meta data fields. The array keys are variable an value.
  * @since 2.0.0
 */ 
-function tp_add_student_page() { 
-
-    $fields = get_tp_options('teachpress_stud','`setting_id` ASC', ARRAY_A);
+function tp_add_student_page($fields) { 
 
     $wp_id = isset($_POST['wp_id']) ? intval($_POST['wp_id']) : '';
     $data['userlogin'] = isset( $_POST['birthday'] ) ? htmlspecialchars($_POST['userlogin']) : '';

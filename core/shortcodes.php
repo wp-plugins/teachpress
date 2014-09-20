@@ -126,11 +126,38 @@ class tp_shortcodes {
     }
     
     /**
+     * Returns html lines with course meta data. This function is used for tp_courseinfo_shortcode().
+     * @param int $course_id        The course ID
+     * @param array $fields         An associative array with informations about the meta data fields (variable, value)
+     * @return string
+     * @since 5.0.0
+     */
+    public static function get_coursemeta_line ($course_id, $fields) {
+        $return = '';
+        $course_meta = tp_courses::get_course_meta($course_id);
+        foreach ($fields as $row) {
+            $col_data = tp_db_helpers::extract_column_data($row['value']);
+            if ( $col_data['visibility'] !== 'normal' ) {
+                continue;
+            }
+            $value = '';
+            foreach ( $course_meta as $row_meta ) {
+                if ( $row['variable'] === $row_meta['meta_key'] ) {
+                    $value = $row_meta['meta_value'];
+                    break;
+                }
+            }
+            $return .= '<p><span class="tp_course_meta_label_' . $row['variable'] . '">' . stripslashes($col_data['title']) . ': </span>' . stripslashes(nl2br($value)) . '</p>';
+        }
+        return $return;
+    }
+    
+    /**
      * Generates and returns filter for tp_cloud
-     * @param array $filter_parameter
-     * @param array $sql_parameter
-     * @param array $settings
-     * @param string $mode
+     * @param array $filter_parameter       An associative array with filter parameter (user input). The keys are: year, type, author, user
+     * @param array $sql_parameter          An assosciative array with SQL search parameter (user, type)
+     * @param array $settings               An assosciative array with settings (permalink, html_anchor)
+     * @param string $mode                  year, type, author, user
      * @return string
      * @since 5.0.0
      * @access public
@@ -201,8 +228,8 @@ class tp_shortcodes {
     
     /**
      * Generate list of publications for [tplist], [tpcloud], [tpsearch]
-     * @param array $tparray    --> the array of publications
-     * @param array $args       --> an array with all options
+     * @param array $tparray    The array of publications
+     * @param array $args       An associative array with options (headline,...)
      * @return string
      * @since 5.0.0
      * @access public
@@ -230,11 +257,11 @@ class tp_shortcodes {
     
     /**
      * Returns a tag cloud
-     * @param int $user
-     * @param array $tag_settings
-     * @param array $filter_parameter
-     * @param array $sql_parameter
-     * @param array $settings
+     * @param int $user                 The user ID
+     * @param array $tag_settings       An associative array with tag_settings (tag_limit, maxsize, minsize)
+     * @param array $filter_parameter   An associative array with filter parameter (user input). The keys are: year, type, author, user
+     * @param array $sql_parameter      An assosciative array with SQL search parameter (user, type)
+     * @param array $settings           An assosciative array with settings (permalink, html_anchor)
      * @return string
      * @since 5.0.0
      * @access public
@@ -554,7 +581,7 @@ function tp_coursedocs_shortcode($atts) {
     $documents = tp_documents::get_documents($course_id);
     
     if ( $headline === 1 ) {
-        $a = '<div class="untertitel">' . __('Documents','teachpress') . '</div>';
+        $a = '<div class="tp_course_headline">' . __('Documents','teachpress') . '</div>';
     }
     
     if ( count($documents) === 0 ) {
@@ -562,7 +589,7 @@ function tp_coursedocs_shortcode($atts) {
     }
     
     $num = 1;
-    $body = '<table class="tpcoursedocs">';
+    $body = '<table class="tp_coursedocs">';
     foreach ($documents as $row) {
         $body .= '<tr>';
         if ( $row['path'] === '' ) {
@@ -582,45 +609,63 @@ function tp_coursedocs_shortcode($atts) {
 /** 
  * Displays information about a single course and his childs
  * 
- * possible values of $attr:
- *       id (INT)   -   ID of the course 
+ * possible values of $atts:
+ *       id (INT)           -   ID of the course 
+ *       show_meta (INT)  -   Display course meta data (1) or not (0), default is 1
  * 
- * @param array $attr
+ * @param array $atts
  * @return string
  * @since 5.0.0
 */
-function tp_coursedate_shortcode($attr) {
-    $id = intval($attr["id"]);
+function tp_courseinfo_shortcode($atts) {
+    extract(shortcode_atts(array(
+       'id' => 0,
+       'show_meta' => 1
+    ), $atts));
+    $id = intval($id);
+    $show_meta = intval($show_meta);
+    
+    if ( $id === 0 ) {
+        return;
+    }
+    
     $course = tp_courses::get_course($id);
+    $fields = get_tp_options('teachpress_courses','`setting_id` ASC', ARRAY_A);
     $v_test = $course->name;
     $body = '';
-    $head = '<div class="untertitel">' . __('Date(s)','teachpress') . '</div>
-            <table class="tpcoursedate">
-            <tr>
-                <td class="tp_date_type"><strong>' . stripslashes($course->type) . '</strong></td>
-                <td class="tp_date_info">
-                <p>' . stripslashes($course->date) . ' ' . stripslashes($course->room) . '</p>
-                <p>' . stripslashes(nl2br($course->comment)) . '</p>
-                </td>
-                <td clas="tp_date_lecturer">' . stripslashes($course->lecturer) . '</td>
-            </tr>';
+    $head = '<div class="tp_course_headline">' . __('Date(s)','teachpress') . '</div>';
+    $head .= '<table class="tp_courseinfo">';
+    
+    $head .= '<tr>';
+    $head .= '<td class="tp_courseinfo_type"><strong>' . stripslashes($course->type) . '</strong></td>';
+    $head .= '<td class="tp_courseinfo_main">';
+    $head .= '<p>' . stripslashes($course->date) . ' ' . stripslashes($course->room) . '</p>';
+    $head .= '<p>' . stripslashes(nl2br($course->comment)) . '</p>';
+    if ( $show_meta === 1 ) {
+        $head .= tp_shortcodes::get_coursemeta_line($id, $fields);
+    }
+    $head .= '</td>';
+    $head .= '<td clas="tp_courseinfolecturer">' . stripslashes($course->lecturer) . '</td>';
+    $head .= '</tr>';
     
     // Search the child courses
-    $row = tp_courses::get_courses( array('parent' => $id, 'visible' => '1,2') );
+    $row = tp_courses::get_courses( array('parent' => $id, 'visible' => '1,2', 'order' => 'name, course_id') );
     foreach($row as $row) {
         // if parent name = child name
         if ($v_test == $row->name) {
             $row->name = $row->type;
         }
-        $body .= '
-        <tr>
-            <td class="tp_date_type"><strong>' . stripslashes($row->name) . '</strong></td>
-            <td class="tp_date_info">
-                    <p>' . stripslashes($row->date) . ' ' . stripslashes($row->room) . '</p>
-                    <p>' . stripslashes($row->comment) . '</p>
-            </td>
-            <td class="tp_date_lecturer">' . stripslashes($row->lecturer) . '</td>
-        </tr>';
+        $body .= '<tr>';
+        $body .= '<td class="tp_date_type"><strong>' . stripslashes($row->name) . '</strong></td>';
+        $body .= '<td class="tp_date_info">';
+        $body .= '<p>' . stripslashes($row->date) . ' ' . stripslashes($row->room) . '</p>';
+        $body .= '<p>' . stripslashes($row->comment) . '</p>';
+        if ( $show_meta === 1 ) {
+            $body .= tp_shortcodes::get_coursemeta_line($id, $fields);
+        }
+        $body .= '</td>';
+        $body .= '<td class="tp_date_lecturer">' . stripslashes($row->lecturer) . '</td>';
+        $body .= '</tr>';
     } 
     return $head . $body . '</table>';
 }
@@ -856,8 +901,8 @@ function tp_cloud_shortcode($atts) {
         'style' => 'std',
         'link_style' => 'inline',
         'date_format' => 'd.m.Y',
-        'pagination' => '0',
-        'entries_per_page' => 30,
+        'pagination' => 1,
+        'entries_per_page' => 50,
         'sort_list' => '',
     ), $atts));
    
@@ -1085,8 +1130,8 @@ function tp_list_shortcode($atts){
        'style' => 'std',
        'link_style' => 'inline',
        'date_format' => 'd.m.Y',
-       'pagination' => 0,
-       'entries_per_page' => 30,
+       'pagination' => 1,
+       'entries_per_page' => 50,
        'sort_list' => ''
     ), $atts));
 

@@ -281,7 +281,7 @@ if ( !class_exists( 'PARSEENTRIES' ) ) {
  * @return string
 */
 function get_tp_version() {
-    return '5.0.0alpha11';
+    return '5.0.0alpha12';
 }
 
 /** Function for the integrated registration mode */
@@ -451,7 +451,7 @@ if ( !defined('TP_COURSE_SYSTEM') ) {
     add_action('admin_menu', 'tp_add_menu');
     add_action('widgets_init', create_function('', 'return register_widget("tp_books_widget");'));
     add_shortcode('tpdate', 'tp_date_shortcode');  // Deprecated
-    add_shortcode('tpcoursedate', 'tp_coursedate_shortcode');
+    add_shortcode('tpcourseinfo', 'tp_courseinfo_shortcode');
     add_shortcode('tpcoursedocs', 'tp_coursedocs_shortcode');
     add_shortcode('tpcourselist', 'tp_courselist_shortcode');
     add_shortcode('tpenrollments', 'tp_enrollments_shortcode');

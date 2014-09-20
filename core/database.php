@@ -742,7 +742,8 @@ class tp_courses {
     /**
      * Returns course meta data
      * @param int $course_id        The course ID
-     * @param string $meta_key      The name of the meta field
+     * @param string $meta_key      The name of the meta field (Optional)
+     * @return array
      * @since 5.0.0
      */
     public static function get_course_meta($course_id, $meta_key = ''){
@@ -1008,7 +1009,7 @@ class tp_courses {
             }
             $table_id = 'm' . $i; 
             $selects .= ', ' . $table_id .'.meta_value AS ' . $row->variable;
-            $joins = $joins . ' LEFT JOIN ' . TEACHPRESS_STUD_META . ' ' . $table_id . " ON ( " . $table_id . ".wp_id = s.wp_id AND " . $table_id . ".meta_key = '" . $row->variable . "' ) ";
+            $joins .= ' LEFT JOIN ' . TEACHPRESS_STUD_META . ' ' . $table_id . " ON ( " . $table_id . ".wp_id = s.wp_id AND " . $table_id . ".meta_key = '" . $row->variable . "' ) ";
             $i++;
         }
 
@@ -2004,8 +2005,8 @@ class tp_students {
      * Returns the data of all students
      * 
      * Possible values for the array $args:
-     *       course_of_studies (STRING)     A course of studies
      *       search (STRING)                A normal search string
+     *       meta_search (ARRAY)            An associative array of search strings for meta data
      *       order (STRING)                 ASC or DESC; default is ASC
      *       limit (STRING)                 The sql search limit, example: 0,30
      *       output type (STRING)           OBJECT, ARRAY_A, ARRAY_N, default is OBJECT
@@ -2017,9 +2018,9 @@ class tp_students {
      */
     public static function get_students ( $args = array() ) {
         $defaults = array(
-            'course_of_studies' => '',
             'search' => '',
-            'order' => '`lastname` ASC, `firstname` ASC',
+            'meta_search' => '',
+            'order' => 's.lastname ASC, s.firstname ASC',
             'limit' => '',
             'output_type' => OBJECT,
             'count' => false
@@ -2028,32 +2029,48 @@ class tp_students {
         extract( $args, EXTR_SKIP );
 
         global $wpdb;
-
-        $select = "SELECT * FROM " . TEACHPRESS_STUD;
+        
         $where = '';
         $order = esc_sql($order);
         $limit = esc_sql($limit);
         $output_type = esc_sql($output_type);
-        $search = esc_sql(htmlspecialchars($search));
-
-        // define global search
-        if ( $search != '' ) {
-            $search = "`wp_id` like '%$search%' OR `firstname` LIKE '%$search%' OR `lastname` LIKE '%$search%' OR `email` LIKE '%$search%'";
+        
+        // define all which is needed for meta data integration
+        $joins = '';
+        $selects = '';
+        $i = 1;
+        if ( !empty($meta_search) ) {
+            foreach ($meta_search as $key => $value) {
+                if ( $meta_search[$key] === '' ) {
+                    continue;
+                }
+                $key = esc_sql($key);
+                $value = esc_sql($meta_search[$key]);
+                $table_id = 'm' . $i; 
+                $selects .= ', ' . $table_id .'.meta_value AS ' . $key;
+                $joins .= ' LEFT JOIN ' . TEACHPRESS_STUD_META . ' ' . $table_id . " ON ( " . $table_id . ".wp_id = s.wp_id AND " . $table_id . ".meta_key = '" . $key . "' ) ";
+                $where = ( $where != '' ) ? $where . " AND ( " . $table_id . ".meta_value = '$value' )" : " ( " . $table_id . ".meta_value = '$value' )" ;
+                $i++;
+            }
         }
-
+        
+        // define SELECT
+        $select = "SELECT s.wp_id, s.firstname, s.lastname, s.userlogin, s.email $selects FROM " . TEACHPRESS_STUD . " s $joins";
+        
         // if the user needs only the number of rows
         if ( $count === true ) {
-            $select = "SELECT COUNT(`wp_id`) AS `count` FROM " . TEACHPRESS_STUD;
+            $select = "SELECT COUNT(s.wp_id) AS `count` FROM " . TEACHPRESS_STUD  . " s $joins";
+        }
+
+        // define global search
+        $search = esc_sql(htmlspecialchars($search));
+        if ( $search != '' ) {
+            $search = "s.wp_id like '%$search%' OR s.userlogin LIKE '%$search%' OR s.firstname LIKE '%$search%' OR s.lastname LIKE '%$search%' OR s.email LIKE '%$search%'";
         }
 
         // define where clause
-        $course_of_studies = tp_db_helpers::generate_where_clause($course_of_studies, "course_of_studies", "OR", "=");
-
-        if ( $course_of_studies != '') {
-            $where = $where != '' ? $where . " AND ( $course_of_studies )" : $course_of_studies;
-        }
         if ( $search != '') {
-            $where = $where != '' ? $where . " AND ( $search )" : $search ;
+            $where = ( $where != '' ) ? $where . " AND ( $search )" : $search ;
         }
         if ( $where != '' ) {
             $where = " WHERE $where";
@@ -2064,7 +2081,8 @@ class tp_students {
 
         // End
         $sql = $select . $where . " ORDER BY $order $limit";
-        $sql = $count === false ? $wpdb->get_results($sql, $output_type): $wpdb->get_var($sql);
+        // get_tp_message($sql);
+        $sql = ( $count === false ) ? $wpdb->get_results($sql, $output_type): $wpdb->get_var($sql);
         return $sql;
     }
     

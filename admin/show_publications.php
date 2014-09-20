@@ -331,10 +331,10 @@ class tp_publications_page {
         echo '<td>' . $row->pub_id . '</td>';
         echo '<td>' . tp_translate_pub_type($row->type) . '</td>';
         if ( $row->type === 'collection' || ( $row->author === '' && $row->editor !== '' ) ) {
-            echo '<td>' . stripslashes( str_replace(' and ', ', ', $row->editor) ) . ' (' . __('Ed.','teachpress') . ')</td>';
+            echo '<td>' . tp_bibtex::parse_author_simple($row->editor) . ' (' . __('Ed.','teachpress') . ')</td>';
         }
         else {
-            echo '<td>' . stripslashes( str_replace(' and ', ', ', $row->author) ) . '</td>';
+            echo '<td>' . tp_bibtex::parse_author_simple($row->author) . '</td>';
         }
         echo '<td>';
         echo tp_publications_page::get_tags_for_single_row($row->pub_id, $tags, $array_variables);
