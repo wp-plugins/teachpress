@@ -138,18 +138,18 @@ It's **strongly** recommended to save your teachpress database tables before upg
 * New: Simple capability management for courses added
 * New: Simple document management for courses added
 * New: Direct .bib export for selected publications added (via "Show as BibTeX entry")
-* New: Direct creating of related content based on drafts added
-* New: Direct creating of sub courses added
+* New: Direct creation of related content based on drafts added
+* New: Direct creation of sub courses added
 * New: Page menu for enrollments added
 * New: DOI field for publications added
-* New: Shortcode [tpcourseinfo] as replacement for [tpdate]
+* New: Shortcode [tpcourseinfo]
 * New: Shortcode [tpcoursedocs]
 * New: [tpenrollments]: New parameter "date_format" added
-* New: Editable time limit for exports and uploads (new constant TEACHPRESS_TIME_LIMIT)
+* New: Editable time limit for exports and uploads added (constant TEACHPRESS_TIME_LIMIT)
 * Changed: Rewritten core API
 * Changed: Rewritten Shortcode [tpcloud]
-* Changed: Rewritten Shortcdoe [tpenrollments]
-* Changed: [tpcloud, tplist]: Pagination is enabled by default, the parameter entries_per_page is set to 50 by default (before: 30)
+* Changed: Rewritten Shortcode [tpenrollments]
+* Changed: [tpcloud, tplist]: Pagination is enabled by default, the parameter entries_per_page is set to 50 (before: 30)
 * Changed: UI modifications for better integration in WordPress 3.9+
 * Changed: Using HTML5s "required" attribute for required fields in registration forms
 * Changed: Using parameters instead of variables for the definition of database table names

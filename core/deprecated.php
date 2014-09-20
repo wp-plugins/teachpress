@@ -16,8 +16,8 @@
  * @todo Delete function with teachPress 5.1 or later
 */
 function tp_date_shortcode($attr) {
-    trigger_error( __('The shortcode [tpdate] is deprecated since teachpress 5.0.0. Use [tpcoursedate] instead.','teachpress') );
-    return tp_coursedate_shortcode($attr);
+    trigger_error( __('The shortcode [tpdate] is deprecated since teachpress 5.0.0. Use [tpcourseinfo] instead.','teachpress') );
+    return tp_courseinfo_shortcode($attr);
 }
 
 /** 
