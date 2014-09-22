@@ -168,13 +168,13 @@ class tp_admin {
      * Returns radio fields for admin form
      * @param string $field_name    name/id of the field
      * @param string $label         label for the field
-     * @param string $checked       value for the field
+     * @param string $value         current value for the field
      * @param boolean $readonly     true or false, default is false
      * @param boolean $required     true or false, default is false
      * @return string
      * @since 5.0.0
      */
-    public static function get_radio_field ($field_name, $label, $checked, $readonly = false, $required = false) {
+    public static function get_radio_field ($field_name, $label, $value, $readonly = false, $required = false) {
         global $wpdb;
         $return = '';
         $options = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '" . $field_name . "' ORDER BY value ASC");
@@ -183,7 +183,7 @@ class tp_admin {
         $return .= '<p><label for="' . $field_name . '"><b>' . stripslashes($label) . '</b></label></p>';
         $i = 1;
         foreach ($options as $opt) {
-            $checked = ( $checked == $opt->value ) ? 'checked="checked"' : '';
+            $checked = ( $value == $opt->value ) ? 'checked="checked"' : '';
             $return .= '<input name="' . $field_name . '" type="radio" id="' . $field_name . '_' . $i . '" value="' . stripslashes($opt->value) . '" ' . $checked . ' ' . $readonly . ' ' . $required . '/> <label for="' . $field_name . '_' . $i . '">' . stripslashes($opt->value) . '</label><br/>';
             $i++;
         }

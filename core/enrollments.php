@@ -133,45 +133,8 @@ class tp_enrollments {
         if ( $ret === false ) {
             return '<div class="teachpress_message_error"><strong>' . __('Error: User already exist','teachpress') . '</strong></div>';
         }
-        self::add_student_meta( $user_id, $fields, $post );
+        tp_db_helpers::prepare_meta_data( $user_id, $fields, $post, 'students' );
         return '<div class="teachpress_message_success"><strong>' . __('Registration successful','teachpress') . '</strong></div>';
-    }
-    
-    /**
-     * Prepares and adds meta data for a student
-     * @param int $user_id
-     * @param array $fields
-     * @param array $post
-     * @since 5.0.0
-     */
-    public static function add_student_meta ($user_id, $fields, $post) {
-        foreach ($fields as $row) {
-            if ( !isset( $post[$row['variable']] ) && !isset( $post[$row['variable'] . '_day'] ) ) {
-                continue;
-            }
-            
-            $column_info = tp_db_helpers::extract_column_data($row['value']);
-            // For DATE fields
-            if ( $column_info['type'] === 'DATE' ) {
-                $day = intval( $post[$row['variable'] . '_day'] );
-                $day2 = ( $day < 10 ) ? '0' . $day : $day;
-                $value = $post[$row['variable'] . '_year'] . '-' . $post[$row['variable'] . '_month'] . '-' . $day2;
-            }
-            // For CHECKBOX fields
-            else if ( $column_info['type'] === 'CHECKBOX' ) {
-                $max = count($post[$row['variable']]);
-                $val = '';
-                for ( $i = 0; $i < $max; $i++ ) {
-                    $val = ( $val === '' ) ? '{' . $post[$row['variable']][$i] . '}' : $val . ',{' . $post[$row['variable']][$i] . '}';
-                }
-                $value = $val;
-            }
-            // For all other fields
-            else {
-                $value = $post[$row['variable']];
-            }
-            tp_students::add_student_meta( $user_id, $row['variable'], htmlspecialchars($value) );
-        }
     }
 
     /**
@@ -360,13 +323,13 @@ class tp_enrollments {
      * Returns a checkbox field for user form
      * @param string $field_name    name/id of the field
      * @param string $label         label for the field
-     * @param string $checked       value for the field
+     * @param string $value         current value for the field
      * @param boolean $readonly     true or false, default is false
      * @param boolean $required     true or false, default is false
      * @return string
      * @since 5.0.0
      */
-    public static function get_form_radio_field ($field_name, $label, $checked, $readonly = false, $required = false) {
+    public static function get_form_radio_field ($field_name, $label, $value, $readonly = false, $required = false) {
         global $wpdb;
         $options = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '" . $field_name . "' ORDER BY value ASC");
         $readonly = ( $readonly === true ) ? 'readonly="true" ' : '' ;
@@ -376,7 +339,7 @@ class tp_enrollments {
         $return .= '<td>';
         $i = 1;
         foreach ($options as $opt) {
-            $checked = ( $checked == $opt->value ) ? 'checked="checked"' : '';
+            $checked = ( $value == $opt->value ) ? 'checked="checked"' : '';
             $return .= '<input name="' . $field_name . '" type="radio" id="' . $field_name . '_' . $i . '" value="' . stripslashes($opt->value) . '" ' . $checked . ' ' . $readonly . ' ' . $required . '/> <label for="' . $field_name . '_' . $i . '">' . stripslashes($opt->value) . '</label><br/>';
             $i++;
         }
@@ -1016,7 +979,7 @@ function tp_enrollments_shortcode($atts) {
         );
         tp_students::delete_student_meta($user_ID);
         $rtn .= tp_students::change_student($user_ID, $data2, true);
-        tp_enrollments::add_student_meta( $user_ID, $fields, $_POST );
+        tp_db_helpers::prepare_meta_data( $user_ID, $fields, $_POST, 'students' );
     }
     // delete signup
     if ( isset( $_POST['austragen'] ) && $checkbox2 != '' ) {

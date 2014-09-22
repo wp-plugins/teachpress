@@ -173,7 +173,7 @@ function tp_edit_student_page($student, $fields, $search, $entry_limit, $url_par
             'userlogin' => htmlspecialchars($_POST['userlogin']),
             'email' => htmlspecialchars($_POST['email'])
         );
-        tp_enrollments::add_student_meta($student, $fields, $_POST);
+        tp_db_helpers::prepare_meta_data($student, $fields, $_POST, 'students');
         tp_students::change_student($student, $data, false);
         get_tp_message( __('Saved') );
     }

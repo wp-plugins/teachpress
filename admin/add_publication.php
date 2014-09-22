@@ -102,11 +102,7 @@ function tp_add_publication_page() {
     // create publication and related page
     if ( isset($_POST['create_pub']) ) {
         $pub_id = tp_publications::add_publication($data, $tags, $bookmark);
-        foreach ($fields as $row) {
-            if ( isset( $_POST[$row['variable']] ) && $_POST[$row['variable']] !== '' ) {
-                tp_publications::add_pub_meta($pub_id, $row['variable'], $_POST[$row['variable']]);
-            }
-        }
+        tp_db_helpers::prepare_meta_data($pub_id, $fields, $_POST, 'publications');
         $message = __('Publication added','teachpress') . ' <a href="admin.php?page=teachpress/addpublications.php">' . __('Add new','teachpress') . '</a>';
         get_tp_message($message);
     }
@@ -114,12 +110,8 @@ function tp_add_publication_page() {
     // save publication
     if ( isset($_POST['speichern']) ) {
         tp_publications::delete_pub_meta($pub_id);
-        foreach ($fields as $row) {
-            if ( isset( $_POST[$row['variable']] ) && $_POST[$row['variable']] !== '' ) {
-                tp_publications::add_pub_meta($pub_id, $row['variable'], $_POST[$row['variable']]);
-            }
-        }
         tp_publications::change_publication($pub_id, $data, $bookmark, $delbox, $tags);
+        tp_db_helpers::prepare_meta_data($pub_id, $fields, $_POST, 'publications');
         get_tp_message( __('Saved') );
     }
     

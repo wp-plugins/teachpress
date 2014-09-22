@@ -131,13 +131,13 @@ It's **strongly** recommended to save your teachpress database tables before upg
 == Changelog ==
 
 = 5.0.0 (alpha) - (xx.xx.2014) =
-* New: Real author filter for publications added
+* New: A real author filter for publications added
 * New: Autocomplete for authors/editors added
 * New: Meta data system for courses, students and publications added
 * New: Assessment management for courses added
 * New: Simple capability management for courses added
 * New: Simple document management for courses added
-* New: Direct .bib export for selected publications added (via "Show as BibTeX entry")
+* New: Direct export of .bib files for selected publications added (via "Show as BibTeX entry")
 * New: Direct creation of related content based on drafts added
 * New: Direct creation of sub courses added
 * New: Page menu for enrollments added
