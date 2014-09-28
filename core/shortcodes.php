@@ -157,7 +157,7 @@ class tp_shortcodes {
      * @param array $filter_parameter       An associative array with filter parameter (user input). The keys are: year, type, author, user
      * @param array $sql_parameter          An assosciative array with SQL search parameter (user, type)
      * @param array $settings               An assosciative array with settings (permalink, html_anchor)
-     * @param string $mode                  year, type, author, user
+     * @param string $mode                  year, type, author, user, tag
      * @return string
      * @since 5.0.0
      * @access public
@@ -169,30 +169,42 @@ class tp_shortcodes {
         if ( $mode === 'year' ) {
             $row = tp_publications::get_years( array( 'user' => $sql_parameter['user'], 'type' => $sql_parameter['type'], 'order' => 'DESC', 'output_type' => ARRAY_A ) );
             $id = 'pub_year';
+            $index = 'year';
             $title = __('All years','teachpress');
         }
         // type filter
         if ( $mode === 'type' ) {
             $row = tp_publications::get_used_pubtypes( array('user' => $sql_parameter['user']) );
             $id = 'pub_type';
+            $index = 'type';
             $title = __('All types','teachpress');
         }
         // author filter
         if ( $mode === 'author' ) {
             $row = tp_authors::get_authors( array('output_type' => ARRAY_A, 'group_by' => true) );
             $id = 'pub_author';
+            $index = 'author_id';
             $title = __('All authors','teachpress');
         }
         // user filter
         if ( $mode === 'user' ) {
             $row = tp_publications::get_pub_users( array('output_type' => ARRAY_A) );
             $id = 'pub_user';
+            $index = 'user';
             $title = __('All users','teachpress');
         }
+        // tag filter
+        if ( $mode === 'tag' ) {
+            $row = tp_tags::get_tags( array('output_type' => ARRAY_A, 'group_by' => true, 'order' => 'ASC' ) );
+            $id = 'pub_tag';
+            $index = 'tag_id';
+            $title = __('All tags','teachpress');
+        }
+
         // generate option
         foreach ( $row as $row ){
-            $index = ( $mode === 'author' ) ? 'author_id' : $mode;
             $current = ( $row[$index] == $filter_parameter[$mode] && $filter_parameter[$mode] != '0' ) ? 'selected="selected"' : '';
+            $tag = ( $mode === 'tag' ) ? $row['tag_id'] : $filter_parameter['tag'] ;
             $year = ( $mode === 'year' ) ? $row['year'] : $filter_parameter['year'];
             $type = ( $mode === 'type' ) ? $row['type'] : $filter_parameter['type'];
             $user = ( $mode === 'user' ) ? $row['user'] : $filter_parameter['user'];
@@ -210,13 +222,16 @@ class tp_shortcodes {
                 }
                 $text = $user_info->display_name;
             }
+            else if ( $mode === 'tag' ) {
+                $text = $row['name'];
+            }
             else {
                 $text = $row[$index];
             }
-            $options .= '<option value = "' . $settings['permalink'] . 'tgid=' . $filter_parameter['tag'] . '&amp;yr=' . $year . '&amp;type=' . $type . '&amp;usr=' . $user . '&amp;auth=' . $author . $settings['html_anchor'] . '" ' . $current . '>' . $text . '</option>';
+            $options .= '<option value = "' . $settings['permalink'] . 'tgid=' . $tag. '&amp;yr=' . $year . '&amp;type=' . $type . '&amp;usr=' . $user . '&amp;auth=' . $author . $settings['html_anchor'] . '" ' . $current . '>' . $text . '</option>';
         }
 
-        // set filter_parameter[$mode] to zero
+        // clear filter_parameter[$mode]
         $filter_parameter[$mode] = '';
         // return filter menu
         return '<select name="' . $id . '" id="' . $id . '" onchange="teachpress_jumpMenu(' . "'" . 'parent' . "'" . ',this,0)">
@@ -866,7 +881,8 @@ function tp_links_shortcode ($atts) {
  *      date_format (STRING)   the format for date; needed for the types: presentations, online; default: d.m.Y
  *      pagination (INT)       activate pagination (1) or not (0), default: 0
  *      entries_per_page (INT) number of publications per page (pagination must be set to 1), default: 30
- *      sort_list (STRING)     a list of publication types (separated by comma) which overwrites the default sort order for headline = 2 
+ *      sort_list (STRING)     a list of publication types (separated by comma) which overwrites the default sort order for headline = 2
+ *      show_tags_as (STRING)  cloud, pulldown or none, default: cloud
  * 
  * WARNING: id has been removed with teachPress 4.0.0, please use "user" instead!
  * 
@@ -904,6 +920,7 @@ function tp_cloud_shortcode($atts) {
         'pagination' => 1,
         'entries_per_page' => 50,
         'sort_list' => '',
+        'show_tags_as' => 'cloud'
     ), $atts));
    
     $settings = array(
@@ -927,6 +944,7 @@ function tp_cloud_shortcode($atts) {
         'hide_tags' => htmlspecialchars($hide_tags),
         'maxsize' => intval($maxsize),
         'minsize' => intval($minsize),
+        'show_tags_as' => htmlspecialchars($show_tags_as)
     );
     $filter_parameter = array(
         'tag' => ( isset ($_GET['tgid']) && $_GET['tgid'] != '' ) ? intval($_GET['tgid']) : '',
@@ -970,9 +988,10 @@ function tp_cloud_shortcode($atts) {
     /*************/
     /* Tag cloud */
     /*************/
-   
-    $asg = tp_shortcodes::generate_tag_cloud($user, $tag_settings, $filter_parameter, $sql_parameter, $settings);
-
+    $asg = '';
+    if ($tag_settings['show_tags_as'] === 'cloud') {
+        $asg = tp_shortcodes::generate_tag_cloud($user, $tag_settings, $filter_parameter, $sql_parameter, $settings);
+    }
     /**********/ 
     /* Filter */
     /**********/
@@ -982,6 +1001,11 @@ function tp_cloud_shortcode($atts) {
     // Filter type
     if ($sql_parameter['type'] == '') {
         $filter .= tp_shortcodes::generate_filter($filter_parameter, $sql_parameter, $settings, 'type');
+    }
+    
+    // Filter tag
+    if ($tag_settings['show_tags_as'] === 'pulldown') {
+        $filter .= tp_shortcodes::generate_filter($filter_parameter, $sql_parameter, $settings, 'tag');
     }
 
     // Filter author

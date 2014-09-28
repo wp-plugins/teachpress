@@ -379,7 +379,7 @@ class tp_publications_page {
         $array_tags = tp_tags::get_tags( array(
                         'user' => ($array_variables['page'] == 'publications.php') ? '' : $user, 
                         'group_by' => true, 
-                        'order' => 'ASC') );
+                        'order' => 'ASC' ) );
         echo '<select name="tag">';
         echo '<option value="0">- ' . __('All tags','teachpress') . ' -</option>';      
         foreach ( $array_tags as $row ) {

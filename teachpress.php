@@ -281,10 +281,12 @@ if ( !class_exists( 'PARSEENTRIES' ) ) {
  * @return string
 */
 function get_tp_version() {
-    return '5.0.0alpha12';
+    return '5.0.0alpha14';
 }
 
-/** Function for the integrated registration mode */
+/** 
+ * Function for the integrated registration mode 
+ */
 function tp_advanced_registration() {
     $user = wp_get_current_user();
     global $wpdb;
@@ -419,6 +421,7 @@ function tp_frontend_scripts() {
 
 /**
  * Load language files
+ * @since 0.30
  */
 function tp_language_support() {
     load_plugin_textdomain('teachpress', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/');
@@ -437,6 +440,39 @@ function tp_plugin_link($links, $file){
     return $links;
 }
 
+/**
+ * Adds a tinyMCE button for teachPress
+ * @param type $buttons
+ * @return type
+ * @since 5.0.0
+ */
+function tp_register_tinymce_buttons ($buttons) {
+    array_push($buttons, 'separator', 'teachpress_attach_docs');
+    return $buttons;
+}
+
+/**
+ * Adds a teachPress plugin to tinyMCE
+ * @param array $plugins
+ * @return array
+ * @since 5.0.0
+ */
+function tp_register_tinymce_js ($plugins) {
+    $plugins['teachpress'] = plugins_url('/js/tinymce-plugin.js',__file__);
+    return $plugins;
+}
+
+/**
+ * Adds the Attach documents TinyMCE i18n strings
+ * @param $mce_translation
+ * @return mixed
+ * @since 5.0.0
+*/
+function tp_attach_docs_tinymce_i18n($mce_translation){
+    $mce_translation['teachpress_attach_docs.title'] = __('Attach documents', 'teachpress');
+    return $mce_translation;
+}
+
 // Register WordPress-Hooks
 register_activation_hook( __FILE__, 'tp_activation');
 add_action('init', 'tp_language_support');
@@ -450,6 +486,9 @@ add_action('wp_ajax_tp_document_upload', 'tp_handle_document_uploads' );
 if ( !defined('TP_COURSE_SYSTEM') ) {
     add_action('admin_menu', 'tp_add_menu');
     add_action('widgets_init', create_function('', 'return register_widget("tp_books_widget");'));
+    add_filter('mce_buttons', 'tp_register_tinymce_buttons');
+    add_filter('mce_external_plugins', 'tp_register_tinymce_js');
+    add_filter('wp_mce_translation', 'tp_attach_docs_tinymce_i18n');
     add_shortcode('tpdate', 'tp_date_shortcode');  // Deprecated
     add_shortcode('tpcourseinfo', 'tp_courseinfo_shortcode');
     add_shortcode('tpcoursedocs', 'tp_coursedocs_shortcode');

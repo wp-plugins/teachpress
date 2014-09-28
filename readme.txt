@@ -145,6 +145,7 @@ It's **strongly** recommended to save your teachpress database tables before upg
 * New: Shortcode [tpcourseinfo]
 * New: Shortcode [tpcoursedocs]
 * New: [tpenrollments]: New parameter "date_format" added
+* New: [tpcloud]: New parameter "show_tags_as" added
 * New: Editable time limit for exports and uploads added (constant TEACHPRESS_TIME_LIMIT)
 * Changed: Rewritten core API
 * Changed: Rewritten Shortcode [tpcloud]
