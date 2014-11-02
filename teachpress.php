@@ -3,11 +3,11 @@
 Plugin Name: teachPress
 Plugin URI: http://mtrv.wordpress.com/teachpress/
 Description: With teachPress you can easy manage courses, enrollments and publications.
-Version: 4.3.8
+Version: 4.3.9
 Author: Michael Winkler
 Author URI: http://mtrv.wordpress.com/
 Min WP Version: 3.3
-Max WP Version: 3.9.1
+Max WP Version: 4.0
 */
 
 /*
@@ -378,7 +378,7 @@ function get_tp_var_types($type) {
  * @return string
 */
 function get_tp_version() {
-    return '4.3.8';
+    return '4.3.9';
 }
 
 /** 
@@ -634,7 +634,7 @@ function tp_install() {
         // Default settings
         $value = '[tpsingle [key]]<!--more-->' . "\n\n[tpabstract]\n\n[tplinks]\n\n[tpbibtex]";
         $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('sem', 'Example term', 'system')");
-        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('db-version', '4.3.8', 'system')");
+        $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('db-version', '4.3.9', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('sign_out', '0', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('login', 'std', 'system')");
         $wpdb->query("INSERT INTO $teachpress_settings (`variable`, `value`, `category`) VALUES ('stylesheet', '1', 'system')");
@@ -807,21 +807,21 @@ add_filter('plugin_action_links','tp_plugin_link', 10, 2);
 
 if ( !defined('TP_COURSE_SYSTEM') ) {
     add_action('admin_menu', 'tp_add_menu');
-    add_action('widgets_init', create_function('', 'return register_widget("tp_books_widget");'));
     add_shortcode('tpdate', 'tp_date_shortcode');
     add_shortcode('tpcourselist', 'tp_courselist_shortcode');
     add_shortcode('tpenrollments', 'tp_enrollments_shortcode');
     add_shortcode('tppost','tp_post_shortcode');
-    add_shortcode('tpsearch', 'tp_search_shortcode');
 }
 
 if ( !defined('TP_PUBLICATION_SYSTEM') ) {
     add_action('admin_menu', 'tp_add_menu2');
+	add_action('widgets_init', create_function('', 'return register_widget("tp_books_widget");'));
     add_shortcode('tpcloud', 'tp_cloud_shortcode');
     add_shortcode('tplist', 'tp_list_shortcode');
     add_shortcode('tpsingle', 'tp_single_shortcode');
     add_shortcode('tpbibtex', 'tp_bibtex_shortcode');
     add_shortcode('tpabstract', 'tp_abstract_shortcode');
     add_shortcode('tplinks', 'tp_links_shortcode');
+	add_shortcode('tpsearch', 'tp_search_shortcode');
 }
 ?>

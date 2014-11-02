@@ -4,8 +4,8 @@ Tags: publications, enrollments, education, course management, BibTeX, bibliogra
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 3.3
-Tested up to: 3.9.1
-Stable tag: 4.3.8
+Tested up to: 4.0
+Stable tag: 4.3.9
 
 With this plugin you can easy manage courses, enrollments and publications.
 
@@ -122,9 +122,13 @@ If you save plugins outside the normal path (/wp-content/plugins/), the plugin c
 
 == Changelog ==
 
+= 4.3.9 - (02.11.2014) =
+* Bugfix: [tpdate]: Fixed the sort order of sub courses
+* Bugfix: Fixed wrong assignments between TP_COURSE_SYSTEM and TP_PUBLICATION_SYSTEM
+
 = 4.3.8 - (29.06.2014) =
 * Bugfix: Prevent adding of <span>-tags within publication meta rows in XML and RTF files
-* Bugfix: Fix usage of editor names instead of author names in feeds and RTF files
+* Bugfix: Fixed usage of editor names instead of author names in feeds and RTF files
 * Bugfix: Reenable xls export for enrollments
 
 = 4.3.7 - (19.06.2014) =

@@ -179,7 +179,7 @@ function tp_date_shortcode($attr) {
             </tr>';
     
     // Search the child courses
-    $row = get_tp_courses( array('parent' => $id, 'visible' => '1,2') );
+    $row = get_tp_courses( array('parent' => $id, 'visible' => '1,2', 'order' => 'name, course_id') );
     foreach($row as $row) {
         // if parent name = child name
         if ($v_test == $row->name) {
