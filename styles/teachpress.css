@@ -16,11 +16,11 @@ h3.tp_postbox {padding: 8px 12px; margin: 0; line-height: 1.4; cursor:default !i
 td.tp_course_child {padding-left:25px; background: url(../images/child.png) no-repeat 8px 6px;}
 .tp_checkbox {margin-left:8px; padding-left:7px; text-align:left;}
 .tp_actions {padding: 0 0 10px 0;}
-.teachpress_cloud a {text-decoration: none;}
+.teachpress_cloud a {text-decoration: none; padding-left: 2px;}
 .tp_open_readme{cursor: pointer; color: #444;}
 .options_for_number{display: none;}
 
-/* Message menu */
+/* Action menus */
 .tp_row_actions {visibility: hidden;padding: 2px 0 0; color:#ddd;}
 .tp_row_actions a:hover {color:#ff6600;}
 tr:hover .tp_row_actions {visibility: visible;}
@@ -55,8 +55,11 @@ a.tp_row_delete:hover, a.tp_file_delete:hover {color:red;}
 .tp_file_headline .tp_file_name {font-weight: bold;}
 .tp_filelist .tp_fileprogress { background: #0074a2; height: 5px;}
 .tp_file_actions {margin-left: 0; visibility: hidden; position: absolute; right: 5px; top:10px; font-size: 12px; z-index: 1; color:#ddd;}
+.tp_file_size {margin-left: 0; visibility: visible; position: absolute; right: 5px; top:10px; font-size: 12px; z-index: 1; color:#aaa;}
+.tp_file:hover .tp_file_size{visibility:hidden;}
 .tp_file:hover .tp_file_actions{visibility:visible;}
 .tp_file a:hover {color: #ff6600;}
+a.tp_file_view {text-decoration: none;}
 
 /* jQuery UI Sortable */
 #tp_sortable>li {cursor: move; min-height: 20px; background-color: #fff;}

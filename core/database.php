@@ -197,14 +197,16 @@ class tp_assessments {
      * @return int
      * @since 5.0.0
      */
-    public static function add_assessments ($data) {
+    public static function add_assessment ($data) {
         global $wpdb;
         $wpdb->insert(TEACHPRESS_ASSESSMENTS, array('wp_id' => $data['wp_id'], 'value' => $data['value'], 'max_value' => $data['max_value'], 'type' => $data['type'], 'examiner_id' => $data['examiner_id'], 'exam_date' => $data['exam_date'], 'comment' => $data['comment'], 'passed' => $data['passed']), array('%d', '%s', '%s', '%s', '%d', '%s', '%s', '%d'));
         $insert_id = $wpdb->insert_id;
-        // For possible NULL values
+        // For possible NULL values ($wpdb doesn't like that)
         $data['artefact_id'] = ( $data['artefact_id'] === NULL ) ? "NULL" : intval($data['artefact_id']);
         $data['course_id'] = ( $data['course_id'] === NULL ) ? "NULL" : intval($data['course_id']);
-        $wpdb->query("UPDATE " . TEACHPRESS_ASSESSMENTS . " SET `artefact_id` = " . $data['artefact_id'] . ", `course_id` = " . $data['course_id'] . " WHERE `assessment_id` = $insert_id");
+        $wpdb->query("SET foreign_key_checks = 0");
+        $wpdb->query("UPDATE " . TEACHPRESS_ASSESSMENTS . " SET `artefact_id` = '" . $data['artefact_id'] . "', `course_id` = '" . $data['course_id'] . "' WHERE `assessment_id` = '$insert_id'");
+        $wpdb->query("SET foreign_key_checks = 1");
         return $insert_id;
     }
     
@@ -217,7 +219,11 @@ class tp_assessments {
      */
     public static function change_assessment($assessment_id, $data) {
         global $wpdb;
-        return $wpdb->update( TEACHPRESS_ASSESSMENTS, array( 'type' => $data['type'], 'value' => $data['value'], 'examiner_id' => $data['examiner_id'], 'exam_date' => $data['exam_date'], 'comment' => $data['comment'], 'passed' => $data['passed']), array( 'assessment_id' => $assessment_id ), array( '%s', '%s', '%d', '%s', '%s', '%d' ), array( '%d' ) );
+        $wpdb->query("SET foreign_key_checks = 0");
+        $return = $wpdb->update( TEACHPRESS_ASSESSMENTS, array( 'type' => $data['type'], 'value' => $data['value'], 'examiner_id' => $data['examiner_id'], 'exam_date' => $data['exam_date'], 'comment' => $data['comment'], 'passed' => $data['passed']), array( 'assessment_id' => $assessment_id ), array( '%s', '%s', '%d', '%s', '%s', '%d' ), array( '%d' ) );
+        $wpdb->query("SET foreign_key_checks = 1");
+        return $return;
+        
     }
     
    /**
@@ -262,8 +268,8 @@ class tp_authors  {
     * @return array|object
     * @since 5.0.0
     */
-   public static function get_authors ( $args = array() ) {
-       $defaults = array(
+    public static function get_authors ( $args = array() ) {
+        $defaults = array(
            'pub_id' => '',
            'user' => '',
            'exclude' => '',
@@ -274,72 +280,72 @@ class tp_authors  {
            'count' => false,
            'group_by' => false, 
            'output_type' => OBJECT
-       ); 
-       $args = wp_parse_args( $args, $defaults );
-       extract( $args, EXTR_SKIP );
+        ); 
+        $args = wp_parse_args( $args, $defaults );
+        extract( $args, EXTR_SKIP );
 
-       global $wpdb;
-       $limit = esc_sql($limit);
-       $order = esc_sql($order);
-       $pub_id = tp_db_helpers::generate_where_clause($pub_id, "r.pub_id", "OR", "=");
-       $user = tp_db_helpers::generate_where_clause($user, "u.user", "OR", "=");
-       $exclude = tp_db_helpers::generate_where_clause($exclude, "r.author_id", "AND", "!=");
-       $output_type = esc_sql($output_type);
-       $search = esc_sql(htmlspecialchars($search));
+        global $wpdb;
+        $limit = esc_sql($limit);
+        $order = esc_sql($order);
+        $pub_id = tp_db_helpers::generate_where_clause($pub_id, "r.pub_id", "OR", "=");
+        $user = tp_db_helpers::generate_where_clause($user, "u.user", "OR", "=");
+        $exclude = tp_db_helpers::generate_where_clause($exclude, "r.author_id", "AND", "!=");
+        $output_type = esc_sql($output_type);
+        $search = esc_sql(htmlspecialchars($search));
 
-       // Define basics
-       $select = "SELECT DISTINCT a.name, r.author_id, r.pub_id, r.con_id, r.is_author, r.is_editor FROM " . TEACHPRESS_REL_PUB_AUTH . " r INNER JOIN " . TEACHPRESS_AUTHORS . " a ON a.author_id = r.author_id";
-       $join = '';
-       $where = '';
-       
-       // define global search
-       if ( $search != '' ) {
-           $search = "a.name like '%$search%'";
-       }
-       
-       // if the user needs only the number of rows
-       if ( $count === true ) {
-           $select = "SELECT COUNT(a.`author_id`) AS `count` FROM " . TEACHPRESS_AUTHORS . " a";
-       }
+        // Define basics
+        $select = "SELECT DISTINCT a.name, r.author_id, r.pub_id, r.con_id, r.is_author, r.is_editor FROM " . TEACHPRESS_REL_PUB_AUTH . " r INNER JOIN " . TEACHPRESS_AUTHORS . " a ON a.author_id = r.author_id";
+        $join = '';
+        $where = '';
 
-       // Additional tables
-       if ( $user != '' ) {
-           $join .= " INNER JOIN " . TEACHPRESS_USER . " u ON u.pub_id = r.pub_id ";
-       }
+        // define global search
+        if ( $search != '' ) {
+            $search = "a.name like '%$search%'";
+        }
 
-       // WHERE clause
-       if ( $pub_id != '') {
-           $where = ( $where != '' ) ? $where . " AND ( $pub_id )" : $pub_id;
-       }
-       if ( $user != '' ) {
-           $where = ( $where != '' ) ? $where . " AND ( $user )" : $user;
-       }
-       if ( $search != '') {
-           $where = ( $where != '' ) ? $where . " AND ( $search )" : $search ;
-       }
-       if ( $exclude != '' ) {
-           $where = ( $where != '' ) ? $where . " AND ( $exclude )" : $exclude;
-       }
-       if ( $include_editors === false ) {
-           $where = ( $where != '' ) ? $where . " AND ( r.is_editor = '0' )" : "r.is_editor = '0'";
-       }
-       if ( $where != '' ) {
-           $where = " WHERE $where";
-       }
+        // if the user needs only the number of rows
+        if ( $count === true ) {
+            $select = "SELECT COUNT(a.`author_id`) AS `count` FROM " . TEACHPRESS_AUTHORS . " a";
+        }
 
-       // LIMIT clause
-       if ( $limit != '' ) {
-           $limit = "LIMIT $limit";
-       }
+        // Additional tables
+        if ( $user != '' ) {
+            $join .= " INNER JOIN " . TEACHPRESS_USER . " u ON u.pub_id = r.pub_id ";
+        }
 
-       // GROUP BY clause
-       $group_by = $group_by === true ? " GROUP BY a.name" : '';
+        // WHERE clause
+        if ( $pub_id != '') {
+            $where = ( $where != '' ) ? $where . " AND ( $pub_id )" : $pub_id;
+        }
+        if ( $user != '' ) {
+            $where = ( $where != '' ) ? $where . " AND ( $user )" : $user;
+        }
+        if ( $search != '') {
+            $where = ( $where != '' ) ? $where . " AND ( $search )" : $search ;
+        }
+        if ( $exclude != '' ) {
+            $where = ( $where != '' ) ? $where . " AND ( $exclude )" : $exclude;
+        }
+        if ( $include_editors === false ) {
+            $where = ( $where != '' ) ? $where . " AND ( r.is_editor = '0' )" : "r.is_editor = '0'";
+        }
+        if ( $where != '' ) {
+            $where = " WHERE $where";
+        }
 
-       // End
-       $sql = $select . $join . $where . $group_by . " ORDER BY a.name $order $limit";
-       // echo $sql . '<br/><br/>';
-       $sql = $count == false ? $wpdb->get_results($sql, $output_type): $wpdb->get_var($sql);
-       return $sql;
+        // LIMIT clause
+        if ( $limit != '' ) {
+            $limit = "LIMIT $limit";
+        }
+
+        // GROUP BY clause
+        $group_by = $group_by === true ? " GROUP BY a.name" : '';
+
+        // End
+        $sql = $select . $join . $where . $group_by . " ORDER BY a.name $order $limit";
+        // echo $sql . '<br/><br/>';
+        $sql = $count == false ? $wpdb->get_results($sql, $output_type): $wpdb->get_var($sql);
+        return $sql;
     }
     
     /**
@@ -645,14 +651,14 @@ class tp_courses {
      * Returns all data of one or more courses
      * 
      * possible values for the array $args:
-     *      semester (STRING)    The semester/term of the courses
-     *      visibility (STRING)  The visibility of the coures (1,2,3) separated by comma
-     *      parent (STRING)      The course_id of the parent
-     *      search (STRING)      A general search string
-     *      exclude (STRING)     The course_ids you want to exclude
-     *      order (STRING)       Default: semester DESC, name
-     *      limit (STRING)       The sql search limit, ie: 0,30
-     *      output_type (STRING) OBJECT, ARRAY_N or ARRAY_A, default is OBJECT
+     *      @type string semester         The semester/term of the courses
+     *      @type string visibility       The visibility of the coures (1,2,3) separated by comma
+     *      @type string parent           The course_id of the parent
+     *      @type string search           A general search string
+     *      @type string exclude          The course IDs you want to exclude
+     *      @type string order            Default: semester DESC, name
+     *      @type string limit            The sql search limit, ie: 0,30
+     *      @type string output_type      OBJECT, ARRAY_N or ARRAY_A, default is OBJECT
      * 
      * @param array $args
      * @return object|array
@@ -1234,19 +1240,21 @@ class tp_documents {
      * Adds a connection between a course and a document file
      * @param string $name      The document name
      * @param string $path      The document path
+     * @param string $size      The document size in bytes
      * @param int $course_id    The course ID
      * @return int The id of the added document entry
      * @since 5.0.0
      */
-    public static function add_document($name, $path, $course_id) {
+    public static function add_document($name, $path, $size, $course_id) {
         global $wpdb;
         $time = current_time('mysql',0);
         $wpdb->insert( TEACHPRESS_COURSE_DOCUMENTS, array( 'name' => $name, 
                                                            'path' => $path, 
-                                                           'added' => $time, 
+                                                           'added' => $time,
+                                                           'size' => $size,
                                                            'sort' => 0, 
                                                            'course_id' => intval($course_id) ), 
-                                                           array( '%s', '%s', '%s', '%d','%d') );
+                                                           array( '%s', '%s', '%s', '%d', '%d', '%d') );
         return $wpdb->insert_id;
     }
     
@@ -2217,7 +2225,7 @@ class tp_students {
      * possible values for $args:
      *      wp_id (INT)             The user ID
      *      mode (STRING)           all, reg or wtl. Default is: all
-     *      course_id (INT)         The course ID
+     *      course_id (INT)         The course ID. Set it and the function searches only in sub courses
      *      output_type (STRING)    OBJECT, ARRAY_N or ARRAY_A, default is OBJECT
      * 
      * @param array $args

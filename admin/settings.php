@@ -651,17 +651,25 @@ class tp_settings_page {
     
     /**
      * Handles adding of new meta data fields
-     * @param string $table
+     * @param string $table         The table name (teachpress_stud, teachpress_courses or teachpress_pub)
      * @access private
      * @since 5.0.0
      */
     private static function add_meta_fields ($table) {
-        $forbidden_names = array('system', 'teachpress_stud', 'teachpress_pub', 'teachpress_courses', 'course_type', 'semester', __('Fieldname','teachpress'));
+        if ( !isset( $_POST['field_name'] ) ) {
+            return;
+        }
+        
+        // Generate an array of forbidden field names
+        $forbidden_names = array('system', 'course_type', 'semester', __('Fieldname','teachpress'));
         $options = get_tp_options($table);
         foreach ( $options as $row) {
             array_push( $forbidden_names, $row->variable );
         }
-        $field_name = isset( $_POST['field_name'] ) ? htmlspecialchars($_POST['field_name']) : '';
+        
+        // Generate field name
+        $field_name = self::generate_meta_field_name($_POST['field_name'], $table);
+        
         $data['title'] = isset( $_POST['field_label'] ) ? htmlspecialchars($_POST['field_label']) : '';
         $data['type'] = isset( $_POST['field_type'] ) ? htmlspecialchars($_POST['field_type']) : '';
         $data['visibility'] = isset( $_POST['visibility'] ) ? htmlspecialchars($_POST['visibility']) : '';
@@ -676,6 +684,32 @@ class tp_settings_page {
         else {
             get_tp_message(  __('Warning: This fieldname is not possible.','teachpress'), 'red' );
         }
+    }
+    
+    /**
+     * Generates and returns a name for meta data fields
+     * @param string $fieldname     The field name
+     * @param string $table         The table name (used to define a prefix)
+     * @access private
+     * @since 5.0.0
+     */
+    private static function generate_meta_field_name($fieldname, $table) {
+        $name = str_replace( array("'", '"', ' '), array("", "", '_'), $fieldname);
+        
+        if ( $table === 'teachpress_courses' ) {
+            $prefix = 'tp_meta_courses_';
+        }
+        elseif ( $table === 'teachpress_pub' ) {
+            $prefix = 'tp_meta_pub_';
+        }
+        elseif ( $table === 'teachpress_stud' ) {
+            $prefix = 'tp_meta_stud_';
+        }
+        else {
+            $prefix = 'tp_meta_';
+        }
+        
+        return $prefix . htmlspecialchars($name);
     }
     
     /**

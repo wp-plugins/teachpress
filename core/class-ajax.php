@@ -20,7 +20,7 @@ class tp_ajax {
      * @access public
      */
     public static function add_document_headline( $doc_name, $course_id ) {
-        $file_id = tp_documents::add_document($doc_name, '', $course_id);
+        $file_id = tp_documents::add_document($doc_name, '', 0, $course_id);
         echo $file_id;
     }
     

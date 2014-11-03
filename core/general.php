@@ -327,3 +327,42 @@ function tp_update_userrole($roles, $capability) {
         $wp_roles->remove_cap($role, $capability);
     }
 }
+
+/**
+ * Returns a message with the current real amount of memory allocated to PHP
+ * @uses memory_get_usage() This function is used with the flag $real_usage = true
+ * @return string
+ * @since 5.0.0
+ */
+function tp_get_memory_usage () {
+    return 'Current real amount of memory: ' . tp_convert_file_size( memory_get_usage(true) ) . '<br/>';
+}
+
+/**
+ * Converts a file size in bytes into kB, MB or GB
+ * @param int $bytes
+ * @return string
+ * @since 5.0.0
+ */
+function tp_convert_file_size ($bytes) {
+    $bytes = floatval($bytes);
+    if ( $bytes >= 1099511627776 ) {
+        return number_format($bytes / 1099511627776, 2) . ' TB';
+    }
+    if ( $bytes >= 1073741824 ) {
+        return number_format($bytes / 1073741824, 2) . ' GB';
+    }
+    if ( $bytes >= 1048576 ) {
+        return number_format($bytes / 1048576, 2) . ' MB';
+    }
+    if ( $bytes >= 1024 ) {
+        return number_format($bytes / 1024, 2) . ' kB';
+    }
+    if ( $bytes > 1 ){
+        return $bytes . ' bytes';
+    }
+    if ( $bytes === 1 ){
+        return $bytes . ' byte';
+    }
+    return '0 bytes';
+}

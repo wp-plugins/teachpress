@@ -153,11 +153,11 @@ class tp_shortcodes {
     }
     
     /**
-     * Generates and returns filter for tp_cloud
+     * Generates and returns filter for the shortcode [tp_cloud]
      * @param array $filter_parameter       An associative array with filter parameter (user input). The keys are: year, type, author, user
-     * @param array $sql_parameter          An assosciative array with SQL search parameter (user, type)
-     * @param array $settings               An assosciative array with settings (permalink, html_anchor)
-     * @param string $mode                  year, type, author, user, tag
+     * @param array $sql_parameter          An assosciative array with SQL search parameter (user, type, exclude, exclude_tags, order)
+     * @param array $settings               An assosciative array with settings (permalink, html_anchor,...)
+     * @param string $mode                  year, type, author, user or tag, default is year
      * @return string
      * @since 5.0.0
      * @access public
@@ -167,21 +167,25 @@ class tp_shortcodes {
         $options = '';
         // year filter
         if ( $mode === 'year' ) {
-            $row = tp_publications::get_years( array( 'user' => $sql_parameter['user'], 'type' => $sql_parameter['type'], 'order' => 'DESC', 'output_type' => ARRAY_A ) );
+            $row = tp_publications::get_years( array( 'user' => $sql_parameter['user'], 
+                                                      'type' => $sql_parameter['type'], 
+                                                      'order' => 'DESC', 
+                                                      'output_type' => ARRAY_A ) );
             $id = 'pub_year';
             $index = 'year';
             $title = __('All years','teachpress');
         }
         // type filter
         if ( $mode === 'type' ) {
-            $row = tp_publications::get_used_pubtypes( array('user' => $sql_parameter['user']) );
+            $row = tp_publications::get_used_pubtypes( array( 'user' => $sql_parameter['user'] ) );
             $id = 'pub_type';
             $index = 'type';
             $title = __('All types','teachpress');
         }
         // author filter
         if ( $mode === 'author' ) {
-            $row = tp_authors::get_authors( array('output_type' => ARRAY_A, 'group_by' => true) );
+            $row = tp_authors::get_authors( array( 'output_type' => ARRAY_A, 
+                                                   'group_by' => true ) );
             $id = 'pub_author';
             $index = 'author_id';
             $title = __('All authors','teachpress');
@@ -195,7 +199,10 @@ class tp_shortcodes {
         }
         // tag filter
         if ( $mode === 'tag' ) {
-            $row = tp_tags::get_tags( array('output_type' => ARRAY_A, 'group_by' => true, 'order' => 'ASC' ) );
+            $row = tp_tags::get_tags( array( 'output_type' => ARRAY_A, 
+                                             'group_by' => true, 
+                                             'order' => 'ASC', 
+                                             'exclude' => $sql_parameter['exclude_tags'] ) );
             $id = 'pub_tag';
             $index = 'tag_id';
             $title = __('All tags','teachpress');
@@ -203,12 +210,15 @@ class tp_shortcodes {
 
         // generate option
         foreach ( $row as $row ){
+            // Set the values for URL parameters
             $current = ( $row[$index] == $filter_parameter[$mode] && $filter_parameter[$mode] != '0' ) ? 'selected="selected"' : '';
             $tag = ( $mode === 'tag' ) ? $row['tag_id'] : $filter_parameter['tag'] ;
             $year = ( $mode === 'year' ) ? $row['year'] : $filter_parameter['year'];
             $type = ( $mode === 'type' ) ? $row['type'] : $filter_parameter['type'];
             $user = ( $mode === 'user' ) ? $row['user'] : $filter_parameter['user'];
             $author = ( $mode === 'author' ) ? $row['author_id'] : $filter_parameter['author'];
+            
+            // Set the label for each select option
             if ( $mode === 'type' ) {
                 $text = tp_translate_pub_type($row['type'], 'pl');
             }
@@ -228,17 +238,19 @@ class tp_shortcodes {
             else {
                 $text = $row[$index];
             }
-            $options .= '<option value = "' . $settings['permalink'] . 'tgid=' . $tag. '&amp;yr=' . $year . '&amp;type=' . $type . '&amp;usr=' . $user . '&amp;auth=' . $author . $settings['html_anchor'] . '" ' . $current . '>' . $text . '</option>';
+            
+            // Write the select option
+            $options .= '<option value = "' . $settings['permalink'] . 'tgid=' . $tag. '&amp;yr=' . $year . '&amp;type=' . $type . '&amp;usr=' . $user . '&amp;auth=' . $author . $settings['html_anchor'] . '" ' . $current . '>' . stripslashes($text) . '</option>';
         }
 
         // clear filter_parameter[$mode]
         $filter_parameter[$mode] = '';
+        
         // return filter menu
         return '<select name="' . $id . '" id="' . $id . '" onchange="teachpress_jumpMenu(' . "'" . 'parent' . "'" . ',this,0)">
                    <option value="' . $settings['permalink'] . 'tgid=' . $filter_parameter['tag'] . '&amp;type=' . $filter_parameter['type'] . '&amp;usr=' . $filter_parameter['user'] . '&amp;auth=' . $filter_parameter['author'] . '' . $settings['html_anchor'] . '">' . $title . '</option>
                    ' . $options . '
                 </select>';
-
     }
     
     /**
@@ -273,7 +285,7 @@ class tp_shortcodes {
     /**
      * Returns a tag cloud
      * @param int $user                 The user ID
-     * @param array $tag_settings       An associative array with tag_settings (tag_limit, maxsize, minsize)
+     * @param array $cloud_settings       An associative array with settings for the cloud (tag_limit, maxsize, minsize)
      * @param array $filter_parameter   An associative array with filter parameter (user input). The keys are: year, type, author, user
      * @param array $sql_parameter      An assosciative array with SQL search parameter (user, type)
      * @param array $settings           An assosciative array with settings (permalink, html_anchor)
@@ -281,11 +293,11 @@ class tp_shortcodes {
      * @since 5.0.0
      * @access public
      */
-    public static function generate_tag_cloud ($user, $tag_settings, $filter_parameter, $sql_parameter, $settings){
+    public static function generate_tag_cloud ($user, $cloud_settings, $filter_parameter, $sql_parameter, $settings){
         $temp = tp_tags::get_tag_cloud( array('user' => $user, 
                                         'type' => $sql_parameter['type'],
-                                        'exclude' => $tag_settings['hide_tags'],
-                                        'number_tags' => $tag_settings['tag_limit'],
+                                        'exclude' => $cloud_settings['hide_tags'],
+                                        'number_tags' => $cloud_settings['tag_limit'],
                                         'output_type' => ARRAY_A) );
        $min = $temp["info"]->min;
        $max = $temp["info"]->max;
@@ -303,10 +315,10 @@ class tp_shortcodes {
 
           // calculate the font size
           // max. font size * (current occorence - min occurence) / (max occurence - min occurence)
-          $size = floor(( $tag_settings['maxsize'] *( $tagcloud['tagPeak'] - $min )/( $max - $min ) ));
+          $size = floor(( $cloud_settings['maxsize'] *( $tagcloud['tagPeak'] - $min )/( $max - $min ) ));
           // level out the font size
-          if ( $size < $tag_settings['minsize'] ) {
-             $size = $tag_settings['minsize'] ;
+          if ( $size < $cloud_settings['minsize'] ) {
+             $size = $cloud_settings['minsize'] ;
           }
 
           // for current tags
@@ -626,7 +638,7 @@ function tp_coursedocs_shortcode($atts) {
  * 
  * possible values of $atts:
  *       id (INT)           -   ID of the course 
- *       show_meta (INT)  -   Display course meta data (1) or not (0), default is 1
+ *       show_meta (INT)    -   Display course meta data (1) or not (0), default is 1
  * 
  * @param array $atts
  * @return string
@@ -937,14 +949,14 @@ function tp_cloud_shortcode($atts) {
         'pagination' => intval($pagination),
         'entries_per_page' => intval($entries_per_page),
         'sort_list' => htmlspecialchars($sort_list),
+        'show_tags_as' => htmlspecialchars($show_tags_as),
         'with_tags' => 1,
     );
-    $tag_settings = array (
+    $cloud_settings = array (
         'tag_limit' => intval($tag_limit),
         'hide_tags' => htmlspecialchars($hide_tags),
         'maxsize' => intval($maxsize),
-        'minsize' => intval($minsize),
-        'show_tags_as' => htmlspecialchars($show_tags_as)
+        'minsize' => intval($minsize)
     );
     $filter_parameter = array(
         'tag' => ( isset ($_GET['tgid']) && $_GET['tgid'] != '' ) ? intval($_GET['tgid']) : '',
@@ -989,8 +1001,8 @@ function tp_cloud_shortcode($atts) {
     /* Tag cloud */
     /*************/
     $asg = '';
-    if ($tag_settings['show_tags_as'] === 'cloud') {
-        $asg = tp_shortcodes::generate_tag_cloud($user, $tag_settings, $filter_parameter, $sql_parameter, $settings);
+    if ( $settings['show_tags_as'] === 'cloud' ) {
+        $asg = tp_shortcodes::generate_tag_cloud($user, $cloud_settings, $filter_parameter, $sql_parameter, $settings);
     }
     /**********/ 
     /* Filter */
@@ -1004,7 +1016,7 @@ function tp_cloud_shortcode($atts) {
     }
     
     // Filter tag
-    if ($tag_settings['show_tags_as'] === 'pulldown') {
+    if ( $settings['show_tags_as'] === 'pulldown' ) {
         $filter .= tp_shortcodes::generate_filter($filter_parameter, $sql_parameter, $settings, 'tag');
     }
 
@@ -1261,7 +1273,7 @@ function tp_list_shortcode($atts){
  *      author_name (STRING)    last, initials or old, default: last
  *      editor_name (STRING)    last, initials or old, default: last
  *      style (STRING)          simple, numbered or std, default: numbered
- *      link_style (STRING)     inline or images, default: inline
+ *      link_style (STRING)     inline, images or direct, default: inline
  *      as_filter (STRING)      set it to "true" if you want to display publications by default
  *      date_format (STRING)    the format for date; needed for presentations, default: d.m.Y
  * 

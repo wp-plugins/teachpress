@@ -53,7 +53,6 @@ function tp_show_publications_page() {
     // WordPress User informations
     global $current_user;
     get_currentuserinfo();
-    
     // Get screen options
     $screen = get_current_screen();
     $screen_option = $screen->get_option('per_page', 'option');
@@ -461,13 +460,10 @@ class tp_publications_page {
                       'order' => 'date DESC, title ASC'
                      );
         $test = tp_publications::get_publications($args, true);
-
         // Load tags
         $tags = tp_tags::get_tags( array('output_type' => ARRAY_A) );
-
         // Load bookmarks
         $bookmarks = tp_bookmarks::get_bookmarks( array('user'=> $user, 'output_type' => ARRAY_A) );
-
         ?>
         <h2><?php echo $title; ?> <a href="admin.php?page=teachpress/addpublications.php" class="add-new-h2"><?php _e('Create','teachpress'); ?></a></h2>
         <div id="searchbox" style="float:right; padding-bottom:5px;">

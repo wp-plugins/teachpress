@@ -101,7 +101,10 @@ class tp_students_page {
         $selects = false;
         $max = count($select_fields);
         for ($i = 0; $i < $max; $i++) {
-            echo '<select name="' . $select_fields[$i] . '">';
+            $meta_field = get_tp_option($select_fields[$i], 'teachpress_stud');
+            $meta_field_options = tp_db_helpers::extract_column_data($meta_field);
+            
+            echo '<select name="' . $select_fields[$i] . '" title="' . __('Select','teachpress') . ': ' . $meta_field_options['title'] . '">';
             echo '<option value="">- ' . __('All','teachpress') . ' -</option>';
             $options = get_tp_options($select_fields[$i]);
             $search = ( !empty($meta_search) ) ? $meta_search[$select_fields[$i]] : '';

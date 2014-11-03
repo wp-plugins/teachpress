@@ -281,7 +281,7 @@ if ( !class_exists( 'PARSEENTRIES' ) ) {
  * @return string
 */
 function get_tp_version() {
-    return '5.0.0alpha14';
+    return '5.0.0alpha15';
 }
 
 /** 
@@ -377,6 +377,98 @@ function tp_uninstall() {
     tp_tables::remove();
 }
 
+/****************************/
+/* tinyMCE plugin functions */
+/****************************/
+
+/**
+ * Hooks functions for tinymce plugin into the correct filters
+ * @since 5.0.0
+ */
+function tp_add_tinymce_button() {
+    if ( !current_user_can( 'edit_posts' ) && !current_user_can( 'edit_pages' ) ) {
+        return;
+    }
+    add_filter('mce_buttons', 'tp_register_tinymce_buttons');
+    add_filter('mce_external_plugins', 'tp_register_tinymce_js');
+}
+
+/**
+ * Adds a tinyMCE button for teachPress
+ * @param type $buttons
+ * @return type
+ * @since 5.0.0
+ */
+function tp_register_tinymce_buttons ($buttons) {
+    array_push($buttons, 'teachpress_tinymce');
+    return $buttons;
+}
+
+/**
+ * Adds a teachPress plugin to tinyMCE
+ * @param array $plugins
+ * @return array
+ * @since 5.0.0
+ */
+function tp_register_tinymce_js ($plugins) {
+    $plugins['teachpress_tinymce'] = plugins_url() . '/teachpress/js/tinymce-plugin.js';
+    return $plugins;
+}
+
+/**
+ * Writes data for the teachPress tinyMCE plugin in Javascript objects
+ * @since 5.0.0
+ */
+function tp_write_data_for_tinymce () {
+    
+    // Only write the data if the page is a page/post editor
+    if ( $GLOBALS['current_screen']->base !== 'post' ) {
+        return;
+    }
+    
+    // List of courses
+    $course_list = array();
+    $course_list[] = array( 'text' => '=== SELECT ===' , 'value' => 0 );
+    $semester = get_tp_options('semester', '`setting_id` DESC');
+    foreach ( $semester as $row ) {
+        $courses = tp_courses::get_courses( array('parent' => 0, 'semester' => $row->value) );
+        foreach ($courses as $course) {
+            $course_list[] = array( 'text' => $course->name . ' (' . $course->semester . ')' , 'value' => $course->course_id );
+        }
+        if ( count($courses) > 0 ) {
+            $course_list[] = array( 'text' => '====================' , 'value' => 0 );
+        }
+    }
+    
+    // List of semester/term
+    $semester_list = array();
+    $semester_list[] = array( 'text' => 'Default' , 'value' => '' );
+    foreach ($semester as $sem) { 
+        $semester_list[] = array( 'text' => stripslashes($sem->value) , 'value' => stripslashes($sem->value) );
+    }
+    
+    // List of publication users
+    $pub_user_list = array();
+    $pub_user_list[] = array( 'text' => 'All' , 'value' => '' );
+    $pub_users = tp_publications::get_pub_users();
+    foreach ($pub_users as $row) { 
+        $user_data = get_userdata($row->user);
+        if ( $user_data !== false ) {
+            $pub_user_list[] = array( 'text' => $user_data->display_name , 'value' => intval($row->user) );
+        }
+    }
+    
+    // Write javascript
+    ?>
+    <script type="text/javascript">
+        var teachpress_courses = <?php echo json_encode($course_list); ?>;
+        var teachpress_semester = <?php echo json_encode($semester_list); ?>;
+        var teachpress_pub_user = <?php echo json_encode($pub_user_list); ?>;
+        var teachpress_editor_url = '<?php echo plugins_url() . '/teachpress/admin/editor.php'; ?>';
+    </script>
+    <?php
+}
+
 /*********************/
 /* Loading functions */
 /*********************/
@@ -440,39 +532,6 @@ function tp_plugin_link($links, $file){
     return $links;
 }
 
-/**
- * Adds a tinyMCE button for teachPress
- * @param type $buttons
- * @return type
- * @since 5.0.0
- */
-function tp_register_tinymce_buttons ($buttons) {
-    array_push($buttons, 'separator', 'teachpress_attach_docs');
-    return $buttons;
-}
-
-/**
- * Adds a teachPress plugin to tinyMCE
- * @param array $plugins
- * @return array
- * @since 5.0.0
- */
-function tp_register_tinymce_js ($plugins) {
-    $plugins['teachpress'] = plugins_url('/js/tinymce-plugin.js',__file__);
-    return $plugins;
-}
-
-/**
- * Adds the Attach documents TinyMCE i18n strings
- * @param $mce_translation
- * @return mixed
- * @since 5.0.0
-*/
-function tp_attach_docs_tinymce_i18n($mce_translation){
-    $mce_translation['teachpress_attach_docs.title'] = __('Attach documents', 'teachpress');
-    return $mce_translation;
-}
-
 // Register WordPress-Hooks
 register_activation_hook( __FILE__, 'tp_activation');
 add_action('init', 'tp_language_support');
@@ -482,29 +541,33 @@ add_action('admin_init','tp_backend_scripts');
 add_filter('plugin_action_links','tp_plugin_link', 10, 2);
 add_action('wp_ajax_tp_document_upload', 'tp_handle_document_uploads' );
 
+// Register tinyMCE Plugin
+ if (version_compare($wp_version, '3.9', '>=')) {
+    add_action('admin_head', 'tp_add_tinymce_button');
+    add_action('admin_head', 'tp_write_data_for_tinymce' );
+ }
+
 // Register course system
 if ( !defined('TP_COURSE_SYSTEM') ) {
     add_action('admin_menu', 'tp_add_menu');
-    add_action('widgets_init', create_function('', 'return register_widget("tp_books_widget");'));
-    add_filter('mce_buttons', 'tp_register_tinymce_buttons');
-    add_filter('mce_external_plugins', 'tp_register_tinymce_js');
-    add_filter('wp_mce_translation', 'tp_attach_docs_tinymce_i18n');
     add_shortcode('tpdate', 'tp_date_shortcode');  // Deprecated
     add_shortcode('tpcourseinfo', 'tp_courseinfo_shortcode');
     add_shortcode('tpcoursedocs', 'tp_coursedocs_shortcode');
     add_shortcode('tpcourselist', 'tp_courselist_shortcode');
     add_shortcode('tpenrollments', 'tp_enrollments_shortcode');
     add_shortcode('tppost','tp_post_shortcode');
-    add_shortcode('tpsearch', 'tp_search_shortcode');
 }
 
 // register publication system
 if ( !defined('TP_PUBLICATION_SYSTEM') ) {
     add_action('admin_menu', 'tp_add_menu2');
+    add_action('widgets_init', create_function('', 'return register_widget("tp_books_widget");'));
     add_shortcode('tpcloud', 'tp_cloud_shortcode');
     add_shortcode('tplist', 'tp_list_shortcode');
     add_shortcode('tpsingle', 'tp_single_shortcode');
     add_shortcode('tpbibtex', 'tp_bibtex_shortcode');
     add_shortcode('tpabstract', 'tp_abstract_shortcode');
     add_shortcode('tplinks', 'tp_links_shortcode');
+    add_shortcode('tpsearch', 'tp_search_shortcode');
+    
 }

@@ -146,6 +146,7 @@ It's **strongly** recommended to save your teachpress database tables before upg
 * New: Shortcode [tpcoursedocs]
 * New: [tpenrollments]: New parameter "date_format" added
 * New: [tpcloud]: New parameter "show_tags_as" added
+* New: tinyMCE 4 plugin for inserting shortcodes
 * New: Editable time limit for exports and uploads added (constant TEACHPRESS_TIME_LIMIT)
 * Changed: Rewritten core API
 * Changed: Rewritten Shortcode [tpcloud]
@@ -160,6 +161,10 @@ It's **strongly** recommended to save your teachpress database tables before upg
 * Bugfix: teachPress books widget works again
 * Killed: The shortcode [tpdate] is deprecated, use [tpcourseinfo] instead
 * Killed: The following functions are deprecated: get_tp_course(), get_tp_courses(), get_tp_course_free_places(), get_tp_tags(), get_tp_tag_cloud(), get_tp_publication(), get_tp_publications(), tp_is_user_subscribed(), tp_check_bookmark(), tp_admin_page_menu()
+
+= 4.3.9 - (02.11.2014) =
+* Bugfix: [tpdate]: Fixed the sort order of sub courses
+* Bugfix: Fixed wrong assignments between TP_COURSE_SYSTEM and TP_PUBLICATION_SYSTEM
 
 = 4.3.8 - (29.06.2014) =
 * Bugfix: Prevent adding of `<span>`-tags within publication meta rows in XML and RTF files

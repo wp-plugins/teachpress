@@ -167,6 +167,7 @@ class tp_tables {
                     `name` VARCHAR(500),
                     `path` VARCHAR(500),
                     `added` DATETIME,
+                    `size` BIGINT,
                     `sort` INT,
                     `course_id` INT UNSIGNED,
                     FOREIGN KEY (course_id) REFERENCES " . TEACHPRESS_COURSES . " (course_id),

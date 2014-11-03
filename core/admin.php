@@ -97,7 +97,7 @@ class tp_admin {
     public static function get_checkbox_field ($field_name, $label, $checked, $readonly = false, $required = false) {
         global $wpdb;
         $return = '';
-        $options = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '" . $field_name . "' ORDER BY value ASC");
+        $options = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '" . esc_sql($field_name) . "' ORDER BY value ASC");
         $readonly = ( $readonly === true ) ? 'readonly="true" ' : '' ;
         $required = ( $required === true ) ? 'required="required"' : '';
         // extrakt checkbox_values
@@ -177,7 +177,7 @@ class tp_admin {
     public static function get_radio_field ($field_name, $label, $value, $readonly = false, $required = false) {
         global $wpdb;
         $return = '';
-        $options = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '" . $field_name . "' ORDER BY value ASC");
+        $options = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '" . esc_sql($field_name) . "' ORDER BY value ASC");
         $readonly = ( $readonly === true ) ? 'readonly="true" ' : '' ;
         $required = ( $required === true ) ? 'required="required"' : '';
         $return .= '<p><label for="' . $field_name . '"><b>' . stripslashes($label) . '</b></label></p>';
@@ -203,7 +203,7 @@ class tp_admin {
         $return = '';
         $return .= '<p><label for="' . $field_name . '"><b>' . stripslashes($label) . '</b></label></p>';
         $return .= '<select name="' . $field_name . '" id="' . $field_name . '">';
-        $options = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '" . $field_name . "' ORDER BY value ASC");
+        $options = $wpdb->get_results("SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '" . esc_sql($field_name) . "' ORDER BY value ASC");
         if ( $value == '' ) {
             $return .= '<option value="">- ' . __('none','teachpress') . ' -</option>';
         }
@@ -318,7 +318,7 @@ class tp_admin {
             $sql = "SELECT number, value, setting_id FROM ( SELECT COUNT(s.course_of_studies) as number, e.value AS value,  e.setting_id as setting_id, e.category as category FROM " . TEACHPRESS_SETTINGS . " e LEFT JOIN " . TEACHPRESS_STUD . " s ON e.value = s.course_of_studies GROUP BY e.value ORDER BY number DESC ) AS temp WHERE category = 'course_of_studies' ORDER BY value";
         }
         else {
-            $sql = "SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '$type' ORDER BY value ASC";
+            $sql = "SELECT * FROM " . TEACHPRESS_SETTINGS . " WHERE `category` = '" . esc_sql($type) . "' ORDER BY value ASC";
         }
 
         $row = $wpdb->get_results($sql);
@@ -405,15 +405,15 @@ class tp_admin {
 /**
  * Gets all drafts of a post type as options for select menus
  * @param string $post_type
- * @param string $post_status
- * @param string $sort_column
- * @param string $sort_order
+ * @param string $post_status       Default is "publish"
+ * @param string $sort_column       Default is "menu_order"
+ * @param string $sort_order        Defalut is "ASC"
  * @since 5.0.0
  */
 function get_tp_wp_drafts($post_type, $post_status = 'publish', $sort_column = 'menu_order', $sort_order = 'ASC') {
     global $wpdb;
     echo "\n\t<option value='0'>" . __('none','teachpress') . "</option>";
-    $items = $wpdb->get_results( "SELECT `ID`, `post_title` FROM $wpdb->posts WHERE `post_type` = '$post_type' AND `post_status` = '$post_status' ORDER BY {$sort_column} {$sort_order}" );
+    $items = $wpdb->get_results( "SELECT `ID`, `post_title` FROM $wpdb->posts WHERE `post_type` = '" . esc_sql($post_type) . "' AND `post_status` = '" . esc_sql($post_status) . "' ORDER BY " . esc_sql($sort_column) . " " . esc_sql($sort_order) );
     foreach ( $items as $item ) {
         echo "\n\t<option value='$item->ID'>" . get_the_title($item->ID) . "</option>";
     }
@@ -432,7 +432,7 @@ function tp_handle_document_uploads(){
         echo htmlspecialchars($status['error']);
         exit;
     }
-    $doc_id = tp_documents::add_document($status['filename'], $status['path'], $course_id);
+    $doc_id = tp_documents::add_document($status['filename'], $status['path'], $status['size'], $course_id);
     echo $doc_id . ' | Course_id:' . $course_id . ', Uploaded to: '. $status['file'];
     exit;
 }
@@ -578,6 +578,7 @@ function tp_handle_upload( &$file, $overrides = false, $course_id = 0 ) {
 	 *     @type string $url        URL of the uploaded file.
          *     @type string $path       The directory path of the uploaded file, file name included.
 	 *     @type string $type       File type.
+         *     @type int    $size       File size.
          *     @type string $filename   File name.
 	 * }
 	 * @param string $context The type of upload action. Accepts 'upload' or 'sideload'.
@@ -586,18 +587,19 @@ function tp_handle_upload( &$file, $overrides = false, $course_id = 0 ) {
                                                          'url' => $url, 
                                                          'path' => "/teachpress$extra_directory_part/$filename", 
                                                          'type' => $type, 
+                                                         'size' => $file['size'],
                                                          'filename' => $filename ), 'upload' );
 }
 
 /** 
  * Get WordPress pages
  * adapted from Flexi Pages Widget Plugin
- * @param string $sort_column
- * @param string $sort_order
- * @param string $selected
- * @param string $post_type
- * @param int $parent
- * @param int $level
+ * @param string $sort_column       Default is "menu_order"
+ * @param string $sort_order        Default is "ASC"
+ * @param string $selected          
+ * @param string $post_type         Default is "page"
+ * @param int $parent               Default is 0
+ * @param int $level                Default is 0
  * @since 1.0.0
 */ 
 function get_tp_wp_pages($sort_column = "menu_order", $sort_order = "ASC", $selected = '', $post_type = 'page', $parent = 0, $level = 0 ) {
@@ -617,26 +619,21 @@ function get_tp_wp_pages($sort_column = "menu_order", $sort_order = "ASC", $sele
         }
         echo "\n\t<option value='0'$current>$pad " . __('none','teachpress') . "</option>";
     }
-    $items = $wpdb->get_results( "SELECT `ID`, `post_parent`, `post_title` FROM $wpdb->posts WHERE `post_parent` = $parent AND `post_type` = '$post_type' AND `post_status` = 'publish' ORDER BY {$sort_column} {$sort_order}" );
+    $items = $wpdb->get_results( "SELECT `ID`, `post_parent`, `post_title` FROM $wpdb->posts WHERE `post_parent` = '" . intval($parent) . "' AND `post_type` = '" . esc_sql($post_type) . "' AND `post_status` = 'publish' ORDER BY " . esc_sql($sort_column) . " " . esc_sql($sort_order) );
     if ( $items ) {
         foreach ( $items as $item ) {
             $pad = str_repeat( '&nbsp;', $level * 3 );
             if ( $item->ID == $selected  ) {
                 $current = ' selected="selected"';
             }
-            elseif (is_array($selected)) {
-                if ( in_array($item->ID, $selected) ) {
-                    $current = ' selected="selected"';
-                }
-                else {
-                    $current = '';
-                }
+            elseif ( is_array($selected) ) {
+                $current = ( in_array($item->ID, $selected) ) ? ' selected="selected"' : '';
             }
             else {
                 $current = '';
             }	
             echo "\n\t<option value='$item->ID'$current>$pad " . get_the_title($item->ID) . "</option>";
-            get_tp_wp_pages( $sort_column, $sort_order, $selected, $post_type, $item->ID,  $level +1 );
+            get_tp_wp_pages( $sort_column, $sort_order, $selected, $post_type, $item->ID,  $level + 1 );
         }
     } else {
         return false;
