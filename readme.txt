@@ -5,7 +5,7 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 3.3
 Tested up to: 4.0
-Stable tag: 4.3.9
+Stable tag: 4.3.10
 
 With this plugin you can easy manage courses, enrollments and publications.
 
@@ -90,8 +90,8 @@ I would like to thank the team of [CBIS, Chemnitz University of Technology](http
 
 == Upgrade Notice ==
 
-= 4.3.8 =
-This release fixes small bugs in XML and RTF export.
+= 4.3.10 =
+Fixed missing ids and classes for show/hide buttons in [tpcloud, tplist] if the list style "images" is used.
 
 == Frequently Asked Questions ==
 
@@ -122,12 +122,15 @@ If you save plugins outside the normal path (/wp-content/plugins/), the plugin c
 
 == Changelog ==
 
+= 4.3.10 - (19.11.2014) =
+* Bugfix: Fixed missing ids and classes for show/hide buttons in [tpcloud, tplist] if the list style "images" is used.
+
 = 4.3.9 - (02.11.2014) =
 * Bugfix: [tpdate]: Fixed the sort order of sub courses
 * Bugfix: Fixed wrong assignments between TP_COURSE_SYSTEM and TP_PUBLICATION_SYSTEM
 
 = 4.3.8 - (29.06.2014) =
-* Bugfix: Prevent adding of <span>-tags within publication meta rows in XML and RTF files
+* Bugfix: Prevent adding of `<span>`-tags within publication meta rows in XML and RTF files
 * Bugfix: Fixed usage of editor names instead of author names in feeds and RTF files
 * Bugfix: Reenable xls export for enrollments
 
