@@ -956,6 +956,7 @@ function tp_list_shortcode($atts){
  *   link_style (STRING)    --> inline or images, default: inline
  *   as_filter (STRING)     --> set it to "true" if you want to display publications by default
  *   date_format (STRING)   --> the format for date; needed for presentations, default: d.m.Y
+ *   order (STRING)         --> date, title, year, bibtex or type, default: date DESC
  * 
  * @param array $atts
  * @return string
@@ -973,7 +974,8 @@ function tp_search_shortcode ($atts) {
        'style' => 'numbered',
        'link_style' => 'inline',
        'as_filter' => 'false',
-       'date_format' => 'd.m.Y'
+       'date_format' => 'd.m.Y',
+	   'order' => 'date DESC'
     ), $atts)); 
     
     $tparray = '';
@@ -981,6 +983,7 @@ function tp_search_shortcode ($atts) {
     $colspan = '';
     $image_size = intval($image_size);
     $entries_per_page = intval($entries_per_page);
+	$order = esc_sql($order);
     $settings = array(
         'author_name' => htmlspecialchars($author_name),
         'editor_name' => htmlspecialchars($editor_name),
@@ -1030,6 +1033,7 @@ function tp_search_shortcode ($atts) {
                        'tag' => $tag,
                        'search' => $search, 
                        'limit' => $entry_limit . ',' .  $entries_per_page,
+					   'order' => $order,
                        'output_type' => ARRAY_A);
         $results = get_tp_publications( $args );
         $number_entries = get_tp_publications($args, true);

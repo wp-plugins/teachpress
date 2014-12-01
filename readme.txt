@@ -4,8 +4,8 @@ Tags: publications, enrollments, education, course management, BibTeX, bibliogra
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 3.3
-Tested up to: 4.0
-Stable tag: 4.3.10
+Tested up to: 4.1
+Stable tag: 4.3.11
 
 With this plugin you can easy manage courses, enrollments and publications.
 
@@ -121,6 +121,9 @@ define ('TP_PUBLICATION_SYSTEM','disable');
 If you save plugins outside the normal path (/wp-content/plugins/), the plugin can't load required WordPress files in some cases. Solution: Change the path in the following plugin files: export.php (line 9) / feed.php (line 7).
 
 == Changelog ==
+
+= 4.3.11 - (01.12.2014) =
+* New: [tpsearch]: New parameter "order" added
 
 = 4.3.10 - (19.11.2014) =
 * Bugfix: Fixed missing ids and classes for show/hide buttons in [tpcloud, tplist] if the list style "images" is used.
