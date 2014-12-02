@@ -21,17 +21,18 @@ $feedtype = isset($_GET['feedtype']) ? htmlspecialchars($_GET['feedtype']) : '';
  */
 if ($feedtype == 'bibtex') {
     header('Content-Type: text/plain; charset=utf-8;');
+    $convert_bibtex = ( get_tp_option('convert_bibtex') == '1' ) ? true : false;
     $row = tp_publications::get_publications(array('user' => $id, 'tag' => $tag, 'output_type' => ARRAY_A));
     foreach ($row as $row) {
         $tags = tp_tags::get_tags(array('pub_id' => $row['pub_id'], 'output_type' => ARRAY_A));
-        echo tp_bibtex::get_single_publication_bibtex($row, $tags);
+        echo tp_bibtex::get_single_publication_bibtex($row, $tags, $convert_bibtex);
     }
 }
 
 /*
  * RSS 2.0
  */ else {
-    $url = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+    $url = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . esc_url($_SERVER['REQUEST_URI']);
     header("Content-Type: application/xml;");
     echo '<?xml version="1.0" encoding="UTF-8"?>'. chr(13) . chr(10);
     echo '<rss version="2.0" 
@@ -79,6 +80,7 @@ if ($feedtype == 'bibtex') {
         $item_link = tp_bibtex::replace_html_chars($item_link);
         $settings['editor_name'] = 'simple';
         $settings['style'] = 'simple';
+        $settings['use_span'] = false; 
         echo '
              <item>
                 <title><![CDATA[' . stripslashes($row['title']) . ']]></title>

@@ -223,7 +223,7 @@ class tp_shortcodes {
                 $text = tp_translate_pub_type($row['type'], 'pl');
             }
             else if ( $mode === 'author' ) {
-                $text = $row['name'];
+                $text = tp_bibtex::parse_author($row['name'], $settings['author_name']);
             }
             else if ( $mode === 'user' ) {
                 $user_info = get_userdata( $row['user'] );
@@ -549,7 +549,7 @@ function tp_courselist_shortcode($atts) {
          $rtn .= '<h2>' . __('Courses for the','teachpress') . ' ' . stripslashes($sem) . '</h2>';
     }
     $rtn .= '' . $text . '
-               <form name="lvs" method="get" action="' . $_SERVER['REQUEST_URI'] . '">
+               <form name="lvs" method="get" action="' . esc_url($_SERVER['REQUEST_URI']) . '">
                ' . $page . '		
                <div class="tp_auswahl"><label for="semester">' . __('Select the term','teachpress') . '</label> <select name="semester" id="semester" title="' . __('Select the term','teachpress') . '">';
     $rowsem = get_tp_options('semester');
@@ -731,7 +731,8 @@ function tp_single_shortcode ($atts) {
        'author_name' => htmlspecialchars($author_name),
        'editor_name' => htmlspecialchars($editor_name),
        'date_format' => htmlspecialchars($date_format),
-       'style' => 'simple', 
+       'style' => 'simple',
+       'use_span' => true
     );
     
     if ( $key != '' ) {
@@ -786,6 +787,8 @@ function tp_bibtex_shortcode ($atts) {
        'id' => 0,
        'key' => '',
     ), $atts));
+    
+    $convert_bibtex = ( get_tp_option('convert_bibtex') == '1' ) ? true : false;
 
     if ( $key != '' ) {
         $publication = tp_publications::get_publication_by_key($key, ARRAY_A);
@@ -797,7 +800,7 @@ function tp_bibtex_shortcode ($atts) {
     
     $tags = tp_tags::get_tags( array('pub_id' => $publication['pub_id'], 'output_type' => ARRAY_A) );
     
-    return '<h2 class="tp_bibtex">BibTeX (<a href="' . plugins_url('export.php', dirname(__FILE__)) . '?key=' . $publication['bibtex'] . '">Download</a>)</h2><pre class="tp_bibtex">' . tp_bibtex::get_single_publication_bibtex($publication, $tags) . '</pre>';
+    return '<h2 class="tp_bibtex">BibTeX (<a href="' . plugins_url('export.php', dirname(__FILE__)) . '?key=' . $publication['bibtex'] . '">Download</a>)</h2><pre class="tp_bibtex">' . tp_bibtex::get_single_publication_bibtex($publication, $tags, $convert_bibtex) . '</pre>';
 }
 
 /** 
@@ -876,7 +879,7 @@ function tp_links_shortcode ($atts) {
  *      user (STRING)          the id of on or more users (separated by comma)
  *      type (STRING)          the publication types you want to show (separated by comma)
  *      exclude (INT)          one or more IDs of publications you don't want to show (separated by comma)
- *      order (STRING)         name, year, bibtex or type, default: date DESC
+ *      order (STRING)         title, year, bibtex or type, default: date DESC
  *      headline (INT)         show headlines with years(1), with publication types(2), with years and types (3), with types and years (4) or not(0), default: 1
  *      maxsize (INT)          maximal font size for the tag cloud, default: 35
  *      minsize (INT)          minimal font size for the tag cloud, default: 11
@@ -946,6 +949,7 @@ function tp_cloud_shortcode($atts) {
         'html_anchor' => $anchor == '1' ? '#tppubs' : '',
         'date_format' => htmlspecialchars($date_format),
         'permalink' => ( get_option('permalink_structure') ) ? get_permalink() . "?" : get_permalink() . "&amp;",
+        'convert_bibtex' => ( get_tp_option('convert_bibtex') == '1' ) ? true : false,
         'pagination' => intval($pagination),
         'entries_per_page' => intval($entries_per_page),
         'sort_list' => htmlspecialchars($sort_list),
@@ -1132,7 +1136,7 @@ function tp_cloud_shortcode($atts) {
  *      exclude (STRING)       a string with one or more IDs of publication you don't want to display
  *      include (STRING)       a string with one or more IDs of publication you want to display
  *      year (STRING)          the publication years (separated by comma)
- *      order (STRING)         name, year, bibtex or type, default: date DESC
+ *      order (STRING)         title, year, bibtex or type, default: date DESC
  *      headline (INT)         show headlines with years(1), with publication types(2), with years and types (3), with types and years (4) or not(0), default: 1
  *      image (STRING)         none, left, right or bottom, default: none 
  *      image_size (INT)       max. Image size, default: 0
@@ -1187,7 +1191,8 @@ function tp_list_shortcode($atts){
         'image' => htmlspecialchars($image),
         'with_tags' => 0,
         'link_style' => htmlspecialchars($link_style),
-        'date_format' => htmlspecialchars($date_format)
+        'date_format' => htmlspecialchars($date_format),
+        'convert_bibtex' => ( get_tp_option('convert_bibtex') == '1' ) ? true : false,
     );
     
     // Handle limits for pagination
@@ -1276,6 +1281,7 @@ function tp_list_shortcode($atts){
  *      link_style (STRING)     inline, images or direct, default: inline
  *      as_filter (STRING)      set it to "true" if you want to display publications by default
  *      date_format (STRING)    the format for date; needed for presentations, default: d.m.Y
+ *      order (STRING)          date, title, year, bibtex or type, default: date DESC
  * 
  * @param array $atts
  * @return string
@@ -1293,7 +1299,8 @@ function tp_search_shortcode ($atts) {
        'style' => 'numbered',
        'link_style' => 'inline',
        'as_filter' => 'false',
-       'date_format' => 'd.m.Y'
+       'date_format' => 'd.m.Y',
+       'order' => 'date DESC'
     ), $atts)); 
     
     $tparray = '';
@@ -1301,6 +1308,7 @@ function tp_search_shortcode ($atts) {
     $colspan = '';
     $image_size = intval($image_size);
     $entries_per_page = intval($entries_per_page);
+    $order = esc_sql($order);
     $settings = array(
         'author_name' => htmlspecialchars($author_name),
         'editor_name' => htmlspecialchars($editor_name),
@@ -1308,7 +1316,8 @@ function tp_search_shortcode ($atts) {
         'image' => htmlspecialchars($image),
         'with_tags' => 0,
         'link_style' => htmlspecialchars($link_style),
-        'date_format' => htmlspecialchars($date_format)
+        'date_format' => htmlspecialchars($date_format),
+        'convert_bibtex' => ( get_tp_option('convert_bibtex') == '1' ) ? true : false,
     );
     if ($settings['image']== 'left' || $settings['image']== 'right') {
        $settings['pad_size'] = $image_size + 5;
@@ -1340,8 +1349,10 @@ function tp_search_shortcode ($atts) {
         $r .= '<input type="hidden" name="p" id="page_id" value="' . get_the_id() . '"/>';
     }
     $r .= '<div class="tp_search_input">';
-    $r .= '<input name="tps" id="tp_search" title="" type="text" value="' . $search . '" tabindex="1" size="40"/>';
-    $r .= '<input name="tps_button" type="submit" value="' . __('Search', 'teachpress') . '"/>';
+    $r .= '<a name="tps_reset" class="tp_search_reset" title="' . __('Reset', 'teachpress') . '" onclick="teachpress_tp_search_clean();">X</a>';
+    $r .= '<input name="tps" id="tp_search_input_field" type="text" value="' . $search . '" tabindex="1" size="40"/>';
+    $r .= '<input name="tps_button" class="tp_search_button" type="submit" value="' . __('Search', 'teachpress') . '"/>';
+    
     $r .= '</div>';
     if ( $search != "" || $as_filter != 'false' ) {
         // get results
@@ -1350,6 +1361,7 @@ function tp_search_shortcode ($atts) {
                        'tag' => $tag,
                        'search' => $search, 
                        'limit' => $entry_limit . ',' .  $entries_per_page,
+                       'order' => $order,
                        'output_type' => ARRAY_A);
         $results = tp_publications::get_publications( $args );
         $number_entries = tp_publications::get_publications($args, true);
@@ -1366,19 +1378,27 @@ function tp_search_shortcode ($atts) {
                                    'before' => '<div class="tablenav">',
                                    'after' => '</div>'));
         if ( $search != "" ) {
-            $r .= '<h3>' . __('Results for','teachpress') . ' "' . $search . '":</h3>';
+            $r .= '<h3 class="tp_search_result">' . __('Results for','teachpress') . ' "' . $search . '":</h3>';
         }
         $r .= $menu;
-        foreach ($results as $row) {
-            $count = ( $entry_limit == 0 ) ? ( $tpz + 1 ) : ( $entry_limit + $tpz + 1 );
-            $tparray[$tpz][0] = $row['year'];
-            $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row,'', $settings, $count);
-            $tpz++;
+        
+        // If there are no results
+        if ( count($results) === 0 ) {
+            $r .= '<div class="teachpress_message_error">' . __('Sorry, no entries matched your criteria.','teachpress') . '</div>';
         }
-        $r .= tp_shortcodes::generate_pub_table($tparray, array('number_publications' => $tpz, 
-                                                                'colspan' => $colspan,
-                                                                'headline' => 0,
-                                                                'user' => ''));
+        // Show results
+        else {
+            foreach ($results as $row) {
+                $count = ( $entry_limit == 0 ) ? ( $tpz + 1 ) : ( $entry_limit + $tpz + 1 );
+                $tparray[$tpz][0] = $row['year'];
+                $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row,'', $settings, $count);
+                $tpz++;
+            }
+            $r .= tp_shortcodes::generate_pub_table($tparray, array('number_publications' => $tpz, 
+                                                                    'colspan' => $colspan,
+                                                                    'headline' => 0,
+                                                                    'user' => ''));
+        }
         $r .= $menu;
     }
     else {
@@ -1402,7 +1422,7 @@ function tp_search_shortcode ($atts) {
 function tp_post_shortcode ($atts, $content) {
     extract(shortcode_atts(array('id' => 0), $atts));
     $id = intval($id);
-    $test = tp_is_student_subscribed($id, true);
+    $test = tp_courses::is_student_subscribed($id, true);
     if ( $test == true ) {
         return $content;
     }

@@ -156,7 +156,7 @@ class tp_settings_page {
         echo '<div id="dialog" title="About">
                 <div style="text-align: center;">
                 <p><img src="' . plugins_url() . '/teachpress/images/full.png" width="400" /></p>
-                <p style="font-size: 16px; font-weight: bold;">' . get_tp_option('db-version') . ' "Cranberry Pie"</p>
+                <p style="font-size: 20px; font-weight: bold; color: #f70e1a;">' . get_tp_option('db-version') . ' "Cranberry Pie"</p>
                 <p><a href="http://mtrv.wordpress.com/teachpress/">Website</a> | <a href="http://mtrv.wordpress.com/teachpress/changelog/">Changelog</a> | <a href="http://mtrv.wordpress.com/teachpress/shortcode-reference/">Shortcode Reference</a> | <a href="http://mtrv.wordpress.com/teachpress/function-reference/">Function Reference</a></p>
                 <p>&copy; 2008-2014 by Michael Winkler | License: GPLv2 or later<br/></p>
                 </div>
@@ -415,6 +415,13 @@ class tp_settings_page {
         echo '<td><select name="semester" id="semester" title="' . __('Current term','teachpress') . '">'; 
         $value = get_tp_option('sem');
         $sem = get_tp_options('semester');
+        
+        // Test if the current semester is in the semester list
+        $sem_test = ( get_tp_option($value, 'semester') === NULL ) ? false : true;
+        if ( $sem_test === false ) {
+            echo '<option selected="selected">- ' . __('Select','teachpress') . ' -</option>';
+        }
+        
         foreach ($sem as $sem) { 
             $current = ($sem->value == $value) ? 'selected="selected"' : '';
             echo '<option value="' . $sem->value . '" ' . $current . '>' . stripslashes($sem->value) . '</option>';
@@ -481,6 +488,12 @@ class tp_settings_page {
         
         echo '<table class="form-table">';
         echo '<thead>';
+        
+        echo '<tr>';
+        echo '<th width="160">' . __('BibTeX special chars','teachpress') . '</th>';
+        echo '<td width="510">' . tp_admin::get_checkbox('convert_bibtex', __('Try to convert utf-8 chars into BibTeX compatible ASCII strings','teachpress'), get_tp_option('convert_bibtex')) . '</td>';
+        echo '<td></td>';
+        echo '</tr>';
         
         echo '<tr>';
         echo '<th width="160">' . __('Overwrite publications','teachpress') . '</th>';
@@ -766,8 +779,10 @@ class tp_settings_page {
      * @since 5.0.0
      */
     private static function change_publication_options () {
+        $checkbox_convert_bibtex = isset( $_POST['convert_bibtex'] ) ? 1 : '';
         $checkbox_import_overwrite = isset( $_POST['import_overwrite'] ) ? 1 : '';
         $checkbox_rel_content_auto = isset( $_POST['rel_content_auto'] ) ? 1 : '';
+        tp_options::change_option('convert_bibtex', $checkbox_convert_bibtex, 'checkbox');
         tp_options::change_option('import_overwrite', $checkbox_import_overwrite, 'checkbox');
         tp_options::change_option('rel_content_auto', $checkbox_rel_content_auto, 'checkbox');
         tp_options::change_option('rel_content_template', $_POST['rel_content_template']);
@@ -793,7 +808,7 @@ class tp_settings_page {
         }
         $sync = ( $check_authors === true ) ? 1 : 2;
         $table = ( $check_authors === true ) ? 'teachpress_authors' : 'teachpress_stud_meta';
-        $message = 'TABLE ' . $table . ': ' .  __('teachPress wants to fill up the new database. This can take some time.','teachpress') . ' <a href="' . $site . '&amp;sync=' . $sync . '">' . __('Continue','teachpress') . '</a>';
+        $message = 'TABLE ' . $table . ': ' .  __('teachPress wants to fill up the new database. This can take some time.','teachpress') . ' <a href="' . $site . '&amp;sync=' . $sync . '" class="button-primary">' . __('Continue','teachpress') . '</a>';
         get_tp_message($message, 'orange');
     }
     
