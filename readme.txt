@@ -5,7 +5,7 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 3.3
 Tested up to: 4.1
-Stable tag: 4.3.11
+Stable tag: 4.3.12
 
 With this plugin you can easy manage courses, enrollments and publications.
 
@@ -90,8 +90,8 @@ I would like to thank the team of [CBIS, Chemnitz University of Technology](http
 
 == Upgrade Notice ==
 
-= 4.3.10 =
-Fixed missing ids and classes for show/hide buttons in [tpcloud, tplist] if the list style "images" is used.
+= 4.3.12 =
+Some small improvements for [tpsearch] shortcode added
 
 == Frequently Asked Questions ==
 
@@ -121,6 +121,11 @@ define ('TP_PUBLICATION_SYSTEM','disable');
 If you save plugins outside the normal path (/wp-content/plugins/), the plugin can't load required WordPress files in some cases. Solution: Change the path in the following plugin files: export.php (line 9) / feed.php (line 7).
 
 == Changelog ==
+
+= 4.3.12 - (02.12.2014) =
+* New: [tpsearch]: Reset button for search input field added
+* New: [tpsearch]: CSS classes for search button and "Results for..." headline added
+* New: [tpsearch]: Returns a message if no publication was found
 
 = 4.3.11 - (01.12.2014) =
 * New: [tpsearch]: New parameter "order" added

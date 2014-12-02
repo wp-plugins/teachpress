@@ -6,6 +6,11 @@ function teachpress_jumpMenu(targ,selObj,restore){
     if (restore) selObj.selectedIndex=0;
 }
 
+// for cleaning input field of tpsearch
+function teachpress_tp_search_clean() {
+    document.getElementById("tp_search_input_field").value = "";
+}
+
 // for show/hide buttons
 function teachpress_showhide(where) {
     var mode = "block";

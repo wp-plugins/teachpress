@@ -1023,8 +1023,9 @@ function tp_search_shortcode ($atts) {
         $r .= '<input type="hidden" name="p" id="page_id" value="' . get_the_ID() . '"/>';
     }
     $r .= '<div class="tp_search_input">';
-    $r .= '<input name="tps" id="tp_search" title="" type="text" value="' . $search . '" tabindex="1" size="40"/>';
-    $r .= '<input name="tps_button" type="submit" value="' . __('Search', 'teachpress') . '"/>';
+	$r .= '<a name="tps_reset" class="tp_search_reset" title="' . __('Reset', 'teachpress') . '" onclick="teachpress_tp_search_clean();">X</a>';
+    $r .= '<input name="tps" id="tp_search_input_field" type="text" value="' . $search . '" tabindex="1" size="40"/>';
+    $r .= '<input name="tps_button" class="tp_search_button" type="submit" value="' . __('Search', 'teachpress') . '"/>';
     $r .= '</div>';
     if ( $search != "" || $as_filter != 'false' ) {
         // get results
@@ -1041,19 +1042,27 @@ function tp_search_shortcode ($atts) {
         // menu
         $menu = tp_admin_page_menu($number_entries, $entries_per_page, $current_page, $entry_limit, $page_link, $link_attributes, 'bottom');
         if ( $search != "" ) {
-            $r .= '<h3>' . __('Results for','teachpress') . ' "' . $search . '":</h3>';
+            $r .= '<h3 class="tp_search_result">' . __('Results for','teachpress') . ' "' . $search . '":</h3>';
         }
         $r .= $menu;
-        foreach ($results as $row) {
-            $count = ( $entry_limit == 0 ) ? ( $tpz + 1 ) : ( $entry_limit + $tpz + 1 );
-            $tparray[$tpz][0] = $row['year'];
-            $tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row,'', '', $settings, $count);
-            $tpz++;
+		
+		// If there are no results
+        if ( count($results) === 0 ) {
+            $r .= '<div class="teachpress_message_error">' . __('Sorry, no entries matched your criteria.','teachpress') . '</div>';
         }
-        $r .= tp_generate_pub_table($tparray, array('number_publications' => $tpz, 
-                                                    'colspan' => $colspan,
-                                                    'headline' => 0,
-                                                    'user' => ''));
+		// Show results
+        else {
+			foreach ($results as $row) {
+				$count = ( $entry_limit == 0 ) ? ( $tpz + 1 ) : ( $entry_limit + $tpz + 1 );
+				$tparray[$tpz][0] = $row['year'];
+				$tparray[$tpz][1] = tp_bibtex::get_single_publication_html($row,'', '', $settings, $count);
+				$tpz++;
+			}
+			$r .= tp_generate_pub_table($tparray, array('number_publications' => $tpz, 
+														'colspan' => $colspan,
+														'headline' => 0,
+														'user' => ''));
+		}
         $r .= $menu;
     }
     else {
