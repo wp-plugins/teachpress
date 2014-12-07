@@ -422,6 +422,7 @@ class tp_bibtex {
             $entries[$i]['isbn'] = array_key_exists('isbn', $entries[$i]) === true ? $entries[$i]['isbn'] : '';
             $entries[$i]['issn'] = array_key_exists('issn', $entries[$i]) === true ? $entries[$i]['issn'] : '';
             $entries[$i]['tppubtype'] = array_key_exists('tppubtype', $entries[$i]) === true ? $entries[$i]['tppubtype'] : '';
+            $entries[$i]['tpstatus'] = array_key_exists('tpstatus', $entries[$i]) === true ? $entries[$i]['tpstatus'] : '';
             
             // for the date of publishing
             $entries[$i]['date'] = self::set_date_of_publishing($entries[$i]);
