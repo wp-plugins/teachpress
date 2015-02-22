@@ -150,14 +150,18 @@ class tp_document_manager {
                     // file size error?
                 } 
                 else {
-                    <?php if ( $mode === 'tinyMCE' ) { ?>
-                    $('.tp_filelist').append('<li class="tp_file" id="' + file.id + '" style="background-image: url(<?php echo get_tp_mimetype_images( '.html' ) ?>);"><input type="checkbox" name="tp_file_checkbox[]" id="tp_file_checkbox_' + file.id + '" disabled="disabled" class="tp_file_checkbox" data_1="' + file.name + '" data_2="" value=""/><label class="tp_file_label" for="tp_file_checkbox_' + file.id + '"><span class="tp_file_name">' +
-                    file.name + '</span></label> (<span class="tp_file_size">' + plupload.formatSize(0) + '</span>/' + plupload.formatSize(file.size) + ') ' + '<div class="tp_fileprogress"></div></li>');
-                    <?php } else { ?>
-                    $('.tp_filelist').append('<li class="tp_file" id="' + file.id + '" style="background-image: url(<?php echo get_tp_mimetype_images( '.html' ) ?>);"><span class="tp_file_name">' +
-                    file.name + '</span> (<span class="tp_file_size">' + plupload.formatSize(0) + '</span>/' + plupload.formatSize(file.size) + ') ' + '<div class="tp_fileprogress"></div></li>');
-                    <?php } ?>
-                    console.log(file);
+                    $.get("<?php echo WP_PLUGIN_URL . '/teachpress/ajax.php' ;?>?mimetype_input=" + file.name, 
+                    function(text){
+                        <?php if ( $mode === 'tinyMCE' ) { ?>
+                        $('.tp_filelist').append('<li class="tp_file" id="' + file.id + '" style="background-image: url(' + text + ');"><input type="checkbox" name="tp_file_checkbox[]" id="tp_file_checkbox_' + file.id + '" disabled="disabled" class="tp_file_checkbox" data_1="' + file.name + '" data_2="" value=""/><label class="tp_file_label" for="tp_file_checkbox_' + file.id + '"><span class="tp_file_name">' +
+                        file.name + '</span></label> (<span class="tp_file_size">' + plupload.formatSize(0) + '/</span>' + plupload.formatSize(file.size) + ') ' + '<div class="tp_fileprogress"></div></li>');
+                        <?php } else { ?>
+                        $('.tp_filelist').append('<li class="tp_file" id="' + file.id + '" style="background-image: url(' + text + ');"><span class="tp_file_name">' +
+                        file.name + '</span> (<span class="tp_file_size">' + plupload.formatSize(0) + '/</span>' + plupload.formatSize(file.size) + ') ' + '<div class="tp_fileprogress"></div></li>');
+                        <?php } ?>
+                        console.log(file);
+                    });
+                    
                 }
               });
 
@@ -186,7 +190,7 @@ class tp_document_manager {
                 
                 // Change DOM and update values
                 $('#' + file.id + " .tp_fileprogress").width("0%");
-                $('<span class="tp_file_actions"><a class="tp_file_view" href="' + response_splitted[2] + '" target="_blank"><?php _e('View'); ?></a> | <a class="tp_file_edit" style="cursor:pointer;" document_id="' + response_splitted[0] + '" ><?php _e('Edit','teachpress'); ?></a> | <a class="tp_file_delete" style="cursor:pointer;" document_id="' + response_splitted[0] + '" ><?php _e('Delete','teachpress'); ?></a></span>').appendTo('#' + file.id);
+                $('<span class="tp_file_actions"><a class="tp_file_view" href="' + response_splitted[2] + '" target="_blank"><?php _e('Show','teachpress'); ?></a> | <a class="tp_file_edit" style="cursor:pointer;" document_id="' + response_splitted[0] + '" ><?php _e('Edit','teachpress'); ?></a> | <a class="tp_file_delete" style="cursor:pointer;" document_id="' + response_splitted[0] + '" ><?php _e('Delete','teachpress'); ?></a></span>').appendTo('#' + file.id);
                 $('#' + file.id).attr("id","tp_file_" + response_splitted[0]);
                 $('#tp_file_checkbox_' + file.id).attr("value",response_splitted[0]);
                 $('#tp_file_checkbox_' + file.id).attr("data_2",response_splitted[2]);

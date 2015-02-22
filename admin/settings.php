@@ -158,7 +158,7 @@ class tp_settings_page {
                 <p><img src="' . plugins_url() . '/teachpress/images/full.png" width="400" /></p>
                 <p style="font-size: 20px; font-weight: bold; color: #f70e1a;">' . get_tp_option('db-version') . ' "Cranberry Pie"</p>
                 <p><a href="http://mtrv.wordpress.com/teachpress/">Website</a> | <a href="http://mtrv.wordpress.com/teachpress/changelog/">Changelog</a> | <a href="http://mtrv.wordpress.com/teachpress/shortcode-reference/">Shortcode Reference</a> | <a href="http://mtrv.wordpress.com/teachpress/function-reference/">Function Reference</a></p>
-                <p>&copy; 2008-2014 by Michael Winkler | License: GPLv2 or later<br/></p>
+                <p>&copy; 2008-2015 by Michael Winkler | License: GPLv2 or later<br/></p>
                 </div>
               </div>';
     }
@@ -516,7 +516,7 @@ class tp_settings_page {
         echo '<tr>';
         echo '<th>' . __('Default category for related content','teachpress') . '</th>';
         echo '<td>';
-        wp_dropdown_categories(array('hide_empty' => 0, 'name' => 'rel_content_category', 'orderby' => 'name', 'selected' => get_tp_option('rel_content_category'), 'hierarchical' => true, 'show_option_none' => __('None'))); 
+        wp_dropdown_categories(array('hide_empty' => 0, 'name' => 'rel_content_category', 'orderby' => 'name', 'selected' => get_tp_option('rel_content_category'), 'hierarchical' => true, 'show_option_none' => __('none','teachpress'))); 
         echo '<em>' . __('Used if the related content type for publicaitons is set on "Posts"','teachpress') . '</em>
              </td>';
 		echo '<td></td>';
@@ -635,7 +635,7 @@ class tp_settings_page {
                  'count_title' => __('Number of students','teachpress'),
                  'delete_title' => __('Delete elemtent','teachpress'),
                  'add_title' => __('Add element','teachpress'),
-                 'tab' => 'student_data'
+                 'tab' => $tab
                  );
              tp_admin::get_course_option_box($elem, $elem, $args1);
         }
@@ -690,7 +690,7 @@ class tp_settings_page {
         $data['max'] = isset( $_POST['number_max'] ) ? intval($_POST['number_max']) : 'false';
         $data['step'] = isset( $_POST['number_step'] ) ? intval($_POST['number_step']) : 'false';
         $data['required'] = isset( $_POST['is_required'] ) ? 'true' : 'false';
-        if ( !in_array($field_name, $forbidden_names) && $data['title'] != __('Label') && preg_match("#^[_A-Za-z0-9]+$#", $field_name) ) {
+        if ( !in_array($field_name, $forbidden_names) && $data['title'] != __('Label', 'teachpress') && preg_match("#^[_A-Za-z0-9]+$#", $field_name) ) {
             tp_db_helpers::register_column($table, $field_name, $data);
             get_tp_message(  __('Field added','teachpress') );
         }

@@ -185,7 +185,7 @@ class tp_bibtex {
             $abstract = '<span class="tp_abstract_link"><a id="tp_abstract_sh_' . $row['pub_id'] . '" class="tp_show" onclick="teachpress_pub_showhide(' . "'" . $row['pub_id'] . "'" . ',' . "'" . 'tp_abstract' . "'" . ')" title="' . __('Show abstract','teachpress') . '" style="cursor:pointer;">' . __('Abstract','teachpress') . '</a> | </span>';
         }
         // if are links
-        if ( $row['url'] != '' ) {
+        if ( $row['url'] != '' || $row['doi'] != '' ) {
             if ( $settings['link_style'] === 'inline' || $settings['link_style'] === 'direct' ) {
                 $url = '<span class="tp_resource_link"><a id="tp_links_sh_' . $row['pub_id'] . '" class="tp_show" onclick="teachpress_pub_showhide(' . "'" . $row['pub_id'] . "'" . ',' . "'" . 'tp_links' . "'" . ')" title="' . __('Show links and resources','teachpress') . '" style="cursor:pointer;">' . __('Links','teachpress') . '</a> | </span>';
             }
@@ -248,7 +248,7 @@ class tp_bibtex {
             $a3 .= '</div>';
         }
         // div links
-        if ( $row['url'] != '' && ( $settings['link_style'] === 'inline' || $settings['link_style'] === 'direct' ) ) {
+        if ( ($row['url'] != '' || $row['doi'] != '') && ( $settings['link_style'] === 'inline' || $settings['link_style'] === 'direct' ) ) {
             $a3 .= '<div class="tp_links" id="tp_links_' . $row['pub_id'] . '" style="display:none;">';
             $a3 .= '<div class="tp_links_entry">' . tp_bibtex::prepare_url($row['url'], $row['doi'], 'list') . '</div>';
             $a3 .= '<p class="tp_close_menu"><a class="tp_close" onclick="teachpress_pub_showhide(' . "'" . $row['pub_id'] . "'" . ',' . "'" . 'tp_links' . "'" . ')">' . __('Close','teachpress') . '</a></p>';
@@ -704,12 +704,21 @@ class tp_bibtex {
      * @acces private
      */
     private static function set_date_of_publishing ($entry) {
+        $entry['month'] = array_key_exists('month', $entry) === true ? self::parse_month($entry['month']) : '';
+        $entry['day'] = array_key_exists('day', $entry) === true ? $entry['day'] : '';
+        // if complete date is given
         if ( $entry['date'] != '' ) {
             $entry['date'] = $entry['date'];
         }
+        // if month + year is given
+        elseif ( $entry['month'] != '' && $entry['day'] === '' && $entry['year'] != '' ) {
+            $entry['date'] = $entry['year'] . '-' . $entry['month'] . '-01';
+        }
+        // if day + month + year is given
         elseif ($entry['month'] != '' && $entry['day'] != '' && $entry['year'] != '') {
             $entry['date'] = $entry['year'] . '-' . $entry['month'] . '-' . $entry['day'];
         }
+        // if year is given
         else {
             $entry['date'] = $entry['year'] . '-01-01';
         }
@@ -868,6 +877,9 @@ class tp_bibtex {
         $end = '';
         $url = explode(chr(13) . chr(10), $url);
         foreach ($url as $url) {
+            if ( $url == '' ) {
+                continue;
+            }
             $parts = explode(', ',$url);
             $parts[0] = trim( $parts[0] );
             $parts[1] = isset( $parts[1] ) ? $parts[1] : $parts[0];
@@ -890,7 +902,7 @@ class tp_bibtex {
          * Add DOI-URL
          * @since 5.0.0
          */
-        if ( $doi !== '' ) {
+        if ( $doi != '' ) {
             $doi_url = 'http://dx.doi.org/' . $doi;
             if ( $mode === 'list' ) {
                 $end .= '<li><a class="tp_pub_list" style="background-image: url(' . get_tp_mimetype_images( 'html' ) . ')" href="' . $doi_url . '" title="' . __('Follow DOI:','teachpress') . $doi . '" target="_blank">doi:' . $doi . '</a></li>';
@@ -1046,6 +1058,21 @@ class tp_bibtex {
     public static function parse_author_simple ($input) {
         $all_authors = str_replace( array(' and ', '{', '}'), array(', ', '', ''), $input );
         return stripslashes($all_authors);
+    }
+    
+    /**
+     * This function parses a month name into his numeric expression
+     * @param string $input
+     * @return string
+     * @since 5.0.0
+     * @access public
+     */
+    public static function parse_month ($input) {
+        if ( strlen($input) > 2 ) {
+            $date = date_parse($input);
+            $output = ( $date['month'] < 10 ) ? '0' . $date['month'] : $date['month'];
+        }
+        return $output;
     }
 
     /**

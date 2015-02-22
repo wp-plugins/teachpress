@@ -984,6 +984,7 @@ class tp_courses {
      *      waitinglist (STRING)        The waitinglist flag (0 or 1 or '')
      *      order (STRING)              The SQL order by statement
      *      limit (STRING)              The SQL limit statement
+     *      search (STRING)             A search string for a name search (firstname, lastname of students)
      *      count (BOOLEAN)             If this flag is true, only the number of rows will be returned, default is false
      *      meta_visibility (STRING)    The visibility level of considered meta data fields (normal, admin, hidden, all), default is admin
      *      output_type (STRING)        OBJECT, ARRAY_N or ARRAY_A, default is OBJECT
@@ -998,6 +999,7 @@ class tp_courses {
             'waitinglist' => '',
             'order' => '',
             'limit' => '',
+            'search' => '',
             'count' => false,
             'meta_visibility' => 'admin',
             'output_type' => OBJECT
@@ -1009,6 +1011,7 @@ class tp_courses {
 
         $course_id = intval($course_id);
         $order = esc_sql($order);
+        $search = esc_sql($search);
         $output_type = esc_sql($output_type);
         $waitinglist = esc_sql($waitinglist);
         $limit = esc_sql($limit);
@@ -1047,9 +1050,13 @@ class tp_courses {
                 . "FROM " . TEACHPRESS_SIGNUP . " s "
                 . "INNER JOIN " . TEACHPRESS_STUD . " st ON st.wp_id = s.wp_id $joins"
                 . "WHERE s.course_id = '$course_id' ";
+        
+        if ( $search !== '' ) {
+            $where .= " AND ( st.firstname LIKE '%$search%' OR st.lastname LIKE '%$search%' )";
+        }
 
         if ( $waitinglist !== '' ) {
-            $where = " AND s.waitinglist = '$waitinglist'";
+            $where .= " AND s.waitinglist = '$waitinglist'";
         }
         
         // get_tp_message($sql . $where . $order . $limit, 'orange');
@@ -1128,20 +1135,49 @@ class tp_courses {
         for( $i = 0; $i < $max; $i++ ) {
             $checkbox[$i] = intval($checkbox[$i]);
             if ( $move_up !== true ) {
-                continue;
-            }
-            $row1 = $wpdb->get_results("SELECT `course_id` FROM " . TEACHPRESS_SIGNUP . " WHERE `con_id` = '$checkbox[$i]'");
-            foreach ($row1 as $row1) {
-                // check if there are users in the waiting list
-                $sql = "SELECT `con_id` FROM " . TEACHPRESS_SIGNUP . " WHERE `course_id` = '" . $row1->course_id . "' AND `waitinglist` = '1' ORDER BY `con_id` ASC LIMIT 0, 1";
-                $con_id = $wpdb->get_var($sql);
-                // if is true subscribe the first one in the waiting list for the course
-                if ($con_id != 0 && $con_id != '') {
-                    $wpdb->query( "UPDATE " . TEACHPRESS_SIGNUP . " SET `waitinglist` = '0' WHERE `con_id` = '$con_id'" );
-                }	
+                self::move_up_signup($checkbox[$i]);
             }
             $wpdb->query( "DELETE FROM " . TEACHPRESS_SIGNUP . " WHERE `con_id` = '$checkbox[$i]'" );
         }
+    }
+    
+    /**
+     * This function is used to move a signup entry from waitinglist into the course if a signup is deleted.
+     * @param int $connect_id   The ID of the signup which will be deleted
+     * @since 5.0.0
+     * @access public
+     */
+    public static function move_up_signup($connect_id) {
+        global $wpdb;
+        
+        // Get course ID
+        $course_id = $wpdb->get_var("SELECT `course_id` FROM " . TEACHPRESS_SIGNUP . " WHERE `con_id` = '$connect_id'");
+        if ( $course_id === NULL ) {
+            return;
+        }
+
+        // check if there are users in the waiting list
+        $sql = "SELECT `con_id`, `course_id`, `wp_id` FROM " . TEACHPRESS_SIGNUP . " WHERE `course_id` = '" . $course_id . "' AND `waitinglist` = '1' ORDER BY `con_id` ASC LIMIT 0, 1";
+        $signup = $wpdb->get_row($sql);
+        if ( $signup === NULL ) {
+            return;
+        }
+        
+        // if is true subscribe the first one in the waiting list for the course
+        if ($signup->con_id != 0 && $signup->con_id != '') {
+            $wpdb->query( "UPDATE " . TEACHPRESS_SIGNUP . " SET `waitinglist` = '0' WHERE `con_id` = '" . $signup->con_id . "'" );
+            
+            // Find course name
+            $row = $wpdb->get_row("SELECT `name`, `parent` FROM " . TEACHPRESS_COURSES . " WHERE `course_id` = '" . $signup->course_id . "'");
+            if ($row->parent != '0') {
+                $parent = tp_courses::get_course_data($row->parent, 'name');
+                $row->name = ( $row->name != $parent ) ? $parent . ' ' . $row->name : $row->name;
+            }
+            
+            // Send notification
+            tp_enrollments::send_notification(201, $signup->wp_id, $row->name);
+        }	
+        
     }
     
     /**
@@ -1785,6 +1821,10 @@ class tp_publications {
         if ( substr($editor, -5) === ' and ' ) {
             $editor = substr($editor ,0 , strlen($editor) - 5);
         }
+        
+        // replace double spaces from author/editor fields
+        $author = str_replace('  ', ' ', $author);
+        $editor = str_replace('  ', ' ', $editor);
 
         $wpdb->insert( TEACHPRESS_PUB, array( 'title' => $title, 'type' => $type, 'bibtex' => $bibtex, 'author' => $author, 'editor' => $editor, 'isbn' => $isbn, 'url' => $url, 'date' => $date, 'urldate' => $urldate, 'booktitle' => $booktitle, 'issuetitle' => $issuetitle, 'journal' => $journal, 'volume' => $volume, 'number' => $number, 'pages' => $pages , 'publisher' => $publisher, 'address' => $address, 'edition' => $edition, 'chapter' => $chapter, 'institution' => $institution, 'organization' => $organization, 'school' => $school, 'series' => $series, 'crossref' => $crossref, 'abstract' => $abstract, 'howpublished' => $howpublished, 'key' => $key, 'techtype' => $techtype, 'comment' => $comment, 'note' => $note, 'image_url' => $image_url, 'doi' => $doi, 'is_isbn' => $is_isbn, 'rel_page' => $rel_page, 'status' => 'published', 'added' => $post_time, 'modified' => $post_time ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%s' ) );
          $pub_id = $wpdb->insert_id;
@@ -1836,10 +1876,12 @@ class tp_publications {
         global $wpdb;
         $post_time = current_time('mysql',0);
         $pub_id = intval($pub_id);
+        
         // check if bibtex key has no spaces
         if ( strpos($data['bibtex'], ' ') !== false ) {
             $data['bibtex'] = str_replace(' ', '', $data['bibtex']);
         }
+        
         // check last chars of author/editor fields
         if ( substr($data['author'], -5) === ' and ' ) {
             $data['author'] = substr($data['author'] ,0 , strlen($data['author']) - 5);
@@ -1847,6 +1889,11 @@ class tp_publications {
         if ( substr($data['editor'], -5) === ' and ' ) {
             $data['editor'] = substr($data['editor'] ,0 , strlen($data['editor']) - 5);
         }
+        
+        // replace double spaces from author/editor fields
+        $data['author'] = str_replace('  ', ' ', $data['author']);
+        $data['editor'] = str_replace('  ', ' ', $data['editor']);
+        
         // update row
         $wpdb->update( TEACHPRESS_PUB, array( 'title' => $data['title'], 'type' => $data['type'], 'bibtex' => $data['bibtex'], 'author' => $data['author'], 'editor' => $data['editor'], 'isbn' => $data['isbn'], 'url' => $data['url'], 'date' => $data['date'], 'urldate' => $data['urldate'], 'booktitle' => $data['booktitle'], 'issuetitle' => $data['issuetitle'], 'journal' => $data['journal'], 'volume' => $data['volume'], 'number' => $data['number'], 'pages' => $data['pages'] , 'publisher' => $data['publisher'], 'address' => $data['address'], 'edition' => $data['edition'], 'chapter' => $data['chapter'], 'institution' => $data['institution'], 'organization' => $data['organization'], 'school' => $data['school'], 'series' => $data['series'], 'crossref' => $data['crossref'], 'abstract' => $data['abstract'], 'howpublished' => $data['howpublished'], 'key' => $data['key'], 'techtype' => $data['techtype'], 'comment' => $data['comment'], 'note' => $data['note'], 'image_url' => $data['image_url'], 'doi' => $data['doi'], 'is_isbn' => $data['is_isbn'], 'rel_page' => $data['rel_page'], 'status' => 'published', 'modified' => $post_time ), array( 'pub_id' => $pub_id ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' ,'%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s' ), array( '%d' ) );
         // Bookmarks
@@ -2312,24 +2359,26 @@ class tp_students {
     * @return boolean
     * @since 5.0.0
     */
-   public static function has_assessment ($wp_id, $course_id) {
-       global $wpdb;
-       $wp_id = intval($wp_id);
-       $course_id = intval($course_id);
-       $artefacts = tp_artefacts::get_artefact_ids($course_id, 0);
-       
-       // Define where clause
-       $where = '';
-       foreach ( $artefacts as $row ) {
-           $where .= " OR `artefact_id` = '" . $row['artefact_id'] . "'";
-       }
-       
-       $test = $wpdb->query("SELECT assessment_id FROM " . TEACHPRESS_ASSESSMENTS . " WHERE `wp_id` = '$wp_id' AND ( `course_id` = '$course_id' $where)");
-       if ( $test === 0 ) {
-           return false;
-       }
-       return true;
-   }
+    public static function has_assessment ($wp_id, $course_id) {
+        global $wpdb;
+        $wp_id = intval($wp_id);
+        $course_id = intval($course_id);
+        $artefacts = tp_artefacts::get_artefact_ids($course_id, 0);
+
+        // Define where clause
+        $where = '';
+        if ( count($artefacts) !== 0 ) {
+            foreach ( $artefacts as $row ) {
+                $where .= " OR `artefact_id` = '" . $row['artefact_id'] . "'";
+            }
+        }
+
+        $test = $wpdb->query("SELECT assessment_id FROM " . TEACHPRESS_ASSESSMENTS . " WHERE `wp_id` = '$wp_id' AND ( `course_id` = '$course_id' $where)");
+        if ( $test === 0 ) {
+            return false;
+        }
+        return true;
+    }
     
 }
 
