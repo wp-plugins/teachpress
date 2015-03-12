@@ -1,16 +1,20 @@
 <?php
 /**
  * This file contains all functions of teachpress mail system
- * @package teachpress/core
+ * 
+ * @package teachpress\core\mail
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  */
 
 /**
  * teachPress E-Mail class
+ * @package teachpress\core\mail
+ * @since 3.0.0
  */
 class tp_mail {
      
     /**
-     * Send E-Mail
+     * Send an e-mail
      * @global string $current_user
      * @param string $from
      * @param string $to
@@ -19,8 +23,9 @@ class tp_mail {
      * @param string $options
      * @param string $attachments
      * @return boolean
+     * @since 3.0.0
      */
-    static function sendMail($from, $to, $subject, $message, $options, $attachments = '') {
+    public static function sendMail($from, $to, $subject, $message, $options, $attachments = '') {
         global $current_user;
         get_currentuserinfo();
         $message = htmlspecialchars($message);
@@ -45,7 +50,7 @@ class tp_mail {
             
             // Preprare header attribute: Bcc
             if ( $options['recipients'] === 'Bcc' ) {
-                $headers[] = tp_mail::prepareBCC($to);
+                $headers[] = self::prepareBCC($to);
                 $to = $current_user->user_email;
             }
             
@@ -87,26 +92,34 @@ class tp_mail {
     }
 
     /**
-    * Prepare BCC field for E-Mail header
-    * @param STRING $recipients
-    * @return STRING
+     * Prepare BCC field for E-Mail header
+     * @param string $recipients
+     * @return string
+     * @since 3.0.0
+     * @access private
     */
-    function prepareBCC($recipients) {
+    private static function prepareBCC($recipients) {
         $array = explode(",",$recipients);
         $bcc = '';
         foreach ($array as $recipient) {
             $recipient = trim($recipient);
-            if ( !is_email($recipient) ) { continue; }
-            if ( !empty($recipient) ) {
-                if ($bcc == '') {
-                    $bcc = 'Bcc: ' . $recipient;
-                }
-                else {
-                    $bcc = $bcc . ', ' . $recipient;
-                }
+            
+            if ( !is_email($recipient) ) { 
+                continue; 
             }
+            
+            if ( empty($recipient) ) {
+                continue;
+            }
+
+            if ($bcc == '') {
+                $bcc = 'Bcc: ' . $recipient;
+            }
+            else {
+                $bcc = $bcc . ', ' . $recipient;
+            }
+            
         }
         return $bcc . "\r\n";
     }
 }
-?>

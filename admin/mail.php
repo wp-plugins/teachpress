@@ -1,55 +1,62 @@
 <?php
 /**
- * Mail form
+ * This file contains all functions for displaying the mail page in admin menu
  * 
- * @global class $wpdb
- * @global var $teachpress_stud
- * @global var $teachpress_signup
- * @global $current_user;
+ * @package teachpress\admin\courses
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
+ */
+
+/**
+ * Mail form
  * 
  * @since 3.0.0
  */
 function tp_show_mail_page() {
-    global $wpdb;
-    global $teachpress_stud; 
-    global $teachpress_signup;
+
     global $current_user;
     get_currentuserinfo();
 
-    $course_ID = isset( $_GET['course_ID'] ) ? intval($_GET['course_ID']) : 0;
+    $course_id = isset( $_GET['course_id'] ) ? intval($_GET['course_id']) : 0;
     $redirect = isset( $_GET['redirect'] ) ?  intval($_GET['redirect']) : 0;
-    $student_ID = isset( $_GET['student_ID'] ) ? intval($_GET['student_ID']) : 0;
+    $student_id = isset( $_GET['student_id'] ) ? intval($_GET['student_id']) : 0;
     $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
     $sem = isset( $_GET['sem'] ) ? htmlspecialchars($_GET['sem']) : '';
     $single = isset( $_GET['single'] ) ? htmlspecialchars($_GET['single']) : '';
     $students_group = isset( $_GET['students_group'] ) ? htmlspecialchars($_GET['students_group']) : '';
     $limit = isset( $_GET['limit'] ) ? intval($_GET['limit']) : 0;
     $group = isset( $_GET['group'] ) ? htmlspecialchars($_GET['group']) : '';
+    $waitinglist = '';
+    
+    // check capabilities
+    if ( $course_id !== 0 ) {
+        $capability = tp_courses::get_capability($course_id, $current_user->ID);
+        if ( $capability !== 'owner' && $capability !== 'approved' ) {
+            echo __('Access denied','teachpress');
+            return;
+        }
+    }
 
-    if( !isset( $_GET['single'] ) ) {
-        $sql = "SELECT DISTINCT st.email 
-                FROM $teachpress_signup s 
-                INNER JOIN $teachpress_stud st ON st.wp_id=s.wp_id
-                WHERE s.course_id = '$course_ID'";	
+    if( !isset( $_GET['single'] ) ) {	
         // E-Mails of registered participants
-        if ( $group == 'reg' ) {
-            $sql = $sql . " AND s.waitinglist = '0'";	
+        if ( $group === 'reg' ) {
+            $waitinglist = 0;	
         }
         // E-Mails of participants in waitinglist
-        if ( $group == 'wtl' ) {
-            $sql = $sql . " AND s.waitinglist = '1'";		
+        if ( $group === 'wtl' ) {
+            $waitinglist = 1;		
         }
-        $sql = $sql . " ORDER BY st.lastname ASC";	
-        $mails = $wpdb->get_results($sql, ARRAY_A);
+        $mails = tp_courses::get_signups(array('output_type' => ARRAY_A, 
+                                                'course_id' => $course_id, 
+                                                'waitinglist' => $waitinglist ) );
     }
     ?>
     <div class="wrap">
         <?php
-        if ( isset( $_GET['course_ID'] ) ) {
-            $return_url = "admin.php?page=teachpress/teachpress.php&amp;course_ID=$course_ID&amp;sem=$sem&amp;search=$search&amp;redirect=$redirect&amp;action=show";
+        if ( isset( $_GET['course_id'] ) ) {
+            $return_url = "admin.php?page=teachpress/teachpress.php&amp;course_id=$course_id&amp;sem=$sem&amp;search=$search&amp;redirect=$redirect&amp;action=enrollments";
         }
-        if ( isset( $_GET['student_ID'] ) ) {
-            $return_url = "admin.php?page=teachpress/students.php&amp;student_ID=$student_ID&amp;search=$search&amp;students_group=$students_group&amp;limit=$limit";
+        if ( isset( $_GET['student_id'] ) ) {
+            $return_url = "admin.php?page=teachpress/students.php&amp;student_id=$student_id&amp;search=$search&amp;students_group=$students_group&amp;limit=$limit";
         }
         ?>
         <p><a href="<?php echo $return_url; ?>" class="button-secondary">&larr; <?php _e('Back','teachpress'); ?></a></p>
@@ -75,7 +82,7 @@ function tp_show_mail_page() {
                 <td>
                     <?php
                     if( !isset( $_GET['single'] ) ) {
-                        $link = "admin.php?page=teachpress/teachpress.php&amp;course_ID=$course_ID&amp;sem=$sem&amp;search=$search&amp;action=mail&amp;type=course";
+                        $link = "admin.php?page=teachpress/teachpress.php&amp;course_id=$course_id&amp;sem=$sem&amp;search=$search&amp;action=mail&amp;type=course";
                         if ($group == "wtl") {
                             echo '<p><strong><a href="' . $link . '">' . __('All', 'teachpress') . '</a> | <a href="' . $link . '&amp;group=reg">' . __('Only participants', 'teachpress') . '</a> | ' . __('Only waitinglist','teachpress') . '</strong><p>';
                         }
@@ -90,9 +97,8 @@ function tp_show_mail_page() {
                     if( !isset( $_GET['single'] ) ) {
                         $to = '';
                         foreach($mails as $mail) { 
-                            $to = $to . $mail["email"] . ', '; 
-                        } 
-                        $to = substr($to, 0, -2);
+                            $to = ( $to === '' ) ? $mail["email"] : $to . ', ' . $mail["email"]; 
+                        }
                     }
                     else {
                         $to = $single;
@@ -116,16 +122,8 @@ function tp_show_mail_page() {
         </table>
         <br />
         <input type="submit" class="button-primary" name="send_mail" value="<?php _e('Send','teachpress'); ?>"/>
-        <script type="text/javascript" charset="utf-8">
-        jQuery(document).ready(function($) {
-            $('#mail_text').resizable({handles: "se", minHeight: 55, minWidth: 400});
-	});
-        jQuery(document).ready(function($) {
-            $('#mail_recipients').resizable({handles: "se", minHeight: 55, minWidth: 400});
-	});
-        </script>
+        <script type="text/javascript" charset="utf-8" src="<?php echo plugins_url(); ?>/teachpress/js/admin_mail.js"></script>
         </form>
     </div>
     <?php
 }
-?>

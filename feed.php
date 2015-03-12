@@ -1,4 +1,9 @@
 ﻿<?php
+/**
+ * This file contains the RSS feed constructor
+ * @package teachpress
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
+ */
 
 /********************************/
 /* Build feeds for publications */
@@ -16,17 +21,18 @@ $feedtype = isset($_GET['feedtype']) ? htmlspecialchars($_GET['feedtype']) : '';
  */
 if ($feedtype == 'bibtex') {
     header('Content-Type: text/plain; charset=utf-8;');
-    $row = get_tp_publications(array('user' => $id, 'tag' => $tag, 'output_type' => ARRAY_A));
+    $convert_bibtex = ( get_tp_option('convert_bibtex') == '1' ) ? true : false;
+    $row = tp_publications::get_publications(array('user' => $id, 'tag' => $tag, 'output_type' => ARRAY_A));
     foreach ($row as $row) {
-        $tags = get_tp_tags(array('pub_id' => $row['pub_id'], 'output_type' => ARRAY_A));
-        echo tp_bibtex::get_single_publication_bibtex($row, $tags);
+        $tags = tp_tags::get_tags(array('pub_id' => $row['pub_id'], 'output_type' => ARRAY_A));
+        echo tp_bibtex::get_single_publication_bibtex($row, $tags, $convert_bibtex);
     }
 }
 
 /*
  * RSS 2.0
  */ else {
-    $url = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+    $url = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . esc_url($_SERVER['REQUEST_URI']);
     header("Content-Type: application/xml;");
     echo '<?xml version="1.0" encoding="UTF-8"?>'. chr(13) . chr(10);
     echo '<rss version="2.0" 
@@ -49,10 +55,10 @@ if ($feedtype == 'bibtex') {
             <pubDate>' . date('r') . '</pubDate>
             <dc:creator>' . get_bloginfo('name') . '</dc:creator>' . chr(13) . chr(10);
 
-    $row = get_tp_publications(array('user' => $id, 'tag' => $tag, 'output_type' => ARRAY_A));
+    $row = tp_publications::get_publications(array('user' => $id, 'tag' => $tag, 'output_type' => ARRAY_A));
     foreach ($row as $row) {
-		
-		// prepare url
+        
+        // prepare url
         if ($row['url'] != '') {
             $new = explode(', ', $row['url']);
             $item_link = $new[0];
@@ -61,20 +67,20 @@ if ($feedtype == 'bibtex') {
         } else {
             $item_link = get_bloginfo('url');
         }
-		
-		// prepare author name
-		if ( $row['type'] === 'collection' || ( $row['author'] === '' && $row['editor'] !== '' ) ) {
-			$all_authors = str_replace(' and ', ', ', tp_bibtex::replace_html_chars( $row['editor'] ) ) . ' (' . __('Ed.','teachpress') . ')';
+        
+        // prepare author name
+        if ( $row['type'] === 'collection' || ( $row['author'] === '' && $row['editor'] !== '' ) ) {
+            $all_authors = str_replace(' and ', ', ', tp_bibtex::replace_html_chars( $row['editor'] ) ) . ' (' . __('Ed.','teachpress') . ')';
         }
         else {
-			$all_authors = str_replace(' and ', ', ', tp_bibtex::replace_html_chars( $row['author'] ) );
+            $all_authors = str_replace(' and ', ', ', tp_bibtex::replace_html_chars( $row['author'] ) );
         }
-		
+        
         $row['title'] = tp_bibtex::replace_html_chars($row['title']);
         $item_link = tp_bibtex::replace_html_chars($item_link);
         $settings['editor_name'] = 'simple';
         $settings['style'] = 'simple';
-		$settings['use_span'] = false;
+        $settings['use_span'] = false; 
         echo '
              <item>
                 <title><![CDATA[' . stripslashes($row['title']) . ']]></title>
@@ -88,4 +94,3 @@ if ($feedtype == 'bibtex') {
     echo '</channel>' . chr(13) . chr(10);
     echo '</rss>' . chr(13) . chr(10);
 }
-?>

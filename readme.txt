@@ -2,30 +2,27 @@
 Contributors: Michael Winkler
 Tags: publications, enrollments, education, course management, BibTeX, bibliography
 License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Requires at least: 3.3
-Tested up to: 4.1
-Stable tag: 4.3.12
+Requires at least: 3.9
+Tested up to: 4.1.1
+Stable tag: 5.0.0
 
-With this plugin you can easy manage courses, enrollments and publications.
+With this plugin you can easy manage courses and publications.
 
 == Description ==
-The plugin unites a course management system (with enrollments) and a BibTeX compatible publication management. teachPress is optimized for the needs of professorships and research groups. You can use it with WordPress 3.3.0 or higher.
-
-For more information see [here](http://www.mtrv.wordpress.com/teachpress/).
+The plugin unites a course management system (with modules for enrollments, documents and assessments) and a BibTeX compatible publication management. teachPress is optimized for the needs of professorships and research groups. You can use it with WordPress 3.9.0 or higher.
 
 = Features: =
 * BibTeX compatible multi user publication management
 * BibTeX import for publications
 * BibTeX and RTF export for publications
 * RSS feed for publications
-* Course management with an integrated enrollment system
+* Course management with an integrated modules for enrollments, assessments and documents
 * XLS/CSV export for course lists
-* Widget for displaying books in a sidebar
 * Many shortcodes for an easy using of publication lists, publication searches, enrollments and course overviews
+* Dymamic adding of new data fields for courses, students and publications
 
 = Supported Languages =
-* English 
+* English
 * German
 * Italian (o)
 * Portuguese (Brazil) (o)
@@ -34,12 +31,18 @@ For more information see [here](http://www.mtrv.wordpress.com/teachpress/).
 
 (o) Outdated language files
 
+= Further information = 
+* [Developer blog](https://mtrv.wordpress.com/teachpress/) 
+* [Upgrade information](https://mtrv.wordpress.com/2015/03/12/teachpress-5-0-upgrade-information/)
+* [teachPress Shortcode Reference](https://mtrv.wordpress.com/teachpress/shortcode-reference/) 
+* [teachPress on github](https://github.com/winkm89/teachPress)  
+
 = Disclaimer =  
 Use at your own risk. No warranty expressed or implied is provided.  
 
 == Credits ==
 
-Copyright 2008-2014 by Michael Winkler
+Copyright 2008-2015 by Michael Winkler
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -56,8 +59,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 = Licence information of external resources =
-* Graphics for mimetypes by Oxygen Icons 4.3.1 http://www.oxygen-icons.org/ (Licence: LPGL)
+* Graphics for mimetypes, user-new-3.png, folder-new-7.png and document-new-6.png by Oxygen Icons 4.3.1 http://www.oxygen-icons.org/ (Licence: LPGL)
+* jquery-ui-icons.png by The jQuery Foundation (License: MIT)
 * view-refresh-3.png by GNOME Icon Theme 2.26.0 http://art.gnome.org (License: GPLv2)
+* bookmark-new-4.png by Tango Icon Library (License: Public Domain)
 * bibtexParse by Mark Grimshaw & Guillaume Gardey (Licence: GPL)
 
 = Thanks =
@@ -87,11 +92,7 @@ I would like to thank the team of [CBIS, Chemnitz University of Technology](http
 1. Add publication menu
 2. Add course menu
 3. Example for a publication list created with [tpcloud]
-
-== Upgrade Notice ==
-
-= 4.3.12 =
-Some small improvements for [tpsearch] shortcode added
+ 
 
 == Frequently Asked Questions ==
 
@@ -105,22 +106,72 @@ If you writing a post or page use the following tag: [tpcourselist]
 Create a new page or post and use the following tag: [tpenrollments]
 
 = How can I add longer course desciptions? =
-You can write long course desciptions, as normal WordPress pages. The main function of teachPress is only to connect the static page with a course overview and an enrollment system. For this you can specify a related page for your course.
+Write a long course desciption as normal WordPress pages and add this page as related content to the course.
 
 = How can I display images in publication lists? =
-An example: [tplist user="0" image="left" image_size="70"]. Important: You must specify both image parameters.
+An example: [tplist image="left" image_size="70"]. Important: You must specify both image parameters.
+
+= How can I split publication lists into multiple pages? =
+An example: [tpcloud pagination="1" entries_per_page="50"]. This works also for [tplist] and [tpsearch]
+
+= How can I protect course documents? =
+The plugin saves course documents in your WordPress upload directory under /teachpress/*course_id*. You can add a protection for this directory with a .htaccess file without influence to your normal media files.
 
 = How can I deactivate parts of the plugin? =
 If you want to use only one part of the plugin, so write the following in the wp-config.php of your WordPress installation
-For deactivating the course system:  
-define ('TP_COURSE_SYSTEM','disable');  
-For deactivating the publication system:  
-define ('TP_PUBLICATION_SYSTEM','disable');  
+`// For deactivating the course module:  
+define ('TEACHPRESS_COURSE_MODULE', false);  
+// For deactivating the publication module:  
+define ('TEACHPRESS_PUBLICATION_MODULE', false);  `
 
 = I see only error messages if I use the RSS-Feed for publications or the xls/csv export for enrollments. What's wrong? =
-If you save plugins outside the normal path (/wp-content/plugins/), the plugin can't load required WordPress files in some cases. Solution: Change the path in the following plugin files: export.php (line 9) / feed.php (line 7).
+If you save plugins outside the normal path (/wp-content/plugins/), the plugin can't load required WordPress files in some cases. Solution: Change the path in the following plugin files: export.php (line 9) / feed.php (line 13).
+
+== Upgrade Notice ==
+
+= 5.0.0 =
+It's **strongly** recommended to save your teachPress database tables before upgrading!
 
 == Changelog ==
+
+= 5.0.0 - (12.03.2015) =
+* New: A real author filter for publications added
+* New: Autocomplete for authors/editors added
+* New: Meta data system for courses, students and publications added
+* New: Assessment management for courses added
+* New: Simple capability management for courses added
+* New: Simple document management for courses added
+* New: Direct export of .bib files for selected publications added (via "Show as BibTeX entry")
+* New: Option for converting utf-8 chars into BibTeX compatible ASCII strings
+* New: Direct creation of related content based on drafts added
+* New: Direct creation of sub courses added
+* New: Page menu for enrollments added
+* New: DOI field for publications added
+* New: Shortcode [tpcourseinfo]
+* New: Shortcode [tpcoursedocs]
+* New: [tpenrollments]: New parameter "date_format" added
+* New: [tpcloud]: New parameter "show_tags_as" added
+* New: tinyMCE 4 plugin for inserting shortcodes and documents
+* New: Send notification to a student if his registration is moved from the waitinglist to the course by automatic fill up
+* New: Editable time limit for exports and uploads added (constant TEACHPRESS_TIME_LIMIT)
+* Changed: Rewritten core API
+* Changed: Rewritten Shortcode [tpcloud]
+* Changed: Rewritten Shortcode [tpenrollments]
+* Changed: [tpcloud, tplist]: Pagination is enabled by default, the parameter entries_per_page is set to 50 (before: 30)
+* Changed: UI modifications for better integration in WordPress 3.9+
+* Changed: Using HTML5s "required" attribute for required fields in registration forms
+* Changed: Using parameters instead of variables for the definition of database table names
+* Changed: Visible names for some publication types changed
+* Changed: Using field type "search" for search fields
+* Changed: Increased varchar limit for some field in table teachpress_pub (author,editor --> 3000 chars; institution, organization --> 500 chars)
+* Changed: The parameters TP_COURSE_SYSTEM and TP_PUBLICATION_SYSTEM were renamed to TEACHPRESS_COURSE_MODULE and TEACHPRESS_PUBLICATION_MODULE
+* Changed: The plugin requires at least WordPress 3.9 instead of 3.3
+* Bugfix: Fixed the handling of curly-brackets for the definition of surnames in author/editor names
+* Bugfix: Replace double spaces in author/editor names
+* Bugfix: BibTeX import: Better identification for the date of publishing
+* Bugfix: teachPress books widget works again
+* Killed: The shortcode [tpdate] is deprecated, use [tpcourseinfo] instead
+* Killed: The following functions are deprecated: get_tp_course(), get_tp_courses(), get_tp_course_free_places(), get_tp_tags(), get_tp_tag_cloud(), get_tp_publication(), get_tp_publications(), tp_is_user_subscribed(), tp_check_bookmark(), tp_admin_page_menu()
 
 = 4.3.12 - (02.12.2014) =
 * New: [tpsearch]: Reset button for search input field added
@@ -139,18 +190,18 @@ If you save plugins outside the normal path (/wp-content/plugins/), the plugin c
 
 = 4.3.8 - (29.06.2014) =
 * Bugfix: Prevent adding of `<span>`-tags within publication meta rows in XML and RTF files
-* Bugfix: Fixed usage of editor names instead of author names in feeds and RTF files
+* Bugfix: Fix usage of editor names instead of author names in feeds and RTF files
 * Bugfix: Reenable xls export for enrollments
 
 = 4.3.7 - (19.06.2014) =
-* Bugfix: The copy function for courses creates only empty courses.
+* Bugfix: The copy function for courses creates only empty courses
 
 = 4.3.6 - (28.05.2014) =
-* New: Meta data of publications (page, adress, chapter, isbn, ...) have their own HTML selectors.
+* New: Meta data of publications (page, adress, chapter, isbn, ...) have their own HTML selectors
 
-= 4.3.5 - (21.05.2014) =
-* New: [tpcloud, tplist]: New link style option (link_style = direct) added (Thanks to Ellie)
-* Bugfix: Adding of new courses of studies was impossible
+= 4.3.5 - (21.05.2014) = 
+* New: [tpcloud, tplist]: New link style option (link_style = "direct") added (Thanks to Ellie) 
+* Bugfix: Adding of new courses of studies was impossible 
 * Bugfix: Fixed a small spelling mistake
 
 = 4.3.4 - (14.04.2014) =

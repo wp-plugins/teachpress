@@ -1,64 +1,59 @@
-<?php 
-/* Create attendance lists
- * @param $course_ID
+<?php
+/**
+ * This file contains all functions for displaying the create_lists page in admin menu
+ * 
+ * @package teachpress\admin\courses
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
+ */
+
+/** 
+ * Create attendance lists
+ * @param $course_id
  * @param $search
  * @param $sem
 */
 function tp_lists_page() {
    
-   $course_ID = isset( $_GET['course_ID'] ) ? intval($_GET['course_ID']) : '';
-   $redirect = isset( $_GET['redirect'] ) ?  intval($_GET['redirect']) : 0;
-   $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
-   $sem = isset( $_GET['sem'] ) ? htmlspecialchars($_GET['sem']) : '';
-   $sort = isset( $_GET['sort'] ) ? htmlspecialchars($_GET['sort']) : '';
-   $matriculation_number_field = isset( $_GET['matriculation_number_field'] ) ? intval($_GET['matriculation_number_field']) : '';
-   $nutzerkuerzel_field = isset( $_GET['nutzerkuerzel_field'] ) ? htmlspecialchars($_GET['nutzerkuerzel_field']) : '';
-   $course_of_studies_field = isset( $_GET['course_of_studies_field'] ) ? htmlspecialchars($_GET['course_of_studies_field']) : '';
-   $semesternumber_field = isset( $_GET['semesternumber_field'] ) ? intval($_GET['semesternumber_field']) : '';
-   $birthday_field = isset( $_GET['birthday_field'] ) ? htmlspecialchars($_GET['birthday_field']) : '';
-   $email_field = isset( $_GET['email_field'] ) ? htmlspecialchars($_GET['email_field']) : '';
-   
-   $anzahl = isset( $_GET['anzahl'] ) ? intval($_GET['anzahl']) : '';
-   $create = isset( $_GET['create'] ) ? $_GET['create'] : '';
-   ?>
-   <div class="wrap">
-   <?php if ($create == '') {
-           echo '<a href="admin.php?page=teachpress/teachpress.php&amp;course_ID=' . $course_ID . '&amp;sem=' . $sem . '&amp;search=' . $search . '&amp;redirect=' . $redirect . '&amp;action=show" class="button-secondary" title="' . __('back to the course','teachpress') . '">&larr; ' . __('Back','teachpress') . '</a>';
-   }
-   else {
-           echo '<a href="admin.php?page=teachpress/teachpress.php&amp;course_ID=' . $course_ID . '&amp;sem=' . $sem . '&amp;search=' . $search . '&amp;redirect=' . $redirect . '&amp;action=list" class="button-secondary" title="' . __('back to the course','teachpress') . '">&larr; ' . __('Back','teachpress') . '</a>';
-   }?>
-   <form id="einzel" name="einzel" action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="get">
-   <input name="page" type="hidden" value="teachpress/teachpress.php"/>
-   <input name="action" type="hidden" value="list"/>
-   <input name="course_ID" type="hidden" value="<?php echo $course_ID; ?>"/>
-   <input name="redirect" type="hidden" value="<?php echo $redirect; ?>"/>
-   <input name="sem" type="hidden" value="<?php echo $sem; ?>" />
-   <input name="search" type="hidden" value="<?php echo $search; ?>" />
-   <?php if ($create == '') {?>
+    $course_id = isset( $_GET['course_id'] ) ? intval($_GET['course_id']) : '';
+    $redirect = isset( $_GET['redirect'] ) ?  intval($_GET['redirect']) : 0;
+    $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
+    $sem = isset( $_GET['sem'] ) ? htmlspecialchars($_GET['sem']) : '';
+    
+    $sort = isset( $_POST['sort'] ) ? htmlspecialchars($_POST['sort']) : '';
+    $extra_fields = isset( $_POST['extra_fields'] ) ? $_POST['extra_fields'] : array();
+    $number = isset( $_POST['number'] ) ? intval($_POST['number']) : '';
+    $create = isset( $_POST['create'] ) ? $_POST['create'] : '';
+
+    echo '<div class="wrap">';
+    echo '<form id="einzel" name="einzel" method="post">';
+
+    if ( $create === '' ) {
+        echo '<a href="admin.php?page=teachpress/teachpress.php&amp;course_id=' . $course_id . '&amp;sem=' . $sem . '&amp;search=' . $search . '&amp;redirect=' . $redirect . '&amp;action=enrollments" class="button-secondary" title="' . __('back to the course','teachpress') . '">&larr; ' . __('Back','teachpress') . '</a>';
+    }
+    else {
+        echo '<a href="admin.php?page=teachpress/teachpress.php&amp;course_id=' . $course_id . '&amp;sem=' . $sem . '&amp;search=' . $search . '&amp;redirect=' . $redirect . '&amp;action=list" class="button-secondary" title="' . __('back to the course','teachpress') . '">&larr; ' . __('Back','teachpress') . '</a>';
+        
+    }
+
+    if ( $create === '' ) { ?>
    <h2><?php _e('Create attendance list','teachpress'); ?></h2>
-   <table class="widefat" style="width:600px;">
+   <table class="form-table" style="width:600px;">
       <thead>
        <tr>
-         <th><label for="anzahl"><?php _e('Sort after','teachpress'); ?></label></th>
+         <th><label for="sort"><?php _e('Sort after','teachpress'); ?></label></th>
          <th>
             <select name="sort" id="sort">
                <option value="1"><?php _e('Last name','teachpress'); ?></option>
-               <?php 
-               $val = get_tp_option('regnum');
-               if ($val == '1') {?>
-               <option value="2"><?php _e('Matr. number','teachpress'); ?></option>
-               <?php } ?>
             </select>
          </th>
       </tr>
       <tr>
-         <th style="width:160px;"><label for="anzahl"><?php _e('Number of free columns','teachpress'); ?></label></th>
+         <th style="width:160px;"><label for="number"><?php _e('Number of free columns','teachpress'); ?></label></th>
          <th>
-            <select name="anzahl" id="anzahl">
+            <select name="number" id="number">
                <?php
-               for ($i=1; $i<=15; $i++) {
-                  if ($i == 7) {
+               for ($i = 0; $i <= 15; $i++) {
+                  if ($i === 7) {
                      echo '<option value="' . $i . '" selected="selected">' . $i . '</option>';
                   }
                   else {
@@ -69,132 +64,106 @@ function tp_lists_page() {
          </th>
       </tr>
       <tr>
-         <th><?php _e('Additional columns','teachpress'); ?></th>
+         <th><label for="extra_fields"><?php _e('Additional columns','teachpress'); ?></label></th>
          <th>
-          <?php
-            if ($val == '1') {
-                echo '<input name="matriculation_number_field" id="matriculation_number_field" type="checkbox" value="1" /> <label for="matriculation_number_field">' . __('Matr. number','teachpress') . '</label><br />';
-            }
-            echo '<input name="nutzerkuerzel_field" id="nutzerkuerzel_field" type="checkbox" checked="checked" value="1" /> <label for="nutzerkuerzel_field">' . __('User account','teachpress') . '</label><br />';
-            $val = get_tp_option('studies');
-            if ($val == '1') {
-                echo '<input name="course_of_studies_field" id="course_of_studies_field" type="checkbox" value="1" /> <label for="course_of_studies_field">' . __('Course of studies','teachpress') . '</label><br />';
-            }
-            $val = get_tp_option('termnumber');
-            if ($val == '1') {
-                echo '<input name="semesternumber_field" id="semesternumber_field" type="checkbox" value="1" /> <label for="semesternumber_field">' . __('Number of terms','teachpress') . '</label><br />';
-            }
-            $val = get_tp_option('birthday');
-            if ($val == '1') {
-                echo '<input name="birthday_field" id="birthday_field" type="checkbox" value="1" /> <label for="birthday_field">' .  __('Date of birth','teachpress') . '</label><br />';
-            }
-            echo '<input name="email_field" id="email_field" type="checkbox" value="1" /> <label for="email_field">' . __('E-Mail') . '</label><br />';
-            ?>
+             <select name="extra_fields[]" id="extra_fields" multiple="multiple" style="min-height: 200px;">
+                <?php
+                $fields = get_tp_options('teachpress_stud','`setting_id` ASC');
+                foreach ($fields as $row) {
+                    $data = tp_db_helpers::extract_column_data($row->value);
+                    echo '<option value="' . $row->variable . '">' . $data['title'] . '</option>';
+                }
+                ?>
+             </select>
          </th>
       </tr>
       </thead>
    </table>
    <p><input name="create" type="submit" class="button-primary" value="<?php _e('Create','teachpress'); ?>"/></p>
-   <?php
-   }
-   if ( $create == __('Create','teachpress') ) {
-        $row = get_tp_course($course_ID);
-        // define course name
-        if ($row->parent != 0) {
-           $parent_name = get_tp_course_data($row->parent, 'name');
-           // if parent_name == child name
-           if ($parent_name == $row->name) {
-               $parent_name = "";
-           }
-        }
-        else {
+    <?php
+    }
+    else {
+        tp_create_attendance_list($course_id, $number, $extra_fields);
+    }
+
+    echo '</form>';
+    echo '</div>';
+}
+
+/**
+ * Creates an attendance list
+ * @param int $course_id            ID of the course
+ * @param int $number               number of free columns
+ * @param string[] $extra_fields    An array of field_names which are available
+ * @since 4.3.0
+ */
+function tp_create_attendance_list($course_id, $number, $extra_fields) {
+    $row = tp_courses::get_course($course_id);
+    // define course name
+    if ($row->parent != 0) {
+       $parent_name = tp_courses::get_course_data($row->parent, 'name');
+       // if parent_name == child name
+       if ($parent_name == $row->name) {
            $parent_name = "";
+       }
+    }
+    else {
+       $parent_name = "";
+    }
+    
+    echo '<h2>' . $parent_name . ' ' . $row->name . ' ' . $row->semester . '</h2>';
+    echo '<div style="width:700px; padding-bottom:10px;">';
+    echo '<table border="1" cellspacing="0" cellpadding="0" class="tp_print">';
+    echo '<tr>';
+    echo '<th>' . __('Lecturer','teachpress') . '</th>';
+    echo '<td>' . $row->lecturer . '</td>';
+    echo '<th>' . __('Date','teachpress') . '</th>';
+    echo '<td>' . $row->date . '</td>';
+    echo '<th>' . __('Room','teachpress') . '</th>';
+    echo '<td>' . $row->room . '</td>';
+    echo '</tr>';
+    echo '</table>';        
+    echo '</div>';
+    
+    echo '<table border="1" cellpadding="0" cellspacing="0" class="tp_print" width="100%">';
+    echo '<thead>';
+    echo '<tr style="border-collapse: collapse; border: 1px solid black;">';
+    echo '<th width="20" height="100">&nbsp;</th>';
+    echo '<th width="250">' . __('Name','teachpress') . '</th>';
+    echo '<th width="125">' . __('User account','teachpress') . '</th>';
+    $max = count($extra_fields);
+    for ($i = 0; $i < $max; $i++) {
+        $field_values = get_tp_option($extra_fields[$i], 'teachpress_stud');
+        $data = tp_db_helpers::extract_column_data($field_values);
+        echo '<th>' . $data['title'] . '</th>';
+    }
+    for ($i = 1; $i <= $number; $i++ ) {
+        echo '<th>&nbsp;</th>';
+    }
+    
+    echo '</tr>';
+    echo '</thead>';
+    echo '<tbody>';
+          
+    $count = 1;
+    
+    
+    $sql = tp_courses::get_signups( array('course_id' => $course_id, 'order' => 'st.lastname', 'waitinglist' => 0, 'output_type' => ARRAY_A ) );
+    foreach($sql as $row3) {
+        echo '<tr>';
+        echo '<td>' . $count . '</td>';
+        echo '<td>' . $row3['lastname'] . ', ' . $row3['firstname'] . '</td>';
+        echo '<td>' . $row3['userlogin'] . '</td>';
+        $max = count($extra_fields);
+        for ($i = 0; $i < $max; $i++) {
+            echo '<td>' . $row3[$extra_fields[$i]] . '</td>';
         }
-        ?>
-        <h2><?php echo $parent_name; ?> <?php echo $row->name; ?> <?php echo $row->semester; ?></h2>
-        <div id="einschreibungen" style="padding:5px;">
-        <div style="width:700px; padding-bottom:10px;">
-           <table border="1" cellspacing="0" cellpadding="0" class="tp_print">
-               <tr>
-                   <th><?php _e('Lecturer','teachpress'); ?></th>
-                   <td><?php echo $row->lecturer; ?></td>
-                   <th><?php _e('Date','teachpress'); ?></th>
-                   <td><?php echo $row->date; ?></td>
-                   <th><?php _e('Room','teachpress'); ?></th>
-                   <td><?php echo $row->room; ?></td>
-               </tr>
-           </table>
-        </div>
-        <table border="1" cellpadding="0" cellspacing="0" class="tp_print" width="100%">
-          <tr style="border-collapse: collapse; border: 1px solid black;">
-           <th width="20" height="100">&nbsp;</th>
-           <th width="250"><?php _e('Name','teachpress'); ?></th>
-           <?php
-           if ($matriculation_number_field == '1') {
-               echo '<th>' . __('Matr. number','teachpress') . '</th>';
-           }
-           if ($nutzerkuerzel_field == '1') {
-               echo '<th width="81">' . __('User account','teachpress') . '</th>';
-           }
-           if ($course_of_studies_field == '1') {
-               echo '<th>' . __('Course of studies','teachpress') . '</th>';
-           }
-           if ($semesternumber_field == '1') {
-               echo '<th>' . __('Number of terms','teachpress') . '</th>';
-           }
-           if ($birthday_field == '1') {
-               echo '<th>' . __('Date of birth','teachpress') . '</th>';
-           }
-           if ($email_field == '1') {
-               echo '<th>' . __('E-Mail') . '</th>';
-           }
-           for ($i=1; $i<=$anzahl; $i++ ) {
-               echo '<th>&nbsp;</th>';
-           }
-           ?>
-          </tr>
-         <tbody> 
-      <?php
-      $nummer = 1;
-      // Ausgabe der Tabelle zu den in die LVS eingeschriebenen Studenten
-      $order_by = $sort == '2' ? "st.matriculation_number" : "st.lastname";	
-      $row3 = get_tp_course_signups( array('course' => $course_ID, 'order' => $order_by, 'waitinglist' => 0 ) );
-      foreach($row3 as $row3) {
-        ?>
-        <tr>
-            <td><?php echo $nummer; ?></td>
-            <td><?php echo $row3->lastname; ?>, <?php echo $row3->firstname; ?></td>
-            <?php
-            if ($matriculation_number_field == '1') {
-                echo '<td>' . $row3->matriculation_number . '</td>';
-            }
-            if ($nutzerkuerzel_field == '1') {
-                echo '<td>' . $row3->userlogin . '</td>';
-            }
-            if ($course_of_studies_field == '1') {
-                echo '<td>' . $row3->course_of_studies . '</td>';
-            }
-            if ($semesternumber_field == '1') {
-                echo '<td>' . $row3->semesternumber . '</td>';
-            }
-            if ($birthday_field == '1') {
-                echo '<td>' . $row3->birthday . '</td>';
-            }
-            if ($email_field == '1') {
-                echo '<td>' . $row3->email . '</td>';
-            }
-            for ($i=1; $i<=$anzahl; $i++ ) {
-                echo '<td>&nbsp;</td>';
-            }
-            ?>
-        </tr>
-        <?php
-        $nummer++;
-      }
-   ?>
-   </tbody>
-   </table>
-   <?php } ?>
-   </form>
-   </div>
-<?php } ?>
+        for ( $i= 1; $i <= $number; $i++ ) {
+            echo '<td>&nbsp;</td>';
+        }
+        echo '</tr>';
+        $count++;
+    }
+    echo '</tbody>';
+    echo '</table>';
+}

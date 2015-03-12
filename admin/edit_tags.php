@@ -1,4 +1,10 @@
 <?php
+/**
+ * This file contains all functions for displaying the edit_tags page in admin menu
+ * 
+ * @package teachpress\admin\publications
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
+ */
 
 /**
  * Defines the screen options for edit_tags page
@@ -22,11 +28,9 @@ function tp_edit_tags_page_screen_options () {
 
 /**
  * Tag management page
- * @global class $wpdb
- * @global string $teachpress_relation
- * @global string $teachpress_tags
+ * @since 5.0.0
  */ 
-function teachpress_tags_page(){
+function tp_tags_page(){
     // Get screen options
     $user = get_current_user_id();
     $screen = get_current_screen();
@@ -36,29 +40,28 @@ function teachpress_tags_page(){
         $per_page = $screen->get_option( 'per_page', 'default' );
     }
     ?> 
-    <div class="wrap" style="max-width:650px;">
-    <form id="form1" name="form1" method="get" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
+    <div class="wrap" style="max-width:700px;">
+    <form id="form1" name="form1" method="get" action="<?php echo esc_url($_SERVER['REQUEST_URI']); ?>">
     <input name="page" type="hidden" value="teachpress/tags.php" />
     <?php
-    global $wpdb;
-    global $teachpress_relation;
-    global $teachpress_tags;
     // form data
-    if ( isset( $_GET['action1'] ) ) {
+    $action = '';
+    if ( isset( $_GET['action1'] ) && $_GET['action1'] !== '' ) {
         $action = htmlspecialchars($_GET['action1']);
     }
-    else if ( isset( $_GET['action2'] ) ) {
+    if ( isset( $_GET['action2'] ) && $_GET['action2'] !== '' ) {
         $action = htmlspecialchars($_GET['action2']);
     }
-    else {
-        $action = '';
+    if ( isset( $_GET['action'] ) && $_GET['action'] !== '' ) {
+        $action = htmlspecialchars($_GET['action']);
     }
     
     $search = isset( $_GET['search'] ) ? htmlspecialchars($_GET['search']) : '';
     $checkbox = isset( $_GET['checkbox'] ) ? $_GET['checkbox'] : array();
     $page = 'teachpress/tags.php';
-    $number_messages = $per_page;
+    
     // Handle limits
+    $number_messages = $per_page;
     if (isset($_GET['limit'])) {
         $curr_page = (int)$_GET['limit'] ;
         if ( $curr_page <= 0 ) {
@@ -74,39 +77,29 @@ function teachpress_tags_page(){
     // actions
     // Delete tags - part 1
     if ( $action === 'delete' ) {
-        echo '<div class="teachpress_message">
-            <p class="teachpress_message_headline">' . __('Are you sure to delete the selected elements?','teachpress') . '</p>
+        echo '<div class="teachpress_message teachpress_message_orange">
+            <p class="teachpress_message_headline">' . __('Do you want to delete the selected items?','teachpress') . '</p>
             <p><input name="delete_ok" type="submit" class="button-secondary" value="' . __('Delete','teachpress') . '"/>
             <a href="admin.php?page=' . $page . '&search=' . $search . '&amp;limit=' . $curr_page . '"> ' . __('Cancel','teachpress') . '</a></p>
             </div>';
     }
-    // delete publications - part 2
+    // delete tags - part 2
     if ( isset($_GET['delete_ok']) ) {
-        tp_delete_tags($checkbox);
+        tp_tags::delete_tags($checkbox);
         get_tp_message( __('Removing successful','teachpress') );
     }
     if ( isset( $_GET['tp_edit_tag_submit'] )) {
         $name = htmlspecialchars($_GET['tp_edit_tag_name']);
-        $tag_id = intval($_GET['tp_edit_tag_ID']);
-        tp_edit_tag($tag_id, $name);
+        $tag_id = intval($_GET['tp_edit_tag_id']);
+        tp_tags::edit_tag($tag_id, $name);
         get_tp_message( __('Tag saved','teachpress') );
     }
     
-    // if the user use the search
-    if ($search != '') {
-        $sql = "SELECT * FROM $teachpress_tags WHERE `name` like '%$search%' OR `tag_id` = '$search'";	
-    }
-    // normal sql statement
-    else {
-        $sql = "SELECT * FROM $teachpress_tags ORDER BY `name`";
-    }				
-    $test = $wpdb->query($sql);
-    $sql = $sql . " LIMIT $entry_limit, $number_messages";
     ?>
     <h2><?php _e('Tags'); ?></h2>
     <div id="searchbox" style="float:right; padding-bottom:10px;">
             <?php if ($search != "") { ?><a href="admin.php?page=teachpress/tags.php" style="font-size:14px; font-weight:bold; text-decoration:none; padding-right:3px;" title="<?php _e('Cancel the search','teachpress'); ?>">X</a><?php } ?>
-        <input type="text" name="search" id="pub_search_field" value="<?php echo stripslashes($search); ?>"/>
+        <input type="search" name="search" id="pub_search_field" value="<?php echo stripslashes($search); ?>"/>
         <input type="submit" name="button" id="button" value="<?php _e('Search','teachpress'); ?>" class="button-secondary"/>
     </div>
     <div class="tablenav" style="padding-bottom:5px;"> 
@@ -117,9 +110,17 @@ function teachpress_tags_page(){
         <input name="OK" value="OK" type="submit" class="button-secondary"/>
         <?php
         // Page Menu
-        echo tp_admin_page_menu ($test, $number_messages, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search"); ?>
+        $test = tp_tags::get_tags( array( 'count' => true, 'search' => $search ) );
+        $args = array('number_entries' => $test,
+                      'entries_per_page' => $number_messages,
+                      'current_page' => $curr_page,
+                      'entry_limit' => $entry_limit,
+                      'page_link' => "admin.php?page=$page&amp;",
+                      'link_attributes' => "search=$search");
+        echo tp_page_menu($args);
+        ?>
     </div>
-    <div style="width:650px;">
+    <div style="width:700px;">
     <table border="0" cellspacing="0" cellpadding="0" class="widefat">
         <thead>
         <tr>
@@ -134,16 +135,10 @@ function teachpress_tags_page(){
             echo '<tr><td colspan="4"><strong>' . __('Sorry, no entries matched your criteria.','teachpress') . '</strong></td></tr>';
         }
         else {
-            $row = $wpdb->get_results("SELECT * FROM $teachpress_relation");
-            $z = 0;
-            foreach ($row as $row) {
-                $daten[$z][0] = $row->pub_id;
-                $daten[$z][1] = $row->tag_id;
-                $z++;
-            }
-            $row2 = $wpdb->get_results($sql);
             $class_alternate = true;
-            foreach ($row2 as $row2) {
+            $row = tp_tags::count_tags($search, $entry_limit . ',' . $number_messages);
+            
+            foreach ($row as $row) {
                 if ( $class_alternate === true ) {
                     $tr_class = 'class="alternate"';
                     $class_alternate = false;
@@ -155,28 +150,20 @@ function teachpress_tags_page(){
                 echo '<tr ' . $tr_class . '>';
                 $checked = '';
                 $str = "'";
-                if ( $action == "delete") { 
+                if ( $action === "delete") { 
                     for( $k = 0; $k < count( $checkbox ); $k++ ) { 
-                        if ( $row2->tag_id == $checkbox[$k] ) { $checked = 'checked="checked" '; } 
+                        if ( $row['tag_id'] == $checkbox[$k] ) { $checked = 'checked="checked" '; } 
                     } 
                 }
-                echo '<th class="check-column"><input name="checkbox[]" class="tp_checkbox" type="checkbox" ' . $checked . ' type="checkbox" value="' . $row2->tag_id . '"></th>';
-                echo '<td id="tp_tag_row_' . $row2->tag_id . '">';
-                echo '<a onclick="teachpress_editTags(' . $str . $row2->tag_id . $str . ')" class="teachpress_link" title="' . __('Click to edit','teachpress') . '" style="cursor:pointer;"><strong>' . stripslashes($row2->name) . '</strong></a><input type="hidden" id="tp_tag_row_name_' . $row2->tag_id . '" value="' . stripslashes($row2->name) . '"/>';
+                echo '<th class="check-column"><input name="checkbox[]" class="tp_checkbox" type="checkbox" ' . $checked . ' type="checkbox" value="' . $row['tag_id'] . '"></th>';
+                echo '<td id="tp_tag_row_' . $row['tag_id'] . '">';
+                echo '<a onclick="teachpress_editTags(' . $str . $row['tag_id'] . $str . ')" class="teachpress_link" title="' . __('Click to edit','teachpress') . '" style="cursor:pointer;"><strong>' . stripslashes($row['name']) . '</strong></a><input type="hidden" id="tp_tag_row_name_' . $row['tag_id'] . '" value="' . stripslashes($row['name']) . '"/>';
                 echo '<div class="tp_row_actions">';
-                echo '<a onclick="teachpress_editTags(' . $str . $row2->tag_id . $str . ')" class="teachpress_link" title="' . __('Click to edit','teachpress') . '" style="cursor:pointer;">' . __('Edit', 'teachpress') . '</a> | <a href="admin.php?page=' . $page . '&amp;checkbox%5B%5D=' . $row2->tag_id . '&amp;action=delete' . '" style="color:red;" title="' . __('Delete','teachpress') . '">' . __('Delete', 'teachpress') . '</a>';
+                echo '<a onclick="teachpress_editTags(' . $str . $row['tag_id'] . $str . ')" class="teachpress_link" title="' . __('Click to edit','teachpress') . '" style="cursor:pointer;">' . __('Edit', 'teachpress') . '</a> | <a href="admin.php?page=publications.php&amp;tag=' . $row['tag_id'] . '" title="' . __('Show all publications which have a relationship to this tag','teachpress') . '">' . __('Publications','teachpress') . '</a> | <a class="tp_row_delete" href="admin.php?page=' . $page . '&amp;limit=' . $curr_page . '&search=' . $search . '&amp;checkbox%5B%5D=' . $row['tag_id'] . '&amp;action=delete' . '" title="' . __('Delete','teachpress') . '">' . __('Delete', 'teachpress') . '</a>';
                 echo '</div>';
                 echo '</td>';
-                echo '<td>' . $row2->tag_id . '</td>';
-                echo '<td>';
-                $anzahl = 0;
-                for ($i=0; $i < $z ; $i++) {
-                    if ($daten[$i][1] == $row2->tag_id) {
-                        $anzahl++;
-                    }
-                }
-                echo $anzahl;
-                echo '</td>';
+                echo '<td>' . $row['tag_id'] . '</td>';
+                echo '<td>' . $row['count'] . '</td>';
                 echo '</tr>';
             }
         } ?>
@@ -192,7 +179,14 @@ function teachpress_tags_page(){
         <div class="tablenav-pages" style="float:right;">
         <?php 
         if ($test > $number_messages) {
-           echo tp_admin_page_menu ($test, $number_messages, $curr_page, $entry_limit, "admin.php?page=$page&amp;", "search=$search", 'bottom');
+            $args = array('number_entries' => $test,
+                      'entries_per_page' => $number_messages,
+                      'current_page' => $curr_page,
+                      'entry_limit' => $entry_limit,
+                      'page_link' => "admin.php?page=$page&amp;",
+                      'link_attributes' => "search=$search",
+                      'mode' => 'bottom');
+            echo tp_page_menu($args);
         } 
         else {
            if ($test === 1) {
@@ -208,4 +202,4 @@ function teachpress_tags_page(){
     </div>
     </form>
     </div>
-<?php } ?>
+<?php }

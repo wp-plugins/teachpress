@@ -1,6 +1,17 @@
 // teachPress javascript for the admin menu
 
 /**
+ * Delele node
+ * @param {type} id
+ * @since 5.0.0
+ */
+function teachpress_del_node(id){
+    jQuery(document).ready(function($) {
+        $(id).remove();
+    });
+}
+
+/**
  * for selecting all checkboxes on an admin page
  * @param {string} element_names
  * @param {string} checkbox_id
@@ -69,8 +80,8 @@ function teachpress_trim (input) {
  * @since 1.0.0
  */
 function teachpress_change_label_color(id) {
-    checkbox = "checkbox_" + id;
-    label = "tag_label_" + id;
+    var checkbox = "checkbox_" + id;
+    var label = "tag_label_" + id;
     if (document.getElementById(checkbox).checked === true) {
         document.getElementById(label).style.color = "#FF0000";
     }
@@ -133,7 +144,7 @@ function teachpress_showhide(where) {
     if (where === "show_all_fields" || where === "show_recommend_fields") {
         mode = "inline";
     }
-	if (where === "tp-inline-edit-row") {
+    if (where === "tp-inline-edit-row") {
         mode = "table-row";
     }
     if (document.getElementById(where).style.display !== mode) {
@@ -145,13 +156,44 @@ function teachpress_showhide(where) {
 }
 
 /**
+ * for switching rel_page options at add_course page
+ * @returns {undefined}
+ * @since 5.0.0
+ */
+function teachpress_switch_rel_page_container(){
+    if (document.getElementById('rel_page_original').style.display !== "none") {
+    	document.getElementById('rel_page_alternative').style.display = "block";
+        document.getElementById('rel_page_original').style.display = "none";
+    }
+    else {
+        document.getElementById('rel_page_alternative').style.display = "none";
+        document.getElementById('rel_page_original').style.display = "block";
+    }
+}
+
+/**
+ * for show/hide sub course panel at add_course page
+ * @returns {undefined}
+ * @since 5.0.0
+ */
+function teachpress_courseFields () {
+    var test = document.getElementById('parent2').value;
+    if ( test === "0") {
+        document.getElementById('sub_course_panel').style.display = "block";
+    }
+    else {
+        document.getElementById('sub_course_panel').style.display = "none";
+    }
+}
+
+/**
  * for edit tags
- * @param {int} tag_ID
+ * @param {int} tag_id
  * @since 1.0.0
  */
-function teachpress_editTags(tag_ID) {
-    var parent = "tp_tag_row_" + tag_ID;
-    var message_text_field = "tp_tag_row_name_" + tag_ID;
+function teachpress_editTags(tag_id) {
+    var parent = "tp_tag_row_" + tag_id;
+    var message_text_field = "tp_tag_row_name_" + tag_id;
     var input_field = "tp_edit_tag_name";
     var text;
 
@@ -166,16 +208,16 @@ function teachpress_editTags(tag_ID) {
         editor.id = "div_edit";
         // create hidden fields
         var field_neu = document.createElement('input');
-        field_neu.name = "tp_edit_tag_ID";
+        field_neu.name = "tp_edit_tag_id";
         field_neu.type = "hidden";
-        field_neu.value = tag_ID;
+        field_neu.value = tag_id;
         // create textarea
         var tagname_new = document.createElement('input');
         tagname_new.id = input_field;
         tagname_new.name = input_field;
         tagname_new.value = text;
         tagname_new.style.width = "98%";
-        // create button
+        // create save button
         var save_button = document.createElement('input');
         save_button.name = "tp_edit_tag_submit";
         save_button.value = "Save";

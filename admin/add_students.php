@@ -1,152 +1,102 @@
 <?php 
-/* 
+/**
+ * This file contains all functions for displaying the add_students page in admin menu
+ * 
+ * @package teachpress\admin\students
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
+ */
+
+/**
  * Form for manual edits in the enrollment system
- * 1. Adding new students manually:
- * @param int wp_id                 --> [$_POST] WordPress user-ID
- * @param int matriculation_number  --> [$_POST] Registration number
- * @param string firstname          --> [$_POST] First name
- * @param string lastname           --> [$_POST] Last name
- * @param string course_of_studies  --> [$_POST] Course of studies
- * @param int semesternumber        --> [$_POST] Number of termns
- * @param string uzrkurz            --> [$_POST] User name 
- * @param string birthday           --> [$_POST] Date of birth
- * @param string email              --> [$_POST] E-mail adress
- * 2. Actions
- * @param string insert             --> [$_POST]
+ * @param array $fields       An associative array with the settings of the meta data fields. The array keys are variable an value.
+ * @since 2.0.0
 */ 
-function teachpress_students_new_page() { 
+function tp_add_student_page($fields) { 
 
-global $wpdb;
-global $teachpress_stud;
+    $wp_id = isset($_POST['wp_id']) ? intval($_POST['wp_id']) : '';
+    $data['userlogin'] = isset( $_POST['userlogin'] ) ? htmlspecialchars($_POST['userlogin']) : '';
+    $data['email'] = isset( $_POST['email'] ) ? htmlspecialchars($_POST['email']) : '';
 
-$wp_id = isset($_POST['wp_id']) ? intval($_POST['wp_id']) : '';
-$data['matriculation_number'] = isset( $_POST['matriculation_number'] ) ? intval($_POST['matriculation_number']) : '';
-$data['firstname'] = isset( $_POST['firstname'] ) ? htmlspecialchars($_POST['firstname']) : '';
-$data['lastname'] = isset( $_POST['lastname'] ) ? htmlspecialchars($_POST['lastname']) : '';
-$data['course_of_studies'] = isset( $_POST['course_of_studies'] ) ? htmlspecialchars($_POST['course_of_studies']) : '';
-$data['semesternumber'] = isset( $_POST['semesternumber'] ) ? intval($_POST['semesternumber']) : '';
-$data['userlogin'] = isset( $_POST['userlogin'] ) ? htmlspecialchars($_POST['userlogin']) : '';
-$data['birthday'] = isset( $_POST['birthday'] ) ? htmlspecialchars($_POST['birthday']) : '';
-$data['email'] = isset( $_POST['email'] ) ? htmlspecialchars($_POST['email']) : '';
+    // actions
+    if (isset( $_POST['insert'] ) && $wp_id != __('WordPress User-ID','teachpress') && $wp_id != '') {
+        tp_enrollments::add_student($wp_id, $data['userlogin'], $data['email'], $fields, filter_input_array(INPUT_POST, $_POST));
+    }
+    ?>
+    <div class="wrap" >
+        <p><a href="admin.php?page=teachpress/students.php" class="button-secondary"><?php _e('Back','teachpress'); ?></a></p>
+    <h2><?php _e('Add student','teachpress'); ?></h2>
 
-// actions
-if (isset( $_POST['insert'] ) && $wp_id != __('WordPress User-ID','teachpress') && $wp_id != '') {
-   $ret = tp_add_student($wp_id, $data);
-   if ($ret != false) {
-      $message = __('Registration successful','teachpress');
-   }
-   else {
-      $message = __('Error: User already exist','teachpress');
-   }
-   get_tp_message($message);
-}
-?>
-<div class="wrap" >
-    <p><a href="admin.php?page=teachpress/students.php" class="button-secondary"><?php _e('Back','teachpress'); ?></a></p>
-<h2><?php _e('Add student','teachpress'); ?></h2>
-
-<p style="padding:0px; margin:0px;">&nbsp;</p>
-<form id="neuer_student" name="neuer_student" method="post" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
-<table class="form-table">
-	<thead>
+    <p style="padding:0px; margin:0px;">&nbsp;</p>
+    <form id="new_student" name="new_student" method="post" action="admin.php?page=teachpress/students.php&action=add">
+    <table class="form-table">
+        <thead>
           <tr>
-            <th><label for="wp_id"><strong><?php _e('WordPress User-ID','teachpress'); ?></strong></label></th>
+            <td><label for="wp_id"><b><?php _e('WordPress User-ID','teachpress'); ?></b></label></td>
             <td style="text-align:left;">
-            <?php 
-              echo '<select name="wp_id" id="wp_id">';
-              echo '<option value="n">' . __('Select user','teachpress') . '</option>';
-              $sql = "SELECT u.ID, s.wp_id, u.user_login FROM " . $wpdb->users . " u
-                      LEFT JOIN $teachpress_stud s ON u.ID = s.wp_id";	
-              $row = $wpdb->get_results($sql);
-              foreach ($row as $row) {
-                 if ($row->ID != $row->wp_id) {
-                    echo '<option value="' . $row->ID . '">' . $row->user_login . '</option>';
-                 }
-              }
-              echo '</select>';
-              ?>
+                <?php 
+                echo '<select name="wp_id" id="wp_id">';
+                echo '<option value="n">' . __('Select user','teachpress') . '</option>';
+                $row = tp_students::get_unregistered_students();
+                foreach ($row as $row) {
+                    echo '<option value="' . $row['ID'] . '">' . $row['user_login'] . '</option>';
+                }
+                echo '</select> ' . __('The Menu shows all your blog users who has no teachPress account','teachpress'); ?>
             </td>
-            <td><?php _e('The Menu shows all your blog users who has no teachPress account','teachpress'); ?></td>  
       	  </tr>
-          <?php $field1 = get_tp_option('regnum');
-          if ($field1 == '1') { ?>
           <tr>
-            <th><label for="matriculation_number"><strong><?php _e('Matr. number','teachpress'); ?></strong></label></th>
-            <td style="text-align:left;"><input type="text" name="matriculation_number" id="matriculation_number" /></td>
-            <td></td>
-          </tr>
-          <?php } ?>
-          <tr>
-            <th><label for="firstname"><strong><?php _e('First name','teachpress'); ?></strong></label></th>
-            <td><input name="firstname" type="text" id="firstname" size="40" /></td>
-            <td></td>
+            <td><label for="firstname"><b><?php _e('First name','teachpress'); ?></b></label></td>
+            <td><input name="firstname" type="text" id="firstname" size="40" required="required" /></td>
           </tr>
           <tr>
-            <th><label for="lastname"><strong><?php _e('Last name','teachpress'); ?></strong></label></th>
-            <td><input name="lastname" type="text" id="lastname" size="40" /></td>
-            <td></td>
+            <td><label for="lastname"><b><?php _e('Last name','teachpress'); ?></b></label></td>
+            <td><input name="lastname" type="text" id="lastname" size="40" required="required" /></td>
           </tr>
-          <?php $field2 = get_tp_option('studies');
-        	if ($field2 == '1') { ?>
           <tr>
-            <th><label for="course_of_studies"><strong><?php _e('Course of studies','teachpress'); ?></strong></label></th>
-            <td>
-            <select name="course_of_studies" id="course_of_studies">
-             <?php
-              $stud = get_tp_options('course_of_studies', 'value ASC');
-              foreach ($stud as $stud) {
-                    echo '<option value="' . $stud->value . '">' . $stud->value . '</option>';
-              } ?>
-            </select>
-            </td>
-            <td></td>
+            <td><label for="userlogin"><b><?php _e('User account','teachpress'); ?></b></label></td>
+            <td style="text-align:left;"><input type="text" name="userlogin" id="userlogin" required="required" /></td>
           </tr>
-          <?php } ?>
-          <?php $field2 = get_tp_option('termnumber');
-        	if ($field2 == '1') { ?>
           <tr>
-            <th><label for="semesternumber"><strong><?php _e('Number of terms','teachpress'); ?></strong></label></th>
-            <td style="text-align:left;">
-            <select name="semesternumber" id="semesternumber">
-            <?php
-              for ($i=1; $i<20; $i++) {
-                      echo '<option value="' . $i . '">' . $i . '</option>';
-              } ?>
-            </select>
-            </td>
-            <td></td>
+            <td><label for="email"><b><?php _e('E-Mail'); ?></b></label></td>
+            <td><input name="email" type="text" id="email" size="50" required="required" /></td>
           </tr>
-          <?php } ?> 
-          <tr>
-            <th><label for="userlogin"><strong><?php _e('User account','teachpress'); ?></strong></label></th>
-            <td style="text-align:left;"><input type="text" name="userlogin" id="userlogin" /></td>
-            <td></td>
-          </tr>
-          <?php $field2 = get_tp_option('birthday');
-        	if ($field2 == '1') { ?>
-          <tr>
-            <th><label for="birthday"><strong><?php _e('Date of birth','teachpress'); ?></strong></label></th>
-            <td><input name="birthday" type="text" id="birthday" value="<?php _e('JJJJ-MM-TT','teachpress'); ?>" onblur="if(this.value=='') this.value='<?php _e('JJJJ-MM-TT','teachpress'); ?>';" onfocus="if(this.value=='<?php _e('JJJJ-MM-TT','teachpress'); ?>') this.value='';" size="15"/>
-              </td>
-            <td><?php _e('Format'); ?>: <?php _e('JJJJ-MM-TT','teachpress'); ?></td>  
-          </tr>
-          <?php } ?>
-          <tr>
-            <th><label for="email"><strong><?php _e('E-Mail'); ?></strong></label></th>
-            <td><input name="email" type="text" id="email" size="50" /></td>
-            <td></td>
-          </tr>
-         </thead> 
+          <?php
+          // Show custom fields
+            foreach ($fields as $row) {
+                $data = tp_db_helpers::extract_column_data($row['value']);
+                $required = ( $data['required'] === 'true' ) ? true : false;
+                $value = '';
+                if ( $data['type'] === 'SELECT' ) {
+                    echo tp_enrollments::get_form_select_field($row['variable'], $data['title'], $value);
+                }
+                elseif ( $data['type'] === 'TEXTAREA' ) {
+                    echo tp_enrollments::get_form_textarea_field($row['variable'], $data['title'], $value, $required);
+                }
+                elseif ( $data['type'] === 'DATE' ) {
+                    echo tp_enrollments::get_form_date_field($row['variable'], $data['title'], $value);
+                }
+                elseif ( $data['type'] === 'INT' ) {
+                    $data['min'] = ( $data['min'] !== 'false' ) ? intval($data['min']) : 0;
+                    $data['max'] = ( $data['max'] !== 'false' ) ? intval($data['max']) : 999;
+                    $data['step'] = ( $data['step'] !== 'false' ) ? intval($data['step']) : 1;
+                    echo tp_enrollments::get_form_int_field($row['variable'], $data['title'], $value, $data['min'], $data['max'], $data['step'], false, $required);
+                }
+                elseif ( $data['type'] === 'CHECKBOX' ) {
+                    echo tp_enrollments::get_form_checkbox_field($row['variable'], $data['title'], $value, false, $required);
+                }
+                elseif ( $data['type'] === 'RADIO' ) {
+                    echo tp_enrollments::get_form_radio_field($row['variable'], $data['title'], $value, false, $required);
+                }
+                else {
+                    echo tp_enrollments::get_form_text_field($row['variable'], $data['title'], $value, false, $required);
+                }
+            }
+            ?>
+         </thead>
         </table>
     <p>
-      <input name="insert" type="submit" id="std_einschreiben" onclick="teachpress_validateForm('firstname','','R','lastname','','R','userlogin','','R','email','','RisEmail');return document.teachpress_returnValue" value="<?php _e('Create','teachpress'); ?>" class="button-primary"/>
+      <input name="insert" type="submit" id="std_einschreiben" value="<?php _e('Create','teachpress'); ?>" class="button-primary"/>
       <input name="reset" type="reset" id="reset" value="Reset" class="button-secondary"/>
     </p>
 </form>
- <script type="text/javascript" charset="utf-8">
-     jQuery(document).ready(function($) {
-         $('#birthday').datepicker({showWeek: true, changeMonth: true, changeYear: true, showOtherMonths: true, firstDay: 1, renderer: $.extend({}, $.datepicker.weekOfYearRenderer), onShow: $.datepicker.showStatus, dateFormat: 'yy-mm-dd', yearRange: '1950:c+0'});
-     });
- </script>
 </div>
-<?php } ?>
+<?php }

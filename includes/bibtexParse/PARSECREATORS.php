@@ -1,4 +1,10 @@
 <?php
+/**
+ * This file contains the external class PARSECREATORS of bibtexParse
+ * @package teachpress
+ * @subpackage bibtexParse
+ */
+
 /*
 Released through http://bibliophile.sourceforge.net under the GPL licence.
 Do whatever you like with this -- some credit to the author(s) would be appreciated.

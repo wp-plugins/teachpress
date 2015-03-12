@@ -1,4 +1,9 @@
 <?php
+/**
+ * This file contains the external class PARSEENTRIES of bibtexParse / WIKINDX4
+ * @package teachpress\includes\bibtexParse
+ */
+
 /*
 
 Inspired by an awk BibTeX parser written by Nelson H. F. Beebe over 20 years ago although 
