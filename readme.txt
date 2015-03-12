@@ -1,6 +1,6 @@
 === teachPress ===
 Contributors: Michael Winkler
-Tags: publications, enrollments, education, course management, BibTeX, bibliography
+Tags: publications, enrollments, education, courses, BibTeX, bibliography
 License: GPLv2 or later
 Requires at least: 3.9
 Tested up to: 4.1.1
