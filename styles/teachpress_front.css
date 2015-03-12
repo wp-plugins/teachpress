@@ -1,12 +1,12 @@
 /***********************/
-/* shortcode: [tpdate] */
+/* shortcode: [tpcourseinfo] */
 /***********************/
-.tpdate {width:100%; border:none;}
-.tpdate tr {}
-.tpdate td {border-bottom:1px dotted silver; padding:5px;}
-.tpdate td.tp_date_type {vertical-align:middle;}
-.tpdate td.tp_date_info p {margin-top:3px; margin-bottom:3px;}
-.tpdate td.tp_date_lecturer {vertical-align:middle;}
+.tp_courseinfo {width:100%; border:none;}
+.tp_courseinfo tr {}
+.tp_courseinfo td {border-bottom:1px dotted silver; padding:5px;}
+.tp_courseinfo td.tp_courseinfo_type {vertical-align:middle;}
+.tp_courseinfo td.tp_courseinfo_meta p {margin-top:3px; margin-bottom:3px;}
+.tp_courseinfo td.tp_courseinfo_lecturer {vertical-align:middle;}
 
 /******************************/
 /* shortcode: [tpenrollments] */
