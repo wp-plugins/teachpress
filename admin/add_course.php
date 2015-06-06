@@ -99,7 +99,7 @@ function tp_add_course_page() {
    // If the user has no permissions to edit this course
    if ( $course_id !== 0 && ( $capability !== 'owner' && $capability !== 'approved' ) ) {
        echo '<div class="wrap">';
-       get_tp_message(__('You have no capabilites to edit this course','teachpress'));
+       get_tp_message(__('You have no capabilites to edit this course','teachpress'), 'red');
        echo '</div>';
        return;
    }
