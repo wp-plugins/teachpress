@@ -3,8 +3,8 @@ Contributors: Michael Winkler
 Tags: publications, enrollments, education, courses, BibTeX, bibliography
 License: GPLv2 or later
 Requires at least: 3.9
-Tested up to: 4.3
-Stable tag: 5.0.13
+Tested up to: 4.3.1
+Stable tag: 5.0.16
 
 Manage your courses and publications with teachPress 
 
@@ -136,13 +136,27 @@ It's **strongly** recommended to save your teachPress database tables before upg
 
 == Changelog ==
 
+= 5.0.16 - (13.10.2015) =
+* New: Foreign key checks can be disabled for installs and updates (parameter TEACHPRESS_FOREIGN_KEY_CHECKS added).
+
+= 5.0.15 - (28.09.2015) =
+* New: [tpcloud]: New parameter "author" added
+* Bugfix: Fixed a wrong definition of where clauses in some database functions under some conditions (Thanks for reporting to David Lahm)
+* Bugfix: Fixed a bug in the tinyMCE plugin which leads to wrong parameter names in shortcodes
+* Bugfix: Fixed several bugs in the copy course function
+
+= 5.0.14 - (24.08.2015) =
+* Changed: Spanish translation updated (Thanks to Alfonso Montejo)
+* Bugfix: Fixed a bug which has added all default values of the plugin settings after reactivation again
+* Bugfix: Edit student form doesn't display the student data
+
 = 5.0.13 - (16.08.2015) =
 * New: Optional error reporting for actviations added
 * Bugfix: Descending style formats were not available via tinyMCE plugin [#11](https://github.com/winkm89/teachPress/issues/11)
 * Bugfix: Fixed a bug which leads to an error message after plugin activation
 
 = 5.0.12 - (22.07.2015) =
-* Bugfix: Fixed a bug in the declaration of two parameter for the tinyMCE plugin
+* Bugfix: Fixed a bug in the declaration of two parameters for the tinyMCE plugin
 * Bugfix: Constructor of the books widget updated to PHP 5 style, see [Deprecating PHP4 style constructors in WordPress 4.3](https://make.wordpress.org/core/2015/07/02/deprecating-php4-style-constructors-in-wordpress-4-3/)
 * Bugfix: The plural form of "Journal Articles" was not displayed 
 
